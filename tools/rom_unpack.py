@@ -317,7 +317,7 @@ class Rom:
                             if ixy_cb_mem == OA.MemIYdd:
                                 # SPECIAL CASE FOR SONIC 1:
                                 # IY is, as far as I can tell, always set to D200.
-                                val += self.label_to_addr["IYBASE"]
+                                val += 0xD200
                                 label = self.ensure_label(val)
                                 op_args.append(f"(iy+{label}-IYBASE)")
                             else:
@@ -343,7 +343,7 @@ class Rom:
                         # IY is, as far as I can tell, always set to D200.
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
-                        val += self.label_to_addr["IYBASE"]
+                        val += 0xD200
                         pc += 1
                         label = self.ensure_label(val)
                         op_args.append(f"(iy+{label}-IYBASE)")
@@ -388,6 +388,10 @@ class Rom:
             outfp.write(f"BANKSIZE $4000\n")
             outfp.write(f"BANKS 16\n")
             outfp.write(f".ENDRO\n")
+
+            # Write special defines
+            outfp.write(f"\n")
+            outfp.write(f".DEF IYBASE $D200\n")
 
             # Write RAM addresses
             outfp.write(f'\n.RAMSECTION "RAMSection" SLOT 3 FORCE ORGA $C000\n')
