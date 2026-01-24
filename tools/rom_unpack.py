@@ -193,7 +193,7 @@ class Rom:
                             # TODO: Better overlay handling --GM
                             self.set_label(val, f"addr_{val:05X}")
                             self.tracer_stack.append(val)
-                            op_args.append(f"addr_{val:04X}")
+                            op_args.append(f"addr_{val:05X}")
                         else:
                             op_args.append(f"${val:04X}")
                         pc += 2
