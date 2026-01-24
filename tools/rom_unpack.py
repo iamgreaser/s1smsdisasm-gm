@@ -124,6 +124,13 @@ class Rom:
                 spec_bank = OP_SPECS_ED
                 extragrp = "(ED)"
 
+            elif op1 == 0xCB:
+                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                op1 = bank[pc]
+                pc += 1
+                spec_bank = OP_SPECS_CB
+                extragrp = "(CB)"
+
             elif op1 == 0xDD:
                 self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                 op1 = bank[pc]
@@ -534,8 +541,13 @@ OP_SPECS_XX: dict[int, OS] = {
     0o070: OS(name="JR", args=[OA.CondC, OA.JumpRelByte]),
     #
     0o001: OS(name="LD", args=[OA.RegBC, OA.Word]),
+    0o011: OS(name="ADD", args=[OA.RegHL, OA.RegBC]),
     0o021: OS(name="LD", args=[OA.RegDE, OA.Word]),
+    0o031: OS(name="ADD", args=[OA.RegHL, OA.RegDE]),
     0o041: OS(name="LD", args=[OA.RegHL, OA.Word]),
+    0o051: OS(name="ADD", args=[OA.RegHL, OA.RegHL]),
+    0o061: OS(name="LD", args=[OA.RegSP, OA.Word]),
+    0o071: OS(name="ADD", args=[OA.RegHL, OA.RegSP]),
     #
     0o002: OS(name="LD", args=[OA.MemBC, OA.RegA]),
     0o012: OS(name="LD", args=[OA.RegA, OA.MemBC]),
@@ -553,9 +565,16 @@ OP_SPECS_XX: dict[int, OS] = {
     0o043: OS(name="INC", args=[OA.RegHL]),
     0o053: OS(name="DEC", args=[OA.RegHL]),
     #
+    0o066: OS(name="LD", args=[OA.MemHL, OA.Byte]),
+    #
+    0o007: OS(name="RLCA", args=[]),
+    0o017: OS(name="RRCA", args=[]),
     0o027: OS(name="RLA", args=[]),
     0o037: OS(name="RRA", args=[]),
     0o047: OS(name="DAA", args=[]),
+    0o057: OS(name="CPL", args=[]),
+    0o067: OS(name="SCF", args=[]),
+    0o077: OS(name="CCF", args=[]),
     #
     0o300: OS(name="RET", args=[OA.CondNZ]),
     0o310: OS(name="RET", args=[OA.CondZ]),
@@ -569,7 +588,9 @@ OP_SPECS_XX: dict[int, OS] = {
     0o301: OS(name="POP", args=[OA.RegBC]),
     0o311: OS(name="RET", args=[], stop=True),
     0o321: OS(name="POP", args=[OA.RegDE]),
+    0o331: OS(name="EXX", args=[]),
     0o341: OS(name="POP", args=[OA.RegHL]),
+    0o351: OS(name="JP (HL)", args=[], stop=True),
     0o361: OS(name="POP", args=[OA.RegAF]),
     0o371: OS(name="LD", args=[OA.RegSP, OA.RegHL]),
     #
@@ -585,6 +606,8 @@ OP_SPECS_XX: dict[int, OS] = {
     0o303: OS(name="JP", args=[OA.JumpWord], stop=True),
     0o323: OS(name="OUT", args=[OA.PortByteImm, OA.RegA]),
     0o333: OS(name="IN", args=[OA.RegA, OA.PortByteImm]),
+    # 0o343 = CB prefix
+    0o353: OS(name="EX", args=[OA.RegDE, OA.RegHL]),
     0o363: OS(name="DI", args=[]),
     0o373: OS(name="EI", args=[]),
     #
@@ -600,8 +623,11 @@ OP_SPECS_XX: dict[int, OS] = {
     0o305: OS(name="PUSH", args=[OA.RegBC]),
     0o315: OS(name="CALL", args=[OA.JumpWord]),
     0o325: OS(name="PUSH", args=[OA.RegDE]),
+    # 0o335 = DD prefix
     0o345: OS(name="PUSH", args=[OA.RegHL]),
+    # 0o355 = ED prefix
     0o365: OS(name="PUSH", args=[OA.RegAF]),
+    # 0o375 = FD prefix
     #
     0o306: OS(name="ADD", args=[OA.RegA, OA.Byte]),
     0o316: OS(name="ADC", args=[OA.RegA, OA.Byte]),
@@ -651,9 +677,15 @@ for rz, vz in enumerate(
 
 # 0oXYZ, sort by X then Z then Y.
 OP_SPECS_DD_XX: dict[int, OS] = {
+    0o011: OS(name="ADD", args=[OA.RegIX, OA.RegBC]),
+    0o031: OS(name="ADD", args=[OA.RegIX, OA.RegDE]),
     0o041: OS(name="LD", args=[OA.RegIX, OA.Word]),
+    0o051: OS(name="ADD", args=[OA.RegIX, OA.RegHL]),
+    0o071: OS(name="ADD", args=[OA.RegIX, OA.RegSP]),
     #
     0o064: OS(name="INC", args=[OA.MemIXdd]),
+    #
+    0o066: OS(name="LD", args=[OA.MemIXdd, OA.Byte]),
     #
     0o276: OS(name="CP", args=[OA.MemIXdd]),
     #
@@ -662,9 +694,15 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     0o345: OS(name="PUSH", args=[OA.RegIX]),
 }
 OP_SPECS_FD_XX: dict[int, OS] = {
+    0o011: OS(name="ADD", args=[OA.RegIY, OA.RegBC]),
+    0o031: OS(name="ADD", args=[OA.RegIY, OA.RegDE]),
     0o041: OS(name="LD", args=[OA.RegIY, OA.Word]),
+    0o051: OS(name="ADD", args=[OA.RegIY, OA.RegHL]),
+    0o071: OS(name="ADD", args=[OA.RegIY, OA.RegSP]),
     #
     0o064: OS(name="INC", args=[OA.MemIYdd]),
+    #
+    0o066: OS(name="LD", args=[OA.MemIYdd, OA.Byte]),
     #
     0o276: OS(name="CP", args=[OA.MemIYdd]),
     #
@@ -687,19 +725,47 @@ for rz, vz in enumerate(
 
 # 0oXYZ, sort by X then Z then Y.
 OP_SPECS_ED: dict[int, OS] = {
+    0o102: OS(name="SBC", args=[OA.RegHL, OA.RegBC]),
+    0o122: OS(name="SBC", args=[OA.RegHL, OA.RegDE]),
+    0o142: OS(name="SBC", args=[OA.RegHL, OA.RegHL]),
+    0o162: OS(name="SBC", args=[OA.RegHL, OA.RegSP]),
+    #
+    0o103: OS(name="LD", args=[OA.MemWordImmWord, OA.RegBC]),
+    0o113: OS(name="LD", args=[OA.RegBC, OA.MemWordImmWord]),
+    0o123: OS(name="LD", args=[OA.MemWordImmWord, OA.RegDE]),
+    0o133: OS(name="LD", args=[OA.RegDE, OA.MemWordImmWord]),
+    #
+    0o104: OS(name="NEG", args=[]),
+    #
     0o126: OS(name="IM", args=[OA.Const1]),
     #
+    0o240: OS(name="LDI", args=[]),
     0o260: OS(name="LDIR", args=[]),
+    #
+    0o243: OS(name="OUTI", args=[]),
+    0o263: OS(name="OTIR", args=[]),
 }
 
 # 0oXYZ, sort by X then Z then Y.
 OP_SPECS_CB: dict[int, OS] = {
     #
 }
-for ry in range(8):
-    OP_SPECS_CB[0o106 + (ry*8)] = OS(name="BIT", args=[OA_CONST_0_7[ry], OA.MemHL])
-    OP_SPECS_CB[0o206 + (ry*8)] = OS(name="RES", args=[OA_CONST_0_7[ry], OA.MemHL])
-    OP_SPECS_CB[0o306 + (ry*8)] = OS(name="SET", args=[OA_CONST_0_7[ry], OA.MemHL])
+for rz, vz in enumerate(
+    [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+):
+    OP_SPECS_CB[0o000 + rz] = OS(name="RLC", args=[vz])
+    OP_SPECS_CB[0o010 + rz] = OS(name="RRC", args=[vz])
+    OP_SPECS_CB[0o020 + rz] = OS(name="RL", args=[vz])
+    OP_SPECS_CB[0o030 + rz] = OS(name="RR", args=[vz])
+    OP_SPECS_CB[0o040 + rz] = OS(name="SLA", args=[vz])
+    OP_SPECS_CB[0o050 + rz] = OS(name="SRA", args=[vz])
+    # 0o060 is the undocumented SLL which shifts in a 1 bit into the LSbit.
+    OP_SPECS_CB[0o070 + rz] = OS(name="SRL", args=[vz])
+
+    for ry in range(8):
+        OP_SPECS_CB[0o100 + (ry*8) + rz] = OS(name="BIT", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o200 + (ry*8) + rz] = OS(name="RES", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o300 + (ry*8) + rz] = OS(name="SET", args=[OA_CONST_0_7[ry], vz])
 
 
 def parse_int(s: str) -> int:
