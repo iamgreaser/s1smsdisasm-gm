@@ -8,3 +8,5 @@
 # Generated source files
 /src/whole.asm
 
+# Python garbage
+__pycache__/

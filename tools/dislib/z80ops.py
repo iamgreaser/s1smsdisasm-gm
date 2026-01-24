@@ -1,0 +1,390 @@
+from __future__ import annotations
+
+import dataclasses
+import enum
+
+from typing import (
+    Sequence,
+)
+
+# Op Arg types
+class OA(enum.Enum):
+    Byte = enum.auto()
+    Word = enum.auto()
+    JumpRelByte = enum.auto()
+    JumpWord = enum.auto()
+
+    RegAF = enum.auto()
+    RegBC = enum.auto()
+    RegDE = enum.auto()
+    RegHL = enum.auto()
+    RegSP = enum.auto()
+    RegIX = enum.auto()
+    RegIY = enum.auto()
+    RegAFShadow = enum.auto()
+
+    RegA = enum.auto()
+    RegB = enum.auto()
+    RegC = enum.auto()
+    RegD = enum.auto()
+    RegE = enum.auto()
+    RegH = enum.auto()
+    RegL = enum.auto()
+
+    MemBC = enum.auto()
+    MemDE = enum.auto()
+    MemHL = enum.auto()
+    MemIXdd = enum.auto()
+    MemIYdd = enum.auto()
+    MemByteImmWord = enum.auto()
+    MemWordImmWord = enum.auto()
+
+    PortByteImm = enum.auto()
+
+    Const0 = enum.auto()
+    Const1 = enum.auto()
+    Const2 = enum.auto()
+    Const3 = enum.auto()
+    Const4 = enum.auto()
+    Const5 = enum.auto()
+    Const6 = enum.auto()
+    Const7 = enum.auto()
+
+    ConstAddr00 = enum.auto()
+    ConstAddr08 = enum.auto()
+    ConstAddr10 = enum.auto()
+    ConstAddr18 = enum.auto()
+    ConstAddr20 = enum.auto()
+    ConstAddr28 = enum.auto()
+    ConstAddr30 = enum.auto()
+    ConstAddr38 = enum.auto()
+
+    CondNZ = enum.auto()
+    CondZ = enum.auto()
+    CondNC = enum.auto()
+    CondC = enum.auto()
+    CondPO = enum.auto()
+    CondPE = enum.auto()
+    CondP = enum.auto()
+    CondM = enum.auto()
+
+
+OA_CONST_0_7 = [
+    OA.Const0,
+    OA.Const1,
+    OA.Const2,
+    OA.Const3,
+    OA.Const4,
+    OA.Const5,
+    OA.Const6,
+    OA.Const7,
+]
+
+OA_MAP_CONST_ADDR = {
+    OA.ConstAddr00: 0x00,
+    OA.ConstAddr08: 0x08,
+    OA.ConstAddr10: 0x10,
+    OA.ConstAddr18: 0x18,
+    OA.ConstAddr20: 0x20,
+    OA.ConstAddr28: 0x28,
+    OA.ConstAddr30: 0x30,
+    OA.ConstAddr38: 0x38,
+}
+
+CONST_OAS = {
+    OA.RegAF: "af",
+    OA.RegBC: "bc",
+    OA.RegDE: "de",
+    OA.RegHL: "hl",
+    OA.RegSP: "sp",
+    OA.RegIX: "ix",
+    OA.RegIY: "iy",
+    OA.RegAFShadow: "af'",
+    OA.RegA: "a",
+    OA.RegB: "b",
+    OA.RegC: "c",
+    OA.RegD: "d",
+    OA.RegE: "e",
+    OA.RegH: "h",
+    OA.RegL: "l",
+    OA.MemBC: "(bc)",
+    OA.MemDE: "(de)",
+    OA.Const0: "0",
+    OA.Const1: "1",
+    OA.Const2: "2",
+    OA.Const3: "3",
+    OA.Const4: "4",
+    OA.Const5: "5",
+    OA.Const6: "6",
+    OA.Const7: "7",
+    OA.CondNZ: "nz",
+    OA.CondZ: "z",
+    OA.CondNC: "nc",
+    OA.CondC: "c",
+    OA.CondPO: "po",
+    OA.CondPE: "pe",
+    OA.CondP: "p",
+    OA.CondM: "m",
+}
+
+
+# Op Specs
+@dataclasses.dataclass
+class OS:
+    name: str
+    args: Sequence[OA]
+    stop: bool = False
+
+
+# 0oXYZ, sort by X then Z then Y.
+OP_SPECS_XX: dict[int, OS] = {
+    #
+    0o000: OS(name="NOP", args=[]),
+    0o010: OS(name="EX", args=[OA.RegAF, OA.RegAFShadow]),
+    0o020: OS(name="DJNZ", args=[OA.JumpRelByte]),
+    0o030: OS(name="JR", args=[OA.JumpRelByte], stop=True),
+    0o040: OS(name="JR", args=[OA.CondNZ, OA.JumpRelByte]),
+    0o050: OS(name="JR", args=[OA.CondZ, OA.JumpRelByte]),
+    0o060: OS(name="JR", args=[OA.CondNC, OA.JumpRelByte]),
+    0o070: OS(name="JR", args=[OA.CondC, OA.JumpRelByte]),
+    #
+    0o001: OS(name="LD", args=[OA.RegBC, OA.Word]),
+    0o011: OS(name="ADD", args=[OA.RegHL, OA.RegBC]),
+    0o021: OS(name="LD", args=[OA.RegDE, OA.Word]),
+    0o031: OS(name="ADD", args=[OA.RegHL, OA.RegDE]),
+    0o041: OS(name="LD", args=[OA.RegHL, OA.Word]),
+    0o051: OS(name="ADD", args=[OA.RegHL, OA.RegHL]),
+    0o061: OS(name="LD", args=[OA.RegSP, OA.Word]),
+    0o071: OS(name="ADD", args=[OA.RegHL, OA.RegSP]),
+    #
+    0o002: OS(name="LD", args=[OA.MemBC, OA.RegA]),
+    0o012: OS(name="LD", args=[OA.RegA, OA.MemBC]),
+    0o022: OS(name="LD", args=[OA.MemDE, OA.RegA]),
+    0o032: OS(name="LD", args=[OA.RegA, OA.MemDE]),
+    0o042: OS(name="LD", args=[OA.MemWordImmWord, OA.RegHL]),
+    0o052: OS(name="LD", args=[OA.RegHL, OA.MemWordImmWord]),
+    0o062: OS(name="LD", args=[OA.MemByteImmWord, OA.RegA]),
+    0o072: OS(name="LD", args=[OA.RegA, OA.MemByteImmWord]),
+    #
+    0o003: OS(name="INC", args=[OA.RegBC]),
+    0o013: OS(name="DEC", args=[OA.RegBC]),
+    0o023: OS(name="INC", args=[OA.RegDE]),
+    0o033: OS(name="DEC", args=[OA.RegDE]),
+    0o043: OS(name="INC", args=[OA.RegHL]),
+    0o053: OS(name="DEC", args=[OA.RegHL]),
+    #
+    0o066: OS(name="LD", args=[OA.MemHL, OA.Byte]),
+    #
+    0o007: OS(name="RLCA", args=[]),
+    0o017: OS(name="RRCA", args=[]),
+    0o027: OS(name="RLA", args=[]),
+    0o037: OS(name="RRA", args=[]),
+    0o047: OS(name="DAA", args=[]),
+    0o057: OS(name="CPL", args=[]),
+    0o067: OS(name="SCF", args=[]),
+    0o077: OS(name="CCF", args=[]),
+    #
+    0o300: OS(name="RET", args=[OA.CondNZ]),
+    0o310: OS(name="RET", args=[OA.CondZ]),
+    0o320: OS(name="RET", args=[OA.CondNC]),
+    0o330: OS(name="RET", args=[OA.CondC]),
+    0o340: OS(name="RET", args=[OA.CondPO]),
+    0o350: OS(name="RET", args=[OA.CondPE]),
+    0o360: OS(name="RET", args=[OA.CondP]),
+    0o370: OS(name="RET", args=[OA.CondM]),
+    #
+    0o301: OS(name="POP", args=[OA.RegBC]),
+    0o311: OS(name="RET", args=[], stop=True),
+    0o321: OS(name="POP", args=[OA.RegDE]),
+    0o331: OS(name="EXX", args=[]),
+    0o341: OS(name="POP", args=[OA.RegHL]),
+    0o351: OS(name="JP", args=[OA.MemHL], stop=True),
+    0o361: OS(name="POP", args=[OA.RegAF]),
+    0o371: OS(name="LD", args=[OA.RegSP, OA.RegHL]),
+    #
+    0o302: OS(name="JP", args=[OA.CondNZ, OA.JumpWord]),
+    0o312: OS(name="JP", args=[OA.CondZ, OA.JumpWord]),
+    0o322: OS(name="JP", args=[OA.CondNC, OA.JumpWord]),
+    0o332: OS(name="JP", args=[OA.CondC, OA.JumpWord]),
+    0o342: OS(name="JP", args=[OA.CondPO, OA.JumpWord]),
+    0o352: OS(name="JP", args=[OA.CondPE, OA.JumpWord]),
+    0o362: OS(name="JP", args=[OA.CondP, OA.JumpWord]),
+    0o372: OS(name="JP", args=[OA.CondM, OA.JumpWord]),
+    #
+    0o303: OS(name="JP", args=[OA.JumpWord], stop=True),
+    0o323: OS(name="OUT", args=[OA.PortByteImm, OA.RegA]),
+    0o333: OS(name="IN", args=[OA.RegA, OA.PortByteImm]),
+    # 0o343 = CB prefix
+    0o353: OS(name="EX", args=[OA.RegDE, OA.RegHL]),
+    0o363: OS(name="DI", args=[]),
+    0o373: OS(name="EI", args=[]),
+    #
+    0o304: OS(name="CALL", args=[OA.CondNZ, OA.JumpWord]),
+    0o314: OS(name="CALL", args=[OA.CondZ, OA.JumpWord]),
+    0o324: OS(name="CALL", args=[OA.CondNC, OA.JumpWord]),
+    0o334: OS(name="CALL", args=[OA.CondC, OA.JumpWord]),
+    0o344: OS(name="CALL", args=[OA.CondPO, OA.JumpWord]),
+    0o354: OS(name="CALL", args=[OA.CondPE, OA.JumpWord]),
+    0o364: OS(name="CALL", args=[OA.CondP, OA.JumpWord]),
+    0o374: OS(name="CALL", args=[OA.CondM, OA.JumpWord]),
+    #
+    0o305: OS(name="PUSH", args=[OA.RegBC]),
+    0o315: OS(name="CALL", args=[OA.JumpWord]),
+    0o325: OS(name="PUSH", args=[OA.RegDE]),
+    # 0o335 = DD prefix
+    0o345: OS(name="PUSH", args=[OA.RegHL]),
+    # 0o355 = ED prefix
+    0o365: OS(name="PUSH", args=[OA.RegAF]),
+    # 0o375 = FD prefix
+    #
+    0o306: OS(name="ADD", args=[OA.RegA, OA.Byte]),
+    0o316: OS(name="ADC", args=[OA.RegA, OA.Byte]),
+    0o326: OS(name="SUB", args=[OA.Byte]),
+    0o336: OS(name="SBC", args=[OA.RegA, OA.Byte]),
+    0o346: OS(name="AND", args=[OA.Byte]),
+    0o356: OS(name="XOR", args=[OA.Byte]),
+    0o366: OS(name="OR", args=[OA.Byte]),
+    0o376: OS(name="CP", args=[OA.Byte]),
+    0o307: OS(name="RST", args=[OA.ConstAddr00]),
+    0o317: OS(name="RST", args=[OA.ConstAddr08]),
+    0o327: OS(name="RST", args=[OA.ConstAddr10]),
+    0o337: OS(name="RST", args=[OA.ConstAddr18]),
+    0o347: OS(name="RST", args=[OA.ConstAddr20]),
+    0o357: OS(name="RST", args=[OA.ConstAddr28]),
+    0o367: OS(name="RST", args=[OA.ConstAddr30]),
+    0o377: OS(name="RST", args=[OA.ConstAddr38]),
+}
+
+for ry, vy in enumerate(
+    [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+):
+    OP_SPECS_XX[0o004 + ry * 8] = OS(name="INC", args=[vy])
+    OP_SPECS_XX[0o005 + ry * 8] = OS(name="DEC", args=[vy])
+    OP_SPECS_XX[0o006 + ry * 8] = OS(name="LD", args=[vy, OA.Byte])
+
+for rz, vz in enumerate(
+    [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+):
+    OP_SPECS_XX[0o200 + rz] = OS(name="ADD", args=[OA.RegA, vz])
+    OP_SPECS_XX[0o210 + rz] = OS(name="ADC", args=[OA.RegA, vz])
+    OP_SPECS_XX[0o220 + rz] = OS(name="SUB", args=[vz])
+    OP_SPECS_XX[0o230 + rz] = OS(name="SBC", args=[OA.RegA, vz])
+    OP_SPECS_XX[0o240 + rz] = OS(name="AND", args=[vz])
+    OP_SPECS_XX[0o250 + rz] = OS(name="XOR", args=[vz])
+    OP_SPECS_XX[0o260 + rz] = OS(name="OR", args=[vz])
+    OP_SPECS_XX[0o270 + rz] = OS(name="CP", args=[vz])
+
+    for ry, vy in enumerate(
+        [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+    ):
+        if vy == OA.MemHL and vz == OA.MemHL:
+            OP_SPECS_XX[0o100 + ry * 8 + rz] = OS(name="HALT", args=[])
+        else:
+            OP_SPECS_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, vz])
+
+# 0oXYZ, sort by X then Z then Y.
+OP_SPECS_DD_XX: dict[int, OS] = {
+    0o011: OS(name="ADD", args=[OA.RegIX, OA.RegBC]),
+    0o031: OS(name="ADD", args=[OA.RegIX, OA.RegDE]),
+    0o041: OS(name="LD", args=[OA.RegIX, OA.Word]),
+    0o051: OS(name="ADD", args=[OA.RegIX, OA.RegHL]),
+    0o071: OS(name="ADD", args=[OA.RegIX, OA.RegSP]),
+    #
+    0o064: OS(name="INC", args=[OA.MemIXdd]),
+    #
+    0o065: OS(name="DEC", args=[OA.MemIXdd]),
+    #
+    0o066: OS(name="LD", args=[OA.MemIXdd, OA.Byte]),
+    #
+    0o206: OS(name="ADD", args=[OA.RegA, OA.MemIXdd]),
+    0o216: OS(name="ADC", args=[OA.RegA, OA.MemIXdd]),
+    0o266: OS(name="OR", args=[OA.MemIXdd]),
+    0o276: OS(name="CP", args=[OA.MemIXdd]),
+    #
+    0o341: OS(name="POP", args=[OA.RegIX]),
+    #
+    0o345: OS(name="PUSH", args=[OA.RegIX]),
+}
+OP_SPECS_FD_XX: dict[int, OS] = {
+    0o011: OS(name="ADD", args=[OA.RegIY, OA.RegBC]),
+    0o031: OS(name="ADD", args=[OA.RegIY, OA.RegDE]),
+    0o041: OS(name="LD", args=[OA.RegIY, OA.Word]),
+    0o051: OS(name="ADD", args=[OA.RegIY, OA.RegHL]),
+    0o071: OS(name="ADD", args=[OA.RegIY, OA.RegSP]),
+    #
+    0o064: OS(name="INC", args=[OA.MemIYdd]),
+    #
+    0o065: OS(name="DEC", args=[OA.MemIYdd]),
+    #
+    0o066: OS(name="LD", args=[OA.MemIYdd, OA.Byte]),
+    #
+    0o206: OS(name="ADD", args=[OA.RegA, OA.MemIYdd]),
+    0o216: OS(name="ADC", args=[OA.RegA, OA.MemIYdd]),
+    0o266: OS(name="OR", args=[OA.MemIYdd]),
+    0o276: OS(name="CP", args=[OA.MemIYdd]),
+    #
+    0o341: OS(name="POP", args=[OA.RegIY]),
+    #
+    0o345: OS(name="PUSH", args=[OA.RegIY]),
+}
+
+for rz, vz in enumerate(
+    [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+):
+    for ry, vy in enumerate(
+        [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+    ):
+        if vy == OA.MemHL and vz != OA.MemHL:
+            OP_SPECS_DD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIXdd, vz])
+            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIYdd, vz])
+        elif vy != OA.MemHL and vz == OA.MemHL:
+            OP_SPECS_DD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIXdd])
+            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIYdd])
+
+# 0oXYZ, sort by X then Z then Y.
+OP_SPECS_ED: dict[int, OS] = {
+    0o102: OS(name="SBC", args=[OA.RegHL, OA.RegBC]),
+    0o112: OS(name="ADC", args=[OA.RegHL, OA.RegBC]),
+    0o122: OS(name="SBC", args=[OA.RegHL, OA.RegDE]),
+    0o132: OS(name="ADC", args=[OA.RegHL, OA.RegDE]),
+    0o142: OS(name="SBC", args=[OA.RegHL, OA.RegHL]),
+    0o152: OS(name="ADC", args=[OA.RegHL, OA.RegHL]),
+    0o162: OS(name="SBC", args=[OA.RegHL, OA.RegSP]),
+    0o172: OS(name="ADC", args=[OA.RegHL, OA.RegSP]),
+    #
+    0o103: OS(name="LD", args=[OA.MemWordImmWord, OA.RegBC]),
+    0o113: OS(name="LD", args=[OA.RegBC, OA.MemWordImmWord]),
+    0o123: OS(name="LD", args=[OA.MemWordImmWord, OA.RegDE]),
+    0o133: OS(name="LD", args=[OA.RegDE, OA.MemWordImmWord]),
+    #
+    0o104: OS(name="NEG", args=[]),
+    #
+    0o126: OS(name="IM", args=[OA.Const1]),
+    #
+    0o240: OS(name="LDI", args=[]),
+    0o260: OS(name="LDIR", args=[]),
+    #
+    0o243: OS(name="OUTI", args=[]),
+    0o263: OS(name="OTIR", args=[]),
+}
+
+# 0oXYZ, sort by X then Z then Y.
+OP_SPECS_CB: dict[int, OS] = {
+    #
+}
+for rz, vz in enumerate(
+    [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+):
+    OP_SPECS_CB[0o000 + rz] = OS(name="RLC", args=[vz])
+    OP_SPECS_CB[0o010 + rz] = OS(name="RRC", args=[vz])
+    OP_SPECS_CB[0o020 + rz] = OS(name="RL", args=[vz])
+    OP_SPECS_CB[0o030 + rz] = OS(name="RR", args=[vz])
+    OP_SPECS_CB[0o040 + rz] = OS(name="SLA", args=[vz])
+    OP_SPECS_CB[0o050 + rz] = OS(name="SRA", args=[vz])
+    # 0o060 is the undocumented SLL which shifts in a 1 bit into the LSbit.
+    OP_SPECS_CB[0o070 + rz] = OS(name="SRL", args=[vz])
+
+    for ry in range(8):
+        OP_SPECS_CB[0o100 + (ry * 8) + rz] = OS(name="BIT", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o200 + (ry * 8) + rz] = OS(name="RES", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o300 + (ry * 8) + rz] = OS(name="SET", args=[OA_CONST_0_7[ry], vz])
