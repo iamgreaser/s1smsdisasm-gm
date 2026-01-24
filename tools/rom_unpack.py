@@ -962,9 +962,13 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     #
     0o064: OS(name="INC", args=[OA.MemIXdd]),
     #
+    0o065: OS(name="DEC", args=[OA.MemIXdd]),
+    #
     0o066: OS(name="LD", args=[OA.MemIXdd, OA.Byte]),
     #
+    0o206: OS(name="ADD", args=[OA.RegA, OA.MemIXdd]),
     0o216: OS(name="ADC", args=[OA.RegA, OA.MemIXdd]),
+    0o266: OS(name="OR", args=[OA.MemIXdd]),
     0o276: OS(name="CP", args=[OA.MemIXdd]),
     #
     0o341: OS(name="POP", args=[OA.RegIX]),
@@ -980,15 +984,20 @@ OP_SPECS_FD_XX: dict[int, OS] = {
     #
     0o064: OS(name="INC", args=[OA.MemIYdd]),
     #
+    0o065: OS(name="DEC", args=[OA.MemIYdd]),
+    #
     0o066: OS(name="LD", args=[OA.MemIYdd, OA.Byte]),
     #
+    0o206: OS(name="ADD", args=[OA.RegA, OA.MemIYdd]),
     0o216: OS(name="ADC", args=[OA.RegA, OA.MemIYdd]),
+    0o266: OS(name="OR", args=[OA.MemIYdd]),
     0o276: OS(name="CP", args=[OA.MemIYdd]),
     #
     0o341: OS(name="POP", args=[OA.RegIY]),
     #
     0o345: OS(name="PUSH", args=[OA.RegIY]),
 }
+
 for rz, vz in enumerate(
     [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
 ):
@@ -1005,9 +1014,13 @@ for rz, vz in enumerate(
 # 0oXYZ, sort by X then Z then Y.
 OP_SPECS_ED: dict[int, OS] = {
     0o102: OS(name="SBC", args=[OA.RegHL, OA.RegBC]),
+    0o112: OS(name="ADC", args=[OA.RegHL, OA.RegBC]),
     0o122: OS(name="SBC", args=[OA.RegHL, OA.RegDE]),
+    0o132: OS(name="ADC", args=[OA.RegHL, OA.RegDE]),
     0o142: OS(name="SBC", args=[OA.RegHL, OA.RegHL]),
+    0o152: OS(name="ADC", args=[OA.RegHL, OA.RegHL]),
     0o162: OS(name="SBC", args=[OA.RegHL, OA.RegSP]),
+    0o172: OS(name="ADC", args=[OA.RegHL, OA.RegSP]),
     #
     0o103: OS(name="LD", args=[OA.MemWordImmWord, OA.RegBC]),
     0o113: OS(name="LD", args=[OA.RegBC, OA.MemWordImmWord]),
