@@ -111,6 +111,8 @@ class Rom:
             pc = rel_addr
             op1 = bank[pc]
             pc += 1
+            ixy_cb_mode = False
+            ixy_cb_mem = OA.MemHL
             # print(hex(op1), oct(op1))
 
             # Handle prefixes
@@ -127,6 +129,15 @@ class Rom:
                 pc += 1
                 spec_bank = OP_SPECS_DD_XX
                 extragrp = "(DD)"
+                if op1 == 0xCB:
+                    # DD CB xx op
+                    pc += 1  # Skip displacement
+                    op1 = bank[pc]
+                    pc += 1
+                    ixy_cb_mode = True
+                    ixy_cb_mem = OA.MemIXdd
+                    spec_bank = OP_SPECS_CB
+                    extragrp = "(DDCB)"
 
             elif op1 == 0xFD:
                 self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
@@ -134,6 +145,15 @@ class Rom:
                 pc += 1
                 spec_bank = OP_SPECS_FD_XX
                 extragrp = "(FD)"
+                if op1 == 0xCB:
+                    # FD CB xx op
+                    pc += 1  # Skip displacement
+                    op1 = bank[pc]
+                    pc += 1
+                    ixy_cb_mode = True
+                    ixy_cb_mem = OA.MemIYdd
+                    spec_bank = OP_SPECS_CB
+                    extragrp = "(FDCB)"
 
             else:
                 spec_bank = OP_SPECS_XX
@@ -206,6 +226,22 @@ class Rom:
 
                     elif a in CONST_OAS:
                         op_args.append(CONST_OAS[a])
+
+                    elif a == OA.MemHL:
+                        if ixy_cb_mode:
+                            # DD CB / FD CB case
+                            # Format: DD CB xx op
+
+                            self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                            (val,) = struct.unpack("<b", bank[pc-2:][:1])
+                            reg = CONST_OAS[OA.RegIX if ixy_cb_mem == OA.MemIXdd else OA.RegIY]
+                            if val >= 0:
+                                op_args.append(f"({reg}+{val})")
+                            else:
+                                op_args.append(f"({reg}-{-val})")
+                        else:
+                            # Normal case
+                            op_args.append("(HL)")
 
                     elif a in {OA.MemIXdd, OA.MemIYdd}:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
@@ -370,9 +406,9 @@ class OA(enum.Enum):
     RegH = enum.auto()
     RegL = enum.auto()
 
-    MemHL = enum.auto()
     MemBC = enum.auto()
     MemDE = enum.auto()
+    MemHL = enum.auto()
     MemIXdd = enum.auto()
     MemIYdd = enum.auto()
     MemByteImmWord = enum.auto()
@@ -383,6 +419,11 @@ class OA(enum.Enum):
     Const0 = enum.auto()
     Const1 = enum.auto()
     Const2 = enum.auto()
+    Const3 = enum.auto()
+    Const4 = enum.auto()
+    Const5 = enum.auto()
+    Const6 = enum.auto()
+    Const7 = enum.auto()
 
     CondNZ = enum.auto()
     CondZ = enum.auto()
@@ -393,6 +434,16 @@ class OA(enum.Enum):
     CondP = enum.auto()
     CondM = enum.auto()
 
+OA_CONST_0_7 = [
+    OA.Const0,
+    OA.Const1,
+    OA.Const2,
+    OA.Const3,
+    OA.Const4,
+    OA.Const5,
+    OA.Const6,
+    OA.Const7,
+]
 
 CONST_OAS = {
     OA.RegAF: "af",
@@ -410,12 +461,16 @@ CONST_OAS = {
     OA.RegE: "e",
     OA.RegH: "h",
     OA.RegL: "l",
-    OA.MemHL: "(hl)",
     OA.MemBC: "(bc)",
     OA.MemDE: "(de)",
     OA.Const0: "0",
     OA.Const1: "1",
     OA.Const2: "2",
+    OA.Const3: "3",
+    OA.Const4: "4",
+    OA.Const5: "5",
+    OA.Const6: "6",
+    OA.Const7: "7",
     OA.CondNZ: "nz",
     OA.CondZ: "z",
     OA.CondNC: "nc",
@@ -588,6 +643,13 @@ OP_SPECS_ED: dict[int, OS] = {
     #
     0o260: OS(name="LDIR", args=[]),
 }
+
+# 0oXYZ, sort by X then Z then Y.
+OP_SPECS_CB: dict[int, OS] = {
+    #
+}
+for ry in range(8):
+    OP_SPECS_CB[0o106 + (ry*8)] = OS(name="BIT", args=[OA_CONST_0_7[ry], OA.MemHL])
 
 
 def parse_int(s: str) -> int:
