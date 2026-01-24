@@ -113,6 +113,7 @@ class Rom:
             pc += 1
             ixy_cb_mode = False
             ixy_cb_mem = OA.MemHL
+            ixy_cb_displacement = 0
             # print(hex(op1), oct(op1))
 
             # Handle prefixes
@@ -131,7 +132,10 @@ class Rom:
                 extragrp = "(DD)"
                 if op1 == 0xCB:
                     # DD CB xx op
-                    pc += 1  # Skip displacement
+                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                    ixy_cb_displacement = bank[pc]
+                    pc += 1
+                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                     op1 = bank[pc]
                     pc += 1
                     ixy_cb_mode = True
@@ -147,7 +151,10 @@ class Rom:
                 extragrp = "(FD)"
                 if op1 == 0xCB:
                     # FD CB xx op
-                    pc += 1  # Skip displacement
+                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                    ixy_cb_displacement = bank[pc]
+                    pc += 1
+                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                     op1 = bank[pc]
                     pc += 1
                     ixy_cb_mode = True
@@ -227,13 +234,17 @@ class Rom:
                     elif a in CONST_OAS:
                         op_args.append(CONST_OAS[a])
 
+                    elif a in OA_MAP_CONST_ADDR:
+                        val = OA_MAP_CONST_ADDR[a]
+                        self.set_label(val, f"ENTRY_RST_{val:02X}")
+                        self.tracer_stack.append(val)
+                        op_args.append(f"${val:02X}")
+
                     elif a == OA.MemHL:
                         if ixy_cb_mode:
                             # DD CB / FD CB case
                             # Format: DD CB xx op
-
-                            self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
-                            (val,) = struct.unpack("<b", bank[pc-2:][:1])
+                            val = ixy_cb_displacement
                             reg = CONST_OAS[OA.RegIX if ixy_cb_mem == OA.MemIXdd else OA.RegIY]
                             if val >= 0:
                                 op_args.append(f"({reg}+{val})")
@@ -425,6 +436,15 @@ class OA(enum.Enum):
     Const6 = enum.auto()
     Const7 = enum.auto()
 
+    ConstAddr00 = enum.auto()
+    ConstAddr08 = enum.auto()
+    ConstAddr10 = enum.auto()
+    ConstAddr18 = enum.auto()
+    ConstAddr20 = enum.auto()
+    ConstAddr28 = enum.auto()
+    ConstAddr30 = enum.auto()
+    ConstAddr38 = enum.auto()
+
     CondNZ = enum.auto()
     CondZ = enum.auto()
     CondNC = enum.auto()
@@ -444,6 +464,17 @@ OA_CONST_0_7 = [
     OA.Const6,
     OA.Const7,
 ]
+
+OA_MAP_CONST_ADDR = {
+    OA.ConstAddr00: 0x00,
+    OA.ConstAddr08: 0x08,
+    OA.ConstAddr10: 0x10,
+    OA.ConstAddr18: 0x18,
+    OA.ConstAddr20: 0x20,
+    OA.ConstAddr28: 0x28,
+    OA.ConstAddr30: 0x30,
+    OA.ConstAddr38: 0x38,
+}
 
 CONST_OAS = {
     OA.RegAF: "af",
@@ -580,6 +611,15 @@ OP_SPECS_XX: dict[int, OS] = {
     0o356: OS(name="XOR", args=[OA.Byte]),
     0o366: OS(name="OR", args=[OA.Byte]),
     0o376: OS(name="CP", args=[OA.Byte]),
+
+    0o307: OS(name="RST", args=[OA.ConstAddr00]),
+    0o317: OS(name="RST", args=[OA.ConstAddr08]),
+    0o327: OS(name="RST", args=[OA.ConstAddr10]),
+    0o337: OS(name="RST", args=[OA.ConstAddr18]),
+    0o347: OS(name="RST", args=[OA.ConstAddr20]),
+    0o357: OS(name="RST", args=[OA.ConstAddr28]),
+    0o367: OS(name="RST", args=[OA.ConstAddr30]),
+    0o377: OS(name="RST", args=[OA.ConstAddr38]),
 }
 
 for ry, vy in enumerate(
@@ -616,6 +656,10 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     0o064: OS(name="INC", args=[OA.MemIXdd]),
     #
     0o276: OS(name="CP", args=[OA.MemIXdd]),
+    #
+    0o341: OS(name="POP", args=[OA.RegIX]),
+    #
+    0o345: OS(name="PUSH", args=[OA.RegIX]),
 }
 OP_SPECS_FD_XX: dict[int, OS] = {
     0o041: OS(name="LD", args=[OA.RegIY, OA.Word]),
@@ -623,6 +667,10 @@ OP_SPECS_FD_XX: dict[int, OS] = {
     0o064: OS(name="INC", args=[OA.MemIYdd]),
     #
     0o276: OS(name="CP", args=[OA.MemIYdd]),
+    #
+    0o341: OS(name="POP", args=[OA.RegIY]),
+    #
+    0o345: OS(name="PUSH", args=[OA.RegIY]),
 }
 for rz, vz in enumerate(
     [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
@@ -650,6 +698,8 @@ OP_SPECS_CB: dict[int, OS] = {
 }
 for ry in range(8):
     OP_SPECS_CB[0o106 + (ry*8)] = OS(name="BIT", args=[OA_CONST_0_7[ry], OA.MemHL])
+    OP_SPECS_CB[0o206 + (ry*8)] = OS(name="RES", args=[OA_CONST_0_7[ry], OA.MemHL])
+    OP_SPECS_CB[0o306 + (ry*8)] = OS(name="SET", args=[OA_CONST_0_7[ry], OA.MemHL])
 
 
 def parse_int(s: str) -> int:
