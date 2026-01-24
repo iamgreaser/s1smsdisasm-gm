@@ -75,6 +75,15 @@ class Rom:
         "byte": AT.DataByte,
         "word": AT.DataWord,
     }
+    LTYPESIZE = {
+        AT.DataByte: 1,
+        AT.DataWord: 2,
+    }
+    LTYPECMD = {
+        AT.DataByte: "db",
+        AT.DataWord: "dw",
+    }
+
     def _annotcmd_label(self, addr_str: str, ltype_str: str, label: str) -> None:
         ltype = type(self).LTYPEMAP[ltype_str]
         addr = parse_int(addr_str)
@@ -90,10 +99,22 @@ class Rom:
     def set_addr_type(self, addr: int, addr_type: AT) -> None:
         # print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
         if self.addr_types.get(addr, addr_type) == addr_type:
+            if addr >= 1 and self.addr_types.get(addr-0x01, AT.DataByte) == AT.DataWord:
+                # Downsize for a split
+                self.addr_types[addr-0x01] = AT.DataByte
             self.addr_types[addr] = addr_type
         else:
-            print("FIXME: Op type derailment!")
-            print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
+            other_type = self.addr_types[addr]
+            if other_type == AT.DataWord and addr_type == AT.DataByte:
+                # Downsize for a split
+                self.addr_types[addr+0x00] = AT.DataByte
+                self.addr_types[addr+0x01] = AT.DataByte
+            elif other_type == AT.DataByte and addr_type == AT.DataWord:
+                # Block upsize
+                pass
+            else:
+                print("FIXME: Op type derailment!")
+                print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
 
     def set_label(self, addr: int, label: str) -> None:
         if label in self.label_to_addr:
@@ -217,6 +238,7 @@ class Rom:
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
                         label = self.ensure_label(val)
+                        self.set_addr_type(val, AT.DataByte)
                         op_args.append(f"({label})")
 
                     elif a == OA.MemWordImmWord:
@@ -225,6 +247,7 @@ class Rom:
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
                         label = self.ensure_label(val)
+                        self.set_addr_type(val, AT.DataWord)
                         op_args.append(f"({label})")
 
                     elif a == OA.PortByteImm:
@@ -321,6 +344,7 @@ class Rom:
             outfp.write(f"SLOT 2 START $8000 SIZE $4000\n")
             outfp.write(f"SLOT 3 START $C000 SIZE $2000\n")
             outfp.write(f"DEFAULTSLOT 2\n")
+            outfp.write(f"DEFAULTRAMSECTIONSLOT 3\n")
             outfp.write(f".ENDME\n")
 
             # Write ROMBANKMAP
@@ -331,8 +355,44 @@ class Rom:
             outfp.write(f".ENDRO\n")
 
             # Write RAM addresses
+            outfp.write(f"\n.RAMSECTION \"RAMSection\" SLOT 3 FORCE ORGA $C000\n")
+            extra_ram_labels: list[str] = []
+            prev_addr = 0xC000
+            for addr in range(0xC000, 0xE000, 1):
+                if addr in self.labels_from_addr:
+                    base_label = self.labels_from_addr[addr][0]
+                    if prev_addr != addr:
+                        assert prev_addr < addr
+                        outfp.write(f".  dsb {addr - prev_addr}\n")
+                        prev_addr = addr
+                    if addr in self.addr_types:
+                        vartype = self.addr_types[addr]
+                        varsize = self.LTYPESIZE[vartype]
+                        varcmd = self.LTYPECMD[vartype]
+                        # Look for any labels in the middle of this.
+                        need_split = False
+                        for split_offs in range(1, varsize, 1):
+                            if addr + split_offs in self.labels_from_addr:
+                                need_split = True
+                                break
+                        if need_split:
+                            outfp.write(f"{base_label} db   ; {addr:04X} (split)\n")
+                            prev_addr = addr + 1
+                        else:
+                            outfp.write(f"{base_label} {varcmd}   ; {addr:04X}\n")
+                            prev_addr = addr + varsize
+                    else:
+                        outfp.write(f"{base_label} db   ; {addr:04X} (auto)\n")
+                        prev_addr = addr + 1
+                    for label in self.labels_from_addr[addr][1:]:
+                        extra_ram_labels.append(f".DEF {label} {base_label}\n")
+            outfp.write(f".ENDS\n")
+            for s in extra_ram_labels:
+                outfp.write(s)
+
+            # Write extra addresses
             outfp.write(f"\n")
-            for addr in range(0xC000, 0x10000, 1):
+            for addr in range(0xE000, 0x10000, 1):
                 for label in self.labels_from_addr.get(addr, []):
                     outfp.write(f".DEF {label} ${addr:04X}\n")
 
