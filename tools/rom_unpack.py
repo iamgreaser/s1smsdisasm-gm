@@ -176,6 +176,12 @@ class Rom:
                         pc += 2
                         op_args.append(f"(${val:04X})")
 
+                    elif a == OA.PortByteImm:
+                        self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
+                        (val,) = struct.unpack("<B", bank[pc:][:1])
+                        pc += 1
+                        op_args.append(f"(${val:02X})")
+
                     elif a == OA.JumpRelByte:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByteRelLabel)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
@@ -351,6 +357,8 @@ class OA(enum.Enum):
     MemByteImmWord = enum.auto()
     MemWordImmWord = enum.auto()
 
+    PortByteImm = enum.auto()
+
     Const0 = enum.auto()
     Const1 = enum.auto()
     Const2 = enum.auto()
@@ -468,8 +476,8 @@ OP_SPECS_XX: dict[int, OS] = {
     0o372: OS(name="JP", args=[OA.CondM, OA.JumpWord]),
     #
     0o303: OS(name="JP", args=[OA.JumpWord], stop=True),
-    0o323: OS(name="OUT", args=[OA.Byte, OA.RegA]),
-    0o333: OS(name="IN", args=[OA.RegA, OA.Byte]),
+    0o323: OS(name="OUT", args=[OA.PortByteImm, OA.RegA]),
+    0o333: OS(name="IN", args=[OA.RegA, OA.PortByteImm]),
     0o363: OS(name="DI", args=[]),
     0o373: OS(name="EI", args=[]),
     #
