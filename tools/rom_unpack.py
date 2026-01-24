@@ -314,23 +314,39 @@ class Rom:
                             reg = CONST_OAS[
                                 OA.RegIX if ixy_cb_mem == OA.MemIXdd else OA.RegIY
                             ]
-                            if val >= 0:
-                                op_args.append(f"({reg}+{val})")
+                            if ixy_cb_mem == OA.MemIYdd:
+                                # SPECIAL CASE FOR SONIC 1:
+                                # IY is, as far as I can tell, always set to D200.
+                                val += self.label_to_addr["IYBASE"]
+                                label = self.ensure_label(val)
+                                op_args.append(f"(iy+{label}-IYBASE)")
                             else:
-                                op_args.append(f"({reg}-{-val})")
+                                if val >= 0:
+                                    op_args.append(f"({reg}+{val})")
+                                else:
+                                    op_args.append(f"({reg}-{-val})")
                         else:
                             # Normal case
                             op_args.append("(hl)")
 
-                    elif a in {OA.MemIXdd, OA.MemIYdd}:
+                    elif a == OA.MemIXdd:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         pc += 1
-                        reg = CONST_OAS[OA.RegIX if a == OA.MemIXdd else OA.RegIY]
                         if val >= 0:
-                            op_args.append(f"({reg}+{val})")
+                            op_args.append(f"(ix+{val})")
                         else:
-                            op_args.append(f"({reg}-{-val})")
+                            op_args.append(f"(ix-{-val})")
+
+                    elif a == OA.MemIYdd:
+                        # SPECIAL CASE FOR SONIC 1:
+                        # IY is, as far as I can tell, always set to D200.
+                        self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                        (val,) = struct.unpack("<b", bank[pc:][:1])
+                        val += self.label_to_addr["IYBASE"]
+                        pc += 1
+                        label = self.ensure_label(val)
+                        op_args.append(f"(iy+{label}-IYBASE)")
 
                     else:
                         raise Exception(
