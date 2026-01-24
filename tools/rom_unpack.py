@@ -568,8 +568,10 @@ class Rom:
 
                         prev_subregion_type = ltype
 
+                        assert op_len >= 1
+                        op_hex = " ".join(f"{v:02X}" for v in data[offs:offs+op_len])
                         outfp.write(
-                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {bank_idx:02X}:{virt_addr + offs:04X}\n"
+                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {bank_idx:02X}:{virt_addr + offs:04X} - {op_hex}\n"
                         )
                         offs += op_len
                         prev_subregion_offs = offs
