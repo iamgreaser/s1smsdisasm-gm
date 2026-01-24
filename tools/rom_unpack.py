@@ -251,7 +251,7 @@ class Rom:
                         pc += 2
                         if 0xC000 <= val <= 0xDFFF or (
                             val < 0xE000
-                            and val > 0x0000
+                            and val > 0x0038
                             and val in self.labels_from_addr
                         ):
                             label = self.ensure_label(val, relative_to=pc-2)
