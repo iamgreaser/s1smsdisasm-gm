@@ -257,7 +257,7 @@ class Rom:
                             and val > 0x0038
                             and val in self.labels_from_addr
                         ):
-                            label = self.ensure_label(val, relative_to=pc-2)
+                            label = self.ensure_label(val, relative_to=pc - 2)
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
@@ -267,7 +267,7 @@ class Rom:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        label = self.ensure_label(val, relative_to=pc-2)
+                        label = self.ensure_label(val, relative_to=pc - 2)
                         self.set_addr_type(val, AT.DataByte)
                         op_args.append(f"({label})")
 
@@ -276,7 +276,7 @@ class Rom:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        label = self.ensure_label(val, relative_to=pc-2)
+                        label = self.ensure_label(val, relative_to=pc - 2)
                         self.set_addr_type(val, AT.DataWord)
                         op_args.append(f"({label})")
 
@@ -291,7 +291,7 @@ class Rom:
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += pc + 1
                         assert val < bank_size * 2
-                        label = self.ensure_label(val, relative_to=pc-1)
+                        label = self.ensure_label(val, relative_to=pc - 1)
                         self.tracer_stack.append(val)
                         pc += 1
                         op_args.append(f"{label}")
@@ -329,7 +329,7 @@ class Rom:
                                 # SPECIAL CASE FOR SONIC 1:
                                 # IY is, as far as I can tell, always set to D200.
                                 val += 0xD200
-                                label = self.ensure_label(val, relative_to=pc-1)
+                                label = self.ensure_label(val, relative_to=pc - 1)
                                 op_args.append(f"(iy+{label}-IYBASE)")
                             else:
                                 if val >= 0:
@@ -356,7 +356,7 @@ class Rom:
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += 0xD200
                         pc += 1
-                        label = self.ensure_label(val, relative_to=pc-1)
+                        label = self.ensure_label(val, relative_to=pc - 1)
                         op_args.append(f"(iy+{label}-IYBASE)")
 
                     else:
@@ -485,49 +485,117 @@ class Rom:
         self, *, outfp: IO[str], bank_idx: int, virt_addr: int, data: bytes
     ) -> None:
         offs = 0
-        prev_hexdump_offs = 0
+        prev_subregion_offs = 0
+        prev_subregion_type = AT.DataByte
         while offs < len(data):
             op_phys_addr = virt_addr + offs
-            if op_phys_addr in self.op_decodes:
+            ltype = self.addr_types.get(op_phys_addr, AT.DataByte)
+            if ltype == AT.Op:
                 op_len, op_str = self.op_decodes[op_phys_addr]
                 if offs + op_len > len(data):
                     # Decode as if it wasn't an op
                     outfp.write(f"   ;; FIXME: Label appears mid-op!\n")
-                    offs += 1
+                    ltype = AT.DataByte
+                    # Carry on!
                 else:
-                    if offs != prev_hexdump_offs:
-                        self.save_hexdump(
+                    if offs != prev_subregion_offs and ltype != prev_subregion_type:
+                        self.save_subregion(
                             outfp=outfp,
                             bank_idx=bank_idx,
-                            virt_addr=virt_addr + prev_hexdump_offs,
-                            data=data[prev_hexdump_offs:offs],
+                            virt_addr=virt_addr + prev_subregion_offs,
+                            data=data[prev_subregion_offs:offs],
+                            atype=prev_subregion_type,
                         )
+                        prev_subregion_offs = offs
+
+                    prev_subregion_type = ltype
+
                     outfp.write(
                         f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
                     )
                     offs += op_len
-                    prev_hexdump_offs = offs
-            else:
+                    prev_subregion_offs = offs
+                    continue
+
+            if ltype == AT.DataWord or ltype == AT.DataWordLabel:
+                if offs != prev_subregion_offs and ltype != prev_subregion_type:
+                    self.save_subregion(
+                        outfp=outfp,
+                        bank_idx=bank_idx,
+                        virt_addr=virt_addr + prev_subregion_offs,
+                        data=data[prev_subregion_offs:offs],
+                        atype=prev_subregion_type,
+                    )
+                    prev_subregion_offs = offs
+
+                prev_subregion_type = ltype
+
+                offs += 2
+
+            elif ltype == AT.DataByte:
+                if offs != prev_subregion_offs and ltype != prev_subregion_type:
+                    self.save_subregion(
+                        outfp=outfp,
+                        bank_idx=bank_idx,
+                        virt_addr=virt_addr + prev_subregion_offs,
+                        data=data[prev_subregion_offs:offs],
+                        atype=prev_subregion_type,
+                    )
+                    prev_subregion_offs = offs
+
+                prev_subregion_type = ltype
+
                 offs += 1
 
-        if offs != prev_hexdump_offs:
-            self.save_hexdump(
+            else:
+                raise Exception(f"unimplemented region save type {ltype}")
+
+        if offs != prev_subregion_offs:
+            self.save_subregion(
                 outfp=outfp,
                 bank_idx=bank_idx,
-                virt_addr=virt_addr + prev_hexdump_offs,
-                data=data[prev_hexdump_offs:offs],
+                virt_addr=virt_addr + prev_subregion_offs,
+                data=data[prev_subregion_offs:offs],
+                atype=prev_subregion_type,
             )
-            prev_hexdump_offs = offs
 
-    def save_hexdump(
-        self, *, outfp: IO[str], bank_idx: int, virt_addr: int, data: bytes
+    def save_subregion(
+        self,
+        *,
+        outfp: IO[str],
+        bank_idx: int,
+        virt_addr: int,
+        data: bytes,
+        atype: AT,
     ) -> None:
-        for row_idx in range((len(data) + 16 - 1) // 16):
-            row_addr = row_idx * 16
-            row_data = data[row_addr : row_addr + 16]
-            row = ", ".join(f"${v:02X}" for v in row_data)
-            row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
-            outfp.write(f".db {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
+        if atype == AT.DataByte:
+            for row_idx in range((len(data) + 16 - 1) // 16):
+                row_addr = row_idx * 16
+                row_data = data[row_addr : row_addr + 16]
+                row = ", ".join(f"${v:02X}" for v in row_data)
+                row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
+                outfp.write(f".db {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
+
+        elif atype == AT.DataWord or atype == AT.DataWordLabel:
+            for row_idx in range((len(data) + 16 - 1) // 16):
+                row_addr = row_idx * 16
+                row_size = min(row_addr + 16, len(data)) - row_addr
+                assert row_size % 2 == 0
+                row_vals = [
+                    struct.unpack("<H", data[row_addr + bi * 2 :][:2])[0]
+                    for bi in range(row_size//2)
+                ]
+                if atype == AT.DataWordLabel:
+                    print(f"{virt_addr:05X} {bank_idx:02X} {row_size:3d}")
+                    row_strs = [self.labels_from_addr.get(v, [f"${v:04X}"])[0] for v in row_vals]
+                else:
+                    row_strs = [f"${v:04X}" for v in row_vals]
+                row = ", ".join(row_strs)
+                row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
+                outfp.write(f".dw {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
+
+        else:
+            raise Exception(f"unimplemented subregion save type {atype}")
 
 
 # Op Arg types
