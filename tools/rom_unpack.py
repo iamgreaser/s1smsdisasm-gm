@@ -305,19 +305,24 @@ class Rom:
         while offs < len(data):
             op_phys_addr = virt_addr + offs
             if op_phys_addr in self.op_decodes:
-                if offs != prev_hexdump_offs:
-                    self.save_hexdump(
-                        outfp=outfp,
-                        bank_idx=bank_idx,
-                        virt_addr=virt_addr + prev_hexdump_offs,
-                        data=data[prev_hexdump_offs:offs],
-                    )
                 op_len, op_str = self.op_decodes[op_phys_addr]
-                outfp.write(
-                    f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
-                )
-                offs += op_len
-                prev_hexdump_offs = offs
+                if offs + op_len > len(data):
+                    # Decode as if it wasn't an op
+                    outfp.write(f"   ;; FIXME: Label appears mid-op!\n")
+                    offs += 1
+                else:
+                    if offs != prev_hexdump_offs:
+                        self.save_hexdump(
+                            outfp=outfp,
+                            bank_idx=bank_idx,
+                            virt_addr=virt_addr + prev_hexdump_offs,
+                            data=data[prev_hexdump_offs:offs],
+                        )
+                    outfp.write(
+                        f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
+                    )
+                    offs += op_len
+                    prev_hexdump_offs = offs
             else:
                 offs += 1
 
