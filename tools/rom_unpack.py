@@ -138,7 +138,10 @@ class Rom:
 
     def ensure_label(self, addr: int, *, relative_to: int) -> str:
         if not addr in self.labels_from_addr:
-            self.set_label(addr, f"addr_{addr:05X}")
+            if addr >= 0xC000 and addr <= 0xDFFF:
+                self.set_label(addr, f"var_{addr:04X}")
+            else:
+                self.set_label(addr, f"addr_{addr:05X}")
         label = self.labels_from_addr[addr][0]
         if label == "__":
             if addr > relative_to:
