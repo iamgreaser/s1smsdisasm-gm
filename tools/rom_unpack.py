@@ -93,6 +93,11 @@ class Rom:
                 self.labels_from_addr[addr] = []
             self.labels_from_addr[addr].append(label)
 
+    def ensure_label(self, addr: int) -> str:
+        if not addr in self.labels_from_addr:
+            self.set_label(addr, f"addr_{addr:05X}")
+        return self.labels_from_addr[addr][0]
+
     def run_tracer(self) -> None:
         while len(self.tracer_stack) >= 1:
             phys_addr = self.tracer_stack.pop()
@@ -198,17 +203,17 @@ class Rom:
                         # TODO: Handle the diff between virtual and physical labels --GM
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        self.set_label(val, f"addr_{val:05X}")
                         pc += 2
-                        op_args.append(f"(${val:04X})")
+                        label = self.ensure_label(val)
+                        op_args.append(f"({label})")
 
                     elif a == OA.MemWordImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        self.set_label(val, f"addr_{val:05X}")
                         pc += 2
-                        op_args.append(f"(${val:04X})")
+                        label = self.ensure_label(val)
+                        op_args.append(f"({label})")
 
                     elif a == OA.PortByteImm:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
@@ -221,19 +226,19 @@ class Rom:
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += pc + 1
                         assert val < bank_size * 2
-                        self.set_label(val, f"addr_{val:05X}")
+                        label = self.ensure_label(val)
                         self.tracer_stack.append(val)
                         pc += 1
-                        op_args.append(f"addr_{val:05X}")
+                        op_args.append(f"{label}")
 
                     elif a == OA.JumpWord:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         if val < bank_size * 1:
                             # TODO: Better overlay handling --GM
-                            self.set_label(val, f"addr_{val:05X}")
+                            label = self.ensure_label(val)
                             self.tracer_stack.append(val)
-                            op_args.append(f"addr_{val:05X}")
+                            op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
                         pc += 2
@@ -259,7 +264,7 @@ class Rom:
                                 op_args.append(f"({reg}-{-val})")
                         else:
                             # Normal case
-                            op_args.append("(HL)")
+                            op_args.append("(hl)")
 
                     elif a in {OA.MemIXdd, OA.MemIYdd}:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
@@ -590,7 +595,7 @@ OP_SPECS_XX: dict[int, OS] = {
     0o321: OS(name="POP", args=[OA.RegDE]),
     0o331: OS(name="EXX", args=[]),
     0o341: OS(name="POP", args=[OA.RegHL]),
-    0o351: OS(name="JP (HL)", args=[], stop=True),
+    0o351: OS(name="JP", args=[OA.MemHL], stop=True),
     0o361: OS(name="POP", args=[OA.RegAF]),
     0o371: OS(name="LD", args=[OA.RegSP, OA.RegHL]),
     #
