@@ -62,7 +62,7 @@ class Rom:
                 if line != "":
                     # Extract a command
                     cmd, sep, line = line.partition(" ")
-                    type(self).ANNOTCMDS[cmd](self, *line.split(" "))
+                    type(self).ANNOTCMDS[cmd](self, *line.split(" "))  # type: ignore
 
     def _annotcmd_code(self, addr_str: str, label: str) -> None:
         addr = parse_int(addr_str)
@@ -71,10 +71,16 @@ class Rom:
             self.tracer_stack.append(addr)
         self.set_label(addr, label)
 
-    def _annotcmd_label(self, addr_str: str, label: str) -> None:
+    LTYPEMAP = {
+        "byte": AT.DataByte,
+        "word": AT.DataWord,
+    }
+    def _annotcmd_label(self, addr_str: str, ltype_str: str, label: str) -> None:
+        ltype = type(self).LTYPEMAP[ltype_str]
         addr = parse_int(addr_str)
-        print(f"label addr ${addr:05X} label {label!r}")
+        print(f"label addr ${addr:05X} type {ltype} label {label!r}")
         self.set_label(addr, label)
+        self.set_addr_type(addr, ltype)
 
     ANNOTCMDS = {
         "code": _annotcmd_code,
