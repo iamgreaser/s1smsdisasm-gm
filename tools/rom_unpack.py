@@ -158,22 +158,31 @@ class Rom:
                 self.labels_from_addr[addr] = []
             self.labels_from_addr[addr].append(label)
 
-    def ensure_label(self, addr: int, *, relative_to: int) -> str:
+    def ensure_label(
+        self, addr: int, *, relative_to: int, allow_relative_labels: bool = False
+    ) -> str:
         if not addr in self.labels_from_addr:
             if addr >= 0xC000 and addr <= 0xDFFF:
                 self.set_label(addr, f"var_{addr:04X}")
             else:
                 self.set_label(addr, f"addr_{addr:05X}")
         label = self.labels_from_addr[addr][0]
-        if label == "__":
-            if addr > relative_to:
-                return "_f"
-            elif addr < relative_to:
-                return "_b"
+        if allow_relative_labels:
+            if label == "__":
+                if addr > relative_to:
+                    return "_f"
+                elif addr < relative_to:
+                    return "_b"
+                else:
+                    raise Exception("TODO: Handle this `__` label case")
             else:
-                raise Exception("TODO: Handle this `__` label case")
+                return label
         else:
-            return label
+            if label == "__" or label.strip("+-") == "":
+                # Relative label - use a constant instead.
+                return f"${addr:04X}"
+            else:
+                return label
 
     def run_tracer(self) -> None:
         while len(self.tracer_stack) >= 1:
@@ -311,9 +320,11 @@ class Rom:
                     elif a == OA.JumpRelByte:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByteRelLabel)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
-                        val += pc + 1
-                        assert val < bank_size * 2
-                        label = self.ensure_label(val, relative_to=pc - 1)
+                        val += bank_phys_addr + pc + 1
+                        assert val < bank_size * 3
+                        label = self.ensure_label(
+                            val, relative_to=pc - 1, allow_relative_labels=True
+                        )
                         self.tracer_stack.append(val)
                         pc += 1
                         op_args.append(f"{label}")
@@ -321,9 +332,16 @@ class Rom:
                     elif a == OA.JumpWord:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        if val < bank_size * 1:
-                            # TODO: Better overlay handling --GM
-                            label = self.ensure_label(val, relative_to=pc)
+                        upper_bound = bank_size * 1
+                        # TODO: Better overlay handling --GM
+                        if bank_phys_addr + pc >= upper_bound:
+                            upper_bound += bank_size
+                        if bank_phys_addr + pc >= upper_bound:
+                            upper_bound += bank_size
+                        if val < upper_bound:
+                            label = self.ensure_label(
+                                val, relative_to=pc, allow_relative_labels=True
+                            )
                             self.tracer_stack.append(val)
                             op_args.append(f"{label}")
                         else:
@@ -486,6 +504,7 @@ class Rom:
                             self.save_bytes(
                                 outfp=outfp,
                                 bank_idx=bank_idx,
+                                phys_addr=(bank_idx * bank_size) + prev_rel_addr,
                                 virt_addr=(slot_idx * bank_size) + prev_rel_addr,
                                 data=bank[prev_rel_addr:rel_addr],
                             )
@@ -497,6 +516,7 @@ class Rom:
                 self.save_bytes(
                     outfp=outfp,
                     bank_idx=bank_idx,
+                    phys_addr=(bank_idx * bank_size) + prev_rel_addr,
                     virt_addr=(slot_idx * bank_size) + prev_rel_addr,
                     data=bank[prev_rel_addr:],
                 )
@@ -504,40 +524,53 @@ class Rom:
                 outfp.write(f".ENDS\n")
 
     def save_bytes(
-        self, *, outfp: IO[str], bank_idx: int, virt_addr: int, data: bytes
+        self, *, outfp: IO[str], bank_idx: int, phys_addr: int, virt_addr: int, data: bytes
     ) -> None:
         offs = 0
         prev_subregion_offs = 0
         prev_subregion_type = AT.DataByte
         while offs < len(data):
-            op_phys_addr = virt_addr + offs
+            op_phys_addr = phys_addr + offs
             ltype = self.addr_types.get(op_phys_addr, AT.DataByte)
+            if op_phys_addr >= 0xC000:
+                # FIXME: Actually handle bank memory mapping properly,
+                # this works around an issue where Bank03 gets weirdly sliced based on RAM labels --GM
+                ltype = AT.DataByte
+
             if ltype == AT.Op:
-                op_len, op_str = self.op_decodes[op_phys_addr]
-                if offs + op_len > len(data):
-                    # Decode as if it wasn't an op
-                    outfp.write(f"   ;; FIXME: Label appears mid-op!\n")
+                try:
+                    op_len, op_str = self.op_decodes[op_phys_addr]
+                except LookupError:
+                    outfp.write(f"   ;; FIXME: Undecoded op!\n")
                     ltype = AT.DataByte
-                    # Carry on!
                 else:
-                    if offs != prev_subregion_offs and ltype != prev_subregion_type:
-                        self.save_subregion(
-                            outfp=outfp,
-                            bank_idx=bank_idx,
-                            virt_addr=virt_addr + prev_subregion_offs,
-                            data=data[prev_subregion_offs:offs],
-                            atype=prev_subregion_type,
+                    if offs + op_len > len(data):
+                        # Decode as if it wasn't an op
+                        outfp.write(f"   ;; FIXME: Label appears mid-op!\n")
+                        ltype = AT.DataByte
+                        # Carry on!
+                    else:
+                        if offs != prev_subregion_offs and ltype != prev_subregion_type:
+                            self.save_subregion(
+                                outfp=outfp,
+                                bank_idx=bank_idx,
+                                virt_addr=virt_addr + prev_subregion_offs,
+                                data=data[prev_subregion_offs:offs],
+                                atype=prev_subregion_type,
+                            )
+                            prev_subregion_offs = offs
+
+                        prev_subregion_type = ltype
+
+                        outfp.write(
+                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
                         )
+                        offs += op_len
                         prev_subregion_offs = offs
+                        continue
 
-                    prev_subregion_type = ltype
-
-                    outfp.write(
-                        f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
-                    )
-                    offs += op_len
-                    prev_subregion_offs = offs
-                    continue
+            if ltype == AT.DataByteRelLabel:
+                ltype = AT.DataByte
 
             if ltype == AT.DataWord or ltype == AT.DataWordLabel:
                 if offs != prev_subregion_offs and ltype != prev_subregion_type:
@@ -602,21 +635,35 @@ class Rom:
             for row_idx in range((len(data) + 16 - 1) // 16):
                 row_addr = row_idx * 16
                 row_size = min(row_addr + 16, len(data)) - row_addr
-                assert row_size % 2 == 0
                 row_vals = [
                     struct.unpack("<H", data[row_addr + bi * 2 :][:2])[0]
                     for bi in range(row_size // 2)
                 ]
-                if atype == AT.DataWordLabel:
-                    print(f"{virt_addr:05X} {bank_idx:02X} {row_size:3d}")
-                    row_strs = [
-                        self.labels_from_addr.get(v, [f"${v:04X}"])[0] for v in row_vals
-                    ]
-                else:
-                    row_strs = [f"${v:04X}" for v in row_vals]
-                row = ", ".join(row_strs)
-                row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
-                outfp.write(f".dw {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
+                if len(row_vals) >= 1:
+                    if atype == AT.DataWordLabel:
+                        print(f"{virt_addr:05X} {bank_idx:02X} {row_size:3d}")
+                        row_strs = [
+                            self.labels_from_addr.get(v, [f"${v:04X}"])[0]
+                            for v in row_vals
+                        ]
+                    else:
+                        row_strs = [f"${v:04X}" for v in row_vals]
+                    row = ", ".join(row_strs)
+                    row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
+                    outfp.write(
+                        f".dw {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n"
+                    )
+
+                row_remain = row_size % 2
+                if row_remain != 0:
+                    outfp.write(f"   ;; FIXME: Word table not a multiple of 2!\n")
+                    self.save_subregion(
+                        outfp=outfp,
+                        bank_idx=bank_idx,
+                        virt_addr=virt_addr + row_addr + row_size - row_remain,
+                        data=data[row_addr + row_size - row_remain :][:row_remain],
+                        atype=AT.DataByte,
+                    )
 
         else:
             raise Exception(f"unimplemented subregion save type {atype}")
