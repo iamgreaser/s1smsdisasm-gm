@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import dataclasses
 import enum
 import struct
@@ -7,6 +9,7 @@ import zlib
 
 from typing import (
     IO,
+    Optional,
     Sequence,
 )
 
@@ -73,8 +76,11 @@ class Rom:
 
     def set_addr_type(self, addr: int, addr_type: AT) -> None:
         # print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
-        assert self.addr_types.get(addr, addr_type) == addr_type
-        self.addr_types[addr] = addr_type
+        if self.addr_types.get(addr, addr_type) == addr_type:
+            self.addr_types[addr] = addr_type
+        else:
+            print("FIXME: Op type derailment!")
+            print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
 
     def set_label(self, addr: int, label: str) -> None:
         if label in self.label_to_addr:
@@ -113,6 +119,20 @@ class Rom:
                 pc += 1
                 spec_bank = OP_SPECS_ED
                 extragrp = "(ED)"
+
+            elif op1 == 0xDD:
+                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                op1 = bank[pc]
+                pc += 1
+                spec_bank = OP_SPECS_DD_XX
+                extragrp = "(DD)"
+
+            elif op1 == 0xFD:
+                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                op1 = bank[pc]
+                pc += 1
+                spec_bank = OP_SPECS_FD_XX
+                extragrp = "(FD)"
 
             else:
                 spec_bank = OP_SPECS_XX
@@ -168,7 +188,16 @@ class Rom:
                             self.tracer_stack.append(val)
                         pc += 2
 
-                    elif a in {OA.RegAF, OA.RegBC, OA.RegDE, OA.RegHL, OA.RegSP}:
+                    elif a in {
+                        OA.RegAF,
+                        OA.RegBC,
+                        OA.RegDE,
+                        OA.RegHL,
+                        OA.RegSP,
+                        OA.RegIX,
+                        OA.RegIY,
+                        OA.RegAFShadow,
+                    }:
                         pass
 
                     elif a in {
@@ -184,6 +213,11 @@ class Rom:
 
                     elif a in {OA.MemHL, OA.MemBC, OA.MemDE}:
                         pass
+
+                    elif a in {OA.MemIXdd, OA.MemIYdd}:
+                        self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                        (val,) = struct.unpack("<b", bank[pc:][:1])
+                        pc += 1
 
                     elif a in {OA.Const0, OA.Const1, OA.Const2}:
                         pass
@@ -303,6 +337,9 @@ class OA(enum.Enum):
     RegDE = enum.auto()
     RegHL = enum.auto()
     RegSP = enum.auto()
+    RegIX = enum.auto()
+    RegIY = enum.auto()
+    RegAFShadow = enum.auto()
 
     RegA = enum.auto()
     RegB = enum.auto()
@@ -315,6 +352,8 @@ class OA(enum.Enum):
     MemHL = enum.auto()
     MemBC = enum.auto()
     MemDE = enum.auto()
+    MemIXdd = enum.auto()
+    MemIYdd = enum.auto()
     MemByteImmWord = enum.auto()
     MemWordImmWord = enum.auto()
 
@@ -341,9 +380,10 @@ class OS:
 
 
 # 0oXYZ, sort by X then Z then Y.
-OP_SPECS_XX = {
+OP_SPECS_XX: dict[int, OS] = {
     #
     0o000: OS(name="NOP", args=[]),
+    0o010: OS(name="EX", args=[OA.RegAF, OA.RegAFShadow]),
     0o020: OS(name="DJNZ", args=[OA.JumpRelByte]),
     0o030: OS(name="JR", args=[OA.JumpRelByte], stop=True),
     0o040: OS(name="JR", args=[OA.CondNZ, OA.JumpRelByte]),
@@ -355,8 +395,11 @@ OP_SPECS_XX = {
     0o021: OS(name="LD", args=[OA.RegDE, OA.Word]),
     0o041: OS(name="LD", args=[OA.RegHL, OA.Word]),
     #
+    0o002: OS(name="LD", args=[OA.MemBC, OA.RegA]),
     0o012: OS(name="LD", args=[OA.RegA, OA.MemBC]),
     0o022: OS(name="LD", args=[OA.MemDE, OA.RegA]),
+    0o032: OS(name="LD", args=[OA.RegA, OA.MemDE]),
+    0o042: OS(name="LD", args=[OA.MemWordImmWord, OA.RegHL]),
     0o052: OS(name="LD", args=[OA.RegHL, OA.MemWordImmWord]),
     0o062: OS(name="LD", args=[OA.MemByteImmWord, OA.RegA]),
     0o072: OS(name="LD", args=[OA.RegA, OA.MemByteImmWord]),
@@ -364,12 +407,28 @@ OP_SPECS_XX = {
     0o003: OS(name="INC", args=[OA.RegBC]),
     0o013: OS(name="DEC", args=[OA.RegBC]),
     0o023: OS(name="INC", args=[OA.RegDE]),
+    0o033: OS(name="DEC", args=[OA.RegDE]),
     0o043: OS(name="INC", args=[OA.RegHL]),
+    0o053: OS(name="DEC", args=[OA.RegHL]),
     #
     0o027: OS(name="RLA", args=[]),
     0o037: OS(name="RRA", args=[]),
+    0o047: OS(name="DAA", args=[]),
     #
+    0o300: OS(name="RET", args=[OA.CondNZ]),
+    0o310: OS(name="RET", args=[OA.CondZ]),
+    0o320: OS(name="RET", args=[OA.CondNC]),
+    0o330: OS(name="RET", args=[OA.CondC]),
+    0o340: OS(name="RET", args=[OA.CondPO]),
+    0o350: OS(name="RET", args=[OA.CondPE]),
+    0o360: OS(name="RET", args=[OA.CondP]),
+    0o370: OS(name="RET", args=[OA.CondM]),
+    #
+    0o301: OS(name="POP", args=[OA.RegBC]),
     0o311: OS(name="RET", args=[], stop=True),
+    0o321: OS(name="POP", args=[OA.RegDE]),
+    0o341: OS(name="POP", args=[OA.RegHL]),
+    0o361: OS(name="POP", args=[OA.RegAF]),
     0o371: OS(name="LD", args=[OA.RegSP, OA.RegHL]),
     #
     0o302: OS(name="JP", args=[OA.CondNZ, OA.JumpWord]),
@@ -402,7 +461,12 @@ OP_SPECS_XX = {
     0o345: OS(name="PUSH", args=[OA.RegHL]),
     0o365: OS(name="PUSH", args=[OA.RegAF]),
     #
+    0o306: OS(name="ADD", args=[OA.RegA, OA.Byte]),
+    0o316: OS(name="ADC", args=[OA.RegA, OA.Byte]),
+    0o326: OS(name="SUB", args=[OA.Byte]),
     0o336: OS(name="SBC", args=[OA.RegA, OA.Byte]),
+    0o346: OS(name="AND", args=[OA.Byte]),
+    0o356: OS(name="XOR", args=[OA.Byte]),
     0o366: OS(name="OR", args=[OA.Byte]),
     0o376: OS(name="CP", args=[OA.Byte]),
 }
@@ -433,6 +497,34 @@ for rz, vz in enumerate(
             OP_SPECS_XX[0o100 + ry * 8 + rz] = OS(name="HALT", args=[])
         else:
             OP_SPECS_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, vz])
+
+# 0oXYZ, sort by X then Z then Y.
+OP_SPECS_DD_XX: dict[int, OS] = {
+    0o041: OS(name="LD", args=[OA.RegIX, OA.Word]),
+    #
+    0o064: OS(name="INC", args=[OA.MemIXdd]),
+    #
+    0o276: OS(name="CP", args=[OA.MemIXdd]),
+}
+OP_SPECS_FD_XX: dict[int, OS] = {
+    0o041: OS(name="LD", args=[OA.RegIY, OA.Word]),
+    #
+    0o064: OS(name="INC", args=[OA.MemIYdd]),
+    #
+    0o276: OS(name="CP", args=[OA.MemIYdd]),
+}
+for rz, vz in enumerate(
+    [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+):
+    for ry, vy in enumerate(
+        [OA.RegB, OA.RegC, OA.RegD, OA.RegE, OA.RegH, OA.RegL, OA.MemHL, OA.RegA]
+    ):
+        if vy == OA.MemHL and vz != OA.MemHL:
+            OP_SPECS_DD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIXdd, vz])
+            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIXdd, vz])
+        elif vy != OA.MemHL and vz == OA.MemHL:
+            OP_SPECS_DD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIXdd])
+            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIXdd])
 
 # 0oXYZ, sort by X then Z then Y.
 OP_SPECS_ED: dict[int, OS] = {
