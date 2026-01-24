@@ -129,7 +129,10 @@ class Rom:
             assert self.label_to_addr[label] == addr
             return
         else:
-            self.label_to_addr[label] = addr
+            # Don't track relative labels here
+            if not (label.strip("-") == "" or label.strip("+") == ""):
+
+                self.label_to_addr[label] = addr
             if addr not in self.labels_from_addr:
                 self.labels_from_addr[addr] = []
             self.labels_from_addr[addr].append(label)
@@ -238,7 +241,13 @@ class Rom:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        op_args.append(f"${val:04X}")
+                        if 0xC000 <= val <= 0xDFFF:
+                            label = self.ensure_label(val)
+                            # No idea if this will actually be a word, but we can downsize it.
+                            #self.set_addr_type(val, AT.DataWord)
+                            op_args.append(f"{label}")
+                        else:
+                            op_args.append(f"${val:04X}")
 
                     elif a == OA.MemByteImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM
@@ -409,7 +418,7 @@ class Rom:
                 # Assume all banks past the first 2 want to be in slot 2
                 slot_idx = min(2, bank_idx)
                 outfp.write(
-                    f'\n.SECTION "Bank{bank_idx:02d}" SLOT {slot_idx} BANK {bank_idx} FORCE ORG $0000\n'
+                    f'\n.SECTION "Bank{bank_idx:02X}" SLOT {slot_idx} BANK ${bank_idx:02X} FORCE ORG $0000\n'
                 )
                 bank = self.data[bank_idx * bank_size :][:bank_size]
 
