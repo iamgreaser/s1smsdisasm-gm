@@ -66,13 +66,19 @@ class Rom:
 
     def _annotcmd_code(self, addr_str: str, label: str) -> None:
         addr = parse_int(addr_str)
-        print(f"code ${addr:05X} label {label!r}")
+        print(f"code addr ${addr:05X} label {label!r}")
         if addr not in self.addr_types:
             self.tracer_stack.append(addr)
         self.set_label(addr, label)
 
+    def _annotcmd_label(self, addr_str: str, label: str) -> None:
+        addr = parse_int(addr_str)
+        print(f"label addr ${addr:05X} label {label!r}")
+        self.set_label(addr, label)
+
     ANNOTCMDS = {
         "code": _annotcmd_code,
+        "label": _annotcmd_label,
     }
 
     def set_addr_type(self, addr: int, addr_type: AT) -> None:
@@ -257,7 +263,9 @@ class Rom:
                             # DD CB / FD CB case
                             # Format: DD CB xx op
                             val = ixy_cb_displacement
-                            reg = CONST_OAS[OA.RegIX if ixy_cb_mem == OA.MemIXdd else OA.RegIY]
+                            reg = CONST_OAS[
+                                OA.RegIX if ixy_cb_mem == OA.MemIXdd else OA.RegIY
+                            ]
                             if val >= 0:
                                 op_args.append(f"({reg}+{val})")
                             else:
@@ -466,6 +474,7 @@ class OA(enum.Enum):
     CondP = enum.auto()
     CondM = enum.auto()
 
+
 OA_CONST_0_7 = [
     OA.Const0,
     OA.Const1,
@@ -642,7 +651,6 @@ OP_SPECS_XX: dict[int, OS] = {
     0o356: OS(name="XOR", args=[OA.Byte]),
     0o366: OS(name="OR", args=[OA.Byte]),
     0o376: OS(name="CP", args=[OA.Byte]),
-
     0o307: OS(name="RST", args=[OA.ConstAddr00]),
     0o317: OS(name="RST", args=[OA.ConstAddr08]),
     0o327: OS(name="RST", args=[OA.ConstAddr10]),
@@ -768,9 +776,9 @@ for rz, vz in enumerate(
     OP_SPECS_CB[0o070 + rz] = OS(name="SRL", args=[vz])
 
     for ry in range(8):
-        OP_SPECS_CB[0o100 + (ry*8) + rz] = OS(name="BIT", args=[OA_CONST_0_7[ry], vz])
-        OP_SPECS_CB[0o200 + (ry*8) + rz] = OS(name="RES", args=[OA_CONST_0_7[ry], vz])
-        OP_SPECS_CB[0o300 + (ry*8) + rz] = OS(name="SET", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o100 + (ry * 8) + rz] = OS(name="BIT", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o200 + (ry * 8) + rz] = OS(name="RES", args=[OA_CONST_0_7[ry], vz])
+        OP_SPECS_CB[0o300 + (ry * 8) + rz] = OS(name="SET", args=[OA_CONST_0_7[ry], vz])
 
 
 def parse_int(s: str) -> int:
