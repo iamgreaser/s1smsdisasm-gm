@@ -7,6 +7,7 @@ from typing import (
     Sequence,
 )
 
+
 # Op Arg types
 class OA(enum.Enum):
     Byte = enum.auto()
