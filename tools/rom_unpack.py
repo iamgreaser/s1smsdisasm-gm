@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import enum
 import sys
 import zlib
+
+from typing import IO
 
 bank_size = 16 * 1024  # FIXED SIZE FOR THE SEGA MASTER SYSTEM AND GAME GEAR PLATFORMs
 bank_count = 16  # Set to 16 for a 256 KB ROM
@@ -14,13 +17,58 @@ def main() -> None:
     assert len(rom_data) == bank_count * bank_size
     assert (zlib.crc32(rom_data) & 0xFFFFFFFF) == rom_crc
     rom = Rom(data=rom_data)
-
+    rom.load_annotations(file_name=annot_fname)
     rom.save(file_name=whole_fname)
+
+
+class AT(enum.Enum):
+    DataByte = enum.auto()
+    Op = enum.auto()
 
 
 class Rom:
     def __init__(self, *, data: bytes) -> None:
         self.data = data
+        self.addr_types: dict[int, AT] = {}
+        self.label_to_addr: dict[str, int] = {}
+        self.labels_from_addr: dict[int, list[str]] = {}
+
+    def load_annotations(self, *, file_name: str) -> None:
+        with open(file_name, "r") as infp:
+            for line in infp.readlines():
+                # Remove trailing newlines and also some whitespace
+                # Also, convert tabs to spaces naively
+                line = line.strip().replace("\t", " ")
+
+                # Condense multiple whitespace
+                while "  " in line:
+                    line = line.replace("  ", " ")
+
+                if line != "":
+                    # Extract a command
+                    cmd, sep, line = line.partition(" ")
+                    type(self).ANNOTCMDS[cmd](self, *line.split(" "))
+
+    def _annotcmd_code(self, addr_str: str, label: str) -> None:
+        addr = parse_int(addr_str)
+        print(f"code ${addr:05X} label {label!r}")
+        self.set_addr_type(addr, AT.Op)
+        self.set_label(addr, label)
+
+    ANNOTCMDS = {
+        "code": _annotcmd_code,
+    }
+
+    def set_addr_type(self, addr: int, addr_type: AT) -> None:
+        assert self.addr_types.get(addr, addr_type) == addr_type
+        self.addr_types[addr] = addr_type
+
+    def set_label(self, addr: int, label: str) -> None:
+        assert label not in self.label_to_addr
+        self.label_to_addr[label] = addr
+        if addr not in self.labels_from_addr:
+            self.labels_from_addr[addr] = []
+        self.labels_from_addr[addr].append(label)
 
     def save(self, *, file_name: str) -> None:
         with open(file_name, "w") as outfp:
@@ -52,14 +100,48 @@ class Rom:
                     f'\n.SECTION "Bank{bank_idx:02d}" SLOT {slot_idx} BANK {bank_idx} FORCE ORG $0000\n'
                 )
                 bank = self.data[bank_idx * bank_size :][:bank_size]
+
+                prev_reladdr = 0
+                for reladdr in range(bank_size):
+                    phys_addr = reladdr + (bank_idx * bank_size)
+                    virt_addr = reladdr + (slot_idx * bank_size)
+                    if phys_addr in self.labels_from_addr:
+                        if prev_reladdr != reladdr:
+                            self.save_bytes(
+                                outfp=outfp,
+                                bank_idx=bank_idx,
+                                virt_addr=(slot_idx * bank_size) + prev_reladdr,
+                                data=bank[prev_reladdr:reladdr],
+                            )
+                            prev_reladdr = reladdr
+                        for label in self.labels_from_addr[phys_addr]:
+                            outfp.write(f"{label}:\n")
+
                 # Do a hexdump
-                for row_idx in range(bank_size // 16):
-                    row_addr = row_idx * 16
-                    row = ", ".join(f"${v:02X}" for v in bank[row_idx * 16 :][:16])
-                    outfp.write(
-                        f".db {row}  ; {bank_idx:02d}:{(slot_idx*bank_size)+row_addr:04X}\n"
-                    )
+                self.save_bytes(
+                    outfp=outfp,
+                    bank_idx=bank_idx,
+                    virt_addr=(slot_idx * bank_size) + prev_reladdr,
+                    data=bank[prev_reladdr:],
+                )
+
                 outfp.write(f".ENDS\n")
+
+    def save_bytes(
+        self, *, outfp: IO[str], bank_idx: int, virt_addr: int, data: bytes
+    ) -> None:
+        for row_idx in range((len(data) + 16 - 1) // 16):
+            row_addr = row_idx * 16
+            row = ", ".join(f"${v:02X}" for v in data[row_idx * 16 :][:16])
+            row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
+            outfp.write(f".db {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
+
+
+def parse_int(s: str) -> int:
+    if s.startswith("$"):
+        return int(s[1:], 16)
+    else:
+        return int(s)
 
 
 if __name__ == "__main__":
