@@ -75,6 +75,7 @@ class Rom:
         "byte": AT.DataByte,
         "word": AT.DataWord,
         "wptr": AT.DataWordLabel,
+        "codewptr": AT.DataWordLabel,
     }
     LTYPESIZE = {
         AT.DataByte: 1,
@@ -94,9 +95,27 @@ class Rom:
         self.set_label(addr, label)
         self.set_addr_type(addr, ltype)
 
+    def _annotcmd_arraylabel(
+        self, addr_str: str, ltype_str: str, llen_str: str, label: str
+    ) -> None:
+        ltype = type(self).LTYPEMAP[ltype_str]
+        llen = parse_int(llen_str)
+        addr = parse_int(addr_str)
+        lsize = self.LTYPESIZE[ltype]
+        self.set_label(addr, label)
+        for i in range(llen):
+            self.set_addr_type(addr + (i * lsize), ltype)
+            if ltype == AT.DataWordLabel:
+                val = struct.unpack("<H", self.data[addr + (i * lsize):][:2])[0]
+                self.ensure_label(val, relative_to=addr)
+                if ltype_str == "codewptr":
+                    if val not in self.addr_types:
+                        self.tracer_stack.append(val)
+
     ANNOTCMDS = {
         "code": _annotcmd_code,
         "label": _annotcmd_label,
+        "arraylabel": _annotcmd_arraylabel,
     }
 
     def set_addr_type(self, addr: int, addr_type: AT) -> None:
@@ -583,11 +602,13 @@ class Rom:
                 assert row_size % 2 == 0
                 row_vals = [
                     struct.unpack("<H", data[row_addr + bi * 2 :][:2])[0]
-                    for bi in range(row_size//2)
+                    for bi in range(row_size // 2)
                 ]
                 if atype == AT.DataWordLabel:
                     print(f"{virt_addr:05X} {bank_idx:02X} {row_size:3d}")
-                    row_strs = [self.labels_from_addr.get(v, [f"${v:04X}"])[0] for v in row_vals]
+                    row_strs = [
+                        self.labels_from_addr.get(v, [f"${v:04X}"])[0] for v in row_vals
+                    ]
                 else:
                     row_strs = [f"${v:04X}" for v in row_vals]
                 row = ", ".join(row_strs)
