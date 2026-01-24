@@ -93,7 +93,7 @@ class Rom:
         addr = parse_int(addr_str)
         # print(f"label addr ${addr:05X} type {ltype} label {label!r}")
         self.set_label(addr, label)
-        self.set_addr_type(addr, ltype)
+        self.annot_set_addr_type(addr, ltype, ltype_str)
 
     def _annotcmd_arraylabel(
         self, addr_str: str, ltype_str: str, llen_str: str, label: str
@@ -104,13 +104,16 @@ class Rom:
         lsize = self.LTYPESIZE[ltype]
         self.set_label(addr, label)
         for i in range(llen):
-            self.set_addr_type(addr + (i * lsize), ltype)
-            if ltype == AT.DataWordLabel:
-                val = struct.unpack("<H", self.data[addr + (i * lsize):][:2])[0]
-                self.ensure_label(val, relative_to=addr)
-                if ltype_str == "codewptr":
-                    if val not in self.addr_types:
-                        self.tracer_stack.append(val)
+            self.annot_set_addr_type(addr + (i * lsize), ltype, ltype_str)
+
+    def annot_set_addr_type(self, addr: int, ltype: AT, ltype_str: str) -> None:
+        self.set_addr_type(addr, ltype)
+        if ltype == AT.DataWordLabel:
+            val = struct.unpack("<H", self.data[addr : addr + 2])[0]
+            self.ensure_label(val, relative_to=addr)
+            if ltype_str == "codewptr":
+                if val not in self.addr_types:
+                    self.tracer_stack.append(val)
 
     ANNOTCMDS = {
         "code": _annotcmd_code,
