@@ -46,6 +46,7 @@ class Rom:
         self.label_to_addr: dict[str, int] = {}
         self.labels_from_addr: dict[int, list[str]] = {}
         self.tracer_stack: list[int] = []
+        self.op_decodes: dict[int, tuple[int, str]] = {}
 
     def load_annotations(self, *, file_name: str) -> None:
         with open(file_name, "r") as infp:
@@ -145,16 +146,19 @@ class Rom:
                 print(f"TODO: Basic-decode op{extragrp} {op1:02X} {op1:03o}")
                 pass
             else:
+                op_args: list[str] = []
                 for a in spec.args:
                     if a == OA.Byte:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                         (val,) = struct.unpack("<B", bank[pc:][:1])
                         pc += 1
+                        op_args.append(f"${val:02X}")
 
                     elif a == OA.Word:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
+                        op_args.append(f"${val:04X}")
 
                     elif a == OA.MemByteImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM
@@ -162,6 +166,7 @@ class Rom:
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         self.set_label(val, f"addr_{val:05X}")
                         pc += 2
+                        op_args.append(f"(${val:04X})")
 
                     elif a == OA.MemWordImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM
@@ -169,6 +174,7 @@ class Rom:
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         self.set_label(val, f"addr_{val:05X}")
                         pc += 2
+                        op_args.append(f"(${val:04X})")
 
                     elif a == OA.JumpRelByte:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByteRelLabel)
@@ -178,66 +184,47 @@ class Rom:
                         self.set_label(val, f"addr_{val:05X}")
                         self.tracer_stack.append(val)
                         pc += 1
+                        op_args.append(f"${val&0xFFFF:04X}")
 
                     elif a == OA.JumpWord:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        if val < bank_size * 2:
+                        if val < bank_size * 1:
                             # TODO: Better overlay handling --GM
                             self.set_label(val, f"addr_{val:05X}")
                             self.tracer_stack.append(val)
+                            op_args.append(f"addr_{val:04X}")
+                        else:
+                            op_args.append(f"${val:04X}")
                         pc += 2
 
-                    elif a in {
-                        OA.RegAF,
-                        OA.RegBC,
-                        OA.RegDE,
-                        OA.RegHL,
-                        OA.RegSP,
-                        OA.RegIX,
-                        OA.RegIY,
-                        OA.RegAFShadow,
-                    }:
-                        pass
-
-                    elif a in {
-                        OA.RegA,
-                        OA.RegB,
-                        OA.RegC,
-                        OA.RegD,
-                        OA.RegE,
-                        OA.RegH,
-                        OA.RegL,
-                    }:
-                        pass
-
-                    elif a in {OA.MemHL, OA.MemBC, OA.MemDE}:
-                        pass
+                    elif a in CONST_OAS:
+                        op_args.append(CONST_OAS[a])
 
                     elif a in {OA.MemIXdd, OA.MemIYdd}:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         pc += 1
-
-                    elif a in {OA.Const0, OA.Const1, OA.Const2}:
-                        pass
-
-                    elif a in {
-                        OA.CondNZ,
-                        OA.CondZ,
-                        OA.CondNC,
-                        OA.CondC,
-                        OA.CondPO,
-                        OA.CondPE,
-                        OA.CondP,
-                        OA.CondM,
-                    }:
-                        pass
+                        reg = CONST_OAS[OA.RegIX if a == OA.MemIXdd else OA.RegIY]
+                        if val >= 0:
+                            op_args.append(f"({reg}+{val})")
+                        else:
+                            op_args.append(f"({reg}-{-val})")
 
                     else:
                         raise Exception(
                             f"TODO: Basic-decode op{extragrp} {op1:02X} {op1:03o} arg type {a!r}"
                         )
+
+                assert len(op_args) == len(spec.args)
+                op_args_str = (" " + ", ".join(op_args)) if len(op_args) >= 1 else ""
+                op_name = spec.name + (
+                    " " * (6 - len(spec.name)) if len(op_args) >= 1 else ""
+                )
+                op_name = op_name.lower()
+                op_str = f"{op_name}{op_args_str}"
+                # print(f"{bank_idx:02X}:{virt_addr:04X}: {op_str}")
+                self.op_decodes[phys_addr] = (pc - rel_addr, op_str)
 
                 if not spec.stop:
                     self.tracer_stack.append(bank_phys_addr + pc)
@@ -320,7 +307,14 @@ class Rom:
     ) -> None:
         for row_idx in range((len(data) + 16 - 1) // 16):
             row_addr = row_idx * 16
-            row = ", ".join(f"${v:02X}" for v in data[row_idx * 16 :][:16])
+            row_data = data[row_addr : row_addr + 16]
+            for i, d in enumerate(row_data):
+                op_phys_addr = virt_addr + row_addr + i
+                if op_phys_addr in self.op_decodes:
+                    op_len, op_str = self.op_decodes[op_phys_addr]
+                    outfp.write(f"; {op_phys_addr:05X}: {op_str}\n")
+
+            row = ", ".join(f"${v:02X}" for v in row_data)
             row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
             outfp.write(f".db {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
 
@@ -369,6 +363,39 @@ class OA(enum.Enum):
     CondPE = enum.auto()
     CondP = enum.auto()
     CondM = enum.auto()
+
+
+CONST_OAS = {
+    OA.RegAF: "af",
+    OA.RegBC: "bc",
+    OA.RegDE: "de",
+    OA.RegHL: "hl",
+    OA.RegSP: "sp",
+    OA.RegIX: "ix",
+    OA.RegIY: "iy",
+    OA.RegAFShadow: "af'",
+    OA.RegA: "a",
+    OA.RegB: "b",
+    OA.RegC: "c",
+    OA.RegD: "d",
+    OA.RegE: "e",
+    OA.RegH: "h",
+    OA.RegL: "l",
+    OA.MemHL: "(hl)",
+    OA.MemBC: "(bc)",
+    OA.MemDE: "(de)",
+    OA.Const0: "0",
+    OA.Const1: "1",
+    OA.Const2: "2",
+    OA.CondNZ: "nz",
+    OA.CondZ: "z",
+    OA.CondNC: "nc",
+    OA.CondC: "c",
+    OA.CondPO: "po",
+    OA.CondPE: "pe",
+    OA.CondP: "p",
+    OA.CondM: "m",
+}
 
 
 # Op Specs
