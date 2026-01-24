@@ -130,20 +130,25 @@ class Rom:
             return
         else:
             # Don't track relative labels here
-            if not (
-                label.strip("-") == ""
-                or label.strip("+") == ""
-                or label in {"__", "_f", "_b"}
-            ):
+            if not (label.strip("-") == "" or label.strip("+") == "" or label == "__"):
                 self.label_to_addr[label] = addr
             if addr not in self.labels_from_addr:
                 self.labels_from_addr[addr] = []
             self.labels_from_addr[addr].append(label)
 
-    def ensure_label(self, addr: int) -> str:
+    def ensure_label(self, addr: int, *, relative_to: int) -> str:
         if not addr in self.labels_from_addr:
             self.set_label(addr, f"addr_{addr:05X}")
-        return self.labels_from_addr[addr][0]
+        label = self.labels_from_addr[addr][0]
+        if label == "__":
+            if addr > relative_to:
+                return "_f"
+            elif addr < relative_to:
+                return "_b"
+            else:
+                raise Exception("TODO: Handle this `__` label case")
+        else:
+            return label
 
     def run_tracer(self) -> None:
         while len(self.tracer_stack) >= 1:
@@ -249,7 +254,7 @@ class Rom:
                             and val > 0x0000
                             and val in self.labels_from_addr
                         ):
-                            label = self.ensure_label(val)
+                            label = self.ensure_label(val, relative_to=pc-2)
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
@@ -259,7 +264,7 @@ class Rom:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        label = self.ensure_label(val)
+                        label = self.ensure_label(val, relative_to=pc-2)
                         self.set_addr_type(val, AT.DataByte)
                         op_args.append(f"({label})")
 
@@ -268,7 +273,7 @@ class Rom:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        label = self.ensure_label(val)
+                        label = self.ensure_label(val, relative_to=pc-2)
                         self.set_addr_type(val, AT.DataWord)
                         op_args.append(f"({label})")
 
@@ -283,7 +288,7 @@ class Rom:
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += pc + 1
                         assert val < bank_size * 2
-                        label = self.ensure_label(val)
+                        label = self.ensure_label(val, relative_to=pc-1)
                         self.tracer_stack.append(val)
                         pc += 1
                         op_args.append(f"{label}")
@@ -293,7 +298,7 @@ class Rom:
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         if val < bank_size * 1:
                             # TODO: Better overlay handling --GM
-                            label = self.ensure_label(val)
+                            label = self.ensure_label(val, relative_to=pc)
                             self.tracer_stack.append(val)
                             op_args.append(f"{label}")
                         else:
@@ -321,7 +326,7 @@ class Rom:
                                 # SPECIAL CASE FOR SONIC 1:
                                 # IY is, as far as I can tell, always set to D200.
                                 val += 0xD200
-                                label = self.ensure_label(val)
+                                label = self.ensure_label(val, relative_to=pc-1)
                                 op_args.append(f"(iy+{label}-IYBASE)")
                             else:
                                 if val >= 0:
@@ -348,7 +353,7 @@ class Rom:
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += 0xD200
                         pc += 1
-                        label = self.ensure_label(val)
+                        label = self.ensure_label(val, relative_to=pc-1)
                         op_args.append(f"(iy+{label}-IYBASE)")
 
                     else:
