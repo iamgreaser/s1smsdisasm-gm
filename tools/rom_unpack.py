@@ -524,7 +524,13 @@ class Rom:
                 outfp.write(f".ENDS\n")
 
     def save_bytes(
-        self, *, outfp: IO[str], bank_idx: int, phys_addr: int, virt_addr: int, data: bytes
+        self,
+        *,
+        outfp: IO[str],
+        bank_idx: int,
+        phys_addr: int,
+        virt_addr: int,
+        data: bytes,
     ) -> None:
         offs = 0
         prev_subregion_offs = 0
@@ -563,7 +569,7 @@ class Rom:
                         prev_subregion_type = ltype
 
                         outfp.write(
-                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
+                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {bank_idx:02X}:{virt_addr + offs:04X}\n"
                         )
                         offs += op_len
                         prev_subregion_offs = offs
