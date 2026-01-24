@@ -66,7 +66,7 @@ class Rom:
 
     def _annotcmd_code(self, addr_str: str, label: str) -> None:
         addr = parse_int(addr_str)
-        print(f"code addr ${addr:05X} label {label!r}")
+        # print(f"code addr ${addr:05X} label {label!r}")
         if addr not in self.addr_types:
             self.tracer_stack.append(addr)
         self.set_label(addr, label)
@@ -74,20 +74,23 @@ class Rom:
     LTYPEMAP = {
         "byte": AT.DataByte,
         "word": AT.DataWord,
+        "wptr": AT.DataWordLabel,
     }
     LTYPESIZE = {
         AT.DataByte: 1,
         AT.DataWord: 2,
+        AT.DataWordLabel: 2,
     }
     LTYPECMD = {
         AT.DataByte: "db",
         AT.DataWord: "dw",
+        AT.DataWordLabel: "dw",
     }
 
     def _annotcmd_label(self, addr_str: str, ltype_str: str, label: str) -> None:
         ltype = type(self).LTYPEMAP[ltype_str]
         addr = parse_int(addr_str)
-        print(f"label addr ${addr:05X} type {ltype} label {label!r}")
+        # print(f"label addr ${addr:05X} type {ltype} label {label!r}")
         self.set_label(addr, label)
         self.set_addr_type(addr, ltype)
 
@@ -99,22 +102,27 @@ class Rom:
     def set_addr_type(self, addr: int, addr_type: AT) -> None:
         # print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
         if self.addr_types.get(addr, addr_type) == addr_type:
-            if addr >= 1 and self.addr_types.get(addr-0x01, AT.DataByte) == AT.DataWord:
+            if (
+                addr >= 1
+                and self.addr_types.get(addr - 0x01, AT.DataByte) == AT.DataWord
+            ):
                 # Downsize for a split
-                self.addr_types[addr-0x01] = AT.DataByte
+                self.addr_types[addr - 0x01] = AT.DataByte
             self.addr_types[addr] = addr_type
         else:
             other_type = self.addr_types[addr]
             if other_type == AT.DataWord and addr_type == AT.DataByte:
                 # Downsize for a split
-                self.addr_types[addr+0x00] = AT.DataByte
-                self.addr_types[addr+0x01] = AT.DataByte
+                self.addr_types[addr + 0x00] = AT.DataByte
+                self.addr_types[addr + 0x01] = AT.DataByte
             elif other_type == AT.DataByte and addr_type == AT.DataWord:
                 # Block upsize
                 pass
             else:
                 print("FIXME: Op type derailment!")
-                print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
+                print(
+                    addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack
+                )
 
     def set_label(self, addr: int, label: str) -> None:
         if label in self.label_to_addr:
@@ -355,7 +363,7 @@ class Rom:
             outfp.write(f".ENDRO\n")
 
             # Write RAM addresses
-            outfp.write(f"\n.RAMSECTION \"RAMSection\" SLOT 3 FORCE ORGA $C000\n")
+            outfp.write(f'\n.RAMSECTION "RAMSection" SLOT 3 FORCE ORGA $C000\n')
             extra_ram_labels: list[str] = []
             prev_addr = 0xC000
             for addr in range(0xC000, 0xE000, 1):
@@ -766,6 +774,7 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     #
     0o066: OS(name="LD", args=[OA.MemIXdd, OA.Byte]),
     #
+    0o216: OS(name="ADC", args=[OA.RegA, OA.MemIXdd]),
     0o276: OS(name="CP", args=[OA.MemIXdd]),
     #
     0o341: OS(name="POP", args=[OA.RegIX]),
@@ -783,6 +792,7 @@ OP_SPECS_FD_XX: dict[int, OS] = {
     #
     0o066: OS(name="LD", args=[OA.MemIYdd, OA.Byte]),
     #
+    0o216: OS(name="ADC", args=[OA.RegA, OA.MemIYdd]),
     0o276: OS(name="CP", args=[OA.MemIYdd]),
     #
     0o341: OS(name="POP", args=[OA.RegIY]),
