@@ -130,8 +130,11 @@ class Rom:
             return
         else:
             # Don't track relative labels here
-            if not (label.strip("-") == "" or label.strip("+") == ""):
-
+            if not (
+                label.strip("-") == ""
+                or label.strip("+") == ""
+                or label in {"__", "_f", "_b"}
+            ):
                 self.label_to_addr[label] = addr
             if addr not in self.labels_from_addr:
                 self.labels_from_addr[addr] = []
