@@ -12,6 +12,8 @@ IY = $D200
   b6 = ?
   b7 = ?
 
+(IY+$03) contains the player 1 inputs from port $DC with its two player 2 inputs forced to 1 (unasserted).
+
 (IY+$06) is a bit field:
   b7 = ? (0 prevents an IRQ-provided palette load at a certain point)
 
