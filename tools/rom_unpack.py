@@ -190,7 +190,7 @@ class Rom:
                         self.set_label(val, f"addr_{val:05X}")
                         self.tracer_stack.append(val)
                         pc += 1
-                        op_args.append(f"${val&0xFFFF:04X}")
+                        op_args.append(f"addr_{val:05X}")
 
                     elif a == OA.JumpWord:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
@@ -288,7 +288,6 @@ class Rom:
                         for label in self.labels_from_addr[phys_addr]:
                             outfp.write(f"{label}:\n")
 
-                # Do a hexdump
                 self.save_bytes(
                     outfp=outfp,
                     bank_idx=bank_idx,
@@ -301,12 +300,35 @@ class Rom:
     def save_bytes(
         self, *, outfp: IO[str], bank_idx: int, virt_addr: int, data: bytes
     ) -> None:
-        self.save_hexdump(
-            outfp=outfp,
-            bank_idx=bank_idx,
-            virt_addr=virt_addr,
-            data=data,
-        )
+        offs = 0
+        prev_hexdump_offs = 0
+        while offs < len(data):
+            op_phys_addr = virt_addr + offs
+            if op_phys_addr in self.op_decodes:
+                if offs != prev_hexdump_offs:
+                    self.save_hexdump(
+                        outfp=outfp,
+                        bank_idx=bank_idx,
+                        virt_addr=virt_addr + prev_hexdump_offs,
+                        data=data[prev_hexdump_offs:offs],
+                    )
+                op_len, op_str = self.op_decodes[op_phys_addr]
+                outfp.write(
+                    f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {op_phys_addr:05X}\n"
+                )
+                offs += op_len
+                prev_hexdump_offs = offs
+            else:
+                offs += 1
+
+        if offs != prev_hexdump_offs:
+            self.save_hexdump(
+                outfp=outfp,
+                bank_idx=bank_idx,
+                virt_addr=virt_addr + prev_hexdump_offs,
+                data=data[prev_hexdump_offs:offs],
+            )
+            prev_hexdump_offs = offs
 
     def save_hexdump(
         self, *, outfp: IO[str], bank_idx: int, virt_addr: int, data: bytes
@@ -314,12 +336,6 @@ class Rom:
         for row_idx in range((len(data) + 16 - 1) // 16):
             row_addr = row_idx * 16
             row_data = data[row_addr : row_addr + 16]
-            for i, d in enumerate(row_data):
-                op_phys_addr = virt_addr + row_addr + i
-                if op_phys_addr in self.op_decodes:
-                    op_len, op_str = self.op_decodes[op_phys_addr]
-                    outfp.write(f"; {op_phys_addr:05X}: {op_str}\n")
-
             row = ", ".join(f"${v:02X}" for v in row_data)
             row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
             outfp.write(f".db {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
@@ -556,10 +572,10 @@ for rz, vz in enumerate(
     ):
         if vy == OA.MemHL and vz != OA.MemHL:
             OP_SPECS_DD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIXdd, vz])
-            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIXdd, vz])
+            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[OA.MemIYdd, vz])
         elif vy != OA.MemHL and vz == OA.MemHL:
             OP_SPECS_DD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIXdd])
-            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIXdd])
+            OP_SPECS_FD_XX[0o100 + ry * 8 + rz] = OS(name="LD", args=[vy, OA.MemIYdd])
 
 # 0oXYZ, sort by X then Z then Y.
 OP_SPECS_ED: dict[int, OS] = {
