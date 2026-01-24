@@ -241,10 +241,12 @@ class Rom:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        if 0xC000 <= val <= 0xDFFF:
+                        if 0xC000 <= val <= 0xDFFF or (
+                            val < 0xE000
+                            and val > 0x0000
+                            and val in self.labels_from_addr
+                        ):
                             label = self.ensure_label(val)
-                            # No idea if this will actually be a word, but we can downsize it.
-                            #self.set_addr_type(val, AT.DataWord)
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
