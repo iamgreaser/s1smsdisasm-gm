@@ -1,0 +1,10 @@
+# Build stuff
+/build/
+/out/
+
+# ROMs (go get your own)
+/baserom/
+
+# Generated source files
+/src/whole.asm
+
