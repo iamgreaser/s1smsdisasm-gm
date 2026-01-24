@@ -19,6 +19,8 @@ IY = $D200
   b3 = pause (toggled on NMI)
   b4 = selects one of two scanline effect palettes to use on scanline transition
 
+(IY+$09) is a bit field:
+  b1 = 1 if we want to keep interrupts disabled or at least unaffected when calling certain functions
 
 ($D247).b indicates palette change scanline effect state:
   $FF -> $FF = we're in vblank, line interrupt disabled
