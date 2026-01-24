@@ -465,6 +465,7 @@ class Rom:
                                 data=bank[prev_rel_addr:rel_addr],
                             )
                             prev_rel_addr = rel_addr
+                        outfp.write(f"\n")
                         for label in self.labels_from_addr[phys_addr]:
                             outfp.write(f"{label}:\n")
 
