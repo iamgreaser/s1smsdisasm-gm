@@ -33,7 +33,7 @@ class Annotator:
             self.ANNOTCMDS[cmd](self, *line.split(" "))  # type: ignore
 
     def _annotcmd_code(self, addr_str: str, label: str) -> None:
-        addr = parse_int(addr_str)
+        addr = parse_addr(addr_str)
         # print(f"code addr ${addr:05X} label {label!r}")
         if addr not in self.rom.addr_types:
             self.rom.tracer_stack.append(addr)
@@ -41,7 +41,7 @@ class Annotator:
 
     def _annotcmd_label(self, addr_str: str, ltype_str: str, label: str) -> None:
         ltype = LTYPEMAP[ltype_str]
-        addr = parse_int(addr_str)
+        addr = parse_addr(addr_str)
         # print(f"label addr ${addr:05X} type {ltype} label {label!r}")
         self.rom.set_label(addr, label)
         self.annot_set_addr_type(addr, ltype, ltype_str)
@@ -51,7 +51,7 @@ class Annotator:
     ) -> None:
         ltype = LTYPEMAP[ltype_str]
         llen = parse_int(llen_str)
-        addr = parse_int(addr_str)
+        addr = parse_addr(addr_str)
         lsize = LTYPESIZE[ltype]
         self.rom.set_label(addr, label)
         for i in range(llen):
@@ -78,3 +78,26 @@ def parse_int(s: str) -> int:
         return int(s[1:], 16)
     else:
         return int(s)
+
+
+def parse_addr(s: str) -> int:
+    if len(s) != 7 or s[2] != ":":
+        raise Exception(f"expected bb:pppp for addr, got {s!r} instead")
+    bank_idx = int(s[0:][:2], 16)
+    virt_addr = int(s[3:][:4], 16)
+    if bank_idx == 0x00:
+        if not (0x0000 <= virt_addr <= 0x3FFF):
+            raise Exception(f"TODO: support 00 bank for slot for {s!r}")
+    elif bank_idx == 0x01:
+        if not (0x4000 <= virt_addr <= 0x7FFF):
+            raise Exception(f"TODO: support 01 bank for slot for {s!r}")
+    elif bank_idx == 0x02:
+        if not (0x8000 <= virt_addr <= 0xBFFF):
+            raise Exception(f"TODO: support 02 bank for slot for {s!r}")
+    elif bank_idx == 0xF0:
+        if not (0xC000 <= virt_addr <= 0xFFFF):
+            raise Exception(f"TODO: support F0 bank for slot for {s!r}")
+    else:
+        raise Exception(f"TODO: support bank for {s!r}")
+
+    return virt_addr
