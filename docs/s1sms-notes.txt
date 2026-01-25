@@ -15,7 +15,7 @@ IY = $D200
 (IY+$03) contains the player 1 inputs from port $DC with its two player 2 inputs forced to 1 (unasserted).
 
 (IY+$06) is a bit field:
-  b4 = ?
+  b4 = 1 if we want to use (D2D3).b as a level instead of our main level counter
   b7 = ? (0 prevents an IRQ-provided palette load at a certain point)
 
 (IY+$07) is a bit field:
@@ -32,3 +32,45 @@ IY = $D200
   $03 -> $02 = line interrupt, set next trigger to ($D248).b minus the current scanline (+ 1)
   $02 -> $01 = line interrupt, do nothing but advance
   $01 -> $00 = line interrupt, load palette + disable line interrupt
+
+05:5580 is a word array for level indices mapping to level header pointers relative to 05:5580 itself.
+.dw $004A, $006F, $0094, $00DE, $0103, $0128, $014D, $0172  ; 05:5580 00-07
+.dw $0197, $01BC, $01E1, $0206, $022B, $0250, $02BF, $0378  ; 05:5590 08-0F
+.dw $039D, $03C2, $00B9, $0000, $0275, $029A, $032E, $0353  ; 05:55A0 10-17
+.dw $02E4, $0309, $03E7, $03E7, $040C, $0431, $0456, $047B  ; 05:55B0 18-1F
+.dw $04A0, $04C5, $04EA, $050F, $0000, $0000, $1001, $4000  ; 05:55C0 20-27
+
+Level list:
+Nabbed and extended from the Sonic Retro wiki, then cross-referenced with the level header table, TODO verify --GM
+$XX/$YY form: $XX = g_level index, $YY = level header index ($-- = no level header)
+- $00/$00: Green Hill Zone 1
+- $01/$01: Green Hill Zone 2
+- $02/$02: Green Hill Zone 3
+- $03/$04: Bridge Zone 1
+- $04/$05: Bridge Zone 2
+- $05/$06: Bridge Zone 3
+- $06/$07: Jungle Zone 1
+- $07/$08: Jungle Zone 2
+- $08/$09: Jungle Zone 3
+- $09/$0A: Labyrinth Zone 1
+- $0A/$0B: Labyrinth Zone 2
+- $0B/$0C: Labyrinth Zone 3
+- $0C/$0D: Scrap Brain Zone 1
+- $0D/$0E: Scrap Brain Zone 2
+- $0E/$11: Scrap Brain Zone 3
+- $0F/$16: Sky Base Zone 1
+- $10/$17: Sky Base Zone 2
+- $11/$18: Sky Base Zone 3
+- $12/$03: End Game
+- $13/$--: ? (00:155E checks 00:172F has a different behaviour)
+- $1A/$19: Maybe shows an island for a bit? TODO CHECK
+- $1B/$19: Shows an island for a bit?
+- $1C/$1A: Bonus Stage 1
+- $1D/$1B: Bonus Stage 2
+- $1E/$1C: Bonus Stage 3
+- $1F/$1D: Bonus Stage 4
+- $20/$1E: Bonus Stage 5
+- $21/$1F: Bonus Stage 6
+- $22/$20: Bonus Stage 7
+- $23/$21: Bonus Stage 8
+
