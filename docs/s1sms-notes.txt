@@ -23,6 +23,9 @@ IY = $D200
   b3 = pause (toggled on NMI)
   b4 = selects one of two scanline effect palettes to use on scanline transition
 
+(IY+$08) is a bit field:
+  b1 = ? (set to 1 when object type 0x00 is spawned?)
+
 (IY+$09) is a bit field:
   b1 = 1 if we want to keep interrupts disabled or at least unaffected when calling certain functions
 
@@ -73,4 +76,35 @@ $XX/$YY form: $XX = g_level index, $YY = level header index ($-- = no level head
 - $21/$1F: Bonus Stage 6
 - $22/$20: Bonus Stage 7
 - $23/$21: Bonus Stage 8
+
+RNG function is at 00:0625:
+
+    push   hl                           ; 00:0625 - E5
+    push   de                           ; 00:0626 - D5
+    ld     hl, (var_D2D7)               ; 00:0627 - 2A D7 D2
+    ld     e, l                         ; 00:062A - 5D
+    ld     d, h                         ; 00:062B - 54
+    add    hl, de                       ; 00:062C - 19
+    add    hl, de                       ; 00:062D - 19
+    ld     a, l                         ; 00:062E - 7D
+    add    a, h                         ; 00:062F - 84
+    ld     h, a                         ; 00:0630 - 67
+    add    a, l                         ; 00:0631 - 85
+    ld     l, a                         ; 00:0632 - 6F
+    ld     de, $0054                    ; 00:0633 - 11 54 00
+    add    hl, de                       ; 00:0636 - 19
+    ld     (var_D2D7), hl               ; 00:0637 - 22 D7 D2
+    ld     a, h                         ; 00:063A - 7C
+    pop    de                           ; 00:063B - D1
+    pop    hl                           ; 00:063C - E1
+    ret                                 ; 00:063D - C9
+
+Rough translation (TODO CHECK):
+
+    hl = seed*3
+    a = l+h
+    h = a
+    l = a+l
+    seed = hl + 84
+    return seed>>8
 
