@@ -14,8 +14,12 @@ IY = $D200
 
 (IY+$03) contains the player 1 inputs from port $DC with its two player 2 inputs forced to 1 (unasserted).
 
+(IY+$05) is a bit field:
+  b0 = ? (used in objfuncs, 1 makes 00:3956 terminate early with CF=1)
+
 (IY+$06) is a bit field:
   b4 = 1 if we want to use (D2D3).b as a level instead of our main level counter
+  b5 = ? (set to 1 somewhere in objfunc for object type $04)
   b7 = ? (0 prevents an IRQ-provided palette load at a certain point)
 
 (IY+$07) is a bit field:
@@ -35,6 +39,35 @@ IY = $D200
   $03 -> $02 = line interrupt, set next trigger to ($D248).b minus the current scanline (+ 1)
   $02 -> $01 = line interrupt, do nothing but advance
   $01 -> $00 = line interrupt, load palette + disable line interrupt
+
+In-memory object structure:
+
+(IX+$00).b is the object type:
+  $01 = monitor: rings
+  $03 = monitor: life - can behave like a ring monitor if (IX+$18).b.b2=1
+  $07 = signpost?
+  $1D = floor buttons in LAB1, SCRx?
+
+(IX+$07).t is X velocity.
+(IX+$0A).t is Y velocity.
+
+(IX+$11).b is...? Y-pos related? (at least for $1E button-triggered doors)
+
+(IX+$13).b is...?
+  For $03 life monitors:
+    On BRI2, this is a counter which bobs the monitor in the water.
+    Starts from 0.
+    If < 60, go down by $000040, otherwise go up by $000040.
+    After that, increment. When it hits 80, reset to 40.
+
+(IX+$18).b is a bit field:
+  For $03 life monitors:
+    b2 = 1 if this is to behave like a ring monitor (for LAB1)
+
+  For $1E button-triggered doors:
+    b1 = (TODO work out which way around) denotes opening or closing, relative to the level's button flag
+    See 02:A4E5.
+
 
 05:5580 is a word array for level indices mapping to level header pointers relative to 05:5580 itself.
 .dw $004A, $006F, $0094, $00DE, $0103, $0128, $014D, $0172  ; 05:5580 00-07
@@ -77,6 +110,10 @@ $XX/$YY form: $XX = g_level index, $YY = level header index ($-- = no level head
 - $22/$20: Bonus Stage 7
 - $23/$21: Bonus Stage 8
 
+Level-specific flags in D317:
+
+- LAB1: Switch to reveal a certain ring monitor is actually a life monitor.
+
 RNG function is at 00:0625:
 
     push   hl                           ; 00:0625 - E5
@@ -107,4 +144,85 @@ Rough translation (TODO CHECK):
     l = a+l
     seed = hl + 84
     return seed>>8
+
+
+This snippet pertains to game over (or at least allows for a continue)?
+
+addr_0207E:
+   bit    7, (iy+var_D206-IYBASE)      ; 00:207E - FD CB 06 7E
+   call   nz, addr_020A4               ; 00:2082 - C4 A4 20
+   ld     a, (g_lives)                 ; 00:2085 - 3A 46 D2
+   and    a                            ; 00:2088 - A7
+   ld     a, $02                       ; 00:2089 - 3E 02
+   ret    nz                           ; 00:208B - C0
+   call   addr_00A40                   ; 00:208C - CD 40 0A
+   call   UNK_005E2                    ; 00:208F - CD E2 05
+   res    5, (iy+var_D200-IYBASE)      ; 00:2092 - FD CB 00 AE
+   call   addr_01401                   ; 00:2096 - CD 01 14
+   ld     a, $00                       ; 00:2099 - 3E 00
+   ret    nc                           ; 00:209B - D0
+   ld     a, $03                       ; 00:209C - 3E 03
+   ld     (g_lives), a                 ; 00:209E - 32 46 D2
+   ld     a, $01                       ; 00:20A1 - 3E 01
+   ret                                 ; 00:20A3 - C9
+
+This snippet pertains to HUD life display and is the start of a function:
+
+addr_02E5A:
+   res    7, (iy+var_D207-IYBASE)      ; 00:2E5A - FD CB 07 BE
+   ld     hl, $2E55                    ; 00:2E5E - 21 55 2E
+   ld     de, var_D2BE                 ; 00:2E61 - 11 BE D2
+   ld     bc, $0005                    ; 00:2E64 - 01 05 00
+   ldir                                ; 00:2E67 - ED B0
+   ld     a, (g_lives)                 ; 00:2E69 - 3A 46 D2
+   cp     $09                          ; 00:2E6C - FE 09
+   jr     c, addr_02E72                ; 00:2E6E - 38 02
+   ld     a, $09                       ; 00:2E70 - 3E 09
+
+This snippet pertains to a level-specific life monitor being broken:
+
+addr_05C21:
+   ld     hl, $0003                    ; 01:5C21 - 21 03 00
+   ld     (var_D214), hl               ; 01:5C24 - 22 14 D2
+   call   UNK_03956                    ; 01:5C27 - CD 56 39
+   jr     c, addr_05C5A                ; 01:5C2A - 38 2E
+   call   addr_05DEB                   ; 01:5C2C - CD EB 5D
+   jr     c, addr_05C5A                ; 01:5C2F - 38 29
+   bit    2, (ix+24)                   ; 01:5C31 - DD CB 18 56
+   jp     nz, addr_05B24               ; 01:5C35 - C2 24 5B <-- This breaks a ring box.
+   ld     hl, g_lives                  ; 01:5C38 - 21 46 D2
+   inc    (hl)                         ; 01:5C3B - 34
+   ld     hl, var_D305                 ; 01:5C3C - 21 05 D3
+   call   calc_level_offset_HL_and_mask_C  ; 01:5C3F - CD 02 0C
+   ld     a, (hl)                      ; 01:5C42 - 7E
+   or     c                            ; 01:5C43 - B1
+   ld     (hl), a                      ; 01:5C44 - 77
+   xor    a                            ; 01:5C45 - AF
+   ld     (ix+15), a                   ; 01:5C46 - DD 77 0F
+   ld     (ix+16), a                   ; 01:5C49 - DD 77 10
+   ld     a, $09                       ; 01:5C4C - 3E 09
+   rst    $28                          ; 01:5C4E - EF
+   ld     a, (g_level)                 ; 01:5C4F - 3A 3E D2
+   cp     $1C                          ; 01:5C52 - FE 1C
+   ret    nc                           ; 01:5C54 - D0
+   ld     hl, var_D280                 ; 01:5C55 - 21 80 D2
+   inc    (hl)                         ; 01:5C58 - 34
+   ret                                 ; 01:5C59 - C9
+
+This snippet pertains to a bunch of level-specific kludges for life monitors:
+
+addr_05C5A:
+   ld     a, (g_level)                 ; 01:5C5A - 3A 3E D2
+   ;; BRI2, bob in the water w/ (IX+$0A).t=+/-$000040 depending on incrementing counter (IX+$13).b
+   cp     $04                          ; 01:5C5D - FE 04
+   jr     z, addr_05C73                ; 01:5C5F - 28 12
+   ;; LAB1, set (IX+$18).b.b2=1 or clear it if this level's flag in D317 is set
+   cp     $09                          ; 01:5C61 - FE 09
+   jr     z, addr_05C9C                ; 01:5C63 - 28 37
+   ;; SCR1, set (IX+$18).b.b1=1 and (IX+$07).t to $000080
+   cp     $0C                          ; 01:5C65 - FE 0C
+   jr     z, addr_05CB8                ; 01:5C67 - 28 4F
+   ;; SKY3, disable if less than 17 lives were collected.
+   cp     $11                          ; 01:5C69 - FE 11
+   jr     z, addr_05CCA                ; 01:5C6B - 28 5D
 
