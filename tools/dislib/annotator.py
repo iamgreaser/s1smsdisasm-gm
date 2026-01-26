@@ -60,11 +60,14 @@ class Annotator:
     def annot_set_addr_type(self, addr: int, ltype: AT, ltype_str: str) -> None:
         self.rom.set_addr_type(addr, ltype)
         if ltype == AT.DataWordLabel:
-            val = struct.unpack("<H", self.rom.data[addr : addr + 2])[0]
-            self.rom.ensure_label(val, relative_to=addr)
-            if ltype_str == "codewptr":
-                if val not in self.rom.addr_types:
-                    self.rom.tracer_stack.append(val)
+            if (
+                addr < 0xC000
+            ):  # Don't try to load from RAM and accidentally load from bank 03!
+                val = struct.unpack("<H", self.rom.data[addr : addr + 2])[0]
+                self.rom.ensure_label(val, relative_to=addr)
+                if ltype_str == "codewptr":
+                    if val not in self.rom.addr_types:
+                        self.rom.tracer_stack.append(val)
 
     ANNOTCMDS = {
         "code": _annotcmd_code,
