@@ -28,8 +28,8 @@ BANKS 16
 .DEF g_inputs_player_1 $D203
 .DEF g_saved_vdp_reg_00 $D218
 .DEF g_saved_vdp_reg_01 $D219
-.DEF var_D20A $D20A
-.DEF var_D20E $D20E
+.DEF g_sprite_count $D20A
+.DEF g_FF_string_high_byte $D20E
 
 .DEF var_D2B4 $D2B4
 .DEF var_D2FC $D2FC
@@ -375,7 +375,7 @@ addr_00A33:
 
       ;; Print some text using EBCDIC-Sonic1-A. Or whatever this ad-hoc encoding is called.
       ld a, $00
-      ld (var_D20E), a
+      ld (g_FF_string_high_byte), a
       ld hl, _lsel_rows
       --:
          push hl
@@ -413,7 +413,7 @@ addr_00A33:
          ld (iy+g_last_rle_byte-IYBASE), a
          ;; Show a cursor.
          ;; Use 1 sprite.
-         ld (iy+var_D20A-IYBASE), 1    ; sprite count
+         ld (iy+g_sprite_count-IYBASE), 0
          ld a, (g_level)
          rlca
          rlca
@@ -426,7 +426,7 @@ addr_00A33:
          inc hl
          ld (hl), $00 ; Graphic
          inc hl
-         ld (iy+var_D20A-IYBASE), 1    ; sprite count
+         inc (iy+g_sprite_count-IYBASE)
          set 1, (iy+var_D200-IYBASE)
          res 0, (iy+var_D200-IYBASE)      ; 00:0E8D - FD CB 00 86
          call   wait_until_irq_ticked        ; 00:0E91 - CD 1C 03
