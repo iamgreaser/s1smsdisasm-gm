@@ -4,6 +4,10 @@ import io
 import struct
 import sys
 
+from typing import (
+    Optional,
+)
+
 level_rle_offs = 0x14000
 level_header_ptr_array_offs = 0x15580
 level_header_count = 37
@@ -76,6 +80,9 @@ def main() -> None:
             accum: bytes = b""
             mask = 0x00
             mask_bitmask = 0x80
+            lz_hash: dict[bytes, int] = {}
+            lz_chain: list[Optional[int]] = []
+            lz_hash_key_len = 2
             while ri < len(unpackdata):
                 # Ensure we can write another bit
                 if mask_bitmask == 0:
@@ -88,28 +95,35 @@ def main() -> None:
                 best_len = 0
                 best_offs = 0
                 best_saving = 0  # Bits saved relative to a literal chain.
-                for cmp_offs in range(ri - 1, 0 - 1, -1):
-                    cmp_len = 0
-                    for i in range(0xFE + 1):
-                        if (
-                            ri + i < len(unpackdata)
-                            and unpackdata[cmp_offs + i] == unpackdata[ri + i]
-                        ):
-                            cmp_len += 1
-                        else:
-                            break
-                    cmp_cost = (
-                        ((8 * 3) + 1)
-                        if (0x10000 + (best_offs - ri)) >= 0xFF80
-                        else ((8 * 2) + 1)
-                    )
-                    cmp_saving = (9 * cmp_len) - cmp_cost
-                    if cmp_saving > best_saving:
-                        best_len = cmp_len
-                        best_offs = cmp_offs
-                        best_saving = cmp_saving
+                if ri+lz_hash_key_len <= len(unpackdata):
+                    key = unpackdata[ri:ri+lz_hash_key_len]
+                    assert len(key) == lz_hash_key_len
+                    opt_cmp_offs = lz_hash.get(key, None)
+                    while opt_cmp_offs is not None:
+                        cmp_offs: int = opt_cmp_offs
+                        opt_cmp_offs = lz_chain[cmp_offs]
+                        cmp_len = 0
+                        for i in range(0xFE + 1):
+                            if (
+                                ri + i < len(unpackdata)
+                                and unpackdata[cmp_offs + i] == unpackdata[ri + i]
+                            ):
+                                cmp_len += 1
+                            else:
+                                break
+                        cmp_cost = (
+                            ((8 * 3) + 1)
+                            if (0x10000 + (best_offs - ri)) >= 0xFF80
+                            else ((8 * 2) + 1)
+                        )
+                        cmp_saving = (9 * cmp_len) - cmp_cost
+                        if cmp_saving > best_saving:
+                            best_len = cmp_len
+                            best_offs = cmp_offs
+                            best_saving = cmp_saving
 
                 do_copy = best_len >= 3
+                #do_copy = best_saving > 0  # TODO: Find out why this is worse overall --GM
                 if do_copy:
                     # Write a copy!
                     mask |= mask_bitmask
@@ -123,10 +137,19 @@ def main() -> None:
                         # hi then lo offset
                         accum += bytes([(offsval >> 8) & ~0x80])
                         accum += bytes([offsval & 0xFF])
-                    ri += best_len
                 else:
                     # Write a literal!
                     accum += bytes([unpackdata[ri]])
+                    best_len = 1
+
+                # Fill in hash chain
+                for i in range(best_len):
+                    if ri+lz_hash_key_len <= len(unpackdata):
+                        key = unpackdata[ri:ri+lz_hash_key_len]
+                        assert len(lz_chain) == ri
+                        old_offs = lz_hash.get(key, None)
+                        lz_hash[key] = len(lz_chain)
+                        lz_chain.append(old_offs)
                     ri += 1
 
                 # Advance the mask
