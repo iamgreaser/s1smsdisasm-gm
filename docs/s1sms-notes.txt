@@ -1,52 +1,52 @@
 IY = $D200
 
 (IY+$00) is a bit field:
-  b0 = 0 if waiting for vblank, 1 if vblank fired
-  b2 = ? signals D225=HL, D227=DE, D229=BC
-  b3 = 1 if sending a palette change from the main thread, D22B=HL, D22F=A
-    D22B=HL = palette
-    D22F=A  = bit flags:
-      bit 0 = send palette 0
-      bit 1 = send palette 1
-  b5 = ?
-  b6 = ?
-  b7 = ?
+   b0 = 0 if waiting for vblank, 1 if vblank fired
+   b2 = ? signals D225=HL, D227=DE, D229=BC
+   b3 = 1 if sending a palette change from the main thread, D22B=HL, D22F=A
+      D22B=HL = palette
+      D22F=A  = bit flags:
+         bit 0 = send palette 0
+         bit 1 = send palette 1
+   b5 = ?
+   b6 = ?
+   b7 = ?
 
 (IY+$03) contains the player 1 inputs from port $DC with its two player 2 inputs forced to 1 (unasserted).
 
 (IY+$05) is a bit field:
-  b0 = ? (used in objfuncs, 1 makes 00:3956 terminate early with CF=1)
+   b0 = ? (used in objfuncs, 1 makes 00:3956 terminate early with CF=1)
 
 (IY+$06) is a bit field:
-  b4 = 1 if we want to use (D2D3).b as a level instead of our main level counter
-  b5 = ? (set to 1 somewhere in objfunc for object type $04)
-  b7 = ? (0 prevents an IRQ-provided palette load at a certain point)
+   b4 = 1 if we want to use (D2D3).b as a level instead of our main level counter
+   b5 = ? (set to 1 somewhere in objfunc for object type $04)
+   b7 = ? (0 prevents an IRQ-provided palette load at a certain point)
 
 (IY+$07) is a bit field:
-  b0 = 1 if we need to do a bonus stage
-  b3 = pause (toggled on NMI)
-  b4 = selects one of two scanline effect palettes to use on scanline transition
+   b0 = 1 if we need to do a bonus stage
+   b3 = pause (toggled on NMI)
+   b4 = selects one of two scanline effect palettes to use on scanline transition
 
 (IY+$08) is a bit field:
-  b1 = ? (set to 1 when object type 0x00 is spawned?)
+   b1 = ? (set to 1 when object type 0x00 is spawned?)
 
 (IY+$09) is a bit field:
-  b1 = 1 if we want to keep interrupts disabled or at least unaffected when calling certain functions
+   b1 = 1 if we want to keep interrupts disabled or at least unaffected when calling certain functions
 
 ($D247).b indicates palette change scanline effect state:
-  $FF -> $FF = we're in vblank, line interrupt disabled
-  $00 -> $03 = we're in vblank, enable line interrupt + trigger after $0A+1 lines
-  $03 -> $02 = line interrupt, set next trigger to ($D248).b minus the current scanline (+ 1)
-  $02 -> $01 = line interrupt, do nothing but advance
-  $01 -> $00 = line interrupt, load palette + disable line interrupt
+   $FF -> $FF = we're in vblank, line interrupt disabled
+   $00 -> $03 = we're in vblank, enable line interrupt + trigger after $0A+1 lines
+   $03 -> $02 = line interrupt, set next trigger to ($D248).b minus the current scanline (+ 1)
+   $02 -> $01 = line interrupt, do nothing but advance
+   $01 -> $00 = line interrupt, load palette + disable line interrupt
 
 In-memory object structure:
 
 (IX+$00).b is the object type:
-  $01 = monitor: rings
-  $03 = monitor: life - can behave like a ring monitor if (IX+$18).b.b2=1
-  $07 = signpost?
-  $1D = floor buttons in LAB1, SCRx?
+   $01 = monitor: rings
+   $03 = monitor: life - can behave like a ring monitor if (IX+$18).b.b2=1
+   $07 = signpost?
+   $1D = floor buttons in LAB1, SCRx?
 
 (IX+$07).t is X velocity.
 (IX+$0A).t is Y velocity.
@@ -54,19 +54,19 @@ In-memory object structure:
 (IX+$11).b is...? Y-pos related? (at least for $1E button-triggered doors)
 
 (IX+$13).b is...?
-  For $03 life monitors:
-    On BRI2, this is a counter which bobs the monitor in the water.
-    Starts from 0.
-    If < 60, go down by $000040, otherwise go up by $000040.
-    After that, increment. When it hits 80, reset to 40.
+   For $03 life monitors:
+      On BRI2, this is a counter which bobs the monitor in the water.
+      Starts from 0.
+      If < 60, go down by $000040, otherwise go up by $000040.
+      After that, increment. When it hits 80, reset to 40.
 
 (IX+$18).b is a bit field:
-  For $03 life monitors:
-    b2 = 1 if this is to behave like a ring monitor (for LAB1)
+   For $03 life monitors:
+      b2 = 1 if this is to behave like a ring monitor (for LAB1)
 
-  For $1E button-triggered doors:
-    b1 = (TODO work out which way around) denotes opening or closing, relative to the level's button flag
-    See 02:A4E5.
+   For $1E button-triggered doors:
+      b1 = (TODO work out which way around) denotes opening or closing, relative to the level's button flag
+      See 02:A4E5.
 
 
 05:5580 is a word array for level indices mapping to level header pointers relative to 05:5580 itself.
@@ -110,40 +110,67 @@ $XX/$YY form: $XX = g_level index, $YY = level header index ($-- = no level head
 - $22/$20: Bonus Stage 7
 - $23/$21: Bonus Stage 8
 
+Actually useful list:
+0000: .db solidity_pointer
+0001: .dw floor_width
+0003: .dw floor_height
+0005: .dw level_offs_x0
+0007: .dw level_offs_x1
+0009: .dw level_offs_y0
+000B: .dw level_offs_y1
+000D: .db sonic_start_x
+000E: .db sonic_start_y
+000F: .dw floor_layout_ptr_from_14000
+0011: .dw floor_layout_size
+0013: .dw block_mapping_ptr_from_10000
+0015: .dw level_art_ptr_from_30000
+0017: .db 09
+0018: .dw sprite_art_ptr_from_24000
+001A: .db initial_palette
+001B: .db palette_cycle_speed
+001C: .db palette_cycle_count
+001D: .db palette_cycle_start_index
+001E: .dw object_layout_ptr_from_15580
+0020: .db flags_SR
+0021: .db flags_UW
+0022: .db flags_TL
+0024: .db 00
+0025: .db music_idx
+
 Level-specific flags in D317:
 
 - LAB1: Switch to reveal a certain ring monitor is actually a life monitor.
 
 RNG function is at 00:0625:
 
-    push   hl                           ; 00:0625 - E5
-    push   de                           ; 00:0626 - D5
-    ld     hl, (var_D2D7)               ; 00:0627 - 2A D7 D2
-    ld     e, l                         ; 00:062A - 5D
-    ld     d, h                         ; 00:062B - 54
-    add    hl, de                       ; 00:062C - 19
-    add    hl, de                       ; 00:062D - 19
-    ld     a, l                         ; 00:062E - 7D
-    add    a, h                         ; 00:062F - 84
-    ld     h, a                         ; 00:0630 - 67
-    add    a, l                         ; 00:0631 - 85
-    ld     l, a                         ; 00:0632 - 6F
-    ld     de, $0054                    ; 00:0633 - 11 54 00
-    add    hl, de                       ; 00:0636 - 19
-    ld     (var_D2D7), hl               ; 00:0637 - 22 D7 D2
-    ld     a, h                         ; 00:063A - 7C
-    pop    de                           ; 00:063B - D1
-    pop    hl                           ; 00:063C - E1
-    ret                                 ; 00:063D - C9
+   push   hl                           ; 00:0625 - E5
+   push   de                           ; 00:0626 - D5
+   ld     hl, (var_D2D7)               ; 00:0627 - 2A D7 D2
+   ld     e, l                         ; 00:062A - 5D
+   ld     d, h                         ; 00:062B - 54
+   add    hl, de                       ; 00:062C - 19
+   add    hl, de                       ; 00:062D - 19
+   ld     a, l                         ; 00:062E - 7D
+   add    a, h                         ; 00:062F - 84
+   ld     h, a                         ; 00:0630 - 67
+   add    a, l                         ; 00:0631 - 85
+   ld     l, a                         ; 00:0632 - 6F
+   ld     de, $0054                    ; 00:0633 - 11 54 00
+   add    hl, de                       ; 00:0636 - 19
+   ld     (var_D2D7), hl               ; 00:0637 - 22 D7 D2
+   ld     a, h                         ; 00:063A - 7C
+   pop    de                           ; 00:063B - D1
+   pop    hl                           ; 00:063C - E1
+   ret                                 ; 00:063D - C9
 
 Rough translation (TODO CHECK):
 
-    hl = seed*3
-    a = l+h
-    h = a
-    l = a+l
-    seed = hl + 84
-    return seed>>8
+   hl = seed*3
+   a = l+h
+   h = a
+   l = a+l
+   seed = hl + 84
+   return seed>>8
 
 
 This snippet pertains to game over (or at least allows for a continue)?
@@ -226,3 +253,59 @@ addr_05C5A:
    cp     $11                          ; 01:5C69 - FE 11
    jr     z, addr_05CCA                ; 01:5C6B - 28 5D
 
+
+Music:
+Call RST $18 with A set to one of the below to change the music.
+- this defers to 00:02D7
+- which sets slot 1 to 03, sets $D2D2 to A, and calls 03:4012
+- which jumps to 03:46EB
+- PUSH HL, HL = 4716, A = A+2+L, L = A, A = 0
+- music table is a bunch of words at 03:4716.
+$00 = 03:47D0 Green Hill
+$01 = 03:574A Bridge
+$02 = 03:524A Jungle
+$03 = 03:760C Labyrinth
+$04 = 03:5B4F Scrap Brain
+$05 = 03:61A7 Sky Base Act 2
+$06 = 03:64C3 title screen
+$07 = 03:663C level intro map
+$08 = 03:6704 invincibility
+$09 = 03:68B4 level clear
+$0A = 03:6991 death
+$0B = 03:6AC0 boss fight
+$0C = 03:6AC0 (DUPE) boss fight
+$0D = 03:6AC0 (DUPE) boss fight
+$0E = 03:6D54 credits
+$0F = 03:47D0 (DUPE) Green Hill
+$10 = 03:712C Special Stage
+$11 = 03:47D0 (DUPE) Green Hill
+$12 = 03:47D0 (DUPE) Green Hill
+$13 = 03:798C good ending emerald scene
+$14 = 03:7A26 emerald get
+anything higher is likely to crash, we're pointing at 03:4740 now... maybe those are sound effects?
+
+sorted by pointer:
+   03:47D0 Green Hill
+   03:4D0A - UNMAPPED AND UNUSED! - Marble Zone
+      ^ This was discovered quite a few years ago but the SonicRetro wiki is down right now, so I had to find the pointer myself.
+        (UPDATE: it's back up)
+      It's immediately followed by the next track...
+   03:524A Jungle
+   03:574A Bridge
+   03:5B4F Scrap Brain
+   03:61A7 Sky Base Act 2
+   03:64C3 title screen
+   03:663C level intro map
+   03:6704 invincibility
+   03:68B4 level clear
+   03:6991 death
+   03:6AC0 boss fight
+   03:6D54 credits
+   03:712C Special Stage
+   03:760C Labyrinth
+   03:798C good ending emerald scene
+   03:7A26 emerald get
+
+Triggers:
+00:0D3C op const @ 00:0D3D = music sel for level intro map
+00:12D8 op const @ 00:12D9 = music sel for title screen

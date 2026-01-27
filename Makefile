@@ -1,6 +1,11 @@
-.PHONY: all
-all: out/s1.sms
+.PHONY: all build-all
+all: build-all
 
+BUILD_ALL_TARGETS::=
+
+include $(wildcard mods/*/build.mak)
+
+BUILD_ALL_TARGETS::=$(BUILD_ALL_TARGETS) out/s1.sms
 out/s1.sms: src/whole.lnk build/whole.o | out/
 	wlalink -r -s $< $@
 
@@ -13,3 +18,4 @@ src/whole.asm: baserom/sonic1.sms annot/sonic1.cfg tools/rom_unpack.py
 out/ build/:
 	install -D -d $@
 
+build-all: $(BUILD_ALL_TARGETS)
