@@ -40,7 +40,7 @@ BANKS 16
    ;ld     (g_level), a                 ; 00:1C5E - 32 3E D2
    ; end 1C61
 
-   ld hl, $1C0C       ; 1C58 3
+   ld hl, $1C00       ; 1C58 3
 
    ld (g_level), hl   ; 1C5B 3
    xor a              ; 1C5E 1
@@ -91,43 +91,53 @@ BANKS 16
 .ORGA $0A10
 .IF 1
    ;; LZSS
+   ; We omit pre-setting de to $C000 for two reasons:
+   ; 1. It saves 3 bytes, which we could do with.
+   ;    (Apparently not needed, I accidentally counted hex like it was decimal and was pessimistic by 6 bytes!)
+   ; 2. It means we can reuse this for other buffers in RAM.
 unpack_level_layout_into_ram:
-   ;ld de, var_C000               ; 0A10 3
 _lzss_fetch_mask:
    ;; Read mask
-   ld a, (hl)                    ; 0A13 1
-   scf                           ; 0A14 1
+   ld a, (hl)                    ; 0A10 1
+   scf                           ; 0A11 1
 _lzss_inc_hl_read_mask_bit:
-   inc hl                        ; 0A15 1 - 16-bit INC/DEC does not affect flags
+   inc hl                        ; 0A12 1 - 16-bit INC/DEC does not affect flags
 _lzss_read_mask_bit:
    ;; Process mask bit
-   adc a, a                      ; 0A16 1
-   jr z, _lzss_fetch_mask        ; 0A17 2
-   jr c, _lzss_handle_copy       ; 0A19 2
-   ldi                           ; 0A21 2 - does not affect flags, CF still clear
-   or a                          ; 0A23 1 - clear CF - TODO remove? --GM
-   jr _lzss_read_mask_bit        ; 0A24 2
+   adc a, a                      ; 0A13 1
+   jr z, _lzss_fetch_mask        ; 0A14 2
+   jr c, _lzss_handle_copy       ; 0A16 2
+   ldi                           ; 0A18 2 - does not affect flags, CF still clear
+   jr _lzss_read_mask_bit        ; 0A1A 2
 _lzss_handle_copy:
    ;; Load length
-   ld c, (hl)                    ; 0A26 1
-   inc c                         ; 0A27 1
-   ret z                         ; 0A28 1 - length byte $FF = terminate
-   inc hl                        ; 0A29 1
+   ld c, (hl)                    ; 0A1C 1
+   inc c                         ; 0A1D 1
+   ret z                         ; 0A1E 1 - length byte $FF = terminate
+   inc hl                        ; 0A1F 1
    ;; Load offset
-   ld b, (hl)                    ; 0A2A 1
-   inc hl                        ; 0A2B 1
-   push hl                       ; 0A2C 1
-      ld h, (hl)                 ; 0A2D 1
-      ld l, b                    ; 0A2E 1
+   ld b, (hl)                    ; 0A20 1
+   bit 7, b                      ; 0A21 2
+   jr z, +                       ; 0A23 2
+      ;; msbit = 1: short version, low byte
+      dec hl                     ; 0A25 1
+      ld b, $FF                  ; 0A26 2
+      ;; otherwise msbit = 0: long version, high byte needing fixup
+   +:
+   inc hl                        ; 0A28 1
+   push hl                       ; 0A29 1
+      ld l, (hl)                 ; 0A2A 1
+      ld h, b                    ; 0A2B 1
+      set 7, h                   ; 0A2C 2 - setting this is mandatory for the long offset version
       ;; Clean up length
-      ld b, $00                  ; 0A2F 2
+      ld b, $00                  ; 0A2E 2
       ;; Add offset and do copy
-      add hl, de                 ; 0A31 1 - DE negative, HL+DE unsigned overflows - CF set
-      ldir                       ; 0A32 2 - does not affect CF
-   pop hl                        ; 0A34 1
-   or a                          ; 0A35 1 - clear CF
-   jr _lzss_inc_hl_read_mask_bit ; 0A36 2
-   ; 0A38
+      add hl, de                 ; 0A30 1 - DE negative, HL+DE unsigned overflows - CF set
+      ldir                       ; 0A31 2 - does not affect CF
+   pop hl                        ; 0A32 1
+   or a                          ; 0A33 1 - clear CF
+   jr _lzss_inc_hl_read_mask_bit ; 0A34 2
+   ; 0A36
 
    ;; LIMIT: Stay below 0A40.
 
