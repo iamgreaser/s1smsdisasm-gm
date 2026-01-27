@@ -124,7 +124,7 @@ Actually useful list:
 0011: .dw floor_layout_size
 0013: .dw block_mapping_ptr_from_10000
 0015: .dw level_art_ptr_from_30000
-0017: .db 09
+0017: .db 09 <-- this appears to be a bank for the sprite art.
 0018: .dw sprite_art_ptr_from_24000
 001A: .db initial_palette
 001B: .db palette_cycle_speed
