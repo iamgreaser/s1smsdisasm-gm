@@ -27,6 +27,9 @@ class Annotator:
         while "  " in line:
             line = line.replace("  ", " ")
 
+        # Remove comments
+        line = line.partition("#")[0]
+
         if line != "":
             # Extract a command
             cmd, sep, line = line.partition(" ")

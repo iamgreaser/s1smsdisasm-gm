@@ -12,7 +12,7 @@ out/s1.sms: src/whole.lnk build/whole.o | out/
 build/whole.o: src/whole.asm | build/
 	wla-z80 -w -o $@ $<
 
-src/whole.asm: baserom/sonic1.sms annot/sonic1.cfg tools/rom_unpack.py
+src/whole.asm: baserom/sonic1.sms annot/sonic1.cfg tools/rom_unpack.py $(wildcard tools/dislib/*.py)
 	mypy --strict ./tools/rom_unpack.py
 	python3 ./tools/rom_unpack.py baserom/sonic1.sms annot/sonic1.cfg src/whole.asm
 
