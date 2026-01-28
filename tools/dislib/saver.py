@@ -236,7 +236,7 @@ class Saver:
                 row_data = data[row_addr : row_addr + 16]
                 row = ", ".join(f"${v:02X}" for v in row_data)
                 row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
-                self.write(f".db {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n")
+                self.write(f".db {row}  ; {bank_idx:02X}:{virt_addr+row_addr:04X}\n")
 
         elif atype == AT.DataWord or atype == AT.DataWordLabel:
             for row_idx in range((len(data) + 16 - 1) // 16):
@@ -258,7 +258,7 @@ class Saver:
                     row = ", ".join(row_strs)
                     row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
                     self.write(
-                        f".dw {row}  ; {bank_idx:02d}:{virt_addr+row_addr:04X}\n"
+                        f".dw {row}  ; {bank_idx:02X}:{virt_addr+row_addr:04X}\n"
                     )
 
                 row_remain = row_size % 2
