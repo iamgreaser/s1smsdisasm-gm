@@ -299,6 +299,7 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     #
     0o206: OS(name="ADD", args=[OA.RegA, OA.MemIXdd]),
     0o216: OS(name="ADC", args=[OA.RegA, OA.MemIXdd]),
+    0o226: OS(name="SUB", args=[OA.MemIXdd]),
     0o266: OS(name="OR", args=[OA.MemIXdd]),
     0o276: OS(name="CP", args=[OA.MemIXdd]),
     #
@@ -321,6 +322,7 @@ OP_SPECS_FD_XX: dict[int, OS] = {
     #
     0o206: OS(name="ADD", args=[OA.RegA, OA.MemIYdd]),
     0o216: OS(name="ADC", args=[OA.RegA, OA.MemIYdd]),
+    0o226: OS(name="SUB", args=[OA.MemIYdd]),
     0o266: OS(name="OR", args=[OA.MemIYdd]),
     0o276: OS(name="CP", args=[OA.MemIYdd]),
     #
