@@ -187,16 +187,15 @@ load_art:
          ld a, (de)
          inc de
       exx
-      ld (iy+g_last_rle_byte-IYBASE), a
       scf
    _load_art_each_row_when_NC:
       ;; RRA does not affect CF, so we need RR A!
       ;; Hayashi-san, where was your crystal ball???
       ;; I could have saved 4 cycles by shifting left with ADC A, A if only you'd used it!!!
-      ;; TODO: Not use 23 cycles to rotate the mask! --GM
-      rr (iy+g_last_rle_byte-IYBASE)
+      rr a
       jr z, _load_art_mask_fetch
       jr nc, ++
+         ex af, af'
          ;; bit == 1: Copy previous
          ;; Load raw offset
          exx
@@ -221,7 +220,9 @@ load_art:
          add hl, de
          ;; Load it!
          call _load_art_subfunc_upload_row
-   _load_art_reloop_when_NC:
+   _load_art_reloop:
+      ex af, af'
+      or a  ; clears CF
       ;; Loop!
       djnz _load_art_each_row_when_NC    ; does not affect CF (or any flags for that matter)
       dec c                              ; does not affect CF
@@ -230,12 +231,12 @@ load_art:
       jr _load_art_epilogue
    ++:
       ;; bit == 0: Write literal
+      ex af, af'
       exx
          call _load_art_subfunc_upload_row
          inc hl ; shifted out because we don't need to INC HL in the other case
-         ; carry not affected
-      exx ; carry not affected
-      jp _load_art_reloop_when_NC
+      exx
+      jp _load_art_reloop
    _load_art_epilogue:
 ;; Epilogue
    ;; Disable interrupts unless they are to be suppressed
@@ -268,9 +269,8 @@ _load_art_subfunc_upload_row:
    out    ($BE), a                     ; 00:04D4 - D3 BE
    inc    hl                           ; 00:04D6 - 23
    nop                                 ; 00:04D7 - 00
-   ;nop                                 ; 00:04D8 - 00
+   nop                                 ; 00:04D8 - 00
    ld     a, (hl)                      ; 00:04D9 - 7E
-   or a     ; clears the carry flag
    out    ($BE), a                     ; 00:04DA - D3 BE
    ;inc    hl                           ; 00:04DC - 23
    ret
