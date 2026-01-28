@@ -22,6 +22,7 @@ class Rom:
         self.addr_types: dict[int, AT] = {}
         self.label_to_addr: dict[str, int] = {}
         self.labels_from_addr: dict[int, list[str]] = {}
+        self.addr_refs: dict[int, int] = {}
         self.tracer_stack: list[int] = []
         self.op_decodes: dict[int, tuple[int, str]] = {}
 
@@ -49,6 +50,9 @@ class Rom:
                 self.addr_types[addr + 0x01] = AT.DataByte
             elif other_type == AT.DataByte and addr_type == AT.DataWord:
                 # Block upsize
+                pass
+            elif other_type in {AT.DataByteLabelLo, AT.DataByteLabelHi} and addr_type == AT.DataByte:
+                # Split label reference
                 pass
             else:
                 print("FIXME: Op type derailment!")

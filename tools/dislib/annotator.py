@@ -60,6 +60,23 @@ class Annotator:
         for i in range(llen):
             self.annot_set_addr_type(addr + (i * lsize), ltype, ltype_str)
 
+    # splitaddr 00:26F9 hi 00:2872
+    def _annotcmd_splitaddr(
+        self, from_addr_str: str, part: str, to_addr_str: str
+    ) -> None:
+        from_addr = parse_addr(from_addr_str)
+        to_addr = parse_addr(to_addr_str)
+        if part == "lo":
+            self.rom.set_addr_type(from_addr, AT.DataByteLabelLo)
+            assert from_addr not in self.rom.addr_refs
+            self.rom.addr_refs[from_addr] = to_addr
+        elif part == "hi":
+            self.rom.set_addr_type(from_addr, AT.DataByteLabelHi)
+            assert from_addr not in self.rom.addr_refs
+            self.rom.addr_refs[from_addr] = to_addr
+        else:
+            raise Exception(f"invalid splitaddr type {part!r}")
+
     def annot_set_addr_type(self, addr: int, ltype: AT, ltype_str: str) -> None:
         self.rom.set_addr_type(addr, ltype)
         if ltype == AT.DataWordLabel:
@@ -76,6 +93,7 @@ class Annotator:
         "code": _annotcmd_code,
         "label": _annotcmd_label,
         "arraylabel": _annotcmd_arraylabel,
+        "splitaddr": _annotcmd_splitaddr,
     }
 
 

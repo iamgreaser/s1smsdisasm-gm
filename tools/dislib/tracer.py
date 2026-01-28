@@ -117,9 +117,21 @@ class Tracer:
                 for a in spec.args:
                     if a == OA.Byte:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                        atype = self.rom.addr_types[bank_phys_addr + pc]
                         (val,) = struct.unpack("<B", bank[pc:][:1])
+                        if atype == AT.DataByteLabelLo:
+                            refaddr = self.rom.addr_refs[bank_phys_addr + pc]
+                            assert (refaddr & 0xFF) == val
+                            label = self.rom.labels_from_addr[refaddr][0]
+                            op_args.append(f"{label}&$FF")
+                        elif atype == AT.DataByteLabelHi:
+                            refaddr = self.rom.addr_refs[bank_phys_addr + pc]
+                            assert ((refaddr >> 8) & 0xFF) == val
+                            label = self.rom.labels_from_addr[refaddr][0]
+                            op_args.append(f"{label}>>8")
+                        else:
+                            op_args.append(f"${val:02X}")
                         pc += 1
-                        op_args.append(f"${val:02X}")
 
                     elif a == OA.Word:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWord)
