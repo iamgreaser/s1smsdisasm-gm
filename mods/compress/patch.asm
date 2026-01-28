@@ -969,21 +969,23 @@ addr_00A33:
       out ($BF), a
       ld bc, $08BE
       ld hl, _lsel_cursor
+      ;; 12 cycles per out - need a gap of 16 or better
       -:
-         outi          ; 16
-         ld a, $FF     ;  7 -> 23
-         inc de        ;  6 -> 29 OK waste
-         out ($BE), a  ; 11
-         inc b         ;  4 -> 15
-         inc de        ;  6 -> 21 waste
-         ld a, $FF     ;  7 -> 28 OK waste
-         out ($BE), a  ; 11
-         dec e         ;  4 -> 15 waste
-         inc de        ;  6 -> 21 waste
-         ld a, $FF     ;  7 -> 28 OK waste
-         out ($BE), a  ; 11
-         inc de        ;  6 -> 17 waste
-         djnz -        ; 12 -> 29 OK
+         ld a, (hl)   ; 7 -> 19 OK
+         out (c), a
+         ld d, a      ; 4
+         rrc d        ; 8 -> 12
+         or d         ; 4 -> 16 OK
+         out (c), a
+         inc hl       ; 6
+         inc de       ; 6 -> 12 waste
+         dec de       ; 6 -> 18 OK waste
+         out (c), a
+         nop          ; 4
+         inc de       ; 6 -> 10 waste
+         dec de       ; 6 -> 16 OK waste
+         out (c), a
+         djnz -        ; 12
       ld b, $20
       -:
          ld a, $00     ; 7 -> 30 OK
@@ -1096,19 +1098,10 @@ _lsel_cursor:
    .db %00001100
    .db %00111000
    .db %01100000
-   .db %11111111
+   .db %11111110
    .db %01100000
    .db %00111000
    .db %00001100
-   .db %00000000
-
-   .db %00000000
-   .db %00000000
-   .db %00000000
-   .db %00000000
-   .db %00000000
-   .db %00000000
-   .db %00000000
    .db %00000000
 
    ; from the Sonic Retro wiki:
