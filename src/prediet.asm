@@ -5929,7 +5929,7 @@ LUT_02AD6:
 LUT_object_functions_02AF6:
 .dw objfunc_00_UNKNOWN, objfunc_01_monitor_rings, objfunc_02_UNKNOWN, objfunc_03_monitor_life, objfunc_04_UNKNOWN, objfunc_05_UNKNOWN, objfunc_06_UNKNOWN, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_UNKNOWN, objfunc_0F_UNKNOWN  ; 00:2B06
-.dw objfunc_10_motobug, objfunc_11_UNKNOWN, objfunc_12_UNKNOWN, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+.dw objfunc_10_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
 .dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
@@ -12422,7 +12422,7 @@ UNK_06FED:
 .db $1C, $1E, $FF, $FF, $FF, $FF, $FE, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6FED
 .db $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $FE, $62, $FF, $FF, $FF, $FF, $FF       ; 01:6FFD
 
-objfunc_12_UNKNOWN:
+objfunc_12_GHZ_boss:
    set    5, (ix+24)                   ; 01:700C - DD CB 18 EE
    ld     (ix+13), $20                 ; 01:7010 - DD 36 0D 20
    ld     (ix+14), $1C                 ; 01:7014 - DD 36 0E 1C
@@ -12447,8 +12447,8 @@ objfunc_12_UNKNOWN:
    xor    a                            ; 01:7047 - AF
    ld     (var_D2EC), a                ; 01:7048 - 32 EC D2
    ld     (ix+18), a                   ; 01:704B - DD 77 12
-   ld     (ix+20), $A1                 ; 01:704E - DD 36 14 A1
-   ld     (ix+21), $72                 ; 01:7052 - DD 36 15 72
+   ld     (ix+20), UNK_072A1&$FF       ; 01:704E - DD 36 14 A1
+   ld     (ix+21), UNK_072A1>>8        ; 01:7052 - DD 36 15 72
    ld     hl, $0760                    ; 01:7056 - 21 60 07
    ld     de, $00E8                    ; 01:7059 - 11 E8 00
    call   addr_07C8C                   ; 01:705C - CD 8C 7C
