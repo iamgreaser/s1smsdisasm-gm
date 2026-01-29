@@ -5928,7 +5928,7 @@ LUT_02AD6:
 
 LUT_object_functions_02AF6:
 .dw objfunc_00_UNKNOWN, objfunc_01_monitor_rings, objfunc_02_UNKNOWN, objfunc_03_monitor_life, objfunc_04_UNKNOWN, objfunc_05_UNKNOWN, objfunc_06_UNKNOWN, objfunc_07_signpost  ; 00:2AF6
-.dw objfunc_08_UNKNOWN, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_UNKNOWN, objfunc_0F_UNKNOWN  ; 00:2B06
+.dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_UNKNOWN, objfunc_0F_UNKNOWN  ; 00:2B06
 .dw objfunc_10_UNKNOWN, objfunc_11_UNKNOWN, objfunc_12_UNKNOWN, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
@@ -11442,14 +11442,14 @@ addr_065AE:
 .db $00, $14, $39, $3D, $28, $10, $20, $34, $0F, $07, $14, $14, $39, $0F, $00, $3F  ; 01:65CE
 .db $00, $14, $39, $3D, $28, $10, $20, $34, $07, $0F, $00, $14, $39, $0F, $00, $3F  ; 01:65DE
 
-objfunc_08_UNKNOWN:
+objfunc_08_badnik_crabmeat:
    ld     (ix+13), $10                 ; 01:65EE - DD 36 0D 10
    ld     (ix+14), $1F                 ; 01:65F2 - DD 36 0E 1F
    ld     e, (ix+18)                   ; 01:65F6 - DD 5E 12
    ld     d, $00                       ; 01:65F9 - 16 00
 
 addr_065FB:
-   ld     hl, $66C5                    ; 01:65FB - 21 C5 66
+   ld     hl, UNK_066C5                ; 01:65FB - 21 C5 66
    add    hl, de                       ; 01:65FE - 19
    ld     (var_D214), hl               ; 01:65FF - 22 14 D2
    ld     a, (hl)                      ; 01:6602 - 7E
@@ -11548,6 +11548,8 @@ addr_06678:
    ld     (g_FF_string_high_byte), hl  ; 01:66BE - 22 0E D2
    call   nc, UNK_035E5                ; 01:66C1 - D4 E5 35
    ret                                 ; 01:66C4 - C9
+
+UNK_066C5:
 .db $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $03, $03, $04, $02, $02, $02  ; 01:66C5
 .db $02, $02, $02, $02, $02, $02, $02, $03, $03, $04, $00                           ; 01:66D5
 
@@ -18205,7 +18207,7 @@ addr_0AB9D:
    ld     de, $0000                    ; 02:ABBC - 11 00 00
    ld     c, e                         ; 02:ABBF - 4B
    ld     b, d                         ; 02:ABC0 - 42
-   call   addr_0AC96                   ; 02:ABC1 - CD 96 AC
+   call   UNK_0AC96                    ; 02:ABC1 - CD 96 AC
    ld     hl, $0003                    ; 02:ABC4 - 21 03 00
    ld     (var_D212), hl               ; 02:ABC7 - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABCA - 21 FC FF
@@ -18214,7 +18216,7 @@ addr_0AB9D:
    jp     c, addr_0AC76                ; 02:ABD3 - DA 76 AC
    ld     de, $0008                    ; 02:ABD6 - 11 08 00
    ld     bc, $0000                    ; 02:ABD9 - 01 00 00
-   call   addr_0AC96                   ; 02:ABDC - CD 96 AC
+   call   UNK_0AC96                    ; 02:ABDC - CD 96 AC
    ld     hl, $FFFE                    ; 02:ABDF - 21 FE FF
    ld     (var_D212), hl               ; 02:ABE2 - 22 12 D2
    ld     hl, $FFFE                    ; 02:ABE5 - 21 FE FF
@@ -18223,7 +18225,7 @@ addr_0AB9D:
    jp     c, addr_0AC76                ; 02:ABEE - DA 76 AC
    ld     de, $0000                    ; 02:ABF1 - 11 00 00
    ld     bc, $0008                    ; 02:ABF4 - 01 08 00
-   call   addr_0AC96                   ; 02:ABF7 - CD 96 AC
+   call   UNK_0AC96                    ; 02:ABF7 - CD 96 AC
    ld     hl, $0003                    ; 02:ABFA - 21 03 00
    ld     (var_D212), hl               ; 02:ABFD - 22 12 D2
    ld     hl, $FFFE                    ; 02:AC00 - 21 FE FF
@@ -18232,7 +18234,7 @@ addr_0AB9D:
    jp     c, addr_0AC76                ; 02:AC09 - DA 76 AC
    ld     de, $0008                    ; 02:AC0C - 11 08 00
    ld     bc, $0008                    ; 02:AC0F - 01 08 00
-   call   addr_0AC96                   ; 02:AC12 - CD 96 AC
+   call   UNK_0AC96                    ; 02:AC12 - CD 96 AC
    ld     (ix+0), $FF                  ; 02:AC15 - DD 36 00 FF
    ld     a, $1B                       ; 02:AC19 - 3E 1B
    rst    $28                          ; 02:AC1B - EF
@@ -18290,7 +18292,7 @@ addr_0AC76:
    ld     (ix+17), $00                 ; 02:AC91 - DD 36 11 00
    ret                                 ; 02:AC95 - C9
 
-addr_0AC96:
+UNK_0AC96:
    push   ix                           ; 02:AC96 - DD E5
    push   hl                           ; 02:AC98 - E5
    ld     l, (ix+2)                    ; 02:AC99 - DD 6E 02
