@@ -4,6 +4,4 @@ BANK 00:
 
 Testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
 
-- Those spiky enemies in Bridge seem to become unkillable.
-- Time bonus blew out to 8 digits, about 1500xxxx.
-
+No issues to report right now.

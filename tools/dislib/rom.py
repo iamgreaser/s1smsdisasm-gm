@@ -25,6 +25,7 @@ class Rom:
         self.addr_refs: dict[int, int] = {}
         self.tracer_stack: list[int] = []
         self.op_decodes: dict[int, tuple[int, str]] = {}
+        self.forced_immediates: set[int] = set()
 
     def load_annotations(self, *, file_name: str) -> None:
         annotator = Annotator(rom=self)

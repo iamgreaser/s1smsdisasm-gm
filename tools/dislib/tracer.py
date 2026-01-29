@@ -136,16 +136,16 @@ class Tracer:
                     elif a == OA.Word:
                         self.set_addr_type(bank_phys_addr + pc, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        pc += 2
-                        if 0xC000 <= val <= 0xDFFF or (
+                        if (0xC000 <= val <= 0xDFFF or (
                             val < 0xE000
                             and val > 0x0038
                             and val in self.rom.labels_from_addr
-                        ):
+                        )) and (bank_phys_addr + pc) not in self.rom.forced_immediates:
                             label = self.ensure_label(val, relative_to=pc - 2)
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
+                        pc += 2
 
                     elif a == OA.MemByteImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM

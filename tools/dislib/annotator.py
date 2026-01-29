@@ -60,7 +60,6 @@ class Annotator:
         for i in range(llen):
             self.annot_set_addr_type(addr + (i * lsize), ltype, ltype_str)
 
-    # splitaddr 00:26F9 hi 00:2872
     def _annotcmd_splitaddr(
         self, from_addr_str: str, part: str, to_addr_str: str
     ) -> None:
@@ -76,6 +75,10 @@ class Annotator:
             self.rom.addr_refs[from_addr] = to_addr
         else:
             raise Exception(f"invalid splitaddr type {part!r}")
+
+    def _annotcmd_forceimm(self, addr_str: str) -> None:
+        addr = parse_addr(addr_str)
+        self.rom.forced_immediates.add(addr)
 
     def annot_set_addr_type(self, addr: int, ltype: AT, ltype_str: str) -> None:
         self.rom.set_addr_type(addr, ltype)
@@ -94,6 +97,7 @@ class Annotator:
         "label": _annotcmd_label,
         "arraylabel": _annotcmd_arraylabel,
         "splitaddr": _annotcmd_splitaddr,
+        "forceimm": _annotcmd_forceimm,
     }
 
 
