@@ -17,6 +17,7 @@ IY = $D200
 
 (IY+$05) is a bit field:
    b0 = ? (used in objfuncs, 1 makes 00:3956 terminate early with CF=1)
+   b1 = 1 if playing the demo
 
 (IY+$06) is a bit field:
    b4 = 1 if we want to use (D2D3).b as a level instead of our main level counter
