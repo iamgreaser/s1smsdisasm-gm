@@ -11,6 +11,11 @@ BANK 01:
 
 - When Sonic is damaged and loses his rings, the ring sprite doesn't seem to show.
 - GHZ3 boss fight still breaks quite horribly.
+- BRI3 boss fight fireballs have glitched graphics.
+- The bottom of the animal capsule does not appear... and the capsule completely disappears when it opens. (seen in BRI3, JUN3)
+- In LAB3, a weird dark-blue box shows on the right side of where Robotnik shows up at the bottom.
+- The transporter to go from the bottom to the top of the room in SCR2 doesn't work, nor does the SKY3 one at the end.
+- One of Robotnik's running sprites at the end of SKY3 are invisible.
 
 BANK 02:
 
