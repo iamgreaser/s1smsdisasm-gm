@@ -5,7 +5,7 @@ BANK 00:
 Easy testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
 Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
-No known PI problems! Yay!
+- When getting hit and losing rings, the ring sprite turns to garbage.
 
 BANK 01:
 
