@@ -1028,22 +1028,25 @@ load_art:
    ;; It gets taken 7 times out of 8, so 49 cycles average.
    ;; Told you we could do so much better.
 
+   ;; This writes every 32 cycles.
+   ;; We can get away with 28.
+   ;; SAVING: 3 bytes and 12 cycles per iteration
    exx                                 ; 00:048D - D9
    ld     a, (bc)                      ; 00:048E - 0A
    out    ($BE), a                     ; 00:048F - D3 BE
    inc    bc                           ; 00:0491 - 03
    nop                                 ; 00:0492 - 00
-   nop                                 ; 00:0493 - 00
+   ;nop                                 ; 00:0493 - 00
    ld     a, (bc)                      ; 00:0494 - 0A
    out    ($BE), a                     ; 00:0495 - D3 BE
    inc    bc                           ; 00:0497 - 03
    nop                                 ; 00:0498 - 00
-   nop                                 ; 00:0499 - 00
+   ;nop                                 ; 00:0499 - 00
    ld     a, (bc)                      ; 00:049A - 0A
    out    ($BE), a                     ; 00:049B - D3 BE
    inc    bc                           ; 00:049D - 03
    nop                                 ; 00:049E - 00
-   nop                                 ; 00:049F - 00
+   ;nop                                 ; 00:049F - 00
    ld     a, (bc)                      ; 00:04A0 - 0A
    out    ($BE), a                     ; 00:04A1 - D3 BE
    inc    bc                           ; 00:04A3 - 03
@@ -1070,6 +1073,9 @@ load_art:
    exx                                 ; 00:04BE - D9
 
 +:
+   ;; This writes every 32 cycles.
+   ;; We can get away with 28.
+   ;; SAVING: 3 bytes and 12 cycles per iteration
    ld     l, a                         ; 00:04BF - 6F
    add    hl, hl                       ; 00:04C0 - 29
    add    hl, hl                       ; 00:04C1 - 29
@@ -1079,17 +1085,17 @@ load_art:
    out    ($BE), a                     ; 00:04C8 - D3 BE
    inc    hl                           ; 00:04CA - 23
    nop                                 ; 00:04CB - 00
-   nop                                 ; 00:04CC - 00
+   ;nop                                 ; 00:04CC - 00
    ld     a, (hl)                      ; 00:04CD - 7E
    out    ($BE), a                     ; 00:04CE - D3 BE
    inc    hl                           ; 00:04D0 - 23
    nop                                 ; 00:04D1 - 00
-   nop                                 ; 00:04D2 - 00
+   ;nop                                 ; 00:04D2 - 00
    ld     a, (hl)                      ; 00:04D3 - 7E
    out    ($BE), a                     ; 00:04D4 - D3 BE
    inc    hl                           ; 00:04D6 - 23
    nop                                 ; 00:04D7 - 00
-   nop                                 ; 00:04D8 - 00
+   ;nop                                 ; 00:04D8 - 00
    ld     a, (hl)                      ; 00:04D9 - 7E
    out    ($BE), a                     ; 00:04DA - D3 BE
    inc    hl                           ; 00:04DC - 23
