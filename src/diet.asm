@@ -941,14 +941,6 @@ load_art:
    ei                                  ; 00:0439 - FB
 +:
 
-   ;; Misuse the RLE last byte field for our bitmask shift register.
-   ;; It's faster than recalculating the pointer every single iteration...
-   ;; Anyway, pre-set it to $00 so when we shift we end up with the zero flag set.
-   ;; When we load it, we will pre-rotate with a 1.
-   ;; That way, we guarantee having 8 rotations.
-   ld (iy+g_last_rle_byte-IYBASE), $00  ; 0466 3
-   ;; Continued below...
-
    ld     (var_D212), hl               ; 00:043A - 22 12 D2
    inc    hl                           ; 00:043D - 23
    inc    hl                           ; 00:043E - 23
@@ -982,6 +974,13 @@ load_art:
    ex     de, hl                       ; 00:0464 - EB
    exx                                 ; 00:0465 - D9
 
+   ;; Misuse the RLE last byte field for our bitmask shift register.
+   ;; It's faster than recalculating the pointer every single iteration...
+   ;; Anyway, pre-set it to $00 so when we shift we end up with the zero flag set.
+   ;; When we load it, we will pre-rotate with a 1.
+   ;; That way, we guarantee having 8 rotations.
+   ld (iy+g_last_rle_byte-IYBASE), $00  ; 0466 3
+   ;; Continued below...
 --:
    ;ld     hl, (var_D210)               ; 00:0466 - 2A 10 D2
    ;xor    a                            ; 00:0469 - AF
