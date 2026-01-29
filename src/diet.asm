@@ -2,6 +2,9 @@
 ;;    python3 './tools/rom_unpack.py' 'baserom/sonic1.sms' 'annot/sonic1.cfg' 'src/whole.asm'
 ;; Do NOT hand-edit!
 ;; ^ HAND-EDITED TO TEST PI COMPLIANCE - Compare src/whole.asm with src/prediet.asm to make patches against this!
+;;
+;; This seems to do the trick:
+;; diff -Naur src/prediet.asm src/whole.asm | sed -e 's@+++ src/whole.asm@+++ src/diet.asm@' | patch -p0
 
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
@@ -4464,6 +4467,8 @@ addr_01D42:
    ld     (var_D263), hl               ; 00:1D73 - 22 63 D2
    ld     hl, $0070                    ; 00:1D76 - 21 70 00
    ld     (var_D265), hl               ; 00:1D79 - 22 65 D2
+
+addr_01D7C:
    call   addr_0239C                   ; 00:1D7C - CD 9C 23
    ld     a, $01                       ; 00:1D7F - 3E 01
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -10599,14 +10604,14 @@ addr_05B31:
 
 addr_05B34:
    call   UNK_00C1D                    ; 01:5B34 - CD 1D 0C
-   ld     (ix+15), $BF                 ; 01:5B37 - DD 36 0F BF
-   ld     (ix+16), $5B                 ; 01:5B3B - DD 36 10 5B
+   ld     (ix+15), UNK_05BBF&$FF       ; 01:5B37 - DD 36 0F BF
+   ld     (ix+16), UNK_05BBF>>8        ; 01:5B3B - DD 36 10 5B
    ld     a, (var_D223)                ; 01:5B3F - 3A 23 D2
    and    $07                          ; 01:5B42 - E6 07
    cp     $05                          ; 01:5B44 - FE 05
    ret    nc                           ; 01:5B46 - D0
-   ld     (ix+15), $CC                 ; 01:5B47 - DD 36 0F CC
-   ld     (ix+16), $5B                 ; 01:5B4B - DD 36 10 5B
+   ld     (ix+15), UNK_05BCC&$FF       ; 01:5B47 - DD 36 0F CC
+   ld     (ix+16), UNK_05BCC>>8        ; 01:5B4B - DD 36 10 5B
    ld     l, (ix+1)                    ; 01:5B4F - DD 6E 01
    ld     h, (ix+2)                    ; 01:5B52 - DD 66 02
    ld     a, (ix+3)                    ; 01:5B55 - DD 7E 03
@@ -10653,8 +10658,12 @@ addr_05B80:
    ld     (ix+11), h                   ; 01:5BB8 - DD 74 0B
    ld     (ix+12), a                   ; 01:5BBB - DD 77 0C
    ret                                 ; 01:5BBE - C9
-.db $54, $56, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF, $54, $FE, $58  ; 01:5BBF
-.db $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                                ; 01:5BCF
+
+UNK_05BBF:
+.db $54, $56, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                 ; 01:5BBF
+
+UNK_05BCC:
+.db $54, $FE, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                 ; 01:5BCC
 
 objfunc_02_UNKNOWN:
    ld     (ix+13), $14                 ; 01:5BD9 - DD 36 0D 14
@@ -11038,8 +11047,8 @@ addr_05EE3:
    ld     a, (var_D223)                ; 01:5EE3 - 3A 23 D2
    rrca                                ; 01:5EE6 - 0F
    jr     c, addr_05EF1                ; 01:5EE7 - 38 08
-   ld     (ix+15), $10                 ; 01:5EE9 - DD 36 0F 10
-   ld     (ix+16), $5F                 ; 01:5EED - DD 36 10 5F
+   ld     (ix+15), UNK_05F10&$FF       ; 01:5EE9 - DD 36 0F 10
+   ld     (ix+16), UNK_05F10>>8        ; 01:5EED - DD 36 10 5F
 
 addr_05EF1:
    ld     l, (ix+10)                   ; 01:5EF1 - DD 6E 0A
@@ -11054,6 +11063,8 @@ addr_05EF1:
    ld     hl, $5400                    ; 01:5F09 - 21 00 54
    call   UNK_00C1D                    ; 01:5F0C - CD 1D 0C
    ret                                 ; 01:5F0F - C9
+
+UNK_05F10:
 .db $5C, $5E, $FF, $FF, $FF, $FF, $FF                                               ; 01:5F10
 
 objfunc_07_signpost:
@@ -11258,7 +11269,7 @@ _signpost_post_decide_loop:
    add    hl, hl                       ; 01:60B0 - 29
    add    hl, hl                       ; 01:60B1 - 29
    add    hl, de                       ; 01:60B2 - 19
-   ld     de, $61DC                    ; 01:60B3 - 11 DC 61
+   ld     de, UNK_061DC                ; 01:60B3 - 11 DC 61
    add    hl, de                       ; 01:60B6 - 19
    ld     (ix+15), l                   ; 01:60B7 - DD 75 0F
    ld     (ix+16), h                   ; 01:60BA - DD 74 10
@@ -11345,17 +11356,19 @@ addr_06141:
 .db $12, $00, $00, $00, $00, $00, $00, $03, $03, $03, $03, $03, $03, $02, $02, $02  ; 01:61A7
 .db $02, $02, $02, $06, $06, $06, $06, $06, $06, $FF, $12, $00, $00, $00, $00, $00  ; 01:61B7
 .db $00, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02, $02, $02, $07, $07, $07  ; 01:61C7
-.db $07, $07, $07, $FF, $12, $4E, $50, $52, $54, $FF, $FF, $6E, $70, $72, $74, $FF  ; 01:61D7
-.db $FF, $FE, $42, $44, $FF, $FF, $FF, $08, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C  ; 01:61E7
-.db $2E, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $FE, $12, $14, $FF, $FF, $FF, $FE  ; 01:61F7
-.db $32, $34, $FF, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $16, $18, $1A, $1C, $FF  ; 01:6207
-.db $FF, $36, $38, $3A, $3C, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $56, $58, $5A  ; 01:6217
-.db $5C, $FF, $FF, $76, $78, $7A, $7C, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $00  ; 01:6227
-.db $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $FE, $42, $44, $FF, $FF  ; 01:6237
-.db $FF, $4E, $4A, $4C, $54, $FF, $FF, $6E, $6A, $6C, $74, $FF, $FF, $FE, $42, $44  ; 01:6247
-.db $FF, $FF, $FF, $4E, $46, $48, $54, $FF, $FF, $6E, $66, $68, $74, $FF, $FF, $FE  ; 01:6257
-.db $42, $44, $FF, $FF, $FF, $38, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01  ; 01:6267
-.db $00, $00, $00, $00, $00                                                         ; 01:6277
+.db $07, $07, $07, $FF, $12                                                         ; 01:61D7
+
+UNK_061DC:
+.db $4E, $50, $52, $54, $FF, $FF, $6E, $70, $72, $74, $FF, $FF, $FE, $42, $44, $FF  ; 01:61DC
+.db $FF, $FF, $08, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $42  ; 01:61EC
+.db $44, $FF, $FF, $FF, $FE, $12, $14, $FF, $FF, $FF, $FE, $32, $34, $FF, $FF, $FF  ; 01:61FC
+.db $FE, $42, $44, $FF, $FF, $FF, $16, $18, $1A, $1C, $FF, $FF, $36, $38, $3A, $3C  ; 01:620C
+.db $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $56, $58, $5A, $5C, $FF, $FF, $76, $78  ; 01:621C
+.db $7A, $7C, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $00, $02, $04, $06, $FF, $FF  ; 01:622C
+.db $20, $22, $24, $26, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $4E, $4A, $4C, $54  ; 01:623C
+.db $FF, $FF, $6E, $6A, $6C, $74, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $4E, $46  ; 01:624C
+.db $48, $54, $FF, $FF, $6E, $66, $68, $74, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF  ; 01:625C
+.db $38, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $00, $00, $00, $00, $00  ; 01:626C
 
 LUT_base_palettes_UNCONFIRMED:
 .dw addr_0629E, addr_062EE, addr_0633E, addr_0638E, addr_063DE, addr_0643E, addr_0658E, addr_0655E  ; 01:627C
@@ -11667,11 +11680,11 @@ addr_067C5:
    call   addr_07CC1                   ; 01:67F6 - CD C1 7C
 
 addr_067F9:
-   ld     hl, $6911                    ; 01:67F9 - 21 11 69
+   ld     hl, UNK_06911                ; 01:67F9 - 21 11 69
    ld     a, (var_D2D4)                ; 01:67FC - 3A D4 D2
    and    a                            ; 01:67FF - A7
    jr     z, addr_06805                ; 01:6800 - 28 03
-   ld     hl, $6923                    ; 01:6802 - 21 23 69
+   ld     hl, UNK_06923                ; 01:6802 - 21 23 69
 
 addr_06805:
    ld     (ix+15), l                   ; 01:6805 - DD 75 0F
@@ -11709,9 +11722,17 @@ addr_06821:
 .db $46, $1F, $47, $1D, $48, $1C, $48, $1A, $49, $18, $49, $17, $4A, $15, $4A, $14  ; 01:68DF
 .db $4B, $12, $4B, $11, $4B, $0F, $4B, $0E, $4C, $0D, $4C, $0C, $4C, $0A, $4C, $09  ; 01:68EF
 .db $4C, $08, $4C, $07, $4D, $06, $4D, $05, $4D, $04, $4D, $03, $4D, $02, $4D, $01  ; 01:68FF
-.db $4D, $00, $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $18, $1A, $FF, $FF, $FF, $FF  ; 01:690F
-.db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6E, $48, $FF, $FF  ; 01:691F
-.db $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6C, $6E, $FF, $FF, $FF, $FF  ; 01:692F
+.db $4D, $00                                                                        ; 01:690F
+
+UNK_06911:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $18, $1A, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6911
+.db $FF, $FF                                                                        ; 01:6921
+
+UNK_06923:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6E, $48, $FF, $FF, $FF, $FF            ; 01:6923
+
+UNK_06931:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6C, $6E, $FF, $FF, $FF, $FF            ; 01:6931
 
 objfunc_0A_UNKNOWN:
    set    5, (ix+24)                   ; 01:693F - DD CB 18 EE
@@ -11781,8 +11802,8 @@ objfunc_0B_UNKNOWN:
    set    5, (ix+24)                   ; 01:69E9 - DD CB 18 EE
    ld     (ix+13), $1A                 ; 01:69ED - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:69F1 - DD 36 0E 10
-   ld     (ix+15), $11                 ; 01:69F5 - DD 36 0F 11
-   ld     (ix+16), $69                 ; 01:69F9 - DD 36 10 69
+   ld     (ix+15), UNK_06911&$FF       ; 01:69F5 - DD 36 0F 11
+   ld     (ix+16), UNK_06911>>8        ; 01:69F9 - DD 36 10 69
    ld     a, (var_D408)                ; 01:69FD - 3A 08 D4
    and    a                            ; 01:6A00 - A7
    jp     m, addr_06A2E                ; 01:6A01 - FA 2E 6A
@@ -11855,11 +11876,11 @@ addr_06A6F:
    call   addr_07CC1                   ; 01:6A96 - CD C1 7C
 
 addr_06A99:
-   ld     hl, $6911                    ; 01:6A99 - 21 11 69
+   ld     hl, UNK_06911                ; 01:6A99 - 21 11 69
    ld     a, (var_D2D4)                ; 01:6A9C - 3A D4 D2
    and    a                            ; 01:6A9F - A7
    jr     z, addr_06AA5                ; 01:6AA0 - 28 03
-   ld     hl, $6923                    ; 01:6AA2 - 21 23 69
+   ld     hl, UNK_06923                ; 01:6AA2 - 21 23 69
 
 addr_06AA5:
    ld     (ix+15), l                   ; 01:6AA5 - DD 75 0F
@@ -12204,14 +12225,14 @@ addr_06DDB:
    ld     (var_D3FE), hl               ; 01:6DF0 - 22 FE D3
 
 addr_06DF3:
-   ld     hl, $6911                    ; 01:6DF3 - 21 11 69
+   ld     hl, UNK_06911                ; 01:6DF3 - 21 11 69
    ld     a, (var_D2D4)                ; 01:6DF6 - 3A D4 D2
    and    a                            ; 01:6DF9 - A7
    jr     z, addr_06E05                ; 01:6DFA - 28 09
-   ld     hl, $6931                    ; 01:6DFC - 21 31 69
+   ld     hl, UNK_06931                ; 01:6DFC - 21 31 69
    dec    a                            ; 01:6DFF - 3D
    jr     z, addr_06E05                ; 01:6E00 - 28 03
-   ld     hl, $6923                    ; 01:6E02 - 21 23 69
+   ld     hl, UNK_06923                ; 01:6E02 - 21 23 69
 
 addr_06E05:
    ld     (ix+15), l                   ; 01:6E05 - DD 75 0F
@@ -12329,7 +12350,7 @@ addr_06F1E:
    jr     addr_06F2D                   ; 01:6F28 - 18 03
 
 addr_06F2A:
-   ld     bc, $6FED                    ; 01:6F2A - 01 ED 6F
+   ld     bc, UNK_06FED                ; 01:6F2A - 01 ED 6F
 
 addr_06F2D:
    inc    (ix+23)                      ; 01:6F2D - DD 34 17
@@ -12385,7 +12406,7 @@ addr_06F42:
    rst    $28                          ; 01:6FB0 - EF
 
 addr_06FB1:
-   ld     bc, $6FED                    ; 01:6FB1 - 01 ED 6F
+   ld     bc, UNK_06FED                ; 01:6FB1 - 01 ED 6F
    cp     $78                          ; 01:6FB4 - FE 78
    jr     c, addr_06FD4                ; 01:6FB6 - 38 1C
    ld     (ix+23), $00                 ; 01:6FB8 - DD 36 17 00
@@ -12412,6 +12433,8 @@ addr_06FD4:
    ld     (g_FF_string_high_byte), hl  ; 01:6FE6 - 22 0E D2
    call   nc, UNK_035E5                ; 01:6FE9 - D4 E5 35
    ret                                 ; 01:6FEC - C9
+
+UNK_06FED:
 .db $1C, $1E, $FF, $FF, $FF, $FF, $FE, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6FED
 .db $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $FE, $62, $FF, $FF, $FF, $FF, $FF       ; 01:6FFD
 
@@ -12585,11 +12608,11 @@ addr_07368:
    ld     h, (ix+6)                    ; 01:7382 - DD 66 06
    add    hl, bc                       ; 01:7385 - 09
    ld     (var_D2AD), hl               ; 01:7386 - 22 AD D2
-   ld     hl, $752E                    ; 01:7389 - 21 2E 75
+   ld     hl, UNK_0752E                ; 01:7389 - 21 2E 75
    ld     a, (var_D223)                ; 01:738C - 3A 23 D2
    and    $10                          ; 01:738F - E6 10
    jr     z, addr_07396                ; 01:7391 - 28 03
-   ld     hl, $7552                    ; 01:7393 - 21 52 75
+   ld     hl, UNK_07552                ; 01:7393 - 21 52 75
 
 addr_07396:
    ld     (ix+15), l                   ; 01:7396 - DD 75 0F
@@ -12671,8 +12694,8 @@ addr_073F6:
    ld     a, c                         ; 01:743C - 79
    cp     $03                          ; 01:743D - FE 03
    ret    nz                           ; 01:743F - C0
-   ld     (ix+15), $40                 ; 01:7440 - DD 36 0F 40
-   ld     (ix+16), $75                 ; 01:7444 - DD 36 10 75
+   ld     (ix+15), UNK_07540&$FF       ; 01:7440 - DD 36 0F 40
+   ld     (ix+16), UNK_07540>>8        ; 01:7444 - DD 36 10 75
    bit    1, (iy+var_D206-IYBASE)      ; 01:7448 - FD CB 06 4E
    jr     nz, addr_07460               ; 01:744C - 20 12
    set    1, (iy+var_D206-IYBASE)      ; 01:744E - FD CB 06 CE
@@ -12768,13 +12791,21 @@ addr_074B6:
    ret                                 ; 01:750D - C9
 .db $15, $12, $11, $10, $10, $0F, $0E, $0D, $03, $03, $03, $03, $03, $03, $03, $03  ; 01:750E
 .db $03, $03, $03, $03, $03, $03, $03, $03, $0D, $0E, $0F, $10, $10, $11, $12, $15  ; 01:751E
+
+UNK_0752E:
 .db $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:752E
-.db $FF, $FF, $00, $08, $0A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42  ; 01:753E
-.db $44, $46, $FF, $FF, $00, $68, $6A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF  ; 01:754E
-.db $40, $42, $44, $46, $FF, $FF, $00, $00, $30, $00, $60, $19, $62, $19, $61, $19  ; 01:755E
-.db $63, $19, $10, $00, $30, $00, $64, $19, $66, $19, $65, $19, $67, $19, $00, $00  ; 01:756E
-.db $20, $00, $00, $00, $00, $00, $49, $19, $4B, $19, $10, $00, $20, $00, $00, $00  ; 01:757E
-.db $00, $00, $4D, $19, $4F, $19                                                    ; 01:758E
+.db $FF, $FF                                                                        ; 01:753E
+
+UNK_07540:
+.db $00, $08, $0A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:7540
+.db $FF, $FF                                                                        ; 01:7550
+
+UNK_07552:
+.db $00, $68, $6A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:7552
+.db $FF, $FF, $00, $00, $30, $00, $60, $19, $62, $19, $61, $19, $63, $19, $10, $00  ; 01:7562
+.db $30, $00, $64, $19, $66, $19, $65, $19, $67, $19, $00, $00, $20, $00, $00, $00  ; 01:7572
+.db $00, $00, $49, $19, $4B, $19, $10, $00, $20, $00, $00, $00, $00, $00, $4D, $19  ; 01:7582
+.db $4F, $19                                                                        ; 01:7592
 
 objfunc_24_UNKNOWN:
    res    5, (ix+24)                   ; 01:7594 - DD CB 18 AE
@@ -12868,17 +12899,17 @@ objfunc_23_UNKNOWN:
    res    5, (ix+24)                   ; 01:7699 - DD CB 18 AE
    ld     (ix+13), $0C                 ; 01:769D - DD 36 0D 0C
    ld     (ix+14), $20                 ; 01:76A1 - DD 36 0E 20
-   ld     hl, $7760                    ; 01:76A5 - 21 60 77
+   ld     hl, UNK_07760                ; 01:76A5 - 21 60 77
    ld     a, (var_D2D4)                ; 01:76A8 - 3A D4 D2
    and    a                            ; 01:76AB - A7
    jr     z, addr_076BD                ; 01:76AC - 28 0F
-   ld     hl, $777B                    ; 01:76AE - 21 7B 77
+   ld     hl, UNK_0777B                ; 01:76AE - 21 7B 77
    dec    a                            ; 01:76B1 - 3D
    jr     z, addr_076BD                ; 01:76B2 - 28 09
-   ld     hl, $7796                    ; 01:76B4 - 21 96 77
+   ld     hl, UNK_07796                ; 01:76B4 - 21 96 77
    dec    a                            ; 01:76B7 - 3D
    jr     z, addr_076BD                ; 01:76B8 - 28 03
-   ld     hl, $77B1                    ; 01:76BA - 21 B1 77
+   ld     hl, UNK_077B1                ; 01:76BA - 21 B1 77
 
 addr_076BD:
    ld     (ix+15), l                   ; 01:76BD - DD 75 0F
@@ -12892,18 +12923,18 @@ addr_076BD:
    ld     (ix+7), a                    ; 01:76D4 - DD 77 07
    ld     (ix+8), a                    ; 01:76D7 - DD 77 08
    ld     (ix+9), a                    ; 01:76DA - DD 77 09
-   ld     hl, $7752                    ; 01:76DD - 21 52 77
+   ld     hl, UNK_07752                ; 01:76DD - 21 52 77
    ld     a, (var_D2D4)                ; 01:76E0 - 3A D4 D2
    ld     c, a                         ; 01:76E3 - 4F
    and    a                            ; 01:76E4 - A7
    jr     z, addr_076F6                ; 01:76E5 - 28 0F
-   ld     hl, $776D                    ; 01:76E7 - 21 6D 77
+   ld     hl, UNK_0776D                ; 01:76E7 - 21 6D 77
    dec    a                            ; 01:76EA - 3D
    jr     z, addr_076F6                ; 01:76EB - 28 09
-   ld     hl, $7788                    ; 01:76ED - 21 88 77
+   ld     hl, UNK_07788                ; 01:76ED - 21 88 77
    dec    a                            ; 01:76F0 - 3D
    jr     z, addr_076F6                ; 01:76F1 - 28 03
-   ld     hl, $77A3                    ; 01:76F3 - 21 A3 77
+   ld     hl, UNK_077A3                ; 01:76F3 - 21 A3 77
 
 addr_076F6:
    ld     (ix+15), l                   ; 01:76F6 - DD 75 0F
@@ -12947,13 +12978,30 @@ addr_07736:
    ld     (ix+9), $FF                  ; 01:7747 - DD 36 09 FF
    ld     (ix+17), $00                 ; 01:774B - DD 36 11 00
    jp     addr_07612                   ; 01:774F - C3 12 76
-.db $70, $72, $FF, $FF, $FF, $FF, $54, $56, $FF, $FF, $FF, $FF, $FF, $FF, $5C, $5E  ; 01:7752
-.db $FF, $FF, $FF, $FF, $58, $5A, $FF, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF  ; 01:7762
-.db $FF, $34, $36, $FF, $FF, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $38  ; 01:7772
-.db $3A, $FF, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $3C, $3E, $FF, $FF  ; 01:7782
-.db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $1C, $1E, $FF, $FF, $FF, $FF  ; 01:7792
-.db $FF, $FE, $FF, $FF, $FF, $FF, $FF, $14, $16, $FF, $FF, $FF, $FF, $FF, $FF, $FE  ; 01:77A2
-.db $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $FF                      ; 01:77B2
+
+UNK_07752:
+.db $70, $72, $FF, $FF, $FF, $FF, $54, $56, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:7752
+
+UNK_07760:
+.db $5C, $5E, $FF, $FF, $FF, $FF, $58, $5A, $FF, $FF, $FF, $FF, $FF                 ; 01:7760
+
+UNK_0776D:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $34, $36, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:776D
+
+UNK_0777B:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $38, $3A, $FF, $FF, $FF, $FF, $FF                 ; 01:777B
+
+UNK_07788:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $3C, $3E, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:7788
+
+UNK_07796:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $1C, $1E, $FF, $FF, $FF, $FF, $FF                 ; 01:7796
+
+UNK_077A3:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $14, $16, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:77A3
+
+UNK_077B1:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $FF                 ; 01:77B1
 
 addr_077BE:
    ld     a, (var_D2EC)                ; 01:77BE - 3A EC D2
@@ -13008,7 +13056,7 @@ addr_077E6:
 
 addr_07821:
    ld     hl, (var_D216)               ; 01:7821 - 2A 16 D2
-   ld     de, $7922                    ; 01:7824 - 11 22 79
+   ld     de, UNK_07922                ; 01:7824 - 11 22 79
    add    hl, de                       ; 01:7827 - 19
    bit    1, (ix+24)                   ; 01:7828 - DD CB 18 4E
    jr     z, addr_07832                ; 01:782C - 28 04
@@ -13040,7 +13088,7 @@ addr_07841:
 
 addr_07863:
    add    hl, de                       ; 01:7863 - 19
-   ld     de, $7922                    ; 01:7864 - 11 22 79
+   ld     de, UNK_07922                ; 01:7864 - 11 22 79
    add    hl, de                       ; 01:7867 - 19
    ld     (ix+15), l                   ; 01:7868 - DD 75 0F
    ld     (ix+16), h                   ; 01:786B - DD 74 10
@@ -13096,8 +13144,8 @@ addr_078C0:
    ld     (ix+10), $60                 ; 01:78CC - DD 36 0A 60
    ld     (ix+11), $FF                 ; 01:78D0 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 01:78D4 - DD 36 0C FF
-   ld     (ix+15), $22                 ; 01:78D8 - DD 36 0F 22
-   ld     (ix+16), $79                 ; 01:78DC - DD 36 10 79
+   ld     (ix+15), UNK_07922&$FF       ; 01:78D8 - DD 36 0F 22
+   ld     (ix+16), UNK_07922>>8        ; 01:78DC - DD 36 10 79
    ld     l, (ix+2)                    ; 01:78E0 - DD 6E 02
    ld     h, (ix+3)                    ; 01:78E3 - DD 66 03
    ld     de, (var_D25A)               ; 01:78E6 - ED 5B 5A D2
@@ -13124,6 +13172,8 @@ addr_07916:
    ld     a, $0C                       ; 01:791C - 3E 0C
    call   load_art                     ; 01:791E - CD 05 04
    ret                                 ; 01:7921 - C9
+
+UNK_07922:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 01:7922
 .db $72, $FF, $20, $10, $12, $14, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62  ; 01:7932
 .db $64, $66, $68, $FF, $2A, $16, $18, $1A, $32, $FF, $4A, $4C, $4E, $50, $52, $FF  ; 01:7942
@@ -13284,7 +13334,7 @@ addr_07B20:
    add    a, a                         ; 01:7B34 - 87
    ld     e, a                         ; 01:7B35 - 5F
    ld     d, $00                       ; 01:7B36 - 16 00
-   ld     hl, $7B5D                    ; 01:7B38 - 21 5D 7B
+   ld     hl, UNK_07B5D                ; 01:7B38 - 21 5D 7B
    add    hl, de                       ; 01:7B3B - 19
    ld     (var_D2AF), hl               ; 01:7B3C - 22 AF D2
    pop    hl                           ; 01:7B3F - E1
@@ -13303,6 +13353,8 @@ addr_07B20:
    ret    c                            ; 01:7B57 - D8
    ld     (ix+18), $00                 ; 01:7B58 - DD 36 12 00
    ret                                 ; 01:7B5C - C9
+
+UNK_07B5D:
 .db $00, $00, $00, $00, $00, $00, $00, $00, $F0, $00, $F1, $00, $E2, $00, $F2, $00  ; 01:7B5D
 .db $00, $00, $00, $00, $F0, $00, $F1, $00, $E2, $00, $F2, $00, $2E, $00, $2F, $00  ; 01:7B6D
 .db $2E, $00, $2F, $00, $2E, $00, $2F, $00, $00, $01, $08, $00, $02, $03, $78, $00  ; 01:7B7D
@@ -13320,7 +13372,7 @@ objfunc_55_UNKNOWN:
    add    a, c                         ; 01:7BAA - 81
    ld     c, a                         ; 01:7BAB - 4F
    ld     b, $00                       ; 01:7BAC - 06 00
-   ld     hl, $7C17                    ; 01:7BAE - 21 17 7C
+   ld     hl, PTRTAB_UNK_07C17         ; 01:7BAE - 21 17 7C
    add    hl, bc                       ; 01:7BB1 - 09
    ld     e, (hl)                      ; 01:7BB2 - 5E
    inc    hl                           ; 01:7BB3 - 23
@@ -13370,9 +13422,38 @@ addr_07BF8:
    ret    c                            ; 01:7C11 - D8
    ld     (ix+18), $00                 ; 01:7C12 - DD 36 12 00
    ret                                 ; 01:7C16 - C9
-.db $29, $7C, $1C, $31, $7C, $1C, $39, $7C, $1C, $29, $7C, $1D, $31, $7C, $1D, $39  ; 01:7C17
-.db $7C, $1D, $B4, $B6, $FF, $FF, $FF, $FF, $FF, $FF, $B8, $BA, $FF, $FF, $FF, $FF  ; 01:7C27
-.db $FF, $FF, $BC, $BE, $FF, $FF, $FF, $FF, $FF, $FF                                ; 01:7C37
+
+PTRTAB_UNK_07C17:
+.dw addr_07C29                                                                      ; 01:7C17
+.db $1C                                                                             ; 01:7C19
+
+UNK_07C17_PTR_01:
+.dw addr_07C31                                                                      ; 01:7C1A
+.db $1C                                                                             ; 01:7C1C
+
+UNK_07C17_PTR_02:
+.dw addr_07C39                                                                      ; 01:7C1D
+.db $1C, $29                                                                        ; 01:7C1F
+
+UNK_07C17_PTR_03:
+.dw addr_01D7C                                                                      ; 01:7C21
+.db $31                                                                             ; 01:7C23
+
+UNK_07C17_PTR_04:
+.dw addr_01D7C                                                                      ; 01:7C24
+.db $39                                                                             ; 01:7C26
+
+UNK_07C17_PTR_05:
+.dw addr_01D7C                                                                      ; 01:7C27
+
+addr_07C29:
+.db $B4, $B6, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C29
+
+addr_07C31:
+.db $B8, $BA, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C31
+
+addr_07C39:
+.db $BC, $BE, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C39
 
 addr_07C41:
    ld     l, (ix+23)                   ; 01:7C41 - DD 6E 17
@@ -13567,8 +13648,8 @@ addr_07DAF:
    and    a                            ; 01:7DBB - A7
    jr     z, addr_07DC9                ; 01:7DBC - 28 0B
    dec    (ix+17)                      ; 01:7DBE - DD 35 11
-   ld     (ix+15), $F7                 ; 01:7DC1 - DD 36 0F F7
-   ld     (ix+16), $7D                 ; 01:7DC5 - DD 36 10 7D
+   ld     (ix+15), UNK_07DF7&$FF       ; 01:7DC1 - DD 36 0F F7
+   ld     (ix+16), UNK_07DF7>>8        ; 01:7DC5 - DD 36 10 7D
 
 addr_07DC9:
    ld     hl, $0204                    ; 01:7DC9 - 21 04 02
@@ -13584,8 +13665,10 @@ UNK_07DDC:
 
 UNK_07DE1:
 .db $60, $62, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:7DE1
-.db $FF, $FF, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF  ; 01:7DF1
-.db $FF                                                                             ; 01:7E01
+.db $FF, $FF, $64, $66, $FF, $FF                                                    ; 01:7DF1
+
+UNK_07DF7:
+.db $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF, $FF                           ; 01:7DF7
 
 objfunc_27_UNKNOWN:
    set    5, (ix+24)                   ; 01:7E02 - DD CB 18 EE
@@ -13595,8 +13678,8 @@ objfunc_27_UNKNOWN:
    ld     (var_D269), hl               ; 01:7E0F - 22 69 D2
    ld     (ix+13), $0C                 ; 01:7E12 - DD 36 0D 0C
    ld     (ix+14), $10                 ; 01:7E16 - DD 36 0E 10
-   ld     (ix+15), $89                 ; 01:7E1A - DD 36 0F 89
-   ld     (ix+16), $7E                 ; 01:7E1E - DD 36 10 7E
+   ld     (ix+15), UNK_07E89&$FF       ; 01:7E1A - DD 36 0F 89
+   ld     (ix+16), UNK_07E89>>8        ; 01:7E1E - DD 36 10 7E
    bit    0, (ix+24)                   ; 01:7E22 - DD CB 18 46
    jr     nz, addr_07E3C               ; 01:7E26 - 20 14
    ld     a, (ix+5)                    ; 01:7E28 - DD 7E 05
@@ -13639,6 +13722,8 @@ addr_07E65:
    ld     a, (ix+19)                   ; 01:7E82 - DD 7E 13
    ld     (ix+6), a                    ; 01:7E85 - DD 77 06
    ret                                 ; 01:7E88 - C9
+
+UNK_07E89:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $28, $2E, $FF, $FF  ; 01:7E89
 .db $FF, $FF                                                                        ; 01:7E99
 
@@ -13650,8 +13735,8 @@ objfunc_28_UNKNOWN:
    ld     (var_D269), hl               ; 01:7EA8 - 22 69 D2
    ld     (ix+13), $1A                 ; 01:7EAB - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:7EAF - DD 36 0E 10
-   ld     (ix+15), $D9                 ; 01:7EB3 - DD 36 0F D9
-   ld     (ix+16), $7E                 ; 01:7EB7 - DD 36 10 7E
+   ld     (ix+15), UNK_07ED9&$FF       ; 01:7EB3 - DD 36 0F D9
+   ld     (ix+16), UNK_07ED9>>8        ; 01:7EB7 - DD 36 10 7E
    bit    0, (ix+24)                   ; 01:7EBB - DD CB 18 46
    jp     nz, addr_07E3C               ; 01:7EBF - C2 3C 7E
    ld     a, (ix+5)                    ; 01:7EC2 - DD 7E 05
@@ -13661,6 +13746,8 @@ objfunc_28_UNKNOWN:
    ld     (ix+20), $C6                 ; 01:7ECE - DD 36 14 C6
    set    0, (ix+24)                   ; 01:7ED2 - DD CB 18 C6
    jp     addr_07E3C                   ; 01:7ED6 - C3 3C 7E
+
+UNK_07ED9:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6E, $48, $FF, $FF, $FF                 ; 01:7ED9
 
 objfunc_29_UNKNOWN:
@@ -13777,10 +13864,10 @@ addr_07FC1:
    ld     (ix+19), h                   ; 01:7FC4 - DD 74 13
    ld     e, a                         ; 01:7FC7 - 5F
    ld     d, $00                       ; 01:7FC8 - 16 00
-   ld     hl, $8019                    ; 01:7FCA - 21 19 80
+   ld     hl, OFFSTAB_UNK_08019        ; 01:7FCA - 21 19 80
    add    hl, de                       ; 01:7FCD - 19
    ld     e, (hl)                      ; 01:7FCE - 5E
-   ld     hl, $8022                    ; 01:7FCF - 21 22 80
+   ld     hl, UNK_08022                ; 01:7FCF - 21 22 80
    add    hl, de                       ; 01:7FD2 - 19
    ld     (ix+15), l                   ; 01:7FD3 - DD 75 0F
    ld     (ix+16), h                   ; 01:7FD6 - DD 74 10
@@ -13815,10 +13902,15 @@ addr_0800B:
    ret    c                            ; 02:8013 - D8
    ld     (ix+17), $00                 ; 02:8014 - DD 36 11 00
    ret                                 ; 02:8018 - C9
-.db $00, $00, $00, $12, $12, $12, $24, $24, $24, $FE, $FF, $FF, $FF, $FF, $FF, $3A  ; 02:8019
-.db $3C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF  ; 02:8029
-.db $FF, $36, $38, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FE, $FF, $FF  ; 02:8039
-.db $FF, $FF, $FF, $4C, $4E, $FF, $FF, $FF, $FF, $FF                                ; 02:8049
+
+OFFSTAB_UNK_08019:
+.db $00, $00, $00, $12, $12, $12, $24, $24, $24                                     ; 02:8019
+
+UNK_08022:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $3A, $3C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:8022
+.db $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $36, $38, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:8032
+.db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $4C, $4E, $FF, $FF, $FF, $FF  ; 02:8042
+.db $FF                                                                             ; 02:8052
 
 objfunc_2C_UNKNOWN:
    set    5, (ix+24)                   ; 02:8053 - DD CB 18 EE
@@ -13861,8 +13953,8 @@ addr_080B0:
    call   addr_07CA6                   ; 02:80B0 - CD A6 7C
    bit    0, (ix+17)                   ; 02:80B3 - DD CB 11 46
    jr     nz, addr_080E7               ; 02:80B7 - 20 2E
-   ld     (ix+15), $F4                 ; 02:80B9 - DD 36 0F F4
-   ld     (ix+16), $81                 ; 02:80BD - DD 36 10 81
+   ld     (ix+15), UNK_081F4&$FF       ; 02:80B9 - DD 36 0F F4
+   ld     (ix+16), UNK_081F4>>8        ; 02:80BD - DD 36 10 81
    ld     (ix+10), $80                 ; 02:80C1 - DD 36 0A 80
    ld     (ix+11), $00                 ; 02:80C5 - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:80C9 - DD 36 0C 00
@@ -13885,8 +13977,8 @@ addr_080E7:
    ld     h, (ix+3)                    ; 02:80F1 - DD 66 03
    bit    1, (ix+17)                   ; 02:80F4 - DD CB 11 4E
    jr     nz, addr_08122               ; 02:80F8 - 20 28
-   ld     (ix+15), $F4                 ; 02:80FA - DD 36 0F F4
-   ld     (ix+16), $81                 ; 02:80FE - DD 36 10 81
+   ld     (ix+15), UNK_081F4&$FF       ; 02:80FA - DD 36 0F F4
+   ld     (ix+16), UNK_081F4>>8        ; 02:80FE - DD 36 10 81
    res    1, (ix+24)                   ; 02:8102 - DD CB 18 8E
    ld     (ix+7), $00                  ; 02:8106 - DD 36 07 00
    ld     (ix+8), $FF                  ; 02:810A - DD 36 08 FF
@@ -13899,8 +13991,8 @@ addr_080E7:
    jp     addr_081E7                   ; 02:811F - C3 E7 81
 
 addr_08122:
-   ld     (ix+15), $06                 ; 02:8122 - DD 36 0F 06
-   ld     (ix+16), $82                 ; 02:8126 - DD 36 10 82
+   ld     (ix+15), UNK_08206&$FF       ; 02:8122 - DD 36 0F 06
+   ld     (ix+16), UNK_08206>>8        ; 02:8126 - DD 36 10 82
    set    1, (ix+24)                   ; 02:812A - DD CB 18 CE
    ld     (ix+7), $00                  ; 02:812E - DD 36 07 00
    ld     (ix+8), $01                  ; 02:8132 - DD 36 08 01
@@ -13987,9 +14079,14 @@ addr_081E7:
    call   addr_077BE                   ; 02:81ED - CD BE 77
    call   addr_079FA                   ; 02:81F0 - CD FA 79
    ret                                 ; 02:81F3 - C9
+
+UNK_081F4:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $54, $56, $58  ; 02:81F4
-.db $68, $FF, $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $5A  ; 02:8204
-.db $5C, $5E, $72, $FF                                                              ; 02:8214
+.db $68, $FF                                                                        ; 02:8204
+
+UNK_08206:
+.db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $5A, $5C, $5E  ; 02:8206
+.db $72, $FF                                                                        ; 02:8216
 
 objfunc_2B_UNKNOWN:
    res    5, (ix+24)                   ; 02:8218 - DD CB 18 AE
@@ -14180,15 +14277,15 @@ addr_083F2:
    ld     de, $000E                    ; 02:8413 - 11 0E 00
    add    hl, de                       ; 02:8416 - 19
    ld     (var_D2AD), hl               ; 02:8417 - 22 AD D2
-   ld     hl, $848E                    ; 02:841A - 21 8E 84
+   ld     hl, UNK_0848E                ; 02:841A - 21 8E 84
    ld     (var_D2AF), hl               ; 02:841D - 22 AF D2
    set    0, (ix+24)                   ; 02:8420 - DD CB 18 C6
    ld     a, $20                       ; 02:8424 - 3E 20
    rst    $28                          ; 02:8426 - EF
 
 addr_08427:
-   ld     (ix+15), $81                 ; 02:8427 - DD 36 0F 81
-   ld     (ix+16), $84                 ; 02:842B - DD 36 10 84
+   ld     (ix+15), UNK_08481&$FF       ; 02:8427 - DD 36 0F 81
+   ld     (ix+16), UNK_08481>>8        ; 02:842B - DD 36 10 84
    ld     l, (ix+10)                   ; 02:842F - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8432 - DD 66 0B
    ld     a, (ix+12)                   ; 02:8435 - DD 7E 0C
@@ -14228,16 +14325,20 @@ addr_08467:
    ld     bc, $0010                    ; 02:847A - 01 10 00
    call   addr_07CC1                   ; 02:847D - CD C1 7C
    ret                                 ; 02:8480 - C9
-.db $FE, $FF, $FF, $FF, $FF, $FF, $70, $72, $FF, $FF, $FF, $FF, $FF, $00, $00, $00  ; 02:8481
-.db $00, $00, $00, $00, $00                                                         ; 02:8491
+
+UNK_08481:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $70, $72, $FF, $FF, $FF, $FF, $FF                 ; 02:8481
+
+UNK_0848E:
+.db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 02:848E
 
 objfunc_48_UNKNOWN:
    set    5, (ix+24)                   ; 02:8496 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:849A - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:849E - DD 36 0E 1C
    call   addr_07CA6                   ; 02:84A2 - CD A6 7C
-   ld     (ix+15), $5A                 ; 02:84A5 - DD 36 0F 5A
-   ld     (ix+16), $86                 ; 02:84A9 - DD 36 10 86
+   ld     (ix+15), UNK_0865A&$FF       ; 02:84A5 - DD 36 0F 5A
+   ld     (ix+16), UNK_0865A>>8        ; 02:84A9 - DD 36 10 86
    bit    0, (ix+24)                   ; 02:84AD - DD CB 18 46
    jr     nz, addr_084DA               ; 02:84B1 - 20 27
    ld     hl, $03A0                    ; 02:84B3 - 21 A0 03
@@ -14434,8 +14535,11 @@ addr_08626:
    ret                                 ; 02:8631 - C9
 .db $D4, $03, $C0, $03, $44, $04, $C0, $03, $00, $00, $F6, $FF, $C0, $FE, $00, $FC  ; 02:8632
 .db $60, $FE, $80, $FD, $C0, $FD, $00, $FF, $20, $00, $F6, $FF, $40, $01, $00, $FC  ; 02:8642
-.db $A0, $01, $80, $FD, $40, $02, $00, $FF, $20, $22, $24, $26, $28, $FF, $40, $42  ; 02:8652
-.db $44, $46, $48, $FF, $60, $62, $64, $66, $68, $FF                                ; 02:8662
+.db $A0, $01, $80, $FD, $40, $02, $00, $FF                                          ; 02:8652
+
+UNK_0865A:
+.db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:865A
+.db $68, $FF                                                                        ; 02:866A
 
 objfunc_4E_UNKNOWN:
    set    5, (ix+24)                   ; 02:866C - DD CB 18 EE
@@ -14769,14 +14873,16 @@ addr_0894B:
    ld     (var_D214), hl               ; 02:8968 - 22 14 D2
    call   UNK_03956                    ; 02:896B - CD 56 39
    call   nc, addr_035FD               ; 02:896E - D4 FD 35
-   ld     (ix+15), $87                 ; 02:8971 - DD 36 0F 87
-   ld     (ix+16), $89                 ; 02:8975 - DD 36 10 89
+   ld     (ix+15), UNK_08987&$FF       ; 02:8971 - DD 36 0F 87
+   ld     (ix+16), UNK_08987>>8        ; 02:8975 - DD 36 10 89
    inc    (ix+17)                      ; 02:8979 - DD 34 11
    ld     a, (ix+17)                   ; 02:897C - DD 7E 11
    cp     $B4                          ; 02:897F - FE B4
    ret    c                            ; 02:8981 - D8
    ld     (ix+17), $00                 ; 02:8982 - DD 36 11 00
    ret                                 ; 02:8986 - C9
+
+UNK_08987:
 .db $60, $62, $FF, $FF, $FF, $FF, $FF, $40, $00, $40, $02, $40, $04, $40, $07, $3F  ; 02:8987
 .db $09, $3F, $0B, $3F, $0D, $3E, $0F, $3E, $12, $3D, $14, $3C, $16, $3B, $18, $3A  ; 02:8997
 .db $1A, $3A, $1C, $39, $1E, $37, $20, $36, $22, $35, $24, $34, $26, $32, $27, $31  ; 02:89A7
@@ -14973,16 +15079,16 @@ addr_08C8D:
    ld     (ix+7), $00                  ; 02:8C94 - DD 36 07 00
    ld     (ix+8), $FF                  ; 02:8C98 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:8C9C - DD 36 09 FF
-   ld     (ix+15), $39                 ; 02:8CA0 - DD 36 0F 39
-   ld     (ix+16), $8D                 ; 02:8CA4 - DD 36 10 8D
+   ld     (ix+15), UNK_08D39&$FF       ; 02:8CA0 - DD 36 0F 39
+   ld     (ix+16), UNK_08D39>>8        ; 02:8CA4 - DD 36 10 8D
    jr     addr_08CBC                   ; 02:8CA8 - 18 12
 
 addr_08CAA:
    ld     (ix+7), a                    ; 02:8CAA - DD 77 07
    ld     (ix+8), $01                  ; 02:8CAD - DD 36 08 01
    ld     (ix+9), a                    ; 02:8CB1 - DD 77 09
-   ld     (ix+15), $41                 ; 02:8CB4 - DD 36 0F 41
-   ld     (ix+16), $8D                 ; 02:8CB8 - DD 36 10 8D
+   ld     (ix+15), UNK_08D41&$FF       ; 02:8CB4 - DD 36 0F 41
+   ld     (ix+16), UNK_08D41>>8        ; 02:8CB8 - DD 36 10 8D
 
 addr_08CBC:
    ld     (ix+10), a                   ; 02:8CBC - DD 77 0A
@@ -15037,7 +15143,12 @@ addr_08D1A:
    ld     (ix+6), h                    ; 02:8D2F - DD 74 06
    ld     (ix+17), $96                 ; 02:8D32 - DD 36 11 96
    jp     addr_08C79                   ; 02:8D36 - C3 79 8C
-.db $2E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $30, $FF, $FF, $FF, $FF, $FF, $FF       ; 02:8D39
+
+UNK_08D39:
+.db $2E, $FF, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:8D39
+
+UNK_08D41:
+.db $30, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:8D41
 
 objfunc_40_UNKNOWN:
    set    5, (ix+24)                   ; 02:8D48 - DD CB 18 EE
@@ -15394,8 +15505,8 @@ objfunc_45_UNKNOWN:
    set    5, (ix+24)                   ; 02:90C0 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:90C4 - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:90C8 - DD 36 0E 1C
-   ld     (ix+15), $DE                 ; 02:90CC - DD 36 0F DE
-   ld     (ix+16), $91                 ; 02:90D0 - DD 36 10 91
+   ld     (ix+15), UNK_091DE&$FF       ; 02:90CC - DD 36 0F DE
+   ld     (ix+16), UNK_091DE>>8        ; 02:90D0 - DD 36 10 91
    bit    1, (ix+24)                   ; 02:90D4 - DD CB 18 4E
    jr     nz, addr_09100               ; 02:90D8 - 20 26
    ld     l, (ix+2)                    ; 02:90DA - DD 6E 02
@@ -15523,6 +15634,8 @@ addr_091D1:
    ld     bc, $0010                    ; 02:91D7 - 01 10 00
    call   addr_07CC1                   ; 02:91DA - CD C1 7C
    ret                                 ; 02:91DD - C9
+
+UNK_091DE:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $16, $18, $1A, $1C, $FF, $FF, $FF                 ; 02:91DE
 
 UNK_091EB:
@@ -15587,8 +15700,8 @@ objfunc_49_UNKNOWN:
    ld     (ix+13), $20                 ; 02:926B - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:926F - DD 36 0E 1C
    call   addr_07CA6                   ; 02:9273 - CD A6 7C
-   ld     (ix+15), $93                 ; 02:9276 - DD 36 0F 93
-   ld     (ix+16), $94                 ; 02:927A - DD 36 10 94
+   ld     (ix+15), UNK_09493&$FF       ; 02:9276 - DD 36 0F 93
+   ld     (ix+16), UNK_09493>>8        ; 02:927A - DD 36 10 94
    bit    0, (ix+24)                   ; 02:927E - DD CB 18 46
    jr     nz, addr_092AF               ; 02:9282 - 20 2B
    ld     hl, $02D0                    ; 02:9284 - 21 D0 02
@@ -15814,8 +15927,11 @@ addr_09432:
    rst    $28                          ; 02:9477 - EF
    jp     addr_093F7                   ; 02:9478 - C3 F7 93
 .db $3C, $03, $60, $03, $EC, $02, $60, $02, $8C, $03, $60, $02, $28, $03, $B0, $02  ; 02:947B
-.db $B0, $02, $60, $03, $60, $02, $60, $02, $20, $22, $24, $26, $28, $FF, $40, $42  ; 02:948B
-.db $44, $46, $48, $FF, $60, $62, $64, $66, $68, $FF                                ; 02:949B
+.db $B0, $02, $60, $03, $60, $02, $60, $02                                          ; 02:948B
+
+UNK_09493:
+.db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:9493
+.db $68, $FF                                                                        ; 02:94A3
 
 objfunc_2F_UNKNOWN:
    set    5, (ix+24)                   ; 02:94A5 - DD CB 18 EE
@@ -16276,8 +16392,8 @@ addr_09862:
 
 objfunc_4C_UNKNOWN:
    set    5, (ix+24)                   ; 02:9866 - DD CB 18 EE
-   ld     (ix+15), $7E                 ; 02:986A - DD 36 0F 7E
-   ld     (ix+16), $9A                 ; 02:986E - DD 36 10 9A
+   ld     (ix+15), UNK_09A7E&$FF       ; 02:986A - DD 36 0F 7E
+   ld     (ix+16), UNK_09A7E>>8        ; 02:986E - DD 36 10 9A
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 02:9872 - FD CB 03 6E
    jr     nz, addr_0988B               ; 02:9876 - 20 13
    ld     a, (ix+17)                   ; 02:9878 - DD 7E 11
@@ -16323,8 +16439,8 @@ addr_09894:
 addr_098D3:
    cp     $04                          ; 02:98D3 - FE 04
    jp     nc, addr_0995E               ; 02:98D5 - D2 5E 99
-   ld     (ix+15), $90                 ; 02:98D8 - DD 36 0F 90
-   ld     (ix+16), $9A                 ; 02:98DC - DD 36 10 9A
+   ld     (ix+15), UNK_09A90&$FF       ; 02:98D8 - DD 36 0F 90
+   ld     (ix+16), UNK_09A90>>8        ; 02:98DC - DD 36 10 9A
    ld     hl, $080F                    ; 02:98E0 - 21 0F 08
    ld     (var_D214), hl               ; 02:98E3 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98E6 - DD 36 0D 1E
@@ -16377,8 +16493,8 @@ addr_098D3:
 .db $03, $D4, $3A, $05, $D4, $19, $CE, $00, $22, $03, $D4, $32, $05, $D4, $C9       ; 02:994F
 
 addr_0995E:
-   ld     (ix+15), $A2                 ; 02:995E - DD 36 0F A2
-   ld     (ix+16), $9A                 ; 02:9962 - DD 36 10 9A
+   ld     (ix+15), UNK_09AA2&$FF       ; 02:995E - DD 36 0F A2
+   ld     (ix+16), UNK_09AA2>>8        ; 02:9962 - DD 36 10 9A
    ld     hl, $021A                    ; 02:9966 - 21 1A 02
    ld     (var_D214), hl               ; 02:9969 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:996C - DD 36 0D 1E
@@ -16424,10 +16540,17 @@ UNK_09A3E:
 .db $00, $F6, $80, $F5, $00, $F5, $C0, $F4, $80, $F4, $40, $F4, $00, $F4, $00, $F4  ; 02:9A4E
 .db $00, $F4, $00, $F4, $40, $F4, $80, $F4, $C0, $F4, $00, $F5, $00, $F6, $00, $F7  ; 02:9A5E
 .db $00, $F9, $00, $FA, $00, $FC, $80, $FC, $00, $FD, $C0, $FD, $00, $FF, $00, $FF  ; 02:9A6E
+
+UNK_09A7E:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $38, $3A, $3C, $3E, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9A7E
-.db $FF, $FF, $48, $4A, $4C, $4E, $FF, $FF, $68, $6A, $6C, $6E, $FF, $FF, $FF, $FF  ; 02:9A8E
-.db $FF, $FF, $FF, $FF, $FE, $12, $14, $16, $FF, $FF, $FE, $32, $34, $36, $FF, $FF  ; 02:9A9E
-.db $FF                                                                             ; 02:9AAE
+.db $FF, $FF                                                                        ; 02:9A8E
+
+UNK_09A90:
+.db $48, $4A, $4C, $4E, $FF, $FF, $68, $6A, $6C, $6E, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9A90
+.db $FF, $FF                                                                        ; 02:9AA0
+
+UNK_09AA2:
+.db $FE, $12, $14, $16, $FF, $FF, $FE, $32, $34, $36, $FF, $FF, $FF                 ; 02:9AA2
 
 addr_09AAF:
    ld     a, (var_D408)                ; 02:9AAF - 3A 08 D4
@@ -16481,8 +16604,8 @@ objfunc_21_UNKNOWN:
    set    5, (ix+24)                   ; 02:9AFB - DD CB 18 EE
    ld     (ix+13), $1C                 ; 02:9AFF - DD 36 0D 1C
    ld     (ix+14), $06                 ; 02:9B03 - DD 36 0E 06
-   ld     (ix+15), $6E                 ; 02:9B07 - DD 36 0F 6E
-   ld     (ix+16), $9B                 ; 02:9B0B - DD 36 10 9B
+   ld     (ix+15), UNK_09B6E&$FF       ; 02:9B07 - DD 36 0F 6E
+   ld     (ix+16), UNK_09B6E>>8        ; 02:9B0B - DD 36 10 9B
    ld     hl, $0001                    ; 02:9B0F - 21 01 00
    ld     a, (ix+18)                   ; 02:9B12 - DD 7E 12
    cp     $60                          ; 02:9B15 - FE 60
@@ -16534,6 +16657,8 @@ addr_09B2C:
 addr_09B6A:
    dec    (ix+17)                      ; 02:9B6A - DD 35 11
    ret                                 ; 02:9B6D - C9
+
+UNK_09B6E:
 .db $08, $0A, $28, $2A, $FF, $FF, $FF                                               ; 02:9B6E
 
 objfunc_13_UNKNOWN:
@@ -16599,8 +16724,8 @@ objfunc_14_UNKNOWN:
    ld     (ix+7), $80                  ; 02:9BE8 - DD 36 07 80
    ld     (ix+8), $01                  ; 02:9BEC - DD 36 08 01
    ld     (ix+9), $00                  ; 02:9BF0 - DD 36 09 00
-   ld     (ix+15), $69                 ; 02:9BF4 - DD 36 0F 69
-   ld     (ix+16), $9C                 ; 02:9BF8 - DD 36 10 9C
+   ld     (ix+15), UNK_09C69&$FF       ; 02:9BF4 - DD 36 0F 69
+   ld     (ix+16), UNK_09C69>>8        ; 02:9BF8 - DD 36 10 9C
 
 addr_09BFC:
    set    5, (ix+24)                   ; 02:9BFC - DD CB 18 EE
@@ -16651,15 +16776,19 @@ addr_09C58:
    ld     (ix+8), a                    ; 02:9C62 - DD 77 08
    ld     (ix+9), a                    ; 02:9C65 - DD 77 09
    ret                                 ; 02:9C68 - C9
+
+UNK_09C69:
 .db $0C, $0E, $FF, $FF, $FF, $FF, $FF                                               ; 02:9C69
 
 objfunc_15_UNKNOWN:
    ld     (ix+7), $80                  ; 02:9C70 - DD 36 07 80
    ld     (ix+8), $FE                  ; 02:9C74 - DD 36 08 FE
    ld     (ix+9), $FF                  ; 02:9C78 - DD 36 09 FF
-   ld     (ix+15), $87                 ; 02:9C7C - DD 36 0F 87
-   ld     (ix+16), $9C                 ; 02:9C80 - DD 36 10 9C
+   ld     (ix+15), UNK_09C87&$FF       ; 02:9C7C - DD 36 0F 87
+   ld     (ix+16), UNK_09C87>>8        ; 02:9C80 - DD 36 10 9C
    jp     addr_09BFC                   ; 02:9C84 - C3 FC 9B
+
+UNK_09C87:
 .db $2C, $2E, $FF, $FF, $FF, $FF, $FF                                               ; 02:9C87
 
 objfunc_16_UNKNOWN:
@@ -17369,13 +17498,13 @@ addr_0A41A:
    ld     a, (var_D408)                ; 02:A425 - 3A 08 D4
    and    a                            ; 02:A428 - A7
    jp     m, addr_0A464                ; 02:A429 - FA 64 A4
-   ld     (ix+15), $8B                 ; 02:A42C - DD 36 0F 8B
-   ld     (ix+16), $A4                 ; 02:A430 - DD 36 10 A4
+   ld     (ix+15), UNK_0A48B&$FF       ; 02:A42C - DD 36 0F 8B
+   ld     (ix+16), UNK_0A48B>>8        ; 02:A430 - DD 36 10 A4
    ld     a, (var_D2D4)                ; 02:A434 - 3A D4 D2
    cp     $03                          ; 02:A437 - FE 03
    jr     nz, addr_0A443               ; 02:A439 - 20 08
-   ld     (ix+15), $9B                 ; 02:A43B - DD 36 0F 9B
-   ld     (ix+16), $A4                 ; 02:A43F - DD 36 10 A4
+   ld     (ix+15), UNK_0A49B&$FF       ; 02:A43B - DD 36 0F 9B
+   ld     (ix+16), UNK_0A49B>>8        ; 02:A43F - DD 36 10 A4
 
 addr_0A443:
    ld     bc, $0006                    ; 02:A443 - 01 06 00
@@ -17395,13 +17524,13 @@ addr_0A443:
 
 addr_0A464:
    res    1, (ix+24)                   ; 02:A464 - DD CB 18 8E
-   ld     (ix+15), $93                 ; 02:A468 - DD 36 0F 93
-   ld     (ix+16), $A4                 ; 02:A46C - DD 36 10 A4
+   ld     (ix+15), UNK_0A493&$FF       ; 02:A468 - DD 36 0F 93
+   ld     (ix+16), UNK_0A493>>8        ; 02:A46C - DD 36 10 A4
    ld     a, (var_D2D4)                ; 02:A470 - 3A D4 D2
    cp     $03                          ; 02:A473 - FE 03
    jr     nz, addr_0A47F               ; 02:A475 - 20 08
-   ld     (ix+15), $A3                 ; 02:A477 - DD 36 0F A3
-   ld     (ix+16), $A4                 ; 02:A47B - DD 36 10 A4
+   ld     (ix+15), UNK_0A4A3&$FF       ; 02:A477 - DD 36 0F A3
+   ld     (ix+16), UNK_0A4A3>>8        ; 02:A47B - DD 36 10 A4
 
 addr_0A47F:
    xor    a                            ; 02:A47F - AF
@@ -17409,8 +17538,18 @@ addr_0A47F:
    ld     (ix+11), $02                 ; 02:A483 - DD 36 0B 02
    ld     (ix+12), a                   ; 02:A487 - DD 77 0C
    ret                                 ; 02:A48A - C9
-.db $1A, $1C, $FF, $FF, $FF, $FF, $FF, $FF, $3A, $3C, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A48B
-.db $38, $3A, $FF, $FF, $FF, $FF, $FF, $FF, $34, $36, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A49B
+
+UNK_0A48B:
+.db $1A, $1C, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A48B
+
+UNK_0A493:
+.db $3A, $3C, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A493
+
+UNK_0A49B:
+.db $38, $3A, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A49B
+
+UNK_0A4A3:
+.db $34, $36, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A4A3
 
 objfunc_1E_door_from_button:
    set    5, (ix+24)                   ; 02:A4AB - DD CB 18 EE
@@ -17747,8 +17886,8 @@ addr_0A893:
    ld     (ix+1), $00                  ; 02:A8A9 - DD 36 01 00
    ld     (ix+2), l                    ; 02:A8AD - DD 75 02
    ld     (ix+3), h                    ; 02:A8B0 - DD 74 03
-   ld     (ix+15), $F9                 ; 02:A8B3 - DD 36 0F F9
-   ld     (ix+16), $BA                 ; 02:A8B7 - DD 36 10 BA
+   ld     (ix+15), UNK_0BAF9&$FF       ; 02:A8B3 - DD 36 0F F9
+   ld     (ix+16), UNK_0BAF9>>8        ; 02:A8B7 - DD 36 10 BA
    inc    (ix+17)                      ; 02:A8BB - DD 34 11
    ld     a, (ix+17)                   ; 02:A8BE - DD 7E 11
    cp     $C0                          ; 02:A8C1 - FE C0
@@ -18074,8 +18213,8 @@ addr_0AB79:
    jp     addr_0AC6A                   ; 02:AB9A - C3 6A AC
 
 addr_0AB9D:
-   ld     (ix+15), $53                 ; 02:AB9D - DD 36 0F 53
-   ld     (ix+16), $AD                 ; 02:ABA1 - DD 36 10 AD
+   ld     (ix+15), UNK_0AD53&$FF       ; 02:AB9D - DD 36 0F 53
+   ld     (ix+16), UNK_0AD53>>8        ; 02:ABA1 - DD 36 10 AD
    cp     $67                          ; 02:ABA5 - FE 67
    jp     nz, addr_0AC6A               ; 02:ABA7 - C2 6A AC
    ld     hl, $FFFE                    ; 02:ABAA - 21 FE FF
@@ -18230,9 +18369,11 @@ UNK_0AD0B:
 .db $FF, $FF, $0E, $10, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD1B
 .db $FF, $FF, $FF, $FF, $2A, $2C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD2B
 .db $FF, $FF, $FF, $FF, $FF, $FF, $2E, $30, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD3B
-.db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $12, $14, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD4B
-.db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $32, $34, $FF, $FF, $FF, $FF  ; 02:AD5B
-.db $FF                                                                             ; 02:AD6B
+.db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:AD4B
+
+UNK_0AD53:
+.db $12, $14, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD53
+.db $FF, $FF, $32, $34, $FF, $FF, $FF, $FF, $FF                                     ; 02:AD63
 
 objfunc_33_UNKNOWN:
    set    5, (ix+24)                   ; 02:AD6C - DD CB 18 EE
@@ -18332,9 +18473,11 @@ addr_0AE57:
    ld     (ix+10), a                   ; 02:AE6F - DD 77 0A
    ld     (ix+11), a                   ; 02:AE72 - DD 77 0B
    ld     (ix+12), a                   ; 02:AE75 - DD 77 0C
-   ld     (ix+15), $81                 ; 02:AE78 - DD 36 0F 81
-   ld     (ix+16), $AE                 ; 02:AE7C - DD 36 10 AE
+   ld     (ix+15), UNK_0AE81&$FF       ; 02:AE78 - DD 36 0F 81
+   ld     (ix+16), UNK_0AE81>>8        ; 02:AE7C - DD 36 10 AE
    ret                                 ; 02:AE80 - C9
+
+UNK_0AE81:
 .db $02, $04, $FF, $FF, $FF, $FF, $FF                                               ; 02:AE81
 
 objfunc_35_UNKNOWN:
@@ -18357,8 +18500,8 @@ addr_0AEA6:
    ld     (ix+7), $F8                  ; 02:AEB5 - DD 36 07 F8
    ld     (ix+8), $FF                  ; 02:AEB9 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:AEBD - DD 36 09 FF
-   ld     (ix+15), $D5                 ; 02:AEC1 - DD 36 0F D5
-   ld     (ix+16), $B0                 ; 02:AEC5 - DD 36 10 B0
+   ld     (ix+15), UNK_0B0D5&$FF       ; 02:AEC1 - DD 36 0F D5
+   ld     (ix+16), UNK_0B0D5>>8        ; 02:AEC5 - DD 36 10 B0
    ld     hl, $FF80                    ; 02:AEC9 - 21 80 FF
    ld     (var_D216), hl               ; 02:AECC - 22 16 D2
    call   addr_0AF98                   ; 02:AECF - CD 98 AF
@@ -18369,8 +18512,8 @@ addr_0AED8:
    ld     (ix+7), $08                  ; 02:AED8 - DD 36 07 08
    ld     (ix+8), $00                  ; 02:AEDC - DD 36 08 00
    ld     (ix+9), $00                  ; 02:AEE0 - DD 36 09 00
-   ld     (ix+15), $E7                 ; 02:AEE4 - DD 36 0F E7
-   ld     (ix+16), $B0                 ; 02:AEE8 - DD 36 10 B0
+   ld     (ix+15), UNK_0B0E7&$FF       ; 02:AEE4 - DD 36 0F E7
+   ld     (ix+16), UNK_0B0E7>>8        ; 02:AEE8 - DD 36 10 B0
    ld     hl, $0080                    ; 02:AEEC - 21 80 00
    ld     (var_D216), hl               ; 02:AEEF - 22 16 D2
    call   addr_0AF98                   ; 02:AEF2 - CD 98 AF
@@ -18554,9 +18697,14 @@ UNK_0B031:
 .db $03, $12, $03, $11, $02, $11, $02, $10, $02, $0F, $02, $0E, $02, $0D, $02, $0C  ; 02:B0A1
 .db $02, $0B, $03, $0B, $03, $0A, $03, $09, $04, $09, $04, $08, $04, $07, $05, $07  ; 02:B0B1
 .db $05, $06, $06, $06, $06, $05, $07, $05, $07, $04, $08, $04, $09, $04, $09, $03  ; 02:B0C1
-.db $0A, $03, $0B, $03, $FE, $FF, $FF, $FF, $FF, $FF, $FE, $26, $28, $FF, $FF, $FF  ; 02:B0D1
-.db $FF, $FF, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $FE, $20, $22, $FF  ; 02:B0E1
-.db $FF, $FF, $FF                                                                   ; 02:B0F1
+.db $0A, $03, $0B, $03                                                              ; 02:B0D1
+
+UNK_0B0D5:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $26, $28, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:B0D5
+.db $FF, $FF                                                                        ; 02:B0E5
+
+UNK_0B0E7:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $20, $22, $FF, $FF, $FF, $FF                 ; 02:B0E7
 
 objfunc_36_UNKNOWN:
    set    5, (ix+24)                   ; 02:B0F4 - DD CB 18 EE
@@ -18821,8 +18969,8 @@ addr_0B34C:
 addr_0B360:
    pop    bc                           ; 02:B360 - C1
    djnz   addr_0B34C                   ; 02:B361 - 10 E9
-   ld     (ix+15), $7B                 ; 02:B363 - DD 36 0F 7B
-   ld     (ix+16), $B3                 ; 02:B367 - DD 36 10 B3
+   ld     (ix+15), UNK_0B37B&$FF       ; 02:B363 - DD 36 0F 7B
+   ld     (ix+16), UNK_0B37B>>8        ; 02:B367 - DD 36 10 B3
    ld     a, (ix+17)                   ; 02:B36B - DD 7E 11
    add    a, $04                       ; 02:B36E - C6 04
    ld     (ix+17), a                   ; 02:B370 - DD 77 11
@@ -18850,8 +18998,8 @@ objfunc_39_UNKNOWN:
 addr_0B3B2:
    ld     (ix+13), $0C                 ; 02:B3B2 - DD 36 0D 0C
    ld     (ix+14), $2E                 ; 02:B3B6 - DD 36 0E 2E
-   ld     (ix+15), $5B                 ; 02:B3BA - DD 36 0F 5B
-   ld     (ix+16), $B4                 ; 02:B3BE - DD 36 10 B4
+   ld     (ix+15), UNK_0B45B&$FF       ; 02:B3BA - DD 36 0F 5B
+   ld     (ix+16), UNK_0B45B>>8        ; 02:B3BE - DD 36 10 B4
    ld     hl, $0202                    ; 02:B3C2 - 21 02 02
    ld     (var_D214), hl               ; 02:B3C5 - 22 14 D2
    call   UNK_03956                    ; 02:B3C8 - CD 56 39
@@ -18916,6 +19064,8 @@ addr_0B43C:
    ld     (ix+8), a                    ; 02:B454 - DD 77 08
    ld     (ix+9), a                    ; 02:B457 - DD 77 09
    ret                                 ; 02:B45A - C9
+
+UNK_0B45B:
 .db $16, $18, $FF, $FF, $FF, $FF, $16, $18, $FF, $FF, $FF, $FF, $16, $18, $FF, $FF  ; 02:B45B
 .db $FF, $FF                                                                        ; 02:B46B
 
@@ -19217,8 +19367,8 @@ addr_0B6D4:
    add    hl, de                       ; 02:B6EF - 19
    ld     (ix+2), l                    ; 02:B6F0 - DD 75 02
    ld     (ix+3), h                    ; 02:B6F3 - DD 74 03
-   ld     (ix+15), $1D                 ; 02:B6F6 - DD 36 0F 1D
-   ld     (ix+16), $BB                 ; 02:B6FA - DD 36 10 BB
+   ld     (ix+15), UNK_0BB1D&$FF       ; 02:B6F6 - DD 36 0F 1D
+   ld     (ix+16), UNK_0BB1D>>8        ; 02:B6FA - DD 36 10 BB
    jp     addr_0B793                   ; 02:B6FE - C3 93 B7
 
 addr_0B701:
@@ -19241,8 +19391,8 @@ addr_0B720:
    ld     (ix+10), l                   ; 02:B720 - DD 75 0A
    ld     (ix+11), h                   ; 02:B723 - DD 74 0B
    ld     (ix+12), c                   ; 02:B726 - DD 71 0C
-   ld     (ix+15), $1D                 ; 02:B729 - DD 36 0F 1D
-   ld     (ix+16), $BB                 ; 02:B72D - DD 36 10 BB
+   ld     (ix+15), UNK_0BB1D&$FF       ; 02:B729 - DD 36 0F 1D
+   ld     (ix+16), UNK_0BB1D>>8        ; 02:B72D - DD 36 10 BB
    ld     l, (ix+5)                    ; 02:B731 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B734 - DD 66 06
    dec    hl                           ; 02:B737 - 2B
@@ -19527,8 +19677,8 @@ addr_0B97D:
    ld     a, c                         ; 02:B97D - 79
    cp     $2C                          ; 02:B97E - FE 2C
    ret    c                            ; 02:B980 - D8
-   ld     (ix+15), $77                 ; 02:B981 - DD 36 0F 77
-   ld     (ix+16), $BB                 ; 02:B985 - DD 36 10 BB
+   ld     (ix+15), UNK_0BB77&$FF       ; 02:B981 - DD 36 0F 77
+   ld     (ix+16), UNK_0BB77>>8        ; 02:B985 - DD 36 10 BB
    ret                                 ; 02:B989 - C9
 
 addr_0B98A:
@@ -19634,13 +19784,18 @@ UNK_0BA45:
 UNK_0BAF9:
 .db $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $4A, $4C, $4E  ; 02:BAF9
 .db $FF, $FF, $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $02  ; 02:BB09
-.db $04, $06, $FF, $FF, $10, $12, $14, $16, $FF, $FF, $30, $32, $34, $FE, $FF, $FF  ; 02:BB19
-.db $50, $52, $54, $FE, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E  ; 02:BB29
-.db $FF, $FF, $FE, $64, $66, $68, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A  ; 02:BB39
-.db $3C, $3E, $FF, $FF, $FE, $6A, $6C, $6E, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF  ; 02:BB49
-.db $FE, $3A, $3C, $3E, $FF, $FF, $70, $72, $5A, $5C, $5E, $FF, $00, $0A, $0C, $0E  ; 02:BB59
-.db $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $00, $4A, $4C, $4E, $FF, $FF, $FE, $FF  ; 02:BB69
-.db $FF, $FF, $FF, $FF, $FE, $44, $46, $FF, $FF, $FF, $FF                           ; 02:BB79
+.db $04, $06, $FF, $FF                                                              ; 02:BB19
+
+UNK_0BB1D:
+.db $10, $12, $14, $16, $FF, $FF, $30, $32, $34, $FE, $FF, $FF, $50, $52, $54, $FE  ; 02:BB1D
+.db $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E, $FF, $FF, $FE, $64  ; 02:BB2D
+.db $66, $68, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E, $FF, $FF  ; 02:BB3D
+.db $FE, $6A, $6C, $6E, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E  ; 02:BB4D
+.db $FF, $FF, $70, $72, $5A, $5C, $5E, $FF, $00, $0A, $0C, $0E, $FF, $FF, $28, $2A  ; 02:BB5D
+.db $2C, $2E, $FF, $FF, $00, $4A, $4C, $4E, $FF, $FF                                ; 02:BB6D
+
+UNK_0BB77:
+.db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $44, $46, $FF, $FF, $FF, $FF                 ; 02:BB77
 
 objfunc_46_UNKNOWN:
    set    5, (ix+24)                   ; 02:BB84 - DD CB 18 EE
@@ -20001,8 +20156,8 @@ addr_0BE5C:
    ld     (var_D25A), de               ; 02:BE92 - ED 53 5A D2
 
 addr_0BE96:
-   ld     (ix+15), $21                 ; 02:BE96 - DD 36 0F 21
-   ld     (ix+16), $BF                 ; 02:BE9A - DD 36 10 BF
+   ld     (ix+15), UNK_0BF21&$FF       ; 02:BE96 - DD 36 0F 21
+   ld     (ix+16), UNK_0BF21>>8        ; 02:BE9A - DD 36 10 BF
    bit    0, (ix+24)                   ; 02:BE9E - DD CB 18 46
    jr     nz, addr_0BED7               ; 02:BEA2 - 20 33
    ld     hl, $1008                    ; 02:BEA4 - 21 08 10
@@ -20037,8 +20192,8 @@ addr_0BED7:
    ld     (ix+10), $40                 ; 02:BEE0 - DD 36 0A 40
    ld     (ix+11), a                   ; 02:BEE4 - DD 77 0B
    ld     (ix+12), a                   ; 02:BEE7 - DD 77 0C
-   ld     (ix+15), $33                 ; 02:BEEA - DD 36 0F 33
-   ld     (ix+16), $BF                 ; 02:BEEE - DD 36 10 BF
+   ld     (ix+15), UNK_0BF33&$FF       ; 02:BEEA - DD 36 0F 33
+   ld     (ix+16), UNK_0BF33>>8        ; 02:BEEE - DD 36 10 BF
    dec    (ix+17)                      ; 02:BEF2 - DD 35 11
    ret    nz                           ; 02:BEF5 - C0
    call   addr_07A3A                   ; 02:BEF6 - CD 3A 7A
@@ -20061,9 +20216,14 @@ addr_0BF12:
    ld     (g_signpost_tickdown_counter), a  ; 02:BF19 - 32 89 D2
    set    2, (iy+var_D20D-IYBASE)      ; 02:BF1C - FD CB 0D D6
    ret                                 ; 02:BF20 - C9
+
+UNK_0BF21:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 02:BF21
-.db $72, $FF, $2A, $34, $36, $38, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C  ; 02:BF31
-.db $6E, $70, $72, $FF, $5C, $5E, $FF, $FF, $FF, $FF, $FF                           ; 02:BF41
+.db $72, $FF                                                                        ; 02:BF31
+
+UNK_0BF33:
+.db $2A, $34, $36, $38, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 02:BF33
+.db $72, $FF, $5C, $5E, $FF, $FF, $FF, $FF, $FF                                     ; 02:BF43
 
 objfunc_54_UNKNOWN:
    set    5, (ix+24)                   ; 02:BF4C - DD CB 18 EE

@@ -9,11 +9,8 @@ No known PI problems! Yay!
 
 BANK 01:
 
-- Various objfuncs store a pointer byte by byte in (IX+$0F) denoted as (ix+15) in the disassembly.
-   - Screen doesn't unblank at e.g. GHZ1, all you have is music.
+- Screen doesn't unblank at e.g. GHZ1, all you have is music.
 
 BANK 02:
 
 - 02:8003 needs to be disassembled so it can be pointed to.
-- Various objfuncs store a pointer byte by byte in (IX+$0F) denoted as (ix+15) in the disassembly.
-   - Final cutscene (level $12), Robotnik's graphics are borked.
