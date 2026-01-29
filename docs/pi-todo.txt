@@ -9,7 +9,7 @@ Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
 BANK 01:
 
-- Sonic's position goes haywire.
+- Motobugs don't move, and their graphics can glitch out.
 
 BANK 02:
 
