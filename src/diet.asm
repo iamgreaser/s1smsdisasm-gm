@@ -886,26 +886,47 @@ UNUSED_003AC:
 load_art:
    di                                  ; 00:0405 - F3
 
--:
-   push   af                           ; 00:0406 - F5
-   ld     a, h                         ; 00:0407 - 7C
-   cp     $40                          ; 00:0408 - FE 40
-   jr     c, +                         ; 00:040A - 38 08
-   sub    $40                          ; 00:040C - D6 40
-   ld     h, a                         ; 00:040E - 67
-   pop    af                           ; 00:040F - F1
-   inc    a                            ; 00:0410 - 3C
-   jp     -                            ; 00:0411 - C3 06 04
+   ;; This code adjusts HL and the page in A.
+   ;; We relocate this to *after* loading the VRAM address.
+   ;; This frees up DE.
+;-:
+;   push   af                           ; 00:0406 - F5
+;   ld     a, h                         ; 00:0407 - 7C
+;   cp     $40                          ; 00:0408 - FE 40
+;   jr     c, +                         ; 00:040A - 38 08
+;   sub    $40                          ; 00:040C - D6 40
+;   ld     h, a                         ; 00:040E - 67
+;   pop    af                           ; 00:040F - F1
+;   inc    a                            ; 00:0410 - 3C
+;   jp     -                            ; 00:0411 - C3 06 04
+;+:
+   push af  ; 0406 1
+   ;; Continued below
 
-+:
+   ;; Load VRAM address
    ld     a, e                         ; 00:0414 - 7B
    out    ($BF), a                     ; 00:0415 - D3 BF
    ld     a, d                         ; 00:0417 - 7A
    or     $40                          ; 00:0418 - F6 40
    out    ($BF), a                     ; 00:041A - D3 BF
+
+   ;; DE is now free.
    pop    af                           ; 00:041C - F1
-   ld     de, $4000                    ; 00:041D - 11 00 40
-   add    hl, de                       ; 00:0420 - 19
+   ;; Continued from above
+   ;ld     de, $4000                    ; 00:041D - 11 00 40
+   ;add    hl, de                       ; 00:0420 - 19
+   ld e, a      ; 0407 1
+   ld a, h      ; 0408 1
+   -:
+      inc e     ; 0409 1
+      sub $40   ; 040A 2
+      jr nc, -  ; 040C 2
+   dec e        ; 040E 1
+   add a, $80   ; 040F 2
+   ld h, a      ; 0411 1
+   ld a, e      ; 0412 1
+   ; 0421 -> 0413 - SAVING: 14 bytes
+
    ld     de, (g_committed_rompage_1)  ; 00:0421 - ED 5B 35 D2
    push   de                           ; 00:0425 - D5
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -918,8 +939,16 @@ load_art:
    bit    1, (iy+var_D209-IYBASE)      ; 00:0433 - FD CB 09 4E
    jr     nz, +                        ; 00:0437 - 20 01
    ei                                  ; 00:0439 - FB
-
 +:
+
+   ;; Misuse the RLE last byte field for our bitmask shift register.
+   ;; It's faster than recalculating the pointer every single iteration...
+   ;; Anyway, pre-set it to $00 so when we shift we end up with the zero flag set.
+   ;; When we load it, we will pre-rotate with a 1.
+   ;; That way, we guarantee having 8 rotations.
+   ld (iy+g_last_rle_byte-IYBASE), $00  ; 0466 3
+   ;; Continued below...
+
    ld     (var_D212), hl               ; 00:043A - 22 12 D2
    inc    hl                           ; 00:043D - 23
    inc    hl                           ; 00:043E - 23
@@ -954,30 +983,52 @@ load_art:
    exx                                 ; 00:0465 - D9
 
 --:
-   ld     hl, (var_D210)               ; 00:0466 - 2A 10 D2
-   xor    a                            ; 00:0469 - AF
-   sbc    hl, bc                       ; 00:046A - ED 42
-   push   hl                           ; 00:046C - E5
-   ld     d, a                         ; 00:046D - 57
-   ld     a, l                         ; 00:046E - 7D
-   and    $07                          ; 00:046F - E6 07
-   ld     e, a                         ; 00:0471 - 5F
-   ld     hl, LUT_004F9_left_shift_bitmask  ; 00:0472 - 21 F9 04
-   add    hl, de                       ; 00:0475 - 19
-   ld     a, (hl)                      ; 00:0476 - 7E
-   pop    de                           ; 00:0477 - D1
-   srl    d                            ; 00:0478 - CB 3A
-   rr     e                            ; 00:047A - CB 1B
-   srl    d                            ; 00:047C - CB 3A
-   rr     e                            ; 00:047E - CB 1B
-   srl    d                            ; 00:0480 - CB 3A
-   rr     e                            ; 00:0482 - CB 1B
-   ld     hl, (var_D214)               ; 00:0484 - 2A 14 D2
-   add    hl, de                       ; 00:0487 - 19
-   ld     e, a                         ; 00:0488 - 5F
-   ld     a, (hl)                      ; 00:0489 - 7E
-   and    e                            ; 00:048A - A3
-   jr     nz, +                        ; 00:048B - 20 21
+   ;ld     hl, (var_D210)               ; 00:0466 - 2A 10 D2
+   ;xor    a                            ; 00:0469 - AF
+   ;sbc    hl, bc                       ; 00:046A - ED 42
+   ;push   hl                           ; 00:046C - E5
+   ;ld     d, a                         ; 00:046D - 57
+   ;ld     a, l                         ; 00:046E - 7D
+   ;and    $07                          ; 00:046F - E6 07
+   ;ld     e, a                         ; 00:0471 - 5F
+   ;ld     hl, LUT_004F9_left_shift_bitmask  ; 00:0472 - 21 F9 04
+   ;add    hl, de                       ; 00:0475 - 19
+   ;ld     a, (hl)                      ; 00:0476 - 7E
+   ;pop    de                           ; 00:0477 - D1
+   ;srl    d                            ; 00:0478 - CB 3A
+   ;rr     e                            ; 00:047A - CB 1B
+   ;srl    d                            ; 00:047C - CB 3A
+   ;rr     e                            ; 00:047E - CB 1B
+   ;srl    d                            ; 00:0480 - CB 3A
+   ;rr     e                            ; 00:0482 - CB 1B
+   ;ld     hl, (var_D214)               ; 00:0484 - 2A 14 D2
+   ;add    hl, de                       ; 00:0487 - 19
+   ;ld     e, a                         ; 00:0488 - 5F
+   ;ld     a, (hl)                      ; 00:0489 - 7E
+   ;and    e                            ; 00:048A - A3
+   ;jr     nz, +                        ; 00:048B - 20 21
+   ;; 39 bytes, and 196 cycles before the branch.
+   ;; We can do so, so much better than that, AND use an index register in the process.
+   ;; Behold: doing things the fast way.
+   or a                                 ; 0469 1  4 - clear carry flag
+   rr (iy+g_last_rle_byte-IYBASE)       ; 046A 4 23
+   jr nz, +                             ; 046E 2 12/7
+      ld hl, (var_D214)                 ; 0470 3 16
+      ld a, (hl)                        ; 0473 1  7
+      inc hl                            ; 0474 1  6
+      ld (var_D214), hl                 ; 0475 3 16
+      ld (g_last_rle_byte), a           ; 0478 3 13
+      scf                               ; 047B 1  4
+      rr (iy+g_last_rle_byte-IYBASE)    ; 047C 3 23
+   +:
+   jr c, +                              ; 047F 1 12/7
+   ;; 048D -> 0480 - SAVING: 13 bytes
+   ;; Cycle saving:
+   ;; - ZF branch     taken:  39 cycles
+   ;; - ZF branch not taken: 119 cycles
+   ;; It gets taken 7 times out of 8, so 49 cycles average.
+   ;; Told you we could do so much better.
+
    exx                                 ; 00:048D - D9
    ld     a, (bc)                      ; 00:048E - 0A
    out    ($BE), a                     ; 00:048F - D3 BE
@@ -1062,8 +1113,12 @@ load_art:
    res    1, (iy+var_D209-IYBASE)      ; 00:04F4 - FD CB 09 8E
    ret                                 ; 00:04F8 - C9
 
+;; Welp, don't need this any longer! Although I might reinstate it for optimising level flag bit lookups.
+;; SAVING: 8 bytes
+.IF 0
 LUT_004F9_left_shift_bitmask:
 .db $01, $02, $04, $08, $10, $20, $40, $80                                          ; 00:04F9
+.ENDIF
 
 unpack_art_tilemap_into_vram:
    di                                  ; 00:0501 - F3
