@@ -9,7 +9,7 @@ Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
 BANK 01:
 
-- Screen doesn't unblank at e.g. GHZ1, all you have is music.
+- Sonic's position goes haywire.
 
 BANK 02:
 
