@@ -62,6 +62,8 @@ In-memory object structure:
       If < 60, go down by $000040, otherwise go up by $000040.
       After that, increment. When it hits 80, reset to 40.
 
+For some things (incl. objfunc $12 GHZ boss), (IX+$14).w is a pointer to... something. TODO: Find out what! --GM
+
 (IX+$18).b is a bit field:
    For $03 life monitors:
       b2 = 1 if this is to behave like a ring monitor (for LAB1)
