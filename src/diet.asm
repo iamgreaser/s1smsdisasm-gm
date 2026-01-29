@@ -13639,11 +13639,21 @@ addr_07FC1:
    ld     (ix+15), l                   ; 01:7FD3 - DD 75 0F
    ld     (ix+16), h                   ; 01:7FD6 - DD 74 10
    jr     addr_0800B                   ; 01:7FD9 - 18 30
+.IF 0
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:7FDB
 .db $00, $00, $00, $00, $00                                                         ; 01:7FEB
+.ENDIF
+.ENDS
 
-TMRSEGA:
-.db $54, $4D, $52, $20, $53, $45, $47, $41, $59, $59, $1B, $A5, $76, $70, $00, $40  ; 01:7FF0
+.COMPUTESMSCHECKSUM
+.SECTION "Bank01_TMR_SEGA_presum" SLOT 1 BANK $01 FORCE ORG $3FF0
+.db $54, $4D, $52, $20, $53, $45, $47, $41, $59, $59, ; 01:7FF0
+.ENDS
+;; Checksum is at 7FFA, 2 bytes.
+.SECTION "Bank01_TMR_SEGA_postsum" SLOT 1 BANK $01 FORCE ORG $3FFC
+.db $76, $70, $00  ; 01:7FFC
+; The real thing claims to be a 256 KB ROM.
+; WLA-DX defaults to pretending to be a 32 KB ROM to speed up the boot a bit.
 .ENDS
 
 .SECTION "Bank02" SLOT 2 BANK $02 FORCE ORG $0000
