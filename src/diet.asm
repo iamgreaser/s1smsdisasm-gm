@@ -13892,10 +13892,13 @@ addr_07FC1:
 .ENDS
 
 .SECTION "Bank02" SLOT 2 BANK $02 FORCE ORG $0000
-.db $00, $00, $00, $DD, $36, $0F, $22, $DD, $36, $10, $80                           ; 02:8000
-;; FIXME: ^ ...that looks like code 3 bytes in. Seems it's called by objfunc $29. --GM
+.db $00, $00, $00                                                                   ; 02:8000
 
 ;.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
+
+UNK_08003:
+   ld     (ix+15), UNK_08022&$FF       ; 02:8003 - DD 36 0F 22
+   ld     (ix+16), UNK_08022>>8        ; 02:8007 - DD 36 10 80
 
 addr_0800B:
    inc    (ix+17)                      ; 02:800B - DD 34 11
