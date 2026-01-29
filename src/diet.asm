@@ -1030,27 +1030,44 @@ load_art:
 
    ;; This writes every 32 cycles.
    ;; We can get away with 28.
-   ;; SAVING: 3 bytes and 12 cycles per iteration
-   exx                                 ; 00:048D - D9
-   ld     a, (bc)                      ; 00:048E - 0A
-   out    ($BE), a                     ; 00:048F - D3 BE
-   inc    bc                           ; 00:0491 - 03
-   nop                                 ; 00:0492 - 00
+   ;; We can also rearrange things a bit to replace one NOP.
+   ;exx                                 ; 00:048D - D9
+   ;ld     a, (bc)                      ; 00:048E - 0A
+   ;out    ($BE), a                     ; 00:048F - D3 BE
+   ;inc    bc                           ; 00:0491 - 03
+   ;nop                                 ; 00:0492 - 00
    ;nop                                 ; 00:0493 - 00
-   ld     a, (bc)                      ; 00:0494 - 0A
-   out    ($BE), a                     ; 00:0495 - D3 BE
-   inc    bc                           ; 00:0497 - 03
-   nop                                 ; 00:0498 - 00
+   ;ld     a, (bc)                      ; 00:0494 - 0A
+   ;out    ($BE), a                     ; 00:0495 - D3 BE
+   ;inc    bc                           ; 00:0497 - 03
+   ;nop                                 ; 00:0498 - 00
    ;nop                                 ; 00:0499 - 00
-   ld     a, (bc)                      ; 00:049A - 0A
-   out    ($BE), a                     ; 00:049B - D3 BE
-   inc    bc                           ; 00:049D - 03
-   nop                                 ; 00:049E - 00
+   ;ld     a, (bc)                      ; 00:049A - 0A
+   ;out    ($BE), a                     ; 00:049B - D3 BE
+   ;inc    bc                           ; 00:049D - 03
+   ;nop                                 ; 00:049E - 00
    ;nop                                 ; 00:049F - 00
-   ld     a, (bc)                      ; 00:04A0 - 0A
-   out    ($BE), a                     ; 00:04A1 - D3 BE
-   inc    bc                           ; 00:04A3 - 03
-   exx                                 ; 00:04A4 - D9
+   ;ld     a, (bc)                      ; 00:04A0 - 0A
+   ;out    ($BE), a                     ; 00:04A1 - D3 BE
+   ;inc    bc                           ; 00:04A3 - 03
+   ;exx                                 ; 00:04A4 - D9
+   exx            ; 048D 1  4
+   ld a, (bc)     ; 048E 1  7
+   inc bc         ; 048F 1  6
+   out ($BE), a   ; 0490 2 11
+   ld a, (bc)     ; 0492 1  7
+   inc bc         ; 0493 1  6
+   nop            ; 0494 1  4
+   out ($BE), a   ; 0495 2 11
+   ld a, (bc)     ; 0497 1  7
+   inc bc         ; 0498 1  6
+   nop            ; 0499 1  4
+   out ($BE), a   ; 049A 2 11
+   ld a, (bc)     ; 049C 1  7
+   inc bc         ; 049D 1  6
+   exx            ; 049E 1  4
+   out ($BE), a   ; 049F 2 11
+   ; 04A5 -> 04A1 - SAVING: 4 bytes and 16 cycles per iteration
    dec    bc                           ; 00:04A5 - 0B
    ld     a, b                         ; 00:04A6 - 78
    or     c                            ; 00:04A7 - B1
@@ -1075,7 +1092,8 @@ load_art:
 +:
    ;; This writes every 32 cycles.
    ;; We can get away with 28.
-   ;; SAVING: 3 bytes and 12 cycles per iteration
+   ;; We can also move something into the loop
+   ;; SAVING: 5 bytes and 20 cycles per iteration
    ld     l, a                         ; 00:04BF - 6F
    add    hl, hl                       ; 00:04C0 - 29
    add    hl, hl                       ; 00:04C1 - 29
@@ -1089,17 +1107,19 @@ load_art:
    ld     a, (hl)                      ; 00:04CD - 7E
    out    ($BE), a                     ; 00:04CE - D3 BE
    inc    hl                           ; 00:04D0 - 23
-   nop                                 ; 00:04D1 - 00
+   dec bc  ; 1 byte, 6 cycles, 30 cycle gap but still a 1-byte 4-cycle save overall
+   ;nop                                 ; 00:04D1 - 00
    ;nop                                 ; 00:04D2 - 00
    ld     a, (hl)                      ; 00:04D3 - 7E
    out    ($BE), a                     ; 00:04D4 - D3 BE
    inc    hl                           ; 00:04D6 - 23
-   nop                                 ; 00:04D7 - 00
+   ;nop                                 ; 00:04D7 - 00
    ;nop                                 ; 00:04D8 - 00
    ld     a, (hl)                      ; 00:04D9 - 7E
+   inc hl  ; 1 byte, 6 cycles, 30 cycle gap but still a 1-byte 4-cycle save overall
    out    ($BE), a                     ; 00:04DA - D3 BE
-   inc    hl                           ; 00:04DC - 23
-   dec    bc                           ; 00:04DD - 0B
+   ;inc    hl                           ; 00:04DC - 23
+   ;dec    bc                           ; 00:04DD - 0B
    ld     a, b                         ; 00:04DE - 78
    or     c                            ; 00:04DF - B1
    jp     nz, --                       ; 00:04E0 - C2 66 04
