@@ -2,6 +2,7 @@ STUFF THAT ISN'T WORKING WHEN STUFF GETS MOVED AROUND:
 
 BANK 00:
 
-Testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
+Easy testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
+Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
-No issues to report right now.
+- Sprites on credits screen are mangled.
