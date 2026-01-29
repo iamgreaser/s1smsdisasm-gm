@@ -6,6 +6,7 @@ Easy testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
 Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
 - When getting hit and losing rings, the ring sprite turns to garbage.
+- One of Robotnik's running sprites at the end of SKY3 are invisible.
 
 BANK 01:
 
@@ -15,7 +16,6 @@ BANK 01:
 - The bottom of the animal capsule does not appear... and the capsule completely disappears when it opens. (seen in BRI3, JUN3)
 - In LAB3, a weird dark-blue box shows on the right side of where Robotnik shows up at the bottom.
 - The transporter to go from the bottom to the top of the room in SCR2 doesn't work, nor does the SKY3 one at the end.
-- One of Robotnik's running sprites at the end of SKY3 are invisible.
 
 BANK 02:
 
