@@ -6,6 +6,26 @@
 ;; This seems to do the trick:
 ;; diff -Naur src/prediet.asm src/whole.asm | sed -e 's@+++ src/whole.asm@+++ src/diet.asm@' | patch -p0
 
+;; CHEATS:
+;; u8: Level Select:
+;; - $00 through $11 are normal levels.
+;; - $12 is the ending cutscene.
+;; Anything after this requires a hack to prevent returning straight to the title screen... which we have!
+;; - $13 is the final score total screen, which expects the numbers to be loaded into VRAM beforehand.
+;; - $14 through $19 are various SCR2 sublevels.
+;; Anything after this will get you stuck on the same level repeatedly.
+;; - $1A and $1B are the SKY2 exit sublevel, not sure what the difference between the two is right now.
+;; - $1C through $23 are bonus levels.
+;; - $24 through $25 shows the ending screen island, then a Special Stage tally for some reason, then straight to the credits!
+;; - $26 upwards until some point seems to hang without loading stuff properly.
+;; - $7F causes a reset.
+;; - $80 upwards behaves a bit like $00 upwards but things are weird and you have weird starting times and the clock goes in the middle of the screen... and you're stuck on the same level repeatedly.
+;; - Go explore if you want to find out what the out-of-range values do.
+.DEF cht_starting_level $00
+
+;; bool: No Death On Hit
+.DEF cht_no_death_on_hit 0
+
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
 SLOT 1 START $4000 SIZE $4000
@@ -4404,8 +4424,8 @@ _reset_01C49:
    .ENDIF
 
    ;; Of course, I like being able to test on different levels so here, have a level select hack.
-   ld hl, g_level  ; 1C5D 3
-   ld (hl), $00    ; 1C60 2
+   ld hl, g_level               ; 1C5D 3
+   ld (hl), cht_starting_level  ; 1C60 2
    ; 1C87 -> 1C62 - SAVING: 37 bytes
 
    ;; Show the title screen!
@@ -4424,9 +4444,13 @@ _reset_01C49:
 
 addr_01C9F:
    ld     a, (g_level)                 ; 00:1C9F - 3A 3E D2
+   ;; HACK: Allow starting on really high level numbers.
+   ;; Also, SAVING: 4 bytes
+   .IF 0
    cp     $13                          ; 00:1CA2 - FE 13
    ;jr     nc, addr_01C4E               ; 00:1CA4 - 30 A8
    jr nc, reset_trampoline_after_title
+   .ENDIF
    res    0, (iy+var_D202-IYBASE)      ; 00:1CA6 - FD CB 02 86
    res    1, (iy+var_D202-IYBASE)      ; 00:1CAA - FD CB 02 8E
    call   clear_sprite_table           ; 00:1CAE - CD E2 05
@@ -7326,7 +7350,11 @@ addr_035FD:
    jr     nz, addr_0367E               ; 00:3610 - 20 6C
    ld     a, (g_rings_BCD)             ; 00:3612 - 3A AA D2
    and    a                            ; 00:3615 - A7
+   .IF cht_no_death_on_hit
+   jr addr_03644
+   .ELSE
    jr     nz, addr_03644               ; 00:3616 - 20 2C
+   .ENDIF
 
 addr_03618:
    set    0, (iy+var_D205-IYBASE)      ; 00:3618 - FD CB 05 C6
