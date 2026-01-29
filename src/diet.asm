@@ -6054,7 +6054,7 @@ LUT_02AD6:
 LUT_object_functions_02AF6:
 .dw objfunc_00_UNKNOWN, objfunc_01_monitor_rings, objfunc_02_UNKNOWN, objfunc_03_monitor_life, objfunc_04_UNKNOWN, objfunc_05_UNKNOWN, objfunc_06_UNKNOWN, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_UNKNOWN, objfunc_0F_UNKNOWN  ; 00:2B06
-.dw objfunc_10_UNKNOWN, objfunc_11_UNKNOWN, objfunc_12_UNKNOWN, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+.dw objfunc_10_motobug, objfunc_11_UNKNOWN, objfunc_12_UNKNOWN, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
 .dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
@@ -12347,7 +12347,7 @@ addr_06E05:
    ld     (ix+16), h                   ; 01:6E08 - DD 74 10
    ret                                 ; 01:6E0B - C9
 
-objfunc_10_UNKNOWN:
+objfunc_10_motobug:
    res    5, (ix+24)                   ; 01:6E0C - DD CB 18 AE
    ld     (ix+13), $0A                 ; 01:6E10 - DD 36 0D 0A
    ld     (ix+14), $10                 ; 01:6E14 - DD 36 0E 10
@@ -12355,7 +12355,7 @@ objfunc_10_UNKNOWN:
    ld     d, $00                       ; 01:6E1B - 16 00
 
 addr_06E1D:
-   ld     hl, $6E96                    ; 01:6E1D - 21 96 6E
+   ld     hl, UNK_06E96                ; 01:6E1D - 21 96 6E
    add    hl, de                       ; 01:6E20 - 19
    ld     (var_D214), hl               ; 01:6E21 - 22 14 D2
    ld     a, (hl)                      ; 01:6E24 - 7E
@@ -12416,6 +12416,8 @@ addr_06E49:
    ld     (g_FF_string_high_byte), hl  ; 01:6E8F - 22 0E D2
    call   nc, UNK_035E5                ; 01:6E92 - D4 E5 35
    ret                                 ; 01:6E95 - C9
+
+UNK_06E96:
 .db $01, $01, $01, $01, $01, $01, $01, $01, $01, $03, $03, $03, $03, $02, $02, $02  ; 01:6E96
 .db $02, $02, $02, $02, $02, $02, $04, $04, $04, $04, $00                           ; 01:6EA6
 

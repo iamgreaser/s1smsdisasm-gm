@@ -9,7 +9,6 @@ Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
 BANK 01:
 
-- Motobugs don't move, and their graphics can glitch out.
 - Buzz Bombers have glitched graphics and fire early and rapidly, making them an actual threat.
 - When Sonic is damaged and loses his rings, the ring sprite doesn't seem to show.
 - GHZ3 boss fight, when spawned, seems to break Sonic (making him invisible and inoperable?) and the boss doesn't spawn properly. Pausing still works somehow?
