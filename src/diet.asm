@@ -369,8 +369,9 @@ irq_start:
    call   z, addr_000F7                ; 00:00BF - CC F7 00
    ei                                  ; 00:00C2 - FB
    ld     a, $03                       ; 00:00C3 - 3E 03
-   ld     (rompage_1), a               ; 00:00C5 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:00C8 - 32 35 D2
+   ld     (rompage_1), a               ; 00:00C5 - 32 FE FF
    call   $4000                        ; 00:00CB - CD 00 40
    call   poll_player_1_inputs         ; 00:00CE - CD A7 05
    bit    4, (iy+g_inputs_player_1-IYBASE)  ; 00:00D1 - FD CB 03 66
@@ -380,8 +381,9 @@ irq_start:
    and    $10                          ; 00:00DD - E6 10
    jp     z, ENTRY_RESET               ; 00:00DF - CA 00 00
    pop    hl                           ; 00:00E2 - E1
-   ld     (rompage_1), hl              ; 00:00E3 - 22 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), hl  ; 00:00E6 - 22 35 D2
+   ld     (rompage_1), hl              ; 00:00E3 - 22 FE FF
    pop    iy                           ; 00:00E9 - FD E1
    pop    ix                           ; 00:00EB - DD E1
    pop    bc                           ; 00:00ED - C1
@@ -420,19 +422,23 @@ addr_000F7:
    ld     a, $81                       ; 00:0129 - 3E 81
    out    ($BF), a                     ; 00:012B - D3 BF
    ld     a, $08                       ; 00:012D - 3E 08
-   ld     (rompage_1), a               ; 00:012F - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0132 - 32 35 D2
+   ld     (rompage_1), a               ; 00:012F - 32 FE FF
    ld     a, $09                       ; 00:0135 - 3E 09
-   ld     (rompage_2), a               ; 00:0137 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:013A - 32 36 D2
+   ld     (rompage_2), a               ; 00:0137 - 32 FF FF
    bit    7, (iy+var_D207-IYBASE)      ; 00:013D - FD CB 07 7E
    call   nz, addr_037E0               ; 00:0141 - C4 E0 37
    ld     a, $01                       ; 00:0144 - 3E 01
-   ld     (rompage_1), a               ; 00:0146 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0149 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0146 - 32 FE FF
    ld     a, $02                       ; 00:014C - 3E 02
-   ld     (rompage_2), a               ; 00:014E - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0151 - 32 36 D2
+   ld     (rompage_2), a               ; 00:014E - 32 FF FF
    bit    1, (iy+var_D200-IYBASE)      ; 00:0154 - FD CB 00 4E
    call   nz, upload_sprite_table_IRQ  ; 00:0158 - C4 3E 03
    bit    5, (iy+var_D200-IYBASE)      ; 00:015B - FD CB 00 6E
@@ -447,11 +453,12 @@ addr_000F7:
 
 addr_00174:
    ld     a, $01                       ; 00:0174 - 3E 01
-   ld     (rompage_1), a               ; 00:0176 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0179 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0176 - 32 FE FF
    ld     a, $02                       ; 00:017C - 3E 02
-   ld     (rompage_2), a               ; 00:017E - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0181 - 32 36 D2
+   ld     (rompage_2), a               ; 00:017E - 32 FF FF
    bit    7, (iy+var_D206-IYBASE)      ; 00:0184 - FD CB 06 7E
    jr     nz, addr_0019C               ; 00:0188 - 20 12
    ld     hl, (g_SIG00b3_palette_addr)  ; 00:018A - 2A 2B D2
@@ -469,11 +476,13 @@ addr_001A0:
    bit    7, (iy+var_D206-IYBASE)      ; 00:01A0 - FD CB 06 7E
    ret    z                            ; 00:01A4 - C8
    ld     a, $01                       ; 00:01A5 - 3E 01
-   ld     (rompage_1), a               ; 00:01A7 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:01AA - 32 35 D2
+   ld     (rompage_1), a               ; 00:01A7 - 32 FE FF
    ld     a, $02                       ; 00:01AD - 3E 02
-   ld     (rompage_2), a               ; 00:01AF - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:01B2 - 32 36 D2
+   ld     (rompage_2), a               ; 00:01AF - 32 FF FF
    ld     b, $00                       ; 00:01B5 - 06 00
 
 -:
@@ -790,11 +799,13 @@ UNUSED_003AC:
    pop    af                           ; 00:03B6 - F1
    ld     de, (g_committed_rompage_1)  ; 00:03B7 - ED 5B 35 D2
    push   de                           ; 00:03BB - D5
-   ld     (rompage_1), a               ; 00:03BC - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:03BF - 32 35 D2
+   ld     (rompage_1), a               ; 00:03BC - 32 FE FF
    inc    a                            ; 00:03C2 - 3C
-   ld     (rompage_2), a               ; 00:03C3 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:03C6 - 32 36 D2
+   ld     (rompage_2), a               ; 00:03C3 - 32 FF FF
    ei                                  ; 00:03C9 - FB
 
 --:
@@ -840,6 +851,7 @@ UNUSED_003AC:
 ++:
    di                                  ; 00:03F5 - F3
    pop    de                           ; 00:03F6 - D1
+   ;; NOTPAGERACE, somehow
    ld     (g_committed_rompage_1), de  ; 00:03F7 - ED 53 35 D2
    ld     a, e                         ; 00:03FB - 7B
    ld     (rompage_1), a               ; 00:03FC - 32 FE FF
@@ -873,11 +885,13 @@ load_art:
    add    hl, de                       ; 00:0420 - 19
    ld     de, (g_committed_rompage_1)  ; 00:0421 - ED 5B 35 D2
    push   de                           ; 00:0425 - D5
-   ld     (rompage_1), a               ; 00:0426 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0429 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0426 - 32 FE FF
    inc    a                            ; 00:042C - 3C
-   ld     (rompage_2), a               ; 00:042D - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0430 - 32 36 D2
+   ld     (rompage_2), a               ; 00:042D - 32 FF FF
    bit    1, (iy+var_D209-IYBASE)      ; 00:0433 - FD CB 09 4E
    jr     nz, +                        ; 00:0437 - 20 01
    ei                                  ; 00:0439 - FB
@@ -1018,6 +1032,7 @@ load_art:
 
 +:
    pop    de                           ; 00:04EA - D1
+   ;; NOTPAGERACE, somehow
    ld     (g_committed_rompage_1), de  ; 00:04EB - ED 53 35 D2
    ld     (rompage_1), de              ; 00:04EF - ED 53 FE FF
    ei                                  ; 00:04F3 - FB
@@ -1361,11 +1376,13 @@ addr_006BD:
    ret    z                            ; 00:06C1 - C8
    di                                  ; 00:06C2 - F3
    ld     a, $04                       ; 00:06C3 - 3E 04
-   ld     (rompage_1), a               ; 00:06C5 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:06C8 - 32 35 D2
+   ld     (rompage_1), a               ; 00:06C5 - 32 FE FF
    ld     a, $05                       ; 00:06CB - 3E 05
-   ld     (rompage_2), a               ; 00:06CD - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:06D0 - 32 36 D2
+   ld     (rompage_2), a               ; 00:06CD - 32 FF FF
    ei                                  ; 00:06D3 - FB
    ld     a, (var_D2D4)                ; 00:06D4 - 3A D4 D2
    add    a, a                         ; 00:06D7 - 87
@@ -1799,11 +1816,13 @@ addr_00957:
 addr_00966:
    di                                  ; 00:0966 - F3
    ld     a, $04                       ; 00:0967 - 3E 04
-   ld     (rompage_1), a               ; 00:0969 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:096C - 32 35 D2
+   ld     (rompage_1), a               ; 00:0969 - 32 FE FF
    ld     a, $05                       ; 00:096F - 3E 05
-   ld     (rompage_2), a               ; 00:0971 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0974 - 32 36 D2
+   ld     (rompage_2), a               ; 00:0971 - 32 FF FF
    ld     bc, $0000                    ; 00:0977 - 01 00 00
    call   addr_008D5                   ; 00:097A - CD D5 08
    ld     de, $3800                    ; 00:097D - 11 00 38
@@ -1966,11 +1985,12 @@ unpack_level_layout_into_ram:
 
 addr_00A40:
    ld     a, $01                       ; 00:0A40 - 3E 01
-   ld     (rompage_1), a               ; 00:0A42 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0A45 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0A42 - 32 FE FF
    ld     a, $02                       ; 00:0A48 - 3E 02
-   ld     (rompage_2), a               ; 00:0A4A - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0A4D - 32 36 D2
+   ld     (rompage_2), a               ; 00:0A4A - 32 FF FF
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0A50 - FD 7E 0A
    res    0, (iy+var_D200-IYBASE)      ; 00:0A53 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0A57 - CD 1C 03
@@ -2037,11 +2057,13 @@ addr_00AAE:
    ld     bc, $0020                    ; 00:0AB7 - 01 20 00
    ldir                                ; 00:0ABA - ED B0
    ld     a, $01                       ; 00:0ABC - 3E 01
-   ld     (rompage_1), a               ; 00:0ABE - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0AC1 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0ABE - 32 FE FF
    ld     a, $02                       ; 00:0AC4 - 3E 02
-   ld     (rompage_2), a               ; 00:0AC6 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0AC9 - 32 36 D2
+   ld     (rompage_2), a               ; 00:0AC6 - 32 FF FF
    ld     hl, var_D3BC                 ; 00:0ACC - 21 BC D3
    ld     a, $03                       ; 00:0ACF - 3E 03
    call   signal_load_palettes         ; 00:0AD1 - CD 33 03
@@ -2144,11 +2166,13 @@ addr_00B60:
 
 addr_00B6E:
    ld     a, $01                       ; 00:0B6E - 3E 01
-   ld     (rompage_1), a               ; 00:0B70 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0B73 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0B70 - 32 FE FF
    ld     a, $02                       ; 00:0B76 - 3E 02
-   ld     (rompage_2), a               ; 00:0B78 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0B7B - 32 36 D2
+   ld     (rompage_2), a               ; 00:0B78 - 32 FF FF
    ld     hl, var_D3BC                 ; 00:0B7E - 21 BC D3
    ld     a, $03                       ; 00:0B81 - 3E 03
    call   signal_load_palettes         ; 00:0B83 - CD 33 03
@@ -2330,8 +2354,9 @@ addr_00C6C:
    ld     a, $09                       ; 00:0CA5 - 3E 09
    call   load_art                     ; 00:0CA7 - CD 05 04
    ld     a, $05                       ; 00:0CAA - 3E 05
-   ld     (rompage_1), a               ; 00:0CAC - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0CAF - 32 35 D2
+   ld     (rompage_1), a               ; 00:0CAC - 32 FE FF
    ld     hl, $627E                    ; 00:0CB2 - 21 7E 62
    ld     bc, $0178                    ; 00:0CB5 - 01 78 01
    ld     de, $3800                    ; 00:0CB8 - 11 00 38
@@ -2367,8 +2392,9 @@ addr_00CDC:
    ld     a, $09                       ; 00:0D07 - 3E 09
    call   load_art                     ; 00:0D09 - CD 05 04
    ld     a, $05                       ; 00:0D0C - 3E 05
-   ld     (rompage_1), a               ; 00:0D0E - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0D11 - 32 35 D2
+   ld     (rompage_1), a               ; 00:0D0E - 32 FE FF
    ld     hl, $653B                    ; 00:0D14 - 21 3B 65
    ld     bc, $0170                    ; 00:0D17 - 01 70 01
    ld     de, $3800                    ; 00:0D1A - 11 00 38
@@ -3114,8 +3140,9 @@ addr_01287:
    ld     a, $09                       ; 00:12A7 - 3E 09
    call   load_art                     ; 00:12A9 - CD 05 04
    ld     a, $05                       ; 00:12AC - 3E 05
-   ld     (rompage_1), a               ; 00:12AE - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:12B1 - 32 35 D2
+   ld     (rompage_1), a               ; 00:12AE - 32 FE FF
    ld     hl, $6000                    ; 00:12B4 - 21 00 60
    ld     de, $3800                    ; 00:12B7 - 11 00 38
    ld     bc, $012E                    ; 00:12BA - 01 2E 01
@@ -3323,8 +3350,9 @@ addr_01401:
    ld     a, $09                       ; 00:1417 - 3E 09
    call   load_art                     ; 00:1419 - CD 05 04
    ld     a, $05                       ; 00:141C - 3E 05
-   ld     (rompage_1), a               ; 00:141E - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1421 - 32 35 D2
+   ld     (rompage_1), a               ; 00:141E - 32 FE FF
    ld     hl, $67FE                    ; 00:1424 - 21 FE 67
    ld     bc, $0032                    ; 00:1427 - 01 32 00
    ld     de, $3800                    ; 00:142A - 11 00 38
@@ -3486,8 +3514,9 @@ handle_level_score_screen:
    ld     a, $09                       ; 00:1586 - 3E 09
    call   load_art                     ; 00:1588 - CD 05 04
    ld     a, $05                       ; 00:158B - 3E 05
-   ld     (rompage_1), a               ; 00:158D - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1590 - 32 35 D2
+   ld     (rompage_1), a               ; 00:158D - 32 FE FF
    ld     hl, $612E                    ; 00:1593 - 21 2E 61
    ld     bc, $00BB                    ; 00:1596 - 01 BB 00
    ld     de, $3800                    ; 00:1599 - 11 00 38
@@ -4375,8 +4404,9 @@ fill_ram_at_hl_for_b_bytes_with_a:
 
 load_level_header_UNCONFIRMED:
    ld     a, $05                       ; 00:1CED - 3E 05
-   ld     (rompage_1), a               ; 00:1CEF - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1CF2 - 32 35 D2
+   ld     (rompage_1), a               ; 00:1CEF - 32 FE FF
    ld     a, (g_level)                 ; 00:1CF5 - 3A 3E D2
    bit    4, (iy+var_D206-IYBASE)      ; 00:1CF8 - FD CB 06 66
    jr     z, +                         ; 00:1CFC - 28 03
@@ -4418,8 +4448,9 @@ addr_01D42:
    inc    hl                           ; 00:1D51 - 23
    ld     (var_D223), hl               ; 00:1D52 - 22 23 D2
    ld     a, $0B                       ; 00:1D55 - 3E 0B
-   ld     (rompage_1), a               ; 00:1D57 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1D5A - 32 35 D2
+   ld     (rompage_1), a               ; 00:1D57 - 32 FE FF
    bit    2, (iy+var_D205-IYBASE)      ; 00:1D5D - FD CB 05 56
    call   nz, addr_03879               ; 00:1D61 - C4 79 38
    ld     hl, $0060                    ; 00:1D64 - 21 60 00
@@ -4432,11 +4463,13 @@ addr_01D42:
    ld     (var_D265), hl               ; 00:1D79 - 22 65 D2
    call   addr_0239C                   ; 00:1D7C - CD 9C 23
    ld     a, $01                       ; 00:1D7F - 3E 01
-   ld     (rompage_1), a               ; 00:1D81 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1D84 - 32 35 D2
+   ld     (rompage_1), a               ; 00:1D81 - 32 FE FF
    ld     a, $02                       ; 00:1D87 - 3E 02
-   ld     (rompage_2), a               ; 00:1D89 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:1D8C - 32 36 D2
+   ld     (rompage_2), a               ; 00:1D89 - 32 FF FF
    call   addr_02E5A                   ; 00:1D8F - CD 5A 2E
    call   addr_0063E                   ; 00:1D92 - CD 3E 06
    call   addr_006BD                   ; 00:1D95 - CD BD 06
@@ -4453,8 +4486,9 @@ addr_01DAE:
    res    0, (iy+var_D200-IYBASE)      ; 00:1DAE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1DB2 - CD 1C 03
    ld     a, $0B                       ; 00:1DB5 - 3E 0B
-   ld     (rompage_1), a               ; 00:1DB7 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1DBA - 32 35 D2
+   ld     (rompage_1), a               ; 00:1DB7 - 32 FE FF
    bit    2, (iy+var_D205-IYBASE)      ; 00:1DBD - FD CB 05 56
    call   nz, addr_03879               ; 00:1DC1 - C4 79 38
    bit    3, (iy+var_D206-IYBASE)      ; 00:1DC4 - FD CB 06 5E
@@ -4521,11 +4555,13 @@ addr_01E48:
    add    hl, de                       ; 00:1E4D - 19
    djnz   addr_01E48                   ; 00:1E4E - 10 F8
    ld     a, $01                       ; 00:1E50 - 3E 01
-   ld     (rompage_1), a               ; 00:1E52 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1E55 - 32 35 D2
+   ld     (rompage_1), a               ; 00:1E52 - 32 FE FF
    ld     a, $02                       ; 00:1E58 - 3E 02
-   ld     (rompage_2), a               ; 00:1E5A - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:1E5D - 32 36 D2
+   ld     (rompage_2), a               ; 00:1E5A - 32 FF FF
    call   addr_02E5A                   ; 00:1E60 - CD 5A 2E
    call   addr_0063E                   ; 00:1E63 - CD 3E 06
    call   addr_006BD                   ; 00:1E66 - CD BD 06
@@ -4565,8 +4601,9 @@ addr_01EA4:
    call   wait_until_irq_ticked        ; 00:1EAB - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:1EAE - FD 77 0A
    ld     a, $0B                       ; 00:1EB1 - 3E 0B
-   ld     (rompage_1), a               ; 00:1EB3 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1EB6 - 32 35 D2
+   ld     (rompage_1), a               ; 00:1EB3 - 32 FE FF
    bit    2, (iy+var_D205-IYBASE)      ; 00:1EB9 - FD CB 05 56
    call   nz, addr_03879               ; 00:1EBD - C4 79 38
    call   addr_023C9                   ; 00:1EC0 - CD C9 23
@@ -4574,8 +4611,9 @@ addr_01EA4:
    bit    3, (iy+var_D207-IYBASE)      ; 00:1EC6 - FD CB 07 5E
    jr     nz, addr_01EA4               ; 00:1ECA - 20 D8
    ld     a, $03                       ; 00:1ECC - 3E 03
-   ld     (rompage_1), a               ; 00:1ECE - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1ED1 - 32 35 D2
+   ld     (rompage_1), a               ; 00:1ECE - 32 FE FF
    call   $4009                        ; 00:1ED4 - CD 09 40
    ret                                 ; 00:1ED7 - C9
 
@@ -4615,11 +4653,13 @@ addr_01F06:
    ld     e, a                         ; 00:1F0A - 5F
    di                                  ; 00:1F0B - F3
    ld     a, $01                       ; 00:1F0C - 3E 01
-   ld     (rompage_1), a               ; 00:1F0E - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1F11 - 32 35 D2
+   ld     (rompage_1), a               ; 00:1F0E - 32 FE FF
    ld     a, $02                       ; 00:1F14 - 3E 02
-   ld     (rompage_2), a               ; 00:1F16 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:1F19 - 32 36 D2
+   ld     (rompage_2), a               ; 00:1F16 - 32 FF FF
    ld     e, $00                       ; 00:1F1C - 1E 00
    ld     a, (var_D2B2)                ; 00:1F1E - 3A B2 D2
    ld     hl, (var_D230)               ; 00:1F21 - 2A 30 D2
@@ -4864,8 +4904,9 @@ addr_020A4:
 
 addr_020B8:
    ld     a, $03                       ; 00:20B8 - 3E 03
-   ld     (rompage_1), a               ; 00:20BA - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:20BD - 32 35 D2
+   ld     (rompage_1), a               ; 00:20BA - 32 FE FF
    ld     hl, $0028                    ; 00:20C0 - 21 28 00
    call   $400C                        ; 00:20C3 - CD 0C 40
    call   addr_00A40                   ; 00:20C6 - CD 40 0A
@@ -5057,20 +5098,24 @@ addr_021ED:
    sub    $40                          ; 00:2219 - D6 40
    ld     h, a                         ; 00:221B - 67
    ld     a, $06                       ; 00:221C - 3E 06
-   ld     (rompage_1), a               ; 00:221E - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:2221 - 32 35 D2
+   ld     (rompage_1), a               ; 00:221E - 32 FE FF
    ld     a, $07                       ; 00:2224 - 3E 07
-   ld     (rompage_2), a               ; 00:2226 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:2229 - 32 36 D2
+   ld     (rompage_2), a               ; 00:2226 - 32 FF FF
    jr     addr_0223E                   ; 00:222C - 18 10
 
 addr_0222E:
    ld     a, $05                       ; 00:222E - 3E 05
-   ld     (rompage_1), a               ; 00:2230 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:2233 - 32 35 D2
+   ld     (rompage_1), a               ; 00:2230 - 32 FE FF
    ld     a, $06                       ; 00:2236 - 3E 06
-   ld     (rompage_2), a               ; 00:2238 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:223B - 32 36 D2
+   ld     (rompage_2), a               ; 00:2238 - 32 FF FF
 
 addr_0223E:
    ei                                  ; 00:223E - FB
@@ -5117,11 +5162,13 @@ addr_0223E:
    add    hl, de                       ; 00:227B - 19
    di                                  ; 00:227C - F3
    ld     a, $01                       ; 00:227D - 3E 01
-   ld     (rompage_1), a               ; 00:227F - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:2282 - 32 35 D2
+   ld     (rompage_1), a               ; 00:227F - 32 FE FF
    ld     a, $02                       ; 00:2285 - 3E 02
-   ld     (rompage_2), a               ; 00:2287 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:228A - 32 36 D2
+   ld     (rompage_2), a               ; 00:2287 - 32 FF FF
    ei                                  ; 00:228D - FB
    ld     a, (hl)                      ; 00:228E - 7E
    inc    hl                           ; 00:228F - 23
@@ -5156,11 +5203,13 @@ addr_0223E:
    add    hl, bc                       ; 00:22BB - 09
    di                                  ; 00:22BC - F3
    ld     a, $01                       ; 00:22BD - 3E 01
-   ld     (rompage_1), a               ; 00:22BF - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:22C2 - 32 35 D2
+   ld     (rompage_1), a               ; 00:22BF - 32 FE FF
    ld     a, $02                       ; 00:22C5 - 3E 02
-   ld     (rompage_2), a               ; 00:22C7 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:22CA - 32 36 D2
+   ld     (rompage_2), a               ; 00:22C7 - 32 FF FF
    ei                                  ; 00:22CD - FB
    ld     a, (hl)                      ; 00:22CE - 7E
    inc    hl                           ; 00:22CF - 23
@@ -5177,8 +5226,9 @@ addr_0223E:
    ld     hl, $5580                    ; 00:22DC - 21 80 55
    add    hl, de                       ; 00:22DF - 19
    ld     a, $05                       ; 00:22E0 - 3E 05
-   ld     (rompage_1), a               ; 00:22E2 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:22E5 - 32 35 D2
+   ld     (rompage_1), a               ; 00:22E2 - 32 FE FF
    call   addr_0232B                   ; 00:22E8 - CD 2B 23
    pop    hl                           ; 00:22EB - E1
    ld     c, (hl)                      ; 00:22EC - 4E
@@ -5415,8 +5465,9 @@ addr_0258B:
    ld     a, $0C                       ; 00:25AF - 3E 0C
    call   load_art                     ; 00:25B1 - CD 05 04
    ld     a, $05                       ; 00:25B4 - 3E 05
-   ld     (rompage_1), a               ; 00:25B6 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:25B9 - 32 35 D2
+   ld     (rompage_1), a               ; 00:25B6 - 32 FE FF
    ld     hl, $6830                    ; 00:25BC - 21 30 68
    ld     bc, $0179                    ; 00:25BF - 01 79 01
    ld     de, $3800                    ; 00:25C2 - 11 00 38
@@ -5429,8 +5480,9 @@ addr_0258B:
    res    0, (iy+var_D200-IYBASE)      ; 00:25D4 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:25D8 - CD 1C 03
    ld     a, $01                       ; 00:25DB - 3E 01
-   ld     (rompage_1), a               ; 00:25DD - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:25E0 - 32 35 D2
+   ld     (rompage_1), a               ; 00:25DD - 32 FE FF
    ld     a, (var_D27F)                ; 00:25E3 - 3A 7F D2
    cp     $06                          ; 00:25E6 - FE 06
    jp     c, addr_02693                ; 00:25E8 - DA 93 26
@@ -5507,8 +5559,9 @@ addr_0262E:
    call   addr_00B60                   ; 00:266E - CD 60 0B
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2671 - FD 36 0A 00
    ld     a, $05                       ; 00:2675 - 3E 05
-   ld     (rompage_1), a               ; 00:2677 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:267A - 32 35 D2
+   ld     (rompage_1), a               ; 00:2677 - 32 FE FF
    ld     hl, $69A9                    ; 00:267D - 21 A9 69
    ld     bc, $0145                    ; 00:2680 - 01 45 01
    ld     de, $3800                    ; 00:2683 - 11 00 38
@@ -5536,8 +5589,9 @@ addr_02693:
    ld     a, $09                       ; 00:26BC - 3E 09
    call   load_art                     ; 00:26BE - CD 05 04
    ld     a, $05                       ; 00:26C1 - 3E 05
-   ld     (rompage_1), a               ; 00:26C3 - 32 FE FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:26C6 - 32 35 D2
+   ld     (rompage_1), a               ; 00:26C3 - 32 FE FF
    ld     hl, $6C61                    ; 00:26C9 - 21 61 6C
    ld     bc, $0189                    ; 00:26CC - 01 89 01
    ld     de, $3800                    ; 00:26CF - 11 00 38
@@ -8227,8 +8281,9 @@ addr_049D9:
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49E0 - FD CB 03 4E
    call   nz, addr_050E3               ; 01:49E4 - C4 E3 50
    ld     a, $0F                       ; 01:49E7 - 3E 0F
-   ld     (rompage_2), a               ; 01:49E9 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 01:49EC - 32 36 D2
+   ld     (rompage_2), a               ; 01:49E9 - 32 FF FF
    ld     bc, $000C                    ; 01:49EF - 01 0C 00
    ld     de, $0010                    ; 01:49F2 - 11 10 00
    call   addr_036F9                   ; 01:49F5 - CD F9 36
@@ -8260,8 +8315,9 @@ addr_049D9:
    ld     l, a                         ; 01:4A1A - 6F
    ld     de, addr_04A28               ; 01:4A1B - 11 28 4A
    ld     a, $02                       ; 01:4A1E - 3E 02
-   ld     (rompage_2), a               ; 01:4A20 - 32 FF FF
+   ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 01:4A23 - 32 36 D2
+   ld     (rompage_2), a               ; 01:4A20 - 32 FF FF
    push   de                           ; 01:4A26 - D5
    jp     (hl)                         ; 01:4A27 - E9
 
