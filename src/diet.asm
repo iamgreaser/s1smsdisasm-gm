@@ -4021,11 +4021,14 @@ LUT_0197A:
 .db $14, $0D, $EB, $FF                                                              ; 00:197A
 
 LUT_0197E:
+;; CHAQS EMERALD <-- And this is why you use ASCII, not your own EBCDIC-alike.
 .db $08, $0A, $36, $47, $34, $61, $70, $EB, $44, $50, $44, $62, $34, $43, $37, $FF  ; 00:197E
 
 LUT_0198E:
+;; SONIC LEFT
 .db $08, $0A, $70, $52, $51, $40, $36, $EB, $43, $44, $45, $80, $EB, $EB, $EB, $FF  ; 00:198E
 
+;; SPECIAL BONUS
 LUT_0199E:
 .db $08, $0A, $70, $60, $44, $36, $40, $34, $43, $EB, $35, $52, $51, $81, $70, $FF  ; 00:199E
 
@@ -5600,27 +5603,27 @@ addr_02693:
    call   unpack_art_tilemap_into_vram  ; 00:26D6 - CD 01 05
    xor    a                            ; 00:26D9 - AF
    ld     hl, var_D322                 ; 00:26DA - 21 22 D3
-   ld     (hl), UNK_2848&$FF           ; 00:26DD - 36 48
+   ld     (hl), credits_sprite_00&$FF  ; 00:26DD - 36 48
    inc    hl                           ; 00:26DF - 23
-   ld     (hl), UNK_2848>>8            ; 00:26E0 - 36 28
+   ld     (hl), credits_sprite_00>>8   ; 00:26E0 - 36 28
    inc    hl                           ; 00:26E2 - 23
    ld     (hl), a                      ; 00:26E3 - 77
    inc    hl                           ; 00:26E4 - 23
-   ld     (hl), UNK_2857&$FF           ; 00:26E5 - 36 57
+   ld     (hl), credits_sprite_01&$FF  ; 00:26E5 - 36 57
    inc    hl                           ; 00:26E7 - 23
-   ld     (hl), UNK_2857>>8            ; 00:26E8 - 36 28
+   ld     (hl), credits_sprite_01>>8   ; 00:26E8 - 36 28
    inc    hl                           ; 00:26EA - 23
    ld     (hl), a                      ; 00:26EB - 77
    inc    hl                           ; 00:26EC - 23
-   ld     (hl), UNK_2869&$FF           ; 00:26ED - 36 69
+   ld     (hl), credits_sprite_02&$FF  ; 00:26ED - 36 69
    inc    hl                           ; 00:26EF - 23
-   ld     (hl), UNK_2869>>8            ; 00:26F0 - 36 28
+   ld     (hl), credits_sprite_02>>8   ; 00:26F0 - 36 28
    inc    hl                           ; 00:26F2 - 23
    ld     (hl), a                      ; 00:26F3 - 77
    inc    hl                           ; 00:26F4 - 23
-   ld     (hl), UNK_2872&$FF           ; 00:26F5 - 36 72
+   ld     (hl), credits_sprite_03&$FF  ; 00:26F5 - 36 72
    inc    hl                           ; 00:26F7 - 23
-   ld     (hl), UNK_2872>>8            ; 00:26F8 - 36 28
+   ld     (hl), credits_sprite_03>>8   ; 00:26F8 - 36 28
    inc    hl                           ; 00:26FA - 23
    ld     (hl), a                      ; 00:26FB - 77
    ld     bc, $0001                    ; 00:26FC - 01 01 00
@@ -5842,26 +5845,167 @@ PAL3_02828:
 .db $35, $01, $06, $0B, $04, $08, $0C, $3D, $1F, $39, $2A, $14, $25, $2B, $00, $3F  ; 00:2828
 .db $35, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $00, $3C, $00, $3F  ; 00:2838
 
-UNK_2848:
-.db $96, $02, $29, $86, $9F, $28, $E9, $02, $29, $6F, $9F, $28, $FF, $48, $28       ; 00:2848
+;; See function 00:275A, where HL = $D322 (var_D322), and there are 4 entries initialised with the form:
+;; .dw some_ptr (this one is the first!) -> gets stored into DE
+;; .db $00  <-- gets incremented
+;; And this structure:
+;; .db some_frame_timer_counter
+;; .dw some_ptr
+;; and repeat until:
+;; .db $FF
+;; .dw next_pointer_to_jump_to
+credits_sprite_00:
+.db $96                                                                             ; 00:2848
 
-UNK_2857:
-.db $36, $B1, $28, $48, $BA, $28, $54, $A8, $28, $1E, $B1, $28, $44, $BA, $28, $FF  ; 00:2857
-.db $57, $28                                                                        ; 00:2867
+credits_sprite_00_PTR_01:
+.dw addr_02902                                                                      ; 00:2849
+.db $86                                                                             ; 00:284B
 
-UNK_2869:
-.db $23, $C3, $28, $23, $CC, $28, $FF, $69, $28                                     ; 00:2869
+credits_sprite_00_PTR_02:
+.dw addr_0289F                                                                      ; 00:284C
+.db $E9                                                                             ; 00:284E
 
-UNK_2872:
-.db $E4, $F3, $28, $19, $E4, $28, $19, $D5, $28, $19, $E4, $28, $19, $D5, $28, $FA  ; 00:2872
-.db $F3, $28, $85, $E4, $28, $E8, $F3, $28, $19, $E4, $28, $19, $D5, $28, $19, $E4  ; 00:2882
-.db $28, $19, $D5, $28, $19, $E4, $28, $19, $D5, $28, $FF, $72, $28, $40, $48, $50  ; 00:2892
-.db $FF, $FF, $FF, $FF, $FF, $FF, $40, $58, $4A, $FF, $FF, $FF, $FF, $FF, $FF, $40  ; 00:28A2
-.db $58, $4C, $FF, $FF, $FF, $FF, $FF, $FF, $40, $58, $4E, $FF, $FF, $FF, $FF, $FF  ; 00:28B2
-.db $FF, $40, $78, $6A, $6C, $6E, $FF, $FF, $FF, $FF, $40, $78, $70, $72, $74, $FF  ; 00:28C2
-.db $FF, $FF, $FF, $48, $50, $0A, $0C, $FF, $FF, $FF, $FF, $2A, $2C, $FF, $FF, $FF  ; 00:28D2
-.db $FF, $FF, $48, $50, $0E, $10, $FF, $FF, $FF, $FF, $2E, $30, $FF, $FF, $FF, $FF  ; 00:28E2
-.db $FF, $48, $60, $12, $14, $FF, $FF, $FF, $FF, $32, $34, $FF, $FF, $FF, $FF, $FF  ; 00:28F2
+credits_sprite_00_PTR_03:
+.dw addr_02902                                                                      ; 00:284F
+.db $6F                                                                             ; 00:2851
+
+credits_sprite_00_PTR_04:
+.dw addr_0289F                                                                      ; 00:2852
+.db $FF                                                                             ; 00:2854
+
+credits_sprite_00_JMP_05:
+.dw credits_sprite_00                                                               ; 00:2855
+
+credits_sprite_01:
+.db $36                                                                             ; 00:2857
+
+credits_sprite_01_PTR_01:
+.dw addr_028B1                                                                      ; 00:2858
+.db $48                                                                             ; 00:285A
+
+credits_sprite_01_PTR_02:
+.dw addr_028BA                                                                      ; 00:285B
+.db $54                                                                             ; 00:285D
+
+credits_sprite_01_PTR_03:
+.dw addr_028A8                                                                      ; 00:285E
+.db $1E                                                                             ; 00:2860
+
+credits_sprite_01_PTR_04:
+.dw addr_028B1                                                                      ; 00:2861
+.db $44                                                                             ; 00:2863
+
+credits_sprite_01_PTR_05:
+.dw addr_028BA                                                                      ; 00:2864
+.db $FF                                                                             ; 00:2866
+
+credits_sprite_01_JMP_06:
+.dw credits_sprite_01                                                               ; 00:2867
+
+credits_sprite_02:
+.db $23                                                                             ; 00:2869
+
+credits_sprite_02_PTR_01:
+.dw addr_028C3                                                                      ; 00:286A
+.db $23                                                                             ; 00:286C
+
+credits_sprite_02_PTR_02:
+.dw addr_028CC                                                                      ; 00:286D
+.db $FF                                                                             ; 00:286F
+
+credits_sprite_02_JMP_03:
+.dw credits_sprite_02                                                               ; 00:2870
+
+credits_sprite_03:
+.db $E4                                                                             ; 00:2872
+
+credits_sprite_03_PTR_01:
+.dw addr_028F3                                                                      ; 00:2873
+.db $19                                                                             ; 00:2875
+
+credits_sprite_03_PTR_02:
+.dw addr_028E4                                                                      ; 00:2876
+.db $19                                                                             ; 00:2878
+
+credits_sprite_03_PTR_03:
+.dw addr_028D5                                                                      ; 00:2879
+.db $19                                                                             ; 00:287B
+
+credits_sprite_03_PTR_04:
+.dw addr_028E4                                                                      ; 00:287C
+.db $19                                                                             ; 00:287E
+
+credits_sprite_03_PTR_05:
+.dw addr_028D5                                                                      ; 00:287F
+.db $FA                                                                             ; 00:2881
+
+credits_sprite_03_PTR_06:
+.dw addr_028F3                                                                      ; 00:2882
+.db $85                                                                             ; 00:2884
+
+credits_sprite_03_PTR_07:
+.dw addr_028E4                                                                      ; 00:2885
+.db $E8                                                                             ; 00:2887
+
+credits_sprite_03_PTR_08:
+.dw addr_028F3                                                                      ; 00:2888
+.db $19                                                                             ; 00:288A
+
+credits_sprite_03_PTR_09:
+.dw addr_028E4                                                                      ; 00:288B
+.db $19                                                                             ; 00:288D
+
+credits_sprite_03_PTR_0A:
+.dw addr_028D5                                                                      ; 00:288E
+.db $19                                                                             ; 00:2890
+
+credits_sprite_03_PTR_0B:
+.dw addr_028E4                                                                      ; 00:2891
+.db $19                                                                             ; 00:2893
+
+credits_sprite_03_PTR_0C:
+.dw addr_028D5                                                                      ; 00:2894
+.db $19                                                                             ; 00:2896
+
+credits_sprite_03_PTR_0D:
+.dw addr_028E4                                                                      ; 00:2897
+.db $19                                                                             ; 00:2899
+
+credits_sprite_03_PTR_0E:
+.dw addr_028D5                                                                      ; 00:289A
+.db $FF                                                                             ; 00:289C
+
+credits_sprite_03_JMP_0F:
+.dw credits_sprite_03                                                               ; 00:289D
+
+addr_0289F:
+.db $40, $48, $50, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:289F
+
+addr_028A8:
+.db $40, $58, $4A, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:28A8
+
+addr_028B1:
+.db $40, $58, $4C, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:28B1
+
+addr_028BA:
+.db $40, $58, $4E, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:28BA
+
+addr_028C3:
+.db $40, $78, $6A, $6C, $6E, $FF, $FF, $FF, $FF                                     ; 00:28C3
+
+addr_028CC:
+.db $40, $78, $70, $72, $74, $FF, $FF, $FF, $FF                                     ; 00:28CC
+
+addr_028D5:
+.db $48, $50, $0A, $0C, $FF, $FF, $FF, $FF, $2A, $2C, $FF, $FF, $FF, $FF, $FF       ; 00:28D5
+
+addr_028E4:
+.db $48, $50, $0E, $10, $FF, $FF, $FF, $FF, $2E, $30, $FF, $FF, $FF, $FF, $FF       ; 00:28E4
+
+addr_028F3:
+.db $48, $60, $12, $14, $FF, $FF, $FF, $FF, $32, $34, $FF, $FF, $FF, $FF, $FF       ; 00:28F3
+
+addr_02902:
 .db $40, $48, $FF                                                                   ; 00:2902
 
 UNK_2905:

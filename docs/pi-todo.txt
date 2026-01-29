@@ -5,4 +5,12 @@ BANK 00:
 Easy testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
 Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
-- Sprites on credits screen are mangled.
+No known PI problems! Yay!
+
+BANK 01:
+
+- Various objfuncs store a pointer byte by byte in (IX+$0F) denoted as (ix+15) in the disassembly.
+
+BANK 02:
+
+- Various objfuncs store a pointer byte by byte in (IX+$0F) denoted as (ix+15) in the disassembly.

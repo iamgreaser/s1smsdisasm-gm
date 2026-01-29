@@ -51,6 +51,8 @@ In-memory object structure:
 (IX+$07).t is X velocity.
 (IX+$0A).t is Y velocity.
 
+(IX+$0F).w is a pointer to... something. TODO: Find out what! --GM
+
 (IX+$11).b is...? Y-pos related? (at least for $1E button-triggered doors)
 
 (IX+$13).b is...?
@@ -59,8 +61,6 @@ In-memory object structure:
       Starts from 0.
       If < 60, go down by $000040, otherwise go up by $000040.
       After that, increment. When it hits 80, reset to 40.
-
-(IX+$15).w is a pointer to... something. TODO: Find out what! --GM
 
 (IX+$18).b is a bit field:
    For $03 life monitors:
