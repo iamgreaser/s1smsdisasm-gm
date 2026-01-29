@@ -2,6 +2,7 @@ IY = $D200
 
 (IY+$00) is a bit field:
    b0 = 0 if waiting for vblank, 1 if vblank fired
+   b1 = ?
    b2 = ? signals D225=HL, D227=DE, D229=BC
    b3 = 1 if sending a palette change from the main thread, D22B=HL, D22F=A
       D22B=HL = palette

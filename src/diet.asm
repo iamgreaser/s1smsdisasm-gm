@@ -1225,17 +1225,43 @@ print_positioned_FF_string:
    ret                                 ; 00:05E1 - C9
 
 clear_sprite_table:
-   ld     hl, var_D000                 ; 00:05E2 - 21 00 D0
-   ld     e, l                         ; 00:05E5 - 5D
-   ld     d, h                         ; 00:05E6 - 54
-   ld     bc, $00BD                    ; 00:05E7 - 01 BD 00
-   ld     a, $E0                       ; 00:05EA - 3E E0
-   ld     (de), a                      ; 00:05EC - 12
-   inc    de                           ; 00:05ED - 13
-   ld     (de), a                      ; 00:05EE - 12
-   inc    de                           ; 00:05EF - 13
-   inc    de                           ; 00:05F0 - 13
-   ldir                                ; 00:05F1 - ED B0
+   ;; Fill sprite table with x=E0, y=E0, tile=(garbage) repeating.
+   ;ld     hl, var_D000                 ; 00:05E2 - 21 00 D0
+   ;ld     e, l                         ; 00:05E5 - 5D
+   ;ld     d, h                         ; 00:05E6 - 54
+   ;ld     bc, $00BD                    ; 00:05E7 - 01 BD 00
+   ;ld     a, $E0                       ; 00:05EA - 3E E0
+   ;ld     (de), a                      ; 00:05EC - 12
+   ;inc    de                           ; 00:05ED - 13
+   ;ld     (de), a                      ; 00:05EE - 12
+   ;inc    de                           ; 00:05EF - 13
+   ;inc    de                           ; 00:05F0 - 13
+   ;ldir                                ; 00:05F1 - ED B0
+
+   .IF 0
+      ;; Smaller, but with different garbage byte.
+      ld hl, var_D000    ; 5E2 3
+      ld e, l            ; 5E5 1
+      ld d, h            ; 5E6 1
+      ld bc, $00BF       ; 5E7 3
+      ld (hl), $E0       ; 5EA 2
+      inc de             ; 5EC 1
+      ldir               ; 5ED 2
+      ; 5F3 -> 5EF - SAVING: 4 bytes, BUT 14 cycles slower.
+
+   .ELSE
+      ;; Identical functionality.
+      ld hl, var_D000+1  ; 5E2 3
+      ld de, var_D000+3  ; 5E5 3
+      ld bc, $00BD       ; 5E8 3
+      ld a, $E0          ; 5EB 2
+      ld (hl), a         ; 5ED 1
+      dec hl             ; 5EE 1
+      ld (hl), a         ; 5EF 1
+      ldir               ; 5F0 2
+      ; 05F3 -> 05F2 - SAVING: 1 byte (and 10 cycles)
+   .ENDIF
+
    ld     (iy+g_sprite_count-IYBASE), $40  ; 00:05F3 - FD 36 0A 40
    xor    a                            ; 00:05F7 - AF
    ld     (g_prev_sprite_count), a     ; 00:05F8 - 32 B4 D2
@@ -3131,11 +3157,13 @@ addr_01278:
 .db $10, $13, $AE, $6E, $DE, $EB, $1F, $1E, $AE, $3E, $EB, $EB, $EB, $EB, $FF       ; 00:1278
 
 addr_01287:
+   ;; Display off (blanked)
    ld     a, (g_saved_vdp_reg_01)      ; 00:1287 - 3A 19 D2
    and    $BF                          ; 00:128A - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:128C - 32 19 D2
    res    0, (iy+var_D200-IYBASE)      ; 00:128F - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1293 - CD 1C 03
+   ;; Load some tiles
    ld     hl, $2000                    ; 00:1296 - 21 00 20
    ld     de, $0000                    ; 00:1299 - 11 00 00
    ld     a, $09                       ; 00:129C - 3E 09
@@ -3144,6 +3172,7 @@ addr_01287:
    ld     de, $2000                    ; 00:12A4 - 11 00 20
    ld     a, $09                       ; 00:12A7 - 3E 09
    call   load_art                     ; 00:12A9 - CD 05 04
+   ;; Load tile art
    ld     a, $05                       ; 00:12AC - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:12B1 - 32 35 D2
@@ -3154,28 +3183,36 @@ addr_01287:
    ld     a, $00                       ; 00:12BD - 3E 00
    ld     (g_FF_string_high_byte), a   ; 00:12BF - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:12C2 - CD 01 05
+   ;; Clear... TODO find out what --GM
    xor    a                            ; 00:12C5 - AF
    ld     (var_D251), a                ; 00:12C6 - 32 51 D2
    ld     (var_D252), a                ; 00:12C9 - 32 52 D2
+   ;; Load into both palettes
    ld     hl, PAL3_013E1               ; 00:12CC - 21 E1 13
    ld     a, $03                       ; 00:12CF - 3E 03
    call   signal_load_palettes         ; 00:12D1 - CD 33 03
+   ;; TODO find what D200.b1 does --GM
    set    1, (iy+var_D200-IYBASE)      ; 00:12D4 - FD CB 00 CE
+   ;; Play title screen music
    ld     a, $06                       ; 00:12D8 - 3E 06
    rst    $18                          ; 00:12DA - DF
+   ;; Clear "PRESS BUTTON" cycle
    xor    a                            ; 00:12DB - AF
    ld     (var_D216), a                ; 00:12DC - 32 16 D2
+   ;; Set up Sonic's hand waving sprite animation
    ld     a, $01                       ; 00:12DF - 3E 01
    ld     (var_D20F), a                ; 00:12E1 - 32 0F D2
    ld     hl, UNK_01372                ; 00:12E4 - 21 72 13
    ld     (var_D210), hl               ; 00:12E7 - 22 10 D2
 
 addr_012EA:
+   ;; Display on
    ld     a, (g_saved_vdp_reg_01)      ; 00:12EA - 3A 19 D2
    or     $40                          ; 00:12ED - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:12EF - 32 19 D2
    res    0, (iy+var_D200-IYBASE)      ; 00:12F2 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:12F6 - CD 1C 03
+   ;; Increment "PRESS BUTTON" cycle, wrapping every 100 ticks
    ld     a, (var_D216)                ; 00:12F9 - 3A 16 D2
    inc    a                            ; 00:12FC - 3C
    cp     $64                          ; 00:12FD - FE 64
@@ -3184,6 +3221,7 @@ addr_012EA:
 
 addr_01302:
    ld     (var_D216), a                ; 00:1302 - 32 16 D2
+   ;; Show or hide "PRESS BUTTON" text, only showing if cycle <= 64
    ld     hl, LUT_01352                ; 00:1305 - 21 52 13
    cp     $40                          ; 00:1308 - FE 40
    jr     c, addr_0130F                ; 00:130A - 38 03
@@ -3193,10 +3231,12 @@ addr_0130F:
    xor    a                            ; 00:130F - AF
    ld     (g_FF_string_high_byte), a   ; 00:1310 - 32 0E D2
    call   print_positioned_FF_string   ; 00:1313 - CD AF 05
+   ;; Decrement the counter for Sonic's hand animation
    ld     a, (var_D20F)                ; 00:1316 - 3A 0F D2
    dec    a                            ; 00:1319 - 3D
    ld     (var_D20F), a                ; 00:131A - 32 0F D2
    jr     nz, addr_01335               ; 00:131D - 20 16
+   ;; If the counter reached 0, load the next frame and counter
    ld     hl, (var_D210)               ; 00:131F - 2A 10 D2
    ld     e, (hl)                      ; 00:1322 - 5E
    inc    hl                           ; 00:1323 - 23
@@ -3205,7 +3245,9 @@ addr_0130F:
    ld     a, (hl)                      ; 00:1326 - 7E
    inc    hl                           ; 00:1327 - 23
    and    a                            ; 00:1328 - A7
+   ;; If the counter value is 0, move onto the demo!
    jr     z, addr_01350                ; 00:1329 - 28 25
+   ;; Otherwise, store our values for animating Sonic's hand.
    ld     (var_D20F), a                ; 00:132B - 32 0F D2
    ld     (var_D210), hl               ; 00:132E - 22 10 D2
    ld     (var_D212), de               ; 00:1331 - ED 53 12 D2
@@ -3222,7 +3264,10 @@ addr_01335:
    scf                                 ; 00:134F - 37
 
 addr_01350:
+   ;; Stop the music and return
    rst    $20                          ; 00:1350 - E7
+   ;; If we jumped here from above, AND A clears the carry flag.
+   ;; If we fell through from not so far above, SCF sets the carry flag.
    ret                                 ; 00:1351 - C9
 
 LUT_01352:
@@ -4327,7 +4372,7 @@ _reset_01C49:
    set    0, (iy+var_D200-IYBASE)      ; 00:1C49 - FD CB 00 C6
    ei                                  ; 00:1C4D - FB
 
-addr_01C4E:
+;addr_01C4E:
    ld     a, $03                       ; 00:1C4E - 3E 03
    ld     (g_lives), a                 ; 00:1C50 - 32 46 D2
    ld     a, $05                       ; 00:1C53 - 3E 05
@@ -4335,49 +4380,61 @@ addr_01C4E:
    ld     a, $1C                       ; 00:1C58 - 3E 1C
    ld     (g_next_bonus_level), a      ; 00:1C5A - 32 3F D2
    ;; RAM has been cleared already, so no need to explicitly clear this...
-   ;xor    a                            ; 00:1C5D - AF
-   ;ld     (g_level), a                 ; 00:1C5E - 32 3E D2
-   ;ld     (var_D223), a                ; 00:1C61 - 32 23 D2
-   ;; This one is especially silly as the IY dereference saves no bytes and wastes 6 extra cycles.
-   ;ld     (iy+var_D20D-IYBASE), a      ; 00:1C64 - FD 77 0D
-   ;; But wait, there's more! Here we clear already-$00-filled arrays with $00.
-   ;ld     hl, var_D27F                 ; 00:1C67 - 21 7F D2
-   ;ld     b, $08                       ; 00:1C6A - 06 08
-   ;call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C6C - CD E8 1C
-   ;ld     hl, var_D200                 ; 00:1C6F - 21 00 D2
-   ;ld     b, $0E                       ; 00:1C72 - 06 0E
-   ;call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C74 - CD E8 1C
-   ;ld     hl, var_D2BA                 ; 00:1C77 - 21 BA D2
-   ;ld     b, $04                       ; 00:1C7A - 06 04
-   ;call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C7C - CD E8 1C
-   ;ld     hl, g_level_lives_collected_mask  ; 00:1C7F - 21 05 D3
-   ;ld     b, $18                       ; 00:1C82 - 06 18
-   ;call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C84 - CD E8 1C
+   .IF 0
+      ;; NOTE: Actually, the demo affects things here... but there's an easy enough fix - just do a proper reset.
+      ;; Otherwise the demo desyncs on repeat playthroughs.
+      xor    a                            ; 00:1C5D - AF
+      ;ld     (g_level), a                 ; 00:1C5E - 32 3E D2
+      ld     (var_D223), a                ; 00:1C61 - 32 23 D2
+      ;; This one is especially silly as the IY dereference saves no bytes and wastes 6 extra cycles.
+      ld     (iy+var_D20D-IYBASE), a      ; 00:1C64 - FD 77 0D
+      ;; But wait, there's more! Here we clear already-$00-filled arrays with $00.
+      ld     hl, var_D27F                 ; 00:1C67 - 21 7F D2
+      ld     b, $08                       ; 00:1C6A - 06 08
+      call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C6C - CD E8 1C
+      ld     hl, var_D200                 ; 00:1C6F - 21 00 D2
+      ld     b, $0E                       ; 00:1C72 - 06 0E
+      call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C74 - CD E8 1C
+      ld     hl, var_D2BA                 ; 00:1C77 - 21 BA D2
+      ld     b, $04                       ; 00:1C7A - 06 04
+      call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C7C - CD E8 1C
+      ld     hl, g_level_lives_collected_mask  ; 00:1C7F - 21 05 D3
+      ld     b, $18                       ; 00:1C82 - 06 18
+      call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C84 - CD E8 1C
+   .ENDIF
 
    ;; Of course, I like being able to test on different levels so here, have a level select hack.
    ld hl, g_level  ; 1C5D 3
    ld (hl), $00    ; 1C60 2
    ; 1C87 -> 1C62 - SAVING: 37 bytes
 
+   ;; Show the title screen!
    res    0, (iy+var_D202-IYBASE)      ; 00:1C87 - FD CB 02 86
    res    1, (iy+var_D202-IYBASE)      ; 00:1C8B - FD CB 02 8E
    call   clear_sprite_table           ; 00:1C8F - CD E2 05
    call   addr_01287                   ; 00:1C92 - CD 87 12
    res    1, (iy+var_D205-IYBASE)      ; 00:1C95 - FD CB 05 8E
+   ;; If the carry flag is clear, we want to show the demo.
+   ;; If it is set, then we want to actually play the game.
    jr     c, addr_01C9F                ; 00:1C99 - 38 04
    set    1, (iy+var_D205-IYBASE)      ; 00:1C9B - FD CB 05 CE
+   ;; HACK: Force GHZ1 if it's the demo (just in case we have a level select cheat/hack enabled)
+   ld a, $00
+   ld (g_level), a
 
 addr_01C9F:
    ld     a, (g_level)                 ; 00:1C9F - 3A 3E D2
    cp     $13                          ; 00:1CA2 - FE 13
-   jr     nc, addr_01C4E               ; 00:1CA4 - 30 A8
+   ;jr     nc, addr_01C4E               ; 00:1CA4 - 30 A8
+   jr nc, reset_trampoline_after_title
    res    0, (iy+var_D202-IYBASE)      ; 00:1CA6 - FD CB 02 86
    res    1, (iy+var_D202-IYBASE)      ; 00:1CAA - FD CB 02 8E
    call   clear_sprite_table           ; 00:1CAE - CD E2 05
    call   addr_00C52                   ; 00:1CB1 - CD 52 0C
    bit    1, (iy+var_D205-IYBASE)      ; 00:1CB4 - FD CB 05 4E
    jr     z, addr_01CBD                ; 00:1CB8 - 28 03
-   jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
+   ;jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
+   jr c, reset_trampoline_after_title
 
 addr_01CBD:
    call   addr_00A40                   ; 00:1CBD - CD 40 0A
@@ -4399,10 +4456,14 @@ addr_01CD1:
 addr_01CDB:
    call   load_level_header_UNCONFIRMED  ; 00:1CDB - CD ED 1C
    and    a                            ; 00:1CDE - A7
-   jp     z, addr_01C4E                ; 00:1CDF - CA 4E 1C
+   ;jp     z, addr_01C4E                ; 00:1CDF - CA 4E 1C
+   jr z, reset_trampoline_after_title
    dec    a                            ; 00:1CE2 - 3D
    jr     z, addr_01C9F                ; 00:1CE3 - 28 BA
    jp     addr_01CBD                   ; 00:1CE5 - C3 BD 1C
+
+reset_trampoline_after_title:
+   rst $00
 
 fill_ram_at_hl_for_b_bytes_with_a:
    ld     (hl), a                      ; 00:1CE8 - 77
