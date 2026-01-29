@@ -11,7 +11,6 @@ BANK 01:
 
 - Motobugs don't move, and their graphics can glitch out.
 - Crabmeats and Buzz Bombers have glitched graphics and fire early and rapidly, making them an actual threat.
-- The ending signpost is garbled and loads the wrong sprite palette on load and seems to kinda continue to spin after it has spun.
 - When Sonic is damaged and loses his rings, the ring sprite doesn't seem to show.
 - GHZ3 boss fight, when spawned, seems to break Sonic (making him invisible and inoperable?) and the boss doesn't spawn properly. Pausing still works somehow?
 
