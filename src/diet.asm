@@ -889,18 +889,21 @@ load_art:
    ;; This code adjusts HL and the page in A.
    ;; We relocate this to *after* loading the VRAM address.
    ;; This frees up DE.
-;-:
-;   push   af                           ; 00:0406 - F5
-;   ld     a, h                         ; 00:0407 - 7C
-;   cp     $40                          ; 00:0408 - FE 40
-;   jr     c, +                         ; 00:040A - 38 08
-;   sub    $40                          ; 00:040C - D6 40
-;   ld     h, a                         ; 00:040E - 67
-;   pop    af                           ; 00:040F - F1
-;   inc    a                            ; 00:0410 - 3C
-;   jp     -                            ; 00:0411 - C3 06 04
-;+:
+.IF 0
+-:
+   push   af                           ; 00:0406 - F5
+   ld     a, h                         ; 00:0407 - 7C
+   cp     $40                          ; 00:0408 - FE 40
+   jr     c, +                         ; 00:040A - 38 08
+   sub    $40                          ; 00:040C - D6 40
+   ld     h, a                         ; 00:040E - 67
+   pop    af                           ; 00:040F - F1
+   inc    a                            ; 00:0410 - 3C
+   jp     -                            ; 00:0411 - C3 06 04
++:
+.ELSE
    push af  ; 0406 1
+.ENDIF
    ;; Continued below
 
    ;; Load VRAM address
@@ -912,9 +915,12 @@ load_art:
 
    ;; DE is now free.
    pop    af                           ; 00:041C - F1
+
+.IF 0
+   ld     de, $4000                    ; 00:041D - 11 00 40
+   add    hl, de                       ; 00:0420 - 19
+.ELSE
    ;; Continued from above
-   ;ld     de, $4000                    ; 00:041D - 11 00 40
-   ;add    hl, de                       ; 00:0420 - 19
    ld e, a      ; 0407 1
    ld a, h      ; 0408 1
    -:
@@ -926,6 +932,7 @@ load_art:
    ld h, a      ; 0411 1
    ld a, e      ; 0412 1
    ; 0421 -> 0413 - SAVING: 14 bytes
+.ENDIF
 
    ld     de, (g_committed_rompage_1)  ; 00:0421 - ED 5B 35 D2
    push   de                           ; 00:0425 - D5
@@ -979,33 +986,36 @@ load_art:
    ;; Anyway, pre-set it to $00 so when we shift we end up with the zero flag set.
    ;; When we load it, we will pre-rotate with a 1.
    ;; That way, we guarantee having 8 rotations.
-   ld (iy+g_last_rle_byte-IYBASE), $00  ; 0466 3
-   ;; Continued below...
+.IF 0
 --:
-   ;ld     hl, (var_D210)               ; 00:0466 - 2A 10 D2
-   ;xor    a                            ; 00:0469 - AF
-   ;sbc    hl, bc                       ; 00:046A - ED 42
-   ;push   hl                           ; 00:046C - E5
-   ;ld     d, a                         ; 00:046D - 57
-   ;ld     a, l                         ; 00:046E - 7D
-   ;and    $07                          ; 00:046F - E6 07
-   ;ld     e, a                         ; 00:0471 - 5F
-   ;ld     hl, LUT_004F9_left_shift_bitmask  ; 00:0472 - 21 F9 04
-   ;add    hl, de                       ; 00:0475 - 19
-   ;ld     a, (hl)                      ; 00:0476 - 7E
-   ;pop    de                           ; 00:0477 - D1
-   ;srl    d                            ; 00:0478 - CB 3A
-   ;rr     e                            ; 00:047A - CB 1B
-   ;srl    d                            ; 00:047C - CB 3A
-   ;rr     e                            ; 00:047E - CB 1B
-   ;srl    d                            ; 00:0480 - CB 3A
-   ;rr     e                            ; 00:0482 - CB 1B
-   ;ld     hl, (var_D214)               ; 00:0484 - 2A 14 D2
-   ;add    hl, de                       ; 00:0487 - 19
-   ;ld     e, a                         ; 00:0488 - 5F
-   ;ld     a, (hl)                      ; 00:0489 - 7E
-   ;and    e                            ; 00:048A - A3
-   ;jr     nz, +                        ; 00:048B - 20 21
+   ld     hl, (var_D210)               ; 00:0466 - 2A 10 D2
+   xor    a                            ; 00:0469 - AF
+   sbc    hl, bc                       ; 00:046A - ED 42
+   push   hl                           ; 00:046C - E5
+   ld     d, a                         ; 00:046D - 57
+   ld     a, l                         ; 00:046E - 7D
+   and    $07                          ; 00:046F - E6 07
+   ld     e, a                         ; 00:0471 - 5F
+   ld     hl, LUT_004F9_left_shift_bitmask  ; 00:0472 - 21 F9 04
+   add    hl, de                       ; 00:0475 - 19
+   ld     a, (hl)                      ; 00:0476 - 7E
+   pop    de                           ; 00:0477 - D1
+   srl    d                            ; 00:0478 - CB 3A
+   rr     e                            ; 00:047A - CB 1B
+   srl    d                            ; 00:047C - CB 3A
+   rr     e                            ; 00:047E - CB 1B
+   srl    d                            ; 00:0480 - CB 3A
+   rr     e                            ; 00:0482 - CB 1B
+   ld     hl, (var_D214)               ; 00:0484 - 2A 14 D2
+   add    hl, de                       ; 00:0487 - 19
+   ld     e, a                         ; 00:0488 - 5F
+   ld     a, (hl)                      ; 00:0489 - 7E
+   and    e                            ; 00:048A - A3
+   jr     nz, +                        ; 00:048B - 20 21
+.ELSE
+   ;; Continued below...
+   ld (iy+g_last_rle_byte-IYBASE), $00  ; 0466 3
+--:
    ;; 39 bytes, and 196 cycles before the branch.
    ;; We can do so, so much better than that, AND use an index register in the process.
    ;; Behold: doing things the fast way.
@@ -1021,6 +1031,7 @@ load_art:
       rr (iy+g_last_rle_byte-IYBASE)    ; 047C 4 23
    +:
    jr c, +                              ; 0480 1 12/7
+.ENDIF
    ;; 048D -> 0482 - SAVING: 11 bytes
    ;; Cycle saving:
    ;; - ZF branch     taken:  39 cycles
@@ -1031,26 +1042,28 @@ load_art:
    ;; This writes every 32 cycles.
    ;; We can get away with 28.
    ;; We can also rearrange things a bit to replace one NOP.
-   ;exx                                 ; 00:048D - D9
-   ;ld     a, (bc)                      ; 00:048E - 0A
-   ;out    ($BE), a                     ; 00:048F - D3 BE
-   ;inc    bc                           ; 00:0491 - 03
-   ;nop                                 ; 00:0492 - 00
-   ;nop                                 ; 00:0493 - 00
-   ;ld     a, (bc)                      ; 00:0494 - 0A
-   ;out    ($BE), a                     ; 00:0495 - D3 BE
-   ;inc    bc                           ; 00:0497 - 03
-   ;nop                                 ; 00:0498 - 00
-   ;nop                                 ; 00:0499 - 00
-   ;ld     a, (bc)                      ; 00:049A - 0A
-   ;out    ($BE), a                     ; 00:049B - D3 BE
-   ;inc    bc                           ; 00:049D - 03
-   ;nop                                 ; 00:049E - 00
-   ;nop                                 ; 00:049F - 00
-   ;ld     a, (bc)                      ; 00:04A0 - 0A
-   ;out    ($BE), a                     ; 00:04A1 - D3 BE
-   ;inc    bc                           ; 00:04A3 - 03
-   ;exx                                 ; 00:04A4 - D9
+.IF 0
+   exx                                 ; 00:048D - D9
+   ld     a, (bc)                      ; 00:048E - 0A
+   out    ($BE), a                     ; 00:048F - D3 BE
+   inc    bc                           ; 00:0491 - 03
+   nop                                 ; 00:0492 - 00
+   nop                                 ; 00:0493 - 00
+   ld     a, (bc)                      ; 00:0494 - 0A
+   out    ($BE), a                     ; 00:0495 - D3 BE
+   inc    bc                           ; 00:0497 - 03
+   nop                                 ; 00:0498 - 00
+   nop                                 ; 00:0499 - 00
+   ld     a, (bc)                      ; 00:049A - 0A
+   out    ($BE), a                     ; 00:049B - D3 BE
+   inc    bc                           ; 00:049D - 03
+   nop                                 ; 00:049E - 00
+   nop                                 ; 00:049F - 00
+   ld     a, (bc)                      ; 00:04A0 - 0A
+   out    ($BE), a                     ; 00:04A1 - D3 BE
+   inc    bc                           ; 00:04A3 - 03
+   exx                                 ; 00:04A4 - D9
+.ELSE
    exx            ; 048D 1  4
    ld a, (bc)     ; 048E 1  7
    inc bc         ; 048F 1  6
@@ -1067,6 +1080,7 @@ load_art:
    inc bc         ; 049D 1  6
    exx            ; 049E 1  4
    out ($BE), a   ; 049F 2 11
+.ENDIF
    ; 04A5 -> 04A1 - SAVING: 4 bytes and 16 cycles per iteration
    dec    bc                           ; 00:04A5 - 0B
    ld     a, b                         ; 00:04A6 - 78
@@ -1094,6 +1108,7 @@ load_art:
    ;; We can get away with 28.
    ;; We can also move something into the loop
    ;; SAVING: 5 bytes and 20 cycles per iteration
+.IF 0
    ld     l, a                         ; 00:04BF - 6F
    add    hl, hl                       ; 00:04C0 - 29
    add    hl, hl                       ; 00:04C1 - 29
@@ -1103,26 +1118,48 @@ load_art:
    out    ($BE), a                     ; 00:04C8 - D3 BE
    inc    hl                           ; 00:04CA - 23
    nop                                 ; 00:04CB - 00
-   ;nop                                 ; 00:04CC - 00
+   nop                                 ; 00:04CC - 00
    ld     a, (hl)                      ; 00:04CD - 7E
    out    ($BE), a                     ; 00:04CE - D3 BE
    inc    hl                           ; 00:04D0 - 23
-   dec bc  ; 1 byte, 6 cycles, 30 cycle gap but still a 1-byte 4-cycle save overall
-   ;nop                                 ; 00:04D1 - 00
-   ;nop                                 ; 00:04D2 - 00
+   nop                                 ; 00:04D1 - 00
+   nop                                 ; 00:04D2 - 00
    ld     a, (hl)                      ; 00:04D3 - 7E
    out    ($BE), a                     ; 00:04D4 - D3 BE
    inc    hl                           ; 00:04D6 - 23
-   ;nop                                 ; 00:04D7 - 00
-   ;nop                                 ; 00:04D8 - 00
+   nop                                 ; 00:04D7 - 00
+   nop                                 ; 00:04D8 - 00
    ld     a, (hl)                      ; 00:04D9 - 7E
-   inc hl  ; 1 byte, 6 cycles, 30 cycle gap but still a 1-byte 4-cycle save overall
    out    ($BE), a                     ; 00:04DA - D3 BE
-   ;inc    hl                           ; 00:04DC - 23
-   ;dec    bc                           ; 00:04DD - 0B
+   inc    hl                           ; 00:04DC - 23
+   dec    bc                           ; 00:04DD - 0B
    ld     a, b                         ; 00:04DE - 78
    or     c                            ; 00:04DF - B1
    jp     nz, --                       ; 00:04E0 - C2 66 04
+.ELSE
+   ld l, a
+   add hl, hl
+   add hl, hl
+   ld de, (g_FF_string_high_byte)
+   add hl, de
+   ld a, (hl)
+   out ($BE), a
+   inc hl
+   nop
+   ld a, (hl)
+   out ($BE), a
+   inc hl
+   dec bc  ; 1 byte, 6 cycles, 30 cycle gap but still a 1-byte 4-cycle save overall
+   ld a, (hl)
+   out ($BE), a
+   inc hl
+   ld a, (hl)
+   inc hl  ; 1 byte, 6 cycles, 30 cycle gap but still a 1-byte 4-cycle save overall
+   out ($BE), a
+   ld a, b
+   or c
+   jp nz, --
+.ENDIF
 
 ++:
    bit    1, (iy+var_D209-IYBASE)      ; 00:04E3 - FD CB 09 4E
