@@ -8069,6 +8069,8 @@ LUT_3FF0:
 .db $03, $08, $03, $03, $03, $03, $03, $03, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:4000
 .db $00, $00, $00, $00, $00, $00, $00, $03, $03, $04, $04, $03, $03, $03, $03, $00  ; 01:4010
 
+;.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
+
 UNK_4020:
 .db $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40  ; 01:4020
 .db $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40, $7E, $40  ; 01:4030
@@ -13802,6 +13804,9 @@ addr_07FC1:
 
 .SECTION "Bank02" SLOT 2 BANK $02 FORCE ORG $0000
 .db $00, $00, $00, $DD, $36, $0F, $22, $DD, $36, $10, $80                           ; 02:8000
+;; FIXME: ^ ...that looks like code 3 bytes in. Seems it's called by objfunc $29. --GM
+
+;.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
 
 addr_0800B:
    inc    (ix+17)                      ; 02:800B - DD 34 11
