@@ -1018,10 +1018,10 @@ load_art:
       ld (var_D214), hl                 ; 0475 3 16
       ld (g_last_rle_byte), a           ; 0478 3 13
       scf                               ; 047B 1  4
-      rr (iy+g_last_rle_byte-IYBASE)    ; 047C 3 23
+      rr (iy+g_last_rle_byte-IYBASE)    ; 047C 4 23
    +:
-   jr c, +                              ; 047F 1 12/7
-   ;; 048D -> 0480 - SAVING: 13 bytes
+   jr c, +                              ; 0480 1 12/7
+   ;; 048D -> 0482 - SAVING: 11 bytes
    ;; Cycle saving:
    ;; - ZF branch     taken:  39 cycles
    ;; - ZF branch not taken: 119 cycles
