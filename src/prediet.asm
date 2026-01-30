@@ -7232,7 +7232,7 @@ addr_03618:
 addr_03644:
    xor    a                            ; 00:3644 - AF
    ld     (g_rings_BCD), a             ; 00:3645 - 32 AA D2
-   call   addr_07C7B                   ; 00:3648 - CD 7B 7C
+   call   spawn_object                 ; 00:3648 - CD 7B 7C
    jr     c, addr_0367E                ; 00:364B - 38 31
    push   ix                           ; 00:364D - DD E5
    push   hl                           ; 00:364F - E5
@@ -9640,7 +9640,7 @@ addr_0529C:
    bit    0, (iy+var_D20D-IYBASE)      ; 01:52C4 - FD CB 0D 46
    jr     nz, addr_0530B               ; 01:52C8 - 20 41
    ld     (hl), $50                    ; 01:52CA - 36 50
-   call   addr_07C7B                   ; 01:52CC - CD 7B 7C
+   call   spawn_object                 ; 01:52CC - CD 7B 7C
    jp     c, addr_04C39                ; 01:52CF - DA 39 4C
    push   ix                           ; 01:52D2 - DD E5
    push   hl                           ; 01:52D4 - E5
@@ -10447,7 +10447,7 @@ addr_05883:
 addr_05893:
    push   bc                           ; 01:5893 - C5
    push   de                           ; 01:5894 - D5
-   call   addr_07C7B                   ; 01:5895 - CD 7B 7C
+   call   spawn_object                 ; 01:5895 - CD 7B 7C
    pop    de                           ; 01:5898 - D1
    pop    bc                           ; 01:5899 - C1
    ret    c                            ; 01:589A - D8
@@ -11561,7 +11561,7 @@ addr_0662D:
    ld     (var_D212), hl               ; 01:6638 - 22 12 D2
    ld     hl, $FFFC                    ; 01:663B - 21 FC FF
    ld     (var_D214), hl               ; 01:663E - 22 14 D2
-   call   addr_07C7B                   ; 01:6641 - CD 7B 7C
+   call   spawn_object                 ; 01:6641 - CD 7B 7C
    jp     c, addr_06678                ; 01:6644 - DA 78 66
    ld     de, $0000                    ; 01:6647 - 11 00 00
    ld     c, e                         ; 01:664A - 4B
@@ -11571,7 +11571,7 @@ addr_0662D:
    ld     (var_D212), hl               ; 01:6652 - 22 12 D2
    ld     hl, $FFFC                    ; 01:6655 - 21 FC FF
    ld     (var_D214), hl               ; 01:6658 - 22 14 D2
-   call   addr_07C7B                   ; 01:665B - CD 7B 7C
+   call   spawn_object                 ; 01:665B - CD 7B 7C
    jr     c, addr_06678                ; 01:665E - 38 18
    ld     de, $000E                    ; 01:6660 - 11 0E 00
    ld     bc, $0000                    ; 01:6663 - 01 00 00
@@ -12116,7 +12116,7 @@ addr_06C2A:
    ld     a, (ix+17)                   ; 01:6C2A - DD 7E 11
    cp     $20                          ; 01:6C2D - FE 20
    jp     nz, addr_06CA1               ; 01:6C2F - C2 A1 6C
-   call   addr_07C7B                   ; 01:6C32 - CD 7B 7C
+   call   spawn_object                 ; 01:6C32 - CD 7B 7C
    jp     c, addr_06CA1                ; 01:6C35 - DA A1 6C
    push   bc                           ; 01:6C38 - C5
    ld     e, (ix+2)                    ; 01:6C39 - DD 5E 02
@@ -12421,7 +12421,7 @@ addr_06F42:
    ld     a, (ix+23)                   ; 01:6F4A - DD 7E 17
    cp     $64                          ; 01:6F4D - FE 64
    jr     nz, addr_06FB1               ; 01:6F4F - 20 60
-   call   addr_07C7B                   ; 01:6F51 - CD 7B 7C
+   call   spawn_object                 ; 01:6F51 - CD 7B 7C
    jp     c, addr_06FB1                ; 01:6F54 - DA B1 6F
    push   bc                           ; 01:6F57 - C5
    ld     e, (ix+2)                    ; 01:6F58 - DD 5E 02
@@ -12997,7 +12997,7 @@ addr_0748D:
 
 addr_074B6:
    ld     (var_D216), a                ; 01:74B6 - 32 16 D2
-   call   addr_07C7B                   ; 01:74B9 - CD 7B 7C
+   call   spawn_object                 ; 01:74B9 - CD 7B 7C
    ret    c                            ; 01:74BC - D8
    ld     e, (ix+2)                    ; 01:74BD - DD 5E 02
    ld     d, (ix+3)                    ; 01:74C0 - DD 56 03
@@ -13464,7 +13464,7 @@ addr_07A2E:
    ret                                 ; 01:7A39 - C9
 
 addr_07A3A:
-   call   addr_07C7B                   ; 01:7A3A - CD 7B 7C
+   call   spawn_object                 ; 01:7A3A - CD 7B 7C
    ret    c                            ; 01:7A3D - D8
    push   hl                           ; 01:7A3E - E5
    call   random_A                     ; 01:7A3F - CD 25 06
@@ -13740,7 +13740,7 @@ addr_07C54:
    inc    (ix+23)                      ; 01:7C77 - DD 34 17
    ret                                 ; 01:7C7A - C9
 
-addr_07C7B:
+spawn_object:
    ld     hl, var_D416                 ; 01:7C7B - 21 16 D4
    ld     de, $001A                    ; 01:7C7E - 11 1A 00
    ld     b, $1F                       ; 01:7C81 - 06 1F
@@ -14275,7 +14275,7 @@ addr_0817D:
    ld     a, (var_D2EC)                ; 02:8185 - 3A EC D2
    cp     $08                          ; 02:8188 - FE 08
    jr     nc, addr_081E7               ; 02:818A - 30 5B
-   call   addr_07C7B                   ; 02:818C - CD 7B 7C
+   call   spawn_object                 ; 02:818C - CD 7B 7C
    ret    c                            ; 02:818F - D8
    ld     e, (ix+2)                    ; 02:8190 - DD 5E 02
    ld     d, (ix+3)                    ; 02:8193 - DD 56 03
@@ -14733,7 +14733,7 @@ addr_085C7:
 
 addr_085D1:
    push   bc                           ; 02:85D1 - C5
-   call   addr_07C7B                   ; 02:85D2 - CD 7B 7C
+   call   spawn_object                 ; 02:85D2 - CD 7B 7C
    pop    bc                           ; 02:85D5 - C1
    ret    c                            ; 02:85D6 - D8
    push   ix                           ; 02:85D7 - DD E5
@@ -15891,7 +15891,7 @@ UNK_091DE:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $16, $18, $1A, $1C, $FF, $FF, $FF                 ; 02:91DE
 
 UNK_091EB:
-   call   addr_07C7B                   ; 02:91EB - CD 7B 7C
+   call   spawn_object                 ; 02:91EB - CD 7B 7C
    ret    c                            ; 02:91EE - D8
    ld     c, $42                       ; 02:91EF - 0E 42
    ld     a, (ix+0)                    ; 02:91F1 - DD 7E 00
@@ -16063,7 +16063,7 @@ addr_09324:
    ld     a, (var_D2EC)                ; 02:9361 - 3A EC D2
    cp     $08                          ; 02:9364 - FE 08
    jp     nc, addr_093F7               ; 02:9366 - D2 F7 93
-   call   addr_07C7B                   ; 02:9369 - CD 7B 7C
+   call   spawn_object                 ; 02:9369 - CD 7B 7C
    jp     c, addr_093F7                ; 02:936C - DA F7 93
    push   ix                           ; 02:936F - DD E5
    push   hl                           ; 02:9371 - E5
@@ -16405,7 +16405,7 @@ addr_09634:
    ld     a, (var_D223)                ; 02:9641 - 3A 23 D2
    and    $0F                          ; 02:9644 - E6 0F
    ret    nz                           ; 02:9646 - C0
-   call   addr_07C7B                   ; 02:9647 - CD 7B 7C
+   call   spawn_object                 ; 02:9647 - CD 7B 7C
    ret    c                            ; 02:964A - D8
    push   ix                           ; 02:964B - DD E5
    push   hl                           ; 02:964D - E5
@@ -17594,7 +17594,7 @@ addr_0A1FA:
    ld     a, (ix+17)                   ; 02:A200 - DD 7E 11
    cp     $ED                          ; 02:A203 - FE ED
    jp     nz, addr_0A2CE               ; 02:A205 - C2 CE A2
-   call   addr_07C7B                   ; 02:A208 - CD 7B 7C
+   call   spawn_object                 ; 02:A208 - CD 7B 7C
    jp     c, addr_0A2CE                ; 02:A20B - DA CE A2
    ld     e, (ix+2)                    ; 02:A20E - DD 5E 02
    ld     d, (ix+3)                    ; 02:A211 - DD 56 03
@@ -17642,7 +17642,7 @@ addr_0A270:
    ld     a, (ix+17)                   ; 02:A276 - DD 7E 11
    cp     $ED                          ; 02:A279 - FE ED
    jr     nz, addr_0A2CE               ; 02:A27B - 20 51
-   call   addr_07C7B                   ; 02:A27D - CD 7B 7C
+   call   spawn_object                 ; 02:A27D - CD 7B 7C
    jp     c, addr_0A2CE                ; 02:A280 - DA CE A2
    ld     e, (ix+2)                    ; 02:A283 - DD 5E 02
    ld     d, (ix+3)                    ; 02:A286 - DD 56 03
@@ -18510,7 +18510,7 @@ addr_0AB9D:
    ld     (var_D212), hl               ; 02:ABAD - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABB0 - 21 FC FF
    ld     (var_D214), hl               ; 02:ABB3 - 22 14 D2
-   call   addr_07C7B                   ; 02:ABB6 - CD 7B 7C
+   call   spawn_object                 ; 02:ABB6 - CD 7B 7C
    jp     c, addr_0AC76                ; 02:ABB9 - DA 76 AC
    ld     de, $0000                    ; 02:ABBC - 11 00 00
    ld     c, e                         ; 02:ABBF - 4B
@@ -18520,7 +18520,7 @@ addr_0AB9D:
    ld     (var_D212), hl               ; 02:ABC7 - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABCA - 21 FC FF
    ld     (var_D214), hl               ; 02:ABCD - 22 14 D2
-   call   addr_07C7B                   ; 02:ABD0 - CD 7B 7C
+   call   spawn_object                 ; 02:ABD0 - CD 7B 7C
    jp     c, addr_0AC76                ; 02:ABD3 - DA 76 AC
    ld     de, $0008                    ; 02:ABD6 - 11 08 00
    ld     bc, $0000                    ; 02:ABD9 - 01 00 00
@@ -18529,7 +18529,7 @@ addr_0AB9D:
    ld     (var_D212), hl               ; 02:ABE2 - 22 12 D2
    ld     hl, $FFFE                    ; 02:ABE5 - 21 FE FF
    ld     (var_D214), hl               ; 02:ABE8 - 22 14 D2
-   call   addr_07C7B                   ; 02:ABEB - CD 7B 7C
+   call   spawn_object                 ; 02:ABEB - CD 7B 7C
    jp     c, addr_0AC76                ; 02:ABEE - DA 76 AC
    ld     de, $0000                    ; 02:ABF1 - 11 00 00
    ld     bc, $0008                    ; 02:ABF4 - 01 08 00
@@ -18538,7 +18538,7 @@ addr_0AB9D:
    ld     (var_D212), hl               ; 02:ABFD - 22 12 D2
    ld     hl, $FFFE                    ; 02:AC00 - 21 FE FF
    ld     (var_D214), hl               ; 02:AC03 - 22 14 D2
-   call   addr_07C7B                   ; 02:AC06 - CD 7B 7C
+   call   spawn_object                 ; 02:AC06 - CD 7B 7C
    jp     c, addr_0AC76                ; 02:AC09 - DA 76 AC
    ld     de, $0008                    ; 02:AC0C - 11 08 00
    ld     bc, $0008                    ; 02:AC0F - 01 08 00
@@ -18682,7 +18682,7 @@ addr_0AD90:
    ld     a, (ix+17)                   ; 02:AD90 - DD 7E 11
    cp     $64                          ; 02:AD93 - FE 64
    jr     nz, addr_0ADDD               ; 02:AD95 - 20 46
-   call   addr_07C7B                   ; 02:AD97 - CD 7B 7C
+   call   spawn_object                 ; 02:AD97 - CD 7B 7C
    jr     c, addr_0ADDD                ; 02:AD9A - 38 41
    push   ix                           ; 02:AD9C - DD E5
    ld     e, (ix+2)                    ; 02:AD9E - DD 5E 02
@@ -18937,7 +18937,7 @@ addr_0AFCD:
 
 addr_0AFDB:
    ld     (hl), $FE                    ; 02:AFDB - 36 FE
-   call   addr_07C7B                   ; 02:AFDD - CD 7B 7C
+   call   spawn_object                 ; 02:AFDD - CD 7B 7C
    ret    c                            ; 02:AFE0 - D8
    push   ix                           ; 02:AFE1 - DD E5
    ld     e, (ix+2)                    ; 02:AFE3 - DD 5E 02
@@ -19525,7 +19525,7 @@ UNK_0B5B5:
 addr_0B5C2:
    push   bc                           ; 02:B5C2 - C5
    push   de                           ; 02:B5C3 - D5
-   call   addr_07C7B                   ; 02:B5C4 - CD 7B 7C
+   call   spawn_object                 ; 02:B5C4 - CD 7B 7C
    pop    de                           ; 02:B5C7 - D1
    pop    bc                           ; 02:B5C8 - C1
    ret    c                            ; 02:B5C9 - D8
@@ -20015,7 +20015,7 @@ addr_0B99F:
 addr_0B9D5:
    bit    5, (iy+var_D208-IYBASE)      ; 02:B9D5 - FD CB 08 6E
    ret    nz                           ; 02:B9D9 - C0
-   call   addr_07C7B                   ; 02:B9DA - CD 7B 7C
+   call   spawn_object                 ; 02:B9DA - CD 7B 7C
    ret    c                            ; 02:B9DD - D8
    push   ix                           ; 02:B9DE - DD E5
    push   hl                           ; 02:B9E0 - E5
