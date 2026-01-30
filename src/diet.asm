@@ -2619,7 +2619,6 @@ addr_00CDC:
    res    0, (iy+var_D200-IYBASE)      ; 00:0CE4 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0CE8 - CD 1C 03
    ld     hl, ART_0C_1801              ; 00:0CEB - 21 01 18
-   ld     hl, ART_09_B92E              ; 00:0D01 - 21 2E B9
    ld     de, $0000                    ; 00:0CEE - 11 00 00
    ld     a, $0C                       ; 00:0CF1 - 3E 0C
    call   load_art                     ; 00:0CF3 - CD 05 04
