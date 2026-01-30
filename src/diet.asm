@@ -120,8 +120,8 @@ g_water_irq_line_state db   ; D247
 g_water_onscreen_y db   ; D248
 .  dsb 6
 var_D24F dw   ; D24F
-var_D251 db   ; D251
-var_D252 db   ; D252
+g_vdp_scroll_x db   ; D251
+g_vdp_scroll_y db   ; D252
 .  dsb 4
 var_D257 db   ; D257
 var_D258 db   ; D258
@@ -502,12 +502,12 @@ addr_000F7:
    out    ($BF), a                     ; 00:00FC - D3 BF
    ld     a, $81                       ; 00:00FE - 3E 81
    out    ($BF), a                     ; 00:0100 - D3 BF
-   ld     a, (var_D251)                ; 00:0102 - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:0102 - 3A 51 D2
    neg                                 ; 00:0105 - ED 44
    out    ($BF), a                     ; 00:0107 - D3 BF
    ld     a, $88                       ; 00:0109 - 3E 88
    out    ($BF), a                     ; 00:010B - D3 BF
-   ld     a, (var_D252)                ; 00:010D - 3A 52 D2
+   ld     a, (g_vdp_scroll_y)          ; 00:010D - 3A 52 D2
    out    ($BF), a                     ; 00:0110 - D3 BF
    ld     a, $89                       ; 00:0112 - 3E 89
    out    ($BF), a                     ; 00:0114 - D3 BF
@@ -1540,7 +1540,7 @@ random_A:
    ret                                 ; 00:063D - C9
 
 addr_0063E:
-   ld     bc, (var_D251)               ; 00:063E - ED 4B 51 D2
+   ld     bc, (g_vdp_scroll_x)         ; 00:063E - ED 4B 51 D2
    ld     hl, (var_D25A)               ; 00:0642 - 2A 5A D2
    ld     de, (var_D26F)               ; 00:0645 - ED 5B 6F D2
    and    a                            ; 00:0649 - A7
@@ -1587,7 +1587,7 @@ addr_00683:
    set    7, (iy+var_D200-IYBASE)      ; 00:0684 - FD CB 00 FE
 
 addr_00688:
-   ld     (var_D251), bc               ; 00:0688 - ED 43 51 D2
+   ld     (g_vdp_scroll_x), bc         ; 00:0688 - ED 43 51 D2
    ld     hl, (var_D25A)               ; 00:068C - 2A 5A D2
    sla    l                            ; 00:068F - CB 25
    rl     h                            ; 00:0691 - CB 14
@@ -1644,7 +1644,7 @@ addr_006BD:
    jp     addr_0070B                   ; 00:06F7 - C3 0B 07
 
 addr_006FA:
-   ld     a, (var_D251)                ; 00:06FA - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:06FA - 3A 51 D2
    and    $1F                          ; 00:06FD - E6 1F
    add    a, $08                       ; 00:06FF - C6 08
    rrca                                ; 00:0701 - 0F
@@ -1660,7 +1660,7 @@ addr_00704:
 
 addr_0070B:
    call   addr_008D5                   ; 00:070B - CD D5 08
-   ld     a, (var_D251)                ; 00:070E - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:070E - 3A 51 D2
    bit    6, (iy+var_D200-IYBASE)      ; 00:0711 - FD CB 00 76
    jr     z, addr_00719                ; 00:0715 - 28 02
    add    a, $08                       ; 00:0717 - C6 08
@@ -1742,7 +1742,7 @@ addr_00786:
 
 addr_00789:
    call   addr_008D5                   ; 00:0789 - CD D5 08
-   ld     a, (var_D252)                ; 00:078C - 3A 52 D2
+   ld     a, (g_vdp_scroll_y)          ; 00:078C - 3A 52 D2
    and    $1F                          ; 00:078F - E6 1F
    srl    a                            ; 00:0791 - CB 3F
    and    $FC                          ; 00:0793 - E6 FC
@@ -1806,7 +1806,7 @@ addr_007DB:
    push   hl                           ; 00:07E3 - E5
    push   de                           ; 00:07E4 - D5
    push   bc                           ; 00:07E5 - C5
-   ld     a, (var_D252)                ; 00:07E6 - 3A 52 D2
+   ld     a, (g_vdp_scroll_y)          ; 00:07E6 - 3A 52 D2
    and    $F8                          ; 00:07E9 - E6 F8
    ld     b, $00                       ; 00:07EB - 06 00
    add    a, a                         ; 00:07ED - 87
@@ -1816,7 +1816,7 @@ addr_007DB:
    add    a, a                         ; 00:07F3 - 87
    rl     b                            ; 00:07F4 - CB 10
    ld     c, a                         ; 00:07F6 - 4F
-   ld     a, (var_D251)                ; 00:07F7 - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:07F7 - 3A 51 D2
    bit    6, (iy+var_D200-IYBASE)      ; 00:07FA - FD CB 00 76
    jr     z, addr_00802                ; 00:07FE - 28 02
    add    a, $08                       ; 00:0800 - C6 08
@@ -1835,7 +1835,7 @@ addr_00802:
    ld     e, $07                       ; 00:0815 - 1E 07
    exx                                 ; 00:0817 - D9
    ld     hl, var_D180                 ; 00:0818 - 21 80 D1
-   ld     a, (var_D252)                ; 00:081B - 3A 52 D2
+   ld     a, (g_vdp_scroll_y)          ; 00:081B - 3A 52 D2
    and    $1F                          ; 00:081E - E6 1F
    srl    a                            ; 00:0820 - CB 3F
    srl    a                            ; 00:0822 - CB 3F
@@ -1872,7 +1872,7 @@ addr_0083C:
 addr_00849:
    bit    1, (iy+var_D202-IYBASE)      ; 00:0849 - FD CB 02 4E
    jp     z, addr_008CF                ; 00:084D - CA CF 08
-   ld     a, (var_D252)                ; 00:0850 - 3A 52 D2
+   ld     a, (g_vdp_scroll_y)          ; 00:0850 - 3A 52 D2
    ld     b, $00                       ; 00:0853 - 06 00
    srl    a                            ; 00:0855 - CB 3F
    srl    a                            ; 00:0857 - CB 3F
@@ -1897,7 +1897,7 @@ addr_00869:
    add    a, a                         ; 00:0872 - 87
    rl     b                            ; 00:0873 - CB 10
    ld     c, a                         ; 00:0875 - 4F
-   ld     a, (var_D251)                ; 00:0876 - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:0876 - 3A 51 D2
    add    a, $08                       ; 00:0879 - C6 08
    and    $F8                          ; 00:087B - E6 F8
    srl    a                            ; 00:087D - CB 3F
@@ -1909,7 +1909,7 @@ addr_00869:
    set    6, h                         ; 00:0887 - CB F4
    ex     de, hl                       ; 00:0889 - EB
    ld     hl, var_D100                 ; 00:088A - 21 00 D1
-   ld     a, (var_D251)                ; 00:088D - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:088D - 3A 51 D2
    and    $1F                          ; 00:0890 - E6 1F
    add    a, $08                       ; 00:0892 - C6 08
    srl    a                            ; 00:0894 - CB 3F
@@ -2558,8 +2558,8 @@ UNK_00C1D:
 
 addr_00C52:
    xor    a                            ; 00:0C52 - AF
-   ld     (var_D251), a                ; 00:0C53 - 32 51 D2
-   ld     (var_D252), a                ; 00:0C56 - 32 52 D2
+   ld     (g_vdp_scroll_x), a          ; 00:0C53 - 32 51 D2
+   ld     (g_vdp_scroll_y), a          ; 00:0C56 - 32 52 D2
    ld     a, $FF                       ; 00:0C59 - 3E FF
    ld     (var_D216), a                ; 00:0C5B - 32 16 D2
    ld     c, $01                       ; 00:0C5E - 0E 01
@@ -3394,10 +3394,10 @@ addr_01287:
    ld     a, $00                       ; 00:12BD - 3E 00
    ld     (g_FF_string_high_byte), a   ; 00:12BF - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:12C2 - CD 01 05
-   ;; Clear... TODO find out what --GM
+   ;; Clear VDP scroll registers
    xor    a                            ; 00:12C5 - AF
-   ld     (var_D251), a                ; 00:12C6 - 32 51 D2
-   ld     (var_D252), a                ; 00:12C9 - 32 52 D2
+   ld     (g_vdp_scroll_x), a          ; 00:12C6 - 32 51 D2
+   ld     (g_vdp_scroll_y), a          ; 00:12C9 - 32 52 D2
    ;; Load into both palettes
    ld     hl, PAL3_013E1               ; 00:12CC - 21 E1 13
    ld     a, $03                       ; 00:12CF - 3E 03
@@ -3621,8 +3621,8 @@ addr_01401:
    ld     (g_FF_string_high_byte), a   ; 00:142F - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:1432 - CD 01 05
    xor    a                            ; 00:1435 - AF
-   ld     (var_D251), a                ; 00:1436 - 32 51 D2
-   ld     (var_D252), a                ; 00:1439 - 32 52 D2
+   ld     (g_vdp_scroll_x), a          ; 00:1436 - 32 51 D2
+   ld     (g_vdp_scroll_y), a          ; 00:1439 - 32 52 D2
    ld     hl, PAL3_014FC               ; 00:143C - 21 FC 14
    ld     a, $03                       ; 00:143F - 3E 03
    call   signal_load_palettes         ; 00:1441 - CD 33 03
@@ -3836,8 +3836,8 @@ handle_level_score_screen:
 
 _handle_level_score_screen_bonus:
    xor    a                            ; 00:15FD - AF
-   ld     (var_D251), a                ; 00:15FE - 32 51 D2
-   ld     (var_D252), a                ; 00:1601 - 32 52 D2
+   ld     (g_vdp_scroll_x), a          ; 00:15FE - 32 51 D2
+   ld     (g_vdp_scroll_y), a          ; 00:1601 - 32 52 D2
    ld     hl, PAL3_01B8D               ; 00:1604 - 21 8D 1B
    ld     a, $03                       ; 00:1607 - 3E 03
    call   signal_load_palettes         ; 00:1609 - CD 33 03
@@ -5219,8 +5219,8 @@ addr_020CB:
    xor    a                            ; 00:20F7 - AF
    ld     l, a                         ; 00:20F8 - 6F
    ld     h, a                         ; 00:20F9 - 67
-   ld     (var_D251), a                ; 00:20FA - 32 51 D2
-   ld     (var_D252), a                ; 00:20FD - 32 52 D2
+   ld     (g_vdp_scroll_x), a          ; 00:20FA - 32 51 D2
+   ld     (g_vdp_scroll_y), a          ; 00:20FD - 32 52 D2
    ld     (var_D27B), hl               ; 00:2100 - 22 7B D2
    ld     (var_D27D), hl               ; 00:2103 - 22 7D D2
    ld     (var_D2B7), hl               ; 00:2106 - 22 B7 D2
@@ -5741,8 +5741,8 @@ addr_0258B:
    res    0, (iy+var_D200-IYBASE)      ; 00:2593 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2597 - CD 1C 03
    xor    a                            ; 00:259A - AF
-   ld     (var_D251), a                ; 00:259B - 32 51 D2
-   ld     (var_D252), a                ; 00:259E - 32 52 D2
+   ld     (g_vdp_scroll_x), a          ; 00:259B - 32 51 D2
+   ld     (g_vdp_scroll_y), a          ; 00:259E - 32 52 D2
    ld     hl, PAL3_02828               ; 00:25A1 - 21 28 28
    ld     a, $03                       ; 00:25A4 - 3E 03
    call   signal_load_palettes         ; 00:25A6 - CD 33 03
@@ -7945,7 +7945,7 @@ addr_038B0:
    cp     $08                          ; 00:38C6 - FE 08
    ret    c                            ; 00:38C8 - D8
    ld     d, a                         ; 00:38C9 - 57
-   ld     a, (var_D251)                ; 00:38CA - 3A 51 D2
+   ld     a, (g_vdp_scroll_x)          ; 00:38CA - 3A 51 D2
    and    $F8                          ; 00:38CD - E6 F8
    ld     e, a                         ; 00:38CF - 5F
    add    hl, de                       ; 00:38D0 - 19
@@ -7976,7 +7976,7 @@ addr_038B0:
    cp     $C0                          ; 00:38F8 - FE C0
    ret    nc                           ; 00:38FA - D0
    ld     d, $00                       ; 00:38FB - 16 00
-   ld     a, (var_D252)                ; 00:38FD - 3A 52 D2
+   ld     a, (g_vdp_scroll_y)          ; 00:38FD - 3A 52 D2
    and    $F8                          ; 00:3900 - E6 F8
    ld     e, a                         ; 00:3902 - 5F
    add    hl, de                       ; 00:3903 - 19
