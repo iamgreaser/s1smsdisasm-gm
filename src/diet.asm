@@ -12342,7 +12342,7 @@ objfunc_0D_UNKNOWN:
    ld     (var_D214), hl               ; 01:6B0C - 22 14 D2
    ld     (ix+15), l                   ; 01:6B0F - DD 75 0F
    ld     (ix+16), h                   ; 01:6B12 - DD 74 10
-   ld     hl, $6B72                    ; 01:6B15 - 21 72 6B
+   ld     hl, UNK_06B72                ; 01:6B15 - 21 72 6B
    ld     a, (g_level)                 ; 01:6B18 - 3A 3E D2
    cp     $05                          ; 01:6B1B - FE 05
    jr     z, addr_06B26                ; 01:6B1D - 28 07
@@ -12393,7 +12393,10 @@ addr_06B6B:
    ret                                 ; 01:6B6F - C9
 
 UNK_06B70:
-.db $06, $08, $34, $36                                                              ; 01:6B70
+.db $06, $08                                                                        ; 01:6B70
+
+UNK_06B72:
+.db $34, $36                                                                        ; 01:6B72
 
 objfunc_0E_UNKNOWN:
    set    5, (ix+24)                   ; 01:6B74 - DD CB 18 EE
