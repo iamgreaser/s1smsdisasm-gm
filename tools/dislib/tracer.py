@@ -158,7 +158,8 @@ class Tracer:
                                 and val > 0x0038
                                 and phys_val in self.rom.labels_from_addr
                             )
-                            or arg_phys_addr in self.rom.bank_overrides[val // self.rom.bank_size]
+                            or arg_phys_addr
+                            in self.rom.bank_overrides[val // self.rom.bank_size]
                         ) and (arg_phys_addr) not in self.rom.forced_immediates:
                             label = self.ensure_label_phys(
                                 phys_val, relative_to=VirtAddress((bank_idx, pc))
