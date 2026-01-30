@@ -4743,8 +4743,6 @@ addr_01D42:
    ld     (var_D263), hl               ; 00:1D73 - 22 63 D2
    ld     hl, $0070                    ; 00:1D76 - 21 70 00
    ld     (var_D265), hl               ; 00:1D79 - 22 65 D2
-
-addr_01D7C:
    call   addr_0239C                   ; 00:1D7C - CD 9C 23
    ld     a, $01                       ; 00:1D7F - 3E 01
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -14053,18 +14051,19 @@ UNK_07C17_PTR_01:
 
 UNK_07C17_PTR_02:
 .dw addr_07C39                                                                      ; 01:7C1D
-.db $1C, $29                                                                        ; 01:7C1F
+.db $1C                                                                             ; 01:7C1F
 
 UNK_07C17_PTR_03:
-.dw addr_01D7C                                                                      ; 01:7C21
-.db $31                                                                             ; 01:7C23
+.dw addr_07C29                                                                      ; 01:7C20
+.db $1D                                                                             ; 01:7C22
 
 UNK_07C17_PTR_04:
-.dw addr_01D7C                                                                      ; 01:7C24
-.db $39                                                                             ; 01:7C26
+.dw addr_07C31                                                                      ; 01:7C23
+.db $1D                                                                             ; 01:7C25
 
 UNK_07C17_PTR_05:
-.dw addr_01D7C                                                                      ; 01:7C27
+.dw addr_07C39                                                                      ; 01:7C26
+.db $1D                                                                             ; 01:7C28
 
 addr_07C29:
 .db $B4, $B6, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C29
