@@ -123,10 +123,12 @@ class Annotator:
         phys_addr = self.rom.virt_to_phys(virt_addr)
         self.rom.set_addr_type(phys_addr, ltype)
         if ltype == AT.DataWordLabel:
-            # GUARD: Don't try to load from RAM and accidentally load from bank 03!
+            # GUARD: Don't try to load from RAM!
             if virt_addr[0] < self.rom.bank_count:
                 val = struct.unpack("<H", self.rom.data[phys_addr : phys_addr + 2])[0]
-                val_virt = self.rom.phys_to_virt(val, relative_to=virt_addr)
+                val_virt = self.rom.naive_to_virt(val, relative_to=virt_addr)
+                if virt_addr[0] == 0x03:
+                    print(hex(virt_addr[0]), hex(virt_addr[1]), hex(val), hex(val_virt[0]), hex(val_virt[1]))
                 self.rom.ensure_label(val_virt, relative_to=virt_addr)
                 if ltype_str == "codewptr":
                     if self.rom.virt_to_phys(val_virt) not in self.rom.addr_types:

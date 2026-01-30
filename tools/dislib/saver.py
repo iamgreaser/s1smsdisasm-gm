@@ -294,7 +294,12 @@ class Saver:
                     if atype == AT.DataWordLabel:
                         # print(f"{virt_addr[0]:02X}:{virt_addr[1]:04X} {bank_idx:02X} {row_size:3d}")
                         row_strs = [
-                            self.rom.labels_from_addr.get(v, [f"${v:04X}"])[0]
+                            self.rom.labels_from_addr.get(self.rom.virt_to_phys(
+                                self.rom.naive_to_virt(
+                                    v,
+                                    relative_to=self.rom.add_to_virt(virt_addr, row_addr),
+                                ),
+                            ), [f"${v:04X}"])[0]
                             for v in row_vals
                         ]
                     else:

@@ -147,12 +147,16 @@ class Tracer:
                     elif a == OA.Word:
                         self.set_addr_type(arg_phys_addr, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
+                        virt_val = self.rom.naive_to_virt(
+                            val, relative_to=VirtAddress((bank_idx, pc - 2))
+                        )
+                        phys_val = self.rom.virt_to_phys(virt_val)
                         if (
                             0xC000 <= val <= 0xDFFF
                             or (
                                 val < 0xE000
                                 and val > 0x0038
-                                and val in self.rom.labels_from_addr
+                                and phys_val in self.rom.labels_from_addr
                             )
                         ) and (arg_phys_addr) not in self.rom.forced_immediates:
                             label = self.ensure_label(
