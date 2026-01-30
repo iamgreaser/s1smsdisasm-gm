@@ -26,6 +26,9 @@
 ;; bool: No Death On Hit
 .DEF cht_no_death_on_hit 0
 
+;; bool: No Speed Cap: Go as fast as you like!
+.DEF cht_no_speed_cap 0
+
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
 SLOT 1 START $4000 SIZE $4000
@@ -8823,8 +8826,10 @@ addr_04A9A:
    ld     c, $00                       ; 01:4AA8 - 0E 00
    ld     e, c                         ; 01:4AAA - 59
    ld     d, c                         ; 01:4AAB - 51
+   ;; Is right button held?
    bit    3, (iy+g_inputs_player_1-IYBASE)  ; 01:4AAC - FD CB 03 5E
    jp     z, addr_04F01                ; 01:4AB0 - CA 01 4F
+   ;; Is left button held?
    bit    2, (iy+g_inputs_player_1-IYBASE)  ; 01:4AB3 - FD CB 03 56
    jp     z, addr_04F5C                ; 01:4AB7 - CA 5C 4F
    ld     a, h                         ; 01:4ABA - 7C
@@ -8934,6 +8939,7 @@ addr_04B49:
    jr     z, addr_04B9D                ; 01:4B6B - 28 30
    bit    3, (ix+24)                   ; 01:4B6D - DD CB 18 5E
    jr     nz, addr_04B79               ; 01:4B71 - 20 06
+   ;; RESEARCH NOTE: If we got here, we were landing with the jump button pressed.
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:4B73 - FD CB 03 6E
    jr     z, addr_04B9D                ; 01:4B77 - 28 24
 
@@ -8957,10 +8963,12 @@ addr_04B7F:
    jp     addr_04BBE                   ; 01:4B9A - C3 BE 4B
 
 addr_04B9D:
+   ;; Suppress jumping.
    res    3, (ix+24)                   ; 01:4B9D - DD CB 18 9E
    jp     addr_04BA8                   ; 01:4BA1 - C3 A8 4B
 
 addr_04BA4:
+   ;; Allow jumping.
    set    3, (ix+24)                   ; 01:4BA4 - DD CB 18 DE
 
 addr_04BA8:
@@ -9445,10 +9453,12 @@ addr_04EFB:
 
 addr_04F01:
    res    1, (ix+24)                   ; 01:4F01 - DD CB 18 8E
+   ;; Are we moving left?
    bit    7, b                         ; 01:4F05 - CB 78
    jr     nz, addr_04F31               ; 01:4F07 - 20 28
    ld     de, (g_FF_string_high_byte)  ; 01:4F09 - ED 5B 0E D2
    ld     c, $00                       ; 01:4F0D - 0E 00
+   ;; Start walking animation.
    ld     (ix+20), $01                 ; 01:4F0F - DD 36 14 01
    push   hl                           ; 01:4F13 - E5
    exx                                 ; 01:4F14 - D9
@@ -9457,17 +9467,22 @@ addr_04F01:
    xor    a                            ; 01:4F1A - AF
    sbc    hl, de                       ; 01:4F1B - ED 52
    exx                                 ; 01:4F1D - D9
+   ;; Are we below the speed cap?
    jp     c, addr_04B1B                ; 01:4F1E - DA 1B 4B
+   .IF cht_no_speed_cap
+   .ELSE
    ld     b, a                         ; 01:4F21 - 47
    ld     e, a                         ; 01:4F22 - 5F
    ld     d, a                         ; 01:4F23 - 57
    ld     c, a                         ; 01:4F24 - 4F
    ld     hl, (var_D240)               ; 01:4F25 - 2A 40 D2
+   .ENDIF
    ld     a, (var_D216)                ; 01:4F28 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4F2B - DD 77 14
    jp     addr_04B1B                   ; 01:4F2E - C3 1B 4B
 
 addr_04F31:
+   ;; Holding right while moving left - start braking.
    set    1, (ix+24)                   ; 01:4F31 - DD CB 18 CE
    ld     (ix+20), $0A                 ; 01:4F35 - DD 36 14 0A
    push   hl                           ; 01:4F39 - E5
@@ -9494,6 +9509,7 @@ addr_04F5C:
    ld     a, l                         ; 01:4F60 - 7D
    or     h                            ; 01:4F61 - B4
    jr     z, addr_04F68                ; 01:4F62 - 28 04
+   ;; Are we moving right?
    bit    7, b                         ; 01:4F64 - CB 78
    jr     z, addr_04FA6                ; 01:4F66 - 28 3E
 
@@ -9507,6 +9523,7 @@ addr_04F68:
    ld     d, a                         ; 01:4F71 - 57
    inc    de                           ; 01:4F72 - 13
    ld     c, $FF                       ; 01:4F73 - 0E FF
+   ;; Start walking animation.
    ld     (ix+20), $01                 ; 01:4F75 - DD 36 14 01
    push   hl                           ; 01:4F79 - E5
    exx                                 ; 01:4F7A - D9
@@ -9522,7 +9539,10 @@ addr_04F68:
    xor    a                            ; 01:4F87 - AF
    sbc    hl, de                       ; 01:4F88 - ED 52
    exx                                 ; 01:4F8A - D9
+   ;; Are we below the speed cap?
    jp     c, addr_04B1B                ; 01:4F8B - DA 1B 4B
+   .IF cht_no_speed_cap
+   .ELSE
    ld     e, a                         ; 01:4F8E - 5F
    ld     d, a                         ; 01:4F8F - 57
    ld     c, a                         ; 01:4F90 - 4F
@@ -9535,11 +9555,13 @@ addr_04F68:
    ld     h, a                         ; 01:4F99 - 67
    inc    hl                           ; 01:4F9A - 23
    ld     b, $FF                       ; 01:4F9B - 06 FF
+   .ENDIF
    ld     a, (var_D216)                ; 01:4F9D - 3A 16 D2
    ld     (ix+20), a                   ; 01:4FA0 - DD 77 14
    jp     addr_04B1B                   ; 01:4FA3 - C3 1B 4B
 
 addr_04FA6:
+   ;; Holding left while moving right - start braking.
    res    1, (ix+24)                   ; 01:4FA6 - DD CB 18 8E
    ld     (ix+20), $0A                 ; 01:4FAA - DD 36 14 0A
    ld     de, (var_D210)               ; 01:4FAE - ED 5B 10 D2
@@ -10150,10 +10172,12 @@ addr_05419:
    jp     addr_04B7F                   ; 01:542B - C3 7F 4B
 
 addr_0542E:
+   ;; Suppress jumping.
    res    3, (ix+24)                   ; 01:542E - DD CB 18 9E
    jp     addr_04BAC                   ; 01:5432 - C3 AC 4B
 
 addr_05435:
+   ;; Allow jumping.
    set    3, (ix+24)                   ; 01:5435 - DD CB 18 DE
    jp     addr_04BAC                   ; 01:5439 - C3 AC 4B
 
