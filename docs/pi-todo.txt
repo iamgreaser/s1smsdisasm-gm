@@ -10,7 +10,6 @@ Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
 BANK 01:
 
-- When Sonic is damaged and loses his rings, the ring sprite doesn't seem to show.
 - BRI3 boss fight fireballs have glitched graphics.
 - The bottom of the animal capsule does not appear... and the capsule completely disappears when it opens. (seen in BRI3, JUN3)
 - In LAB3, a weird dark-blue box shows on the right side of where Robotnik shows up at the bottom.
