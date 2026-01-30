@@ -110,8 +110,12 @@ class Saver:
 
         # Write ROM
         for bank_idx in range(16):
-            # Assume all banks past the first 2 want to be in slot 2
+            # Assume all banks past the first 2 want to be in slot 2 UNLESS overridden to be slot 1
             slot_idx = min(2, bank_idx)
+            bank_phys_addr = PhysAddress(bank_idx * self.rom.bank_size)
+            if self.rom.bank_overrides[1].get(bank_phys_addr, None) == bank_idx:
+                slot_idx = 1
+            assert 0 <= slot_idx <= 2
             self.write(
                 f'\n.SECTION "Bank{bank_idx:02X}" SLOT {slot_idx} BANK ${bank_idx:02X} FORCE ORG $0000\n'
             )
@@ -122,7 +126,6 @@ class Saver:
                 PhysAddress(bank_idx * self.rom.bank_size),
                 relative_to=VirtAddress((0x00, 0x0000)),
             )
-            bank_phys_addr = self.rom.virt_to_phys(bank_virt_addr)
             for rel_addr in range(self.rom.bank_size):
                 phys_addr = PhysAddress(rel_addr + (bank_idx * self.rom.bank_size))
                 if phys_addr in self.rom.labels_from_addr:

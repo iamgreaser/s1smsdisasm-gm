@@ -171,7 +171,14 @@ class Tracer:
                         label = self.ensure_label(
                             val, relative_to=VirtAddress((bank_idx, pc - 2))
                         )
-                        self.set_addr_type(self.rom.virt_to_phys(self.rom.naive_to_virt(val)), AT.DataByte)
+                        self.set_addr_type(
+                            self.rom.virt_to_phys(
+                                self.rom.naive_to_virt(
+                                    val, relative_to=VirtAddress((bank_idx, pc - 2))
+                                )
+                            ),
+                            AT.DataByte,
+                        )
                         op_args.append(f"({label})")
 
                     elif a == OA.MemWordImmWord:
@@ -182,7 +189,14 @@ class Tracer:
                         label = self.ensure_label(
                             val, relative_to=VirtAddress((bank_idx, pc - 2))
                         )
-                        self.set_addr_type(self.rom.virt_to_phys(self.rom.naive_to_virt(val)), AT.DataWord)
+                        self.set_addr_type(
+                            self.rom.virt_to_phys(
+                                self.rom.naive_to_virt(
+                                    val, relative_to=VirtAddress((bank_idx, pc - 2))
+                                )
+                            ),
+                            AT.DataWord,
+                        )
                         op_args.append(f"({label})")
 
                     elif a == OA.PortByteImm:
@@ -201,7 +215,12 @@ class Tracer:
                             relative_to=VirtAddress((bank_idx, pc - 1)),
                             allow_relative_labels=True,
                         )
-                        self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
+                        self.rom.tracer_stack.append(
+                            self.rom.naive_to_virt(
+                                val, relative_to=VirtAddress((bank_idx, pc - 1))
+                            )
+                        )
+                        # self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
                         pc += 1
                         op_args.append(f"{label}")
 
@@ -220,7 +239,12 @@ class Tracer:
                                 relative_to=VirtAddress((bank_idx, pc)),
                                 allow_relative_labels=True,
                             )
-                            self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
+                            self.rom.tracer_stack.append(
+                                self.rom.naive_to_virt(
+                                    val, relative_to=VirtAddress((bank_idx, pc))
+                                )
+                            )
+                            # self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
@@ -231,7 +255,7 @@ class Tracer:
 
                     elif a in OA_MAP_CONST_ADDR:
                         val = OA_MAP_CONST_ADDR[a]
-                        val_virt_addr = self.rom.naive_to_virt(val)
+                        val_virt_addr = VirtAddress((0x00, val))
                         self.rom.set_label(val_virt_addr, f"ENTRY_RST_{val:02X}")
                         self.rom.tracer_stack.append(val_virt_addr)
                         op_args.append(f"${val:02X}")
@@ -248,6 +272,7 @@ class Tracer:
                                 # SPECIAL CASE FOR SONIC 1:
                                 # IY is, as far as I can tell, always set to D200.
                                 val += 0xD200
+                                print(hex(bank_idx), hex(pc-1), hex(val))
                                 label = self.ensure_label(
                                     val,
                                     relative_to=VirtAddress((bank_idx, pc - 1)),
@@ -320,7 +345,7 @@ class Tracer:
         allow_relative_labels: bool = False,
     ) -> str:
         return self.rom.ensure_label(
-            self.rom.naive_to_virt(val),
+            self.rom.naive_to_virt(val, relative_to=relative_to),
             relative_to=relative_to,
             allow_relative_labels=allow_relative_labels,
         )

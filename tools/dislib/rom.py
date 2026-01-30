@@ -33,6 +33,11 @@ class Rom:
         self.op_decodes: dict[PhysAddress, tuple[VirtAddress, int, str]] = {}
         self.forced_immediates: set[PhysAddress] = set()
 
+        # Never ever do this unless you like really annoying really subtle Python-esque bugs!
+        # self.bank_overrides: list[dict[PhysAddress, int]] = [{}] * 4
+        # Do this instead.
+        self.bank_overrides: list[dict[PhysAddress, int]] = [{} for i in range(4)]
+
     def load_annotations(self, *, file_name: str) -> None:
         annotator = Annotator(rom=self)
         with open(file_name, "r") as infp:
@@ -44,7 +49,8 @@ class Rom:
         if self.addr_types.get(phys_addr, addr_type) == addr_type:
             if (
                 phys_addr >= 1
-                and self.addr_types.get(PhysAddress(phys_addr - 0x01), AT.DataByte) == AT.DataWord
+                and self.addr_types.get(PhysAddress(phys_addr - 0x01), AT.DataByte)
+                == AT.DataWord
             ):
                 # Downsize for a split
                 self.addr_types[PhysAddress(phys_addr - 0x01)] = AT.DataByte
@@ -97,8 +103,12 @@ class Rom:
         if not phys_addr in self.labels_from_addr:
             if virt_addr[0] >= 0xF0:
                 self.set_label(virt_addr, f"var_{(phys_addr&0xFFFF)+0xC000:04X}")
-            else:
+            elif phys_addr < 0xC000:
+                # This is so I don't have to undo an enormous diff.
                 self.set_label(virt_addr, f"addr_{phys_addr:05X}")
+            else:
+                assert virt_addr[1] < 0xC000 or virt_addr[0] == 0xF0, "fuck you"
+                self.set_label(virt_addr, f"addr_{virt_addr[0]:02X}_{virt_addr[1]:04X}")
         label = self.labels_from_addr[phys_addr][0]
         if allow_relative_labels:
             if label == "__":
@@ -137,13 +147,17 @@ class Rom:
     }
 
     def phys_to_virt(self, p: PhysAddress, *, relative_to: VirtAddress) -> VirtAddress:
-        # TODO: Override this via annotations and make use of relative_to here --GM
         bank_idx = p // self.bank_size
         bank_offs = p % self.bank_size
+        virt_base = self._DEFAULT_PHYS_TO_VIRT_MAPPINGS.get(bank_idx, 0x8000)
+        if p in self.bank_overrides[1] and self.bank_overrides[1][p] == bank_idx:
+            virt_base = 0x4000
+        elif p in self.bank_overrides[2] and self.bank_overrides[2][p] == bank_idx:
+            virt_base = 0x8000
         return VirtAddress(
             (
                 bank_idx,
-                bank_offs + self._DEFAULT_PHYS_TO_VIRT_MAPPINGS.get(bank_idx, 0x8000),
+                bank_offs + virt_base,
             )
         )
 
@@ -154,12 +168,15 @@ class Rom:
         0x3: 0xF0,
     }
 
-    def naive_to_virt(self, val: int) -> VirtAddress:
-        # TODO: Override this via annotations --GM
+    def naive_to_virt(self, val: int, *, relative_to: VirtAddress) -> VirtAddress:
+        slot_idx = val // self.bank_size
+        phys_relative_to = self.virt_to_phys(relative_to)
         return VirtAddress(
             (
-                self._DEFAULT_NAIVE_VIRT_MAPPING[val // self.bank_size],
-                val % self.bank_size,
+                self.bank_overrides[slot_idx].get(
+                    phys_relative_to, self._DEFAULT_NAIVE_VIRT_MAPPING[slot_idx]
+                ),
+                (val % self.bank_size) + (slot_idx * self.bank_size),
             )
         )
 

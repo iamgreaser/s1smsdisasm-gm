@@ -86,12 +86,36 @@ class Annotator:
         addr = parse_addr(addr_str)
         self.rom.forced_immediates.add(self.rom.virt_to_phys(addr))
 
-    def _annotcmd_banksetting(self, slot_idx_str: str, bank_idx_str: str, start_addr_str: str, end_addr_str: str) -> None:
+    def _annotcmd_bankslot(self, bank_idx_str: str, slot_idx_str: str) -> None:
+        assert len(bank_idx_str) == 2
+        assert len(slot_idx_str) == 1
+        bank_idx = int(bank_idx_str, 16)
+        slot_idx = int(slot_idx_str)
+        assert 0 <= slot_idx <= 2
+        for addr in range(
+            bank_idx * self.rom.bank_size, (bank_idx + 1) * self.rom.bank_size, 1
+        ):
+            self.rom.bank_overrides[slot_idx][PhysAddress(addr)] = bank_idx
+
+    def _annotcmd_banksetting(
+        self,
+        slot_idx_str: str,
+        bank_idx_str: str,
+        start_addr_str: str,
+        end_addr_str: str,
+    ) -> None:
+        assert len(slot_idx_str) == 1
+        assert len(bank_idx_str) == 2
         slot_idx = int(slot_idx_str)
         bank_idx = int(bank_idx_str, 16)
         start_addr = parse_addr(start_addr_str)
         end_addr = parse_addr(end_addr_str)
-        print(f"TODO annotate slot {slot_idx:d} to be bank {bank_idx:02X} for opcodes {start_addr[0]:02X}:{start_addr[1]:04X} until {end_addr[0]:02X}:{end_addr[1]:04X}")
+        assert start_addr[0] == end_addr[0]
+        phys_start = self.rom.virt_to_phys(start_addr)
+        phys_end = self.rom.virt_to_phys(end_addr)
+        assert 0 <= slot_idx <= 2
+        for addr in range(phys_start, phys_end, 1):
+            self.rom.bank_overrides[slot_idx][PhysAddress(addr)] = bank_idx
 
     def annot_set_addr_type(
         self, virt_addr: VirtAddress, ltype: AT, ltype_str: str
@@ -115,6 +139,7 @@ class Annotator:
         "splitaddr": _annotcmd_splitaddr,
         "forceimm": _annotcmd_forceimm,
         "banksetting": _annotcmd_banksetting,
+        "bankslot": _annotcmd_bankslot,
     }
 
 
