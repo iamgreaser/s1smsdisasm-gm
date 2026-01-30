@@ -8,6 +8,8 @@ from dislib.miscdefs import (
     AT,
     LTYPEMAP,
     LTYPESIZE,
+    PhysAddress,
+    VirtAddress,
 )
 
 if TYPE_CHECKING:
@@ -36,18 +38,19 @@ class Annotator:
             self.ANNOTCMDS[cmd](self, *line.split(" "))  # type: ignore
 
     def _annotcmd_code(self, addr_str: str, label: str) -> None:
-        addr = parse_addr(addr_str)
+        virt_addr = parse_addr(addr_str)
         # print(f"code addr ${addr:05X} label {label!r}")
-        if addr not in self.rom.addr_types:
-            self.rom.tracer_stack.append(addr)
-        self.rom.set_label(addr, label)
+        phys_addr = self.rom.virt_to_phys(virt_addr)
+        if phys_addr not in self.rom.addr_types:
+            self.rom.tracer_stack.append(virt_addr)
+        self.rom.set_label(virt_addr, label)
 
     def _annotcmd_label(self, addr_str: str, ltype_str: str, label: str) -> None:
         ltype = LTYPEMAP[ltype_str]
-        addr = parse_addr(addr_str)
+        virt_addr = parse_addr(addr_str)
         # print(f"label addr ${addr:05X} type {ltype} label {label!r}")
-        self.rom.set_label(addr, label)
-        self.annot_set_addr_type(addr, ltype, ltype_str)
+        self.rom.set_label(virt_addr, label)
+        self.annot_set_addr_type(virt_addr, ltype, ltype_str)
 
     def _annotcmd_arraylabel(
         self, addr_str: str, ltype_str: str, llen_str: str, label: str
@@ -58,39 +61,45 @@ class Annotator:
         lsize = LTYPESIZE[ltype]
         self.rom.set_label(addr, label)
         for i in range(llen):
-            self.annot_set_addr_type(addr + (i * lsize), ltype, ltype_str)
+            self.annot_set_addr_type(
+                self.rom.add_to_virt(addr, (i * lsize)), ltype, ltype_str
+            )
 
     def _annotcmd_splitaddr(
         self, from_addr_str: str, part: str, to_addr_str: str
     ) -> None:
         from_addr = parse_addr(from_addr_str)
         to_addr = parse_addr(to_addr_str)
+        phys_from_addr = self.rom.virt_to_phys(from_addr)
         if part == "lo":
-            self.rom.set_addr_type(from_addr, AT.DataByteLabelLo)
-            assert from_addr not in self.rom.addr_refs
-            self.rom.addr_refs[from_addr] = to_addr
+            self.rom.set_addr_type(phys_from_addr, AT.DataByteLabelLo)
+            assert phys_from_addr not in self.rom.addr_refs
+            self.rom.addr_refs[phys_from_addr] = to_addr
         elif part == "hi":
-            self.rom.set_addr_type(from_addr, AT.DataByteLabelHi)
-            assert from_addr not in self.rom.addr_refs
-            self.rom.addr_refs[from_addr] = to_addr
+            self.rom.set_addr_type(phys_from_addr, AT.DataByteLabelHi)
+            assert phys_from_addr not in self.rom.addr_refs
+            self.rom.addr_refs[phys_from_addr] = to_addr
         else:
             raise Exception(f"invalid splitaddr type {part!r}")
 
     def _annotcmd_forceimm(self, addr_str: str) -> None:
         addr = parse_addr(addr_str)
-        self.rom.forced_immediates.add(addr)
+        self.rom.forced_immediates.add(self.rom.virt_to_phys(addr))
 
-    def annot_set_addr_type(self, addr: int, ltype: AT, ltype_str: str) -> None:
-        self.rom.set_addr_type(addr, ltype)
+    def annot_set_addr_type(
+        self, virt_addr: VirtAddress, ltype: AT, ltype_str: str
+    ) -> None:
+        phys_addr = self.rom.virt_to_phys(virt_addr)
+        self.rom.set_addr_type(phys_addr, ltype)
         if ltype == AT.DataWordLabel:
-            if (
-                addr < 0xC000
-            ):  # Don't try to load from RAM and accidentally load from bank 03!
-                val = struct.unpack("<H", self.rom.data[addr : addr + 2])[0]
-                self.rom.ensure_label(val, relative_to=addr)
+            # GUARD: Don't try to load from RAM and accidentally load from bank 03!
+            if virt_addr[0] < self.rom.bank_count:
+                val = struct.unpack("<H", self.rom.data[phys_addr : phys_addr + 2])[0]
+                val_virt = self.rom.phys_to_virt(val, relative_to=virt_addr)
+                self.rom.ensure_label(val_virt, relative_to=virt_addr)
                 if ltype_str == "codewptr":
-                    if val not in self.rom.addr_types:
-                        self.rom.tracer_stack.append(val)
+                    if self.rom.virt_to_phys(val_virt) not in self.rom.addr_types:
+                        self.rom.tracer_stack.append(val_virt)
 
     ANNOTCMDS = {
         "code": _annotcmd_code,
@@ -108,24 +117,9 @@ def parse_int(s: str) -> int:
         return int(s)
 
 
-def parse_addr(s: str) -> int:
+def parse_addr(s: str) -> VirtAddress:
     if len(s) != 7 or s[2] != ":":
         raise Exception(f"expected bb:pppp for addr, got {s!r} instead")
     bank_idx = int(s[0:][:2], 16)
-    virt_addr = int(s[3:][:4], 16)
-    if bank_idx == 0x00:
-        if not (0x0000 <= virt_addr <= 0x3FFF):
-            raise Exception(f"TODO: support 00 bank for slot for {s!r}")
-    elif bank_idx == 0x01:
-        if not (0x4000 <= virt_addr <= 0x7FFF):
-            raise Exception(f"TODO: support 01 bank for slot for {s!r}")
-    elif bank_idx == 0x02:
-        if not (0x8000 <= virt_addr <= 0xBFFF):
-            raise Exception(f"TODO: support 02 bank for slot for {s!r}")
-    elif bank_idx == 0xF0:
-        if not (0xC000 <= virt_addr <= 0xFFFF):
-            raise Exception(f"TODO: support F0 bank for slot for {s!r}")
-    else:
-        raise Exception(f"TODO: support bank for {s!r}")
-
-    return virt_addr
+    offs = int(s[3:][:4], 16)
+    return VirtAddress((bank_idx, offs))

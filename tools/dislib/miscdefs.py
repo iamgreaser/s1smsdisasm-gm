@@ -2,6 +2,13 @@ from __future__ import annotations
 
 import enum
 
+from typing import (
+    NewType,
+)
+
+VirtAddress = NewType("VirtAddress", tuple[int, int])
+PhysAddress = NewType("PhysAddress", int)
+
 
 class AT(enum.Enum):
     DataByte = enum.auto()

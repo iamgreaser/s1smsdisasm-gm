@@ -2,9 +2,15 @@ from __future__ import annotations
 
 import struct
 
+from typing import (
+    Optional,
+)
+
 from dislib.annotator import Annotator
 from dislib.miscdefs import (
     AT,
+    PhysAddress,
+    VirtAddress,
 )
 from dislib.saver import Saver
 from dislib.tracer import Tracer
@@ -19,13 +25,13 @@ class Rom:
 
     def __init__(self, *, data: bytes) -> None:
         self.data = data
-        self.addr_types: dict[int, AT] = {}
-        self.label_to_addr: dict[str, int] = {}
-        self.labels_from_addr: dict[int, list[str]] = {}
-        self.addr_refs: dict[int, int] = {}
-        self.tracer_stack: list[int] = []
-        self.op_decodes: dict[int, tuple[int, str]] = {}
-        self.forced_immediates: set[int] = set()
+        self.addr_types: dict[PhysAddress, AT] = {}
+        self.label_to_addr: dict[str, VirtAddress] = {}
+        self.labels_from_addr: dict[PhysAddress, list[str]] = {}
+        self.addr_refs: dict[PhysAddress, VirtAddress] = {}
+        self.tracer_stack: list[VirtAddress] = []
+        self.op_decodes: dict[PhysAddress, tuple[VirtAddress, int, str]] = {}
+        self.forced_immediates: set[PhysAddress] = set()
 
     def load_annotations(self, *, file_name: str) -> None:
         annotator = Annotator(rom=self)
@@ -33,60 +39,72 @@ class Rom:
             for line in infp.readlines():
                 annotator.annotate_line(line)
 
-    def set_addr_type(self, addr: int, addr_type: AT) -> None:
-        # print(addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack)
-        if self.addr_types.get(addr, addr_type) == addr_type:
+    def set_addr_type(self, phys_addr: PhysAddress, addr_type: AT) -> None:
+        # print(phys_addr, self.addr_types.get(phys_addr, None), addr_type, self.tracer_stack)
+        if self.addr_types.get(phys_addr, addr_type) == addr_type:
             if (
-                addr >= 1
-                and self.addr_types.get(addr - 0x01, AT.DataByte) == AT.DataWord
+                phys_addr >= 1
+                and self.addr_types.get(PhysAddress(phys_addr - 0x01), AT.DataByte) == AT.DataWord
             ):
                 # Downsize for a split
-                self.addr_types[addr - 0x01] = AT.DataByte
-            self.addr_types[addr] = addr_type
+                self.addr_types[PhysAddress(phys_addr - 0x01)] = AT.DataByte
+            self.addr_types[phys_addr] = addr_type
         else:
-            other_type = self.addr_types[addr]
+            other_type = self.addr_types[phys_addr]
             if other_type == AT.DataWord and addr_type == AT.DataByte:
                 # Downsize for a split
-                self.addr_types[addr + 0x00] = AT.DataByte
-                self.addr_types[addr + 0x01] = AT.DataByte
+                self.addr_types[PhysAddress(phys_addr + 0x00)] = AT.DataByte
+                self.addr_types[PhysAddress(phys_addr + 0x01)] = AT.DataByte
             elif other_type == AT.DataByte and addr_type == AT.DataWord:
                 # Block upsize
                 pass
-            elif other_type in {AT.DataByteLabelLo, AT.DataByteLabelHi} and addr_type == AT.DataByte:
+            elif (
+                other_type in {AT.DataByteLabelLo, AT.DataByteLabelHi}
+                and addr_type == AT.DataByte
+            ):
                 # Split label reference
                 pass
             else:
                 print("FIXME: Op type derailment!")
                 print(
-                    addr, self.addr_types.get(addr, None), addr_type, self.tracer_stack
+                    phys_addr,
+                    self.addr_types.get(phys_addr, None),
+                    addr_type,
+                    self.tracer_stack,
                 )
 
-    def set_label(self, addr: int, label: str) -> None:
+    def set_label(self, virt_addr: VirtAddress, label: str) -> None:
         if label in self.label_to_addr:
-            assert self.label_to_addr[label] == addr
+            assert self.label_to_addr[label] == virt_addr
             return
         else:
             # Don't track relative labels here
             if not (label.strip("-") == "" or label.strip("+") == "" or label == "__"):
-                self.label_to_addr[label] = addr
-            if addr not in self.labels_from_addr:
-                self.labels_from_addr[addr] = []
-            self.labels_from_addr[addr].append(label)
+                self.label_to_addr[label] = virt_addr
+            phys_addr = self.virt_to_phys(virt_addr)
+            if phys_addr not in self.labels_from_addr:
+                self.labels_from_addr[phys_addr] = []
+            self.labels_from_addr[phys_addr].append(label)
 
     def ensure_label(
-        self, addr: int, *, relative_to: int, allow_relative_labels: bool = False
+        self,
+        virt_addr: VirtAddress,
+        *,
+        relative_to: VirtAddress,
+        allow_relative_labels: bool = False,
     ) -> str:
-        if not addr in self.labels_from_addr:
-            if addr >= 0xC000 and addr <= 0xDFFF:
-                self.set_label(addr, f"var_{addr:04X}")
+        phys_addr = self.virt_to_phys(virt_addr)
+        if not phys_addr in self.labels_from_addr:
+            if virt_addr[0] >= 0xF0:
+                self.set_label(virt_addr, f"var_{(phys_addr&0xFFFF)+0xC000:04X}")
             else:
-                self.set_label(addr, f"addr_{addr:05X}")
-        label = self.labels_from_addr[addr][0]
+                self.set_label(virt_addr, f"addr_{phys_addr:05X}")
+        label = self.labels_from_addr[phys_addr][0]
         if allow_relative_labels:
             if label == "__":
-                if addr > relative_to:
+                if virt_addr[1] > relative_to[1]:
                     return "_f"
-                elif addr < relative_to:
+                elif virt_addr[1] < relative_to[1]:
                     return "_b"
                 else:
                     raise Exception("TODO: Handle this `__` label case")
@@ -95,7 +113,7 @@ class Rom:
         else:
             if label == "__" or label.strip("+-") == "":
                 # Relative label - use a constant instead.
-                return f"${addr:04X}"
+                return f"${virt_addr[1]:04X}"
             else:
                 return label
 
@@ -107,3 +125,53 @@ class Rom:
         with open(file_name, "w") as outfp:
             saver = Saver(rom=self, outfp=outfp)
             saver.save()
+
+    def virt_to_phys(self, v: VirtAddress) -> PhysAddress:
+        return PhysAddress((v[0] * self.bank_size) + (v[1] % self.bank_size))
+
+    _DEFAULT_PHYS_TO_VIRT_MAPPINGS = {
+        0x00: 0x0000,
+        0x01: 0x4000,
+        0xF0: 0xC000,
+        # Everything else becomes 0x8000-based.
+    }
+
+    def phys_to_virt(self, p: PhysAddress, *, relative_to: VirtAddress) -> VirtAddress:
+        # TODO: Override this via annotations and make use of relative_to here --GM
+        bank_idx = p // self.bank_size
+        bank_offs = p % self.bank_size
+        return VirtAddress(
+            (
+                bank_idx,
+                bank_offs + self._DEFAULT_PHYS_TO_VIRT_MAPPINGS.get(bank_idx, 0x8000),
+            )
+        )
+
+    _DEFAULT_NAIVE_VIRT_MAPPING = {
+        0x0: 0x00,
+        0x1: 0x01,
+        0x2: 0x02,
+        0x3: 0xF0,
+    }
+
+    def naive_to_virt(self, val: int) -> VirtAddress:
+        # TODO: Override this via annotations --GM
+        return VirtAddress(
+            (
+                self._DEFAULT_NAIVE_VIRT_MAPPING[val // self.bank_size],
+                val % self.bank_size,
+            )
+        )
+
+    def add_to_virt(self, base: VirtAddress, offs: int) -> VirtAddress:
+        old_offs = base[1]
+        new_offs = base[1] + offs
+        old_slot = old_offs // self.bank_size
+        new_slot = new_offs // self.bank_size
+        new_bank = base[0]
+        if old_slot != new_slot:
+            print(
+                f"WARNING: Virtual address {base[0]:02X}:{old_offs:04X} -> :{new_offs:04X} crosses slot boundary!"
+            )
+            new_bank += new_offs // self.bank_size
+        return VirtAddress((new_bank, new_offs))

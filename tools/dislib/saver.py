@@ -12,6 +12,8 @@ from dislib.miscdefs import (
     AT,
     LTYPECMD,
     LTYPESIZE,
+    PhysAddress,
+    VirtAddress,
 )
 
 if TYPE_CHECKING:
@@ -52,34 +54,47 @@ class Saver:
         # Write RAM addresses
         self.write(f'\n.RAMSECTION "RAMSection" SLOT 3 FORCE ORGA $C000\n')
         extra_ram_labels: list[str] = []
-        prev_addr = 0xC000
-        for addr in range(0xC000, 0xE000, 1):
-            if addr in self.rom.labels_from_addr:
-                base_label = self.rom.labels_from_addr[addr][0]
-                if prev_addr != addr:
-                    assert prev_addr < addr
-                    self.write(f".  dsb {addr - prev_addr}\n")
-                    prev_addr = addr
-                if addr in self.rom.addr_types:
-                    vartype = self.rom.addr_types[addr]
+        ram_phys_addr = self.rom.virt_to_phys(VirtAddress((0xF0, 0x0000)))
+        prev_phys_addr = ram_phys_addr
+        for addr_offs in range(0x0000, 0x1FFF + 1, 1):
+            virt_addr = (0xF0, addr_offs)
+            phys_addr = self.rom.virt_to_phys(VirtAddress((0xF0, addr_offs)))
+            if phys_addr in self.rom.labels_from_addr:
+                base_label = self.rom.labels_from_addr[phys_addr][0]
+                if prev_phys_addr != phys_addr:
+                    assert prev_phys_addr < phys_addr
+                    self.write(f".  dsb {phys_addr - prev_phys_addr}\n")
+                    prev_phys_addr = phys_addr
+                if phys_addr in self.rom.addr_types:
+                    vartype = self.rom.addr_types[phys_addr]
                     varsize = LTYPESIZE[vartype]
                     varcmd = LTYPECMD[vartype]
                     # Look for any labels in the middle of this.
                     need_split = False
                     for split_offs in range(1, varsize, 1):
-                        if addr + split_offs in self.rom.labels_from_addr:
+                        if (
+                            PhysAddress(phys_addr + split_offs)
+                            in self.rom.labels_from_addr
+                        ):
                             need_split = True
                             break
                     if need_split:
-                        self.write(f"{base_label} db   ; {addr:04X} (split)\n")
-                        prev_addr = addr + 1
+                        self.write(
+                            f"{base_label} db   ; {phys_addr+0xC000-ram_phys_addr:04X} (split)\n"
+                        )
+                        varsize = 1
                     else:
-                        self.write(f"{base_label} {varcmd}   ; {addr:04X}\n")
-                        prev_addr = addr + varsize
+                        self.write(
+                            f"{base_label} {varcmd}   ; {phys_addr+0xC000-ram_phys_addr:04X}\n"
+                        )
                 else:
-                    self.write(f"{base_label} db   ; {addr:04X} (auto)\n")
-                    prev_addr = addr + 1
-                for label in self.rom.labels_from_addr[addr][1:]:
+                    self.write(
+                        f"{base_label} db   ; {phys_addr+0xC000-ram_phys_addr:04X} (auto)\n"
+                    )
+                    varsize = 1
+                prev_phys_addr = PhysAddress(phys_addr + varsize)
+
+                for label in self.rom.labels_from_addr[phys_addr][1:]:
                     extra_ram_labels.append(f".DEF {label} {base_label}\n")
         self.write(f".ENDS\n")
         for s in extra_ram_labels:
@@ -87,9 +102,11 @@ class Saver:
 
         # Write extra addresses
         self.write(f"\n")
-        for addr in range(0xE000, 0x10000, 1):
-            for label in self.rom.labels_from_addr.get(addr, []):
-                self.write(f".DEF {label} ${addr:04X}\n")
+        for addr_offs in range(0xE000, 0x10000, 1):
+            virt_addr = VirtAddress((0xF0, addr_offs))
+            phys_addr = self.rom.virt_to_phys(virt_addr)
+            for label in self.rom.labels_from_addr.get(phys_addr, []):
+                self.write(f".DEF {label} ${(phys_addr&0x3FFF)+0xC000:04X}\n")
 
         # Write ROM
         for bank_idx in range(16):
@@ -101,15 +118,28 @@ class Saver:
             bank = self.rom.data[bank_idx * self.rom.bank_size :][: self.rom.bank_size]
 
             prev_rel_addr = 0
+            bank_virt_addr = self.rom.phys_to_virt(
+                PhysAddress(bank_idx * self.rom.bank_size),
+                relative_to=VirtAddress((0x00, 0x0000)),
+            )
+            bank_phys_addr = self.rom.virt_to_phys(bank_virt_addr)
             for rel_addr in range(self.rom.bank_size):
-                phys_addr = rel_addr + (bank_idx * self.rom.bank_size)
-                virt_addr = rel_addr + (slot_idx * self.rom.bank_size)
-                if phys_addr < 0xC000 and phys_addr in self.rom.labels_from_addr:
+                phys_addr = PhysAddress(rel_addr + (bank_idx * self.rom.bank_size))
+                if phys_addr in self.rom.labels_from_addr:
                     if prev_rel_addr != rel_addr:
+                        prev_phys_addr = PhysAddress(bank_phys_addr + prev_rel_addr)
                         self.save_bytes(
                             bank_idx=bank_idx,
-                            phys_addr=(bank_idx * self.rom.bank_size) + prev_rel_addr,
-                            virt_addr=(slot_idx * self.rom.bank_size) + prev_rel_addr,
+                            phys_addr=prev_phys_addr,
+                            virt_addr=self.rom.phys_to_virt(
+                                prev_phys_addr,
+                                relative_to=VirtAddress(
+                                    (
+                                        bank_virt_addr[0],
+                                        prev_phys_addr % self.rom.bank_size,
+                                    )
+                                ),
+                            ),
                             data=bank[prev_rel_addr:rel_addr],
                         )
                         prev_rel_addr = rel_addr
@@ -117,10 +147,19 @@ class Saver:
                     for label in self.rom.labels_from_addr[phys_addr]:
                         self.write(f"{label}:\n")
 
+            prev_phys_addr = PhysAddress(bank_phys_addr + prev_rel_addr)
             self.save_bytes(
                 bank_idx=bank_idx,
-                phys_addr=(bank_idx * self.rom.bank_size) + prev_rel_addr,
-                virt_addr=(slot_idx * self.rom.bank_size) + prev_rel_addr,
+                phys_addr=prev_phys_addr,
+                virt_addr=self.rom.phys_to_virt(
+                    prev_phys_addr,
+                    relative_to=VirtAddress(
+                        (
+                            bank_virt_addr[0],
+                            prev_phys_addr % self.rom.bank_size,
+                        )
+                    ),
+                ),
                 data=bank[prev_rel_addr:],
             )
 
@@ -130,15 +169,15 @@ class Saver:
         self,
         *,
         bank_idx: int,
-        phys_addr: int,
-        virt_addr: int,
+        phys_addr: PhysAddress,
+        virt_addr: VirtAddress,
         data: bytes,
     ) -> None:
         offs = 0
         prev_subregion_offs = 0
         prev_subregion_type = AT.DataByte
         while offs < len(data):
-            op_phys_addr = phys_addr + offs
+            op_phys_addr = PhysAddress(phys_addr + offs)
             ltype = self.rom.addr_types.get(op_phys_addr, AT.DataByte)
             if op_phys_addr >= 0xC000:
                 # FIXME: Actually handle bank memory mapping properly,
@@ -147,7 +186,7 @@ class Saver:
 
             if ltype == AT.Op:
                 try:
-                    op_len, op_str = self.rom.op_decodes[op_phys_addr]
+                    op_virt_addr, op_len, op_str = self.rom.op_decodes[op_phys_addr]
                 except LookupError:
                     self.write(f"   ;; FIXME: Undecoded op!\n")
                     ltype = AT.DataByte
@@ -161,7 +200,9 @@ class Saver:
                         if offs != prev_subregion_offs and ltype != prev_subregion_type:
                             self.save_subregion(
                                 bank_idx=bank_idx,
-                                virt_addr=virt_addr + prev_subregion_offs,
+                                virt_addr=self.rom.add_to_virt(
+                                    virt_addr, prev_subregion_offs
+                                ),
                                 data=data[prev_subregion_offs:offs],
                                 atype=prev_subregion_type,
                             )
@@ -174,7 +215,7 @@ class Saver:
                             f"{v:02X}" for v in data[offs : offs + op_len]
                         )
                         self.write(
-                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {bank_idx:02X}:{virt_addr + offs:04X} - {op_hex}\n"
+                            f"   {op_str}{' '*max(0, 34-len(op_str))}  ; {virt_addr[0]:02X}:{virt_addr[1] + offs:04X} - {op_hex}\n"
                         )
                         offs += op_len
                         prev_subregion_offs = offs
@@ -187,7 +228,7 @@ class Saver:
                 if offs != prev_subregion_offs and ltype != prev_subregion_type:
                     self.save_subregion(
                         bank_idx=bank_idx,
-                        virt_addr=virt_addr + prev_subregion_offs,
+                        virt_addr=self.rom.add_to_virt(virt_addr, prev_subregion_offs),
                         data=data[prev_subregion_offs:offs],
                         atype=prev_subregion_type,
                     )
@@ -197,11 +238,11 @@ class Saver:
 
                 offs += 2
 
-            elif ltype == AT.DataByte:
+            elif ltype in {AT.DataByte, AT.DataByteLabelLo, AT.DataByteLabelHi}:
                 if offs != prev_subregion_offs and ltype != prev_subregion_type:
                     self.save_subregion(
                         bank_idx=bank_idx,
-                        virt_addr=virt_addr + prev_subregion_offs,
+                        virt_addr=self.rom.add_to_virt(virt_addr, prev_subregion_offs),
                         data=data[prev_subregion_offs:offs],
                         atype=prev_subregion_type,
                     )
@@ -217,7 +258,7 @@ class Saver:
         if offs != prev_subregion_offs:
             self.save_subregion(
                 bank_idx=bank_idx,
-                virt_addr=virt_addr + prev_subregion_offs,
+                virt_addr=self.rom.add_to_virt(virt_addr, prev_subregion_offs),
                 data=data[prev_subregion_offs:offs],
                 atype=prev_subregion_type,
             )
@@ -226,19 +267,21 @@ class Saver:
         self,
         *,
         bank_idx: int,
-        virt_addr: int,
+        virt_addr: VirtAddress,
         data: bytes,
         atype: AT,
     ) -> None:
-        if atype == AT.DataByte:
+        if atype in {AT.DataByte, AT.DataByteLabelLo, AT.DataByteLabelHi}:
             for row_idx in range((len(data) + 16 - 1) // 16):
                 row_addr = row_idx * 16
                 row_data = data[row_addr : row_addr + 16]
                 row = ", ".join(f"${v:02X}" for v in row_data)
                 row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
-                self.write(f".db {row}  ; {bank_idx:02X}:{virt_addr+row_addr:04X}\n")
+                self.write(
+                    f".db {row}  ; {virt_addr[0]:02X}:{virt_addr[1]+row_addr:04X}\n"
+                )
 
-        elif atype == AT.DataWord or atype == AT.DataWordLabel:
+        elif atype in {AT.DataWord, AT.DataWordLabel}:
             for row_idx in range((len(data) + 16 - 1) // 16):
                 row_addr = row_idx * 16
                 row_size = min(row_addr + 16, len(data)) - row_addr
@@ -248,7 +291,7 @@ class Saver:
                 ]
                 if len(row_vals) >= 1:
                     if atype == AT.DataWordLabel:
-                        print(f"{virt_addr:05X} {bank_idx:02X} {row_size:3d}")
+                        # print(f"{virt_addr[0]:02X}:{virt_addr[1]:04X} {bank_idx:02X} {row_size:3d}")
                         row_strs = [
                             self.rom.labels_from_addr.get(v, [f"${v:04X}"])[0]
                             for v in row_vals
@@ -258,7 +301,7 @@ class Saver:
                     row = ", ".join(row_strs)
                     row += " " * ((len(", $xx") * 16 - len(", ")) - len(row))
                     self.write(
-                        f".dw {row}  ; {bank_idx:02X}:{virt_addr+row_addr:04X}\n"
+                        f".dw {row}  ; {virt_addr[0]:02X}:{virt_addr[1]+row_addr:04X}\n"
                     )
 
                 row_remain = row_size % 2
@@ -266,7 +309,9 @@ class Saver:
                     self.write(f"   ;; FIXME: Word table not a multiple of 2!\n")
                     self.save_subregion(
                         bank_idx=bank_idx,
-                        virt_addr=virt_addr + row_addr + row_size - row_remain,
+                        virt_addr=self.rom.add_to_virt(
+                            virt_addr, row_addr + row_size - row_remain
+                        ),
                         data=data[row_addr + row_size - row_remain :][:row_remain],
                         atype=AT.DataByte,
                     )

@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from dislib.miscdefs import (
     AT,
+    PhysAddress,
+    VirtAddress,
 )
 from dislib.z80ops import (
     CONST_OAS,
@@ -28,17 +30,20 @@ class Tracer:
 
     def run(self) -> None:
         while len(self.rom.tracer_stack) >= 1:
-            phys_addr = self.rom.tracer_stack.pop()
-            if phys_addr in self.rom.addr_types:
-                if self.rom.addr_types[phys_addr] == AT.Op:
-                    continue
-            self.set_addr_type(phys_addr, AT.Op)
+            op_virt_addr = self.rom.tracer_stack.pop()
+            if op_virt_addr[0] >= 0x03:
+                # TODO: Support upper banks --GM
+                continue
 
-            bank_idx = phys_addr // self.rom.bank_size
-            bank_phys_addr = bank_idx * self.rom.bank_size
-            rel_addr = phys_addr - bank_phys_addr
-            bank_virt_addr = min(2, bank_idx)
-            virt_addr = bank_virt_addr + rel_addr
+            op_phys_addr = self.rom.virt_to_phys(op_virt_addr)
+            if op_phys_addr in self.rom.addr_types:
+                if self.rom.addr_types[op_phys_addr] == AT.Op:
+                    continue
+            self.set_addr_type(op_phys_addr, AT.Op)
+
+            bank_idx, rel_addr = op_virt_addr
+            rel_addr %= self.rom.bank_size
+            bank_phys_addr = PhysAddress(bank_idx * self.rom.bank_size)
             bank = self.rom.data[bank_idx * self.rom.bank_size :][: self.rom.bank_size]
 
             pc = rel_addr
@@ -48,34 +53,35 @@ class Tracer:
             ixy_cb_mem = OA.MemHL
             ixy_cb_displacement = 0
             # print(hex(op1), oct(op1))
+            op1_phys_addr = PhysAddress(bank_phys_addr + pc)
 
             # Handle prefixes
             if op1 == 0xED:
-                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                self.set_addr_type(op1_phys_addr, AT.DataByte)
                 op1 = bank[pc]
                 pc += 1
                 spec_bank = OP_SPECS_ED
                 extragrp = "(ED)"
 
             elif op1 == 0xCB:
-                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                self.set_addr_type(op1_phys_addr, AT.DataByte)
                 op1 = bank[pc]
                 pc += 1
                 spec_bank = OP_SPECS_CB
                 extragrp = "(CB)"
 
             elif op1 == 0xDD:
-                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                self.set_addr_type(op1_phys_addr, AT.DataByte)
                 op1 = bank[pc]
                 pc += 1
                 spec_bank = OP_SPECS_DD_XX
                 extragrp = "(DD)"
                 if op1 == 0xCB:
                     # DD CB xx op
-                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                    self.set_addr_type(PhysAddress(bank_phys_addr + pc), AT.DataByte)
                     ixy_cb_displacement = bank[pc]
                     pc += 1
-                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                    self.set_addr_type(PhysAddress(bank_phys_addr + pc), AT.DataByte)
                     op1 = bank[pc]
                     pc += 1
                     ixy_cb_mode = True
@@ -84,17 +90,17 @@ class Tracer:
                     extragrp = "(DDCB)"
 
             elif op1 == 0xFD:
-                self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                self.set_addr_type(op1_phys_addr, AT.DataByte)
                 op1 = bank[pc]
                 pc += 1
                 spec_bank = OP_SPECS_FD_XX
                 extragrp = "(FD)"
                 if op1 == 0xCB:
                     # FD CB xx op
-                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                    self.set_addr_type(PhysAddress(bank_phys_addr + pc), AT.DataByte)
                     ixy_cb_displacement = bank[pc]
                     pc += 1
-                    self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                    self.set_addr_type(PhysAddress(bank_phys_addr + pc), AT.DataByte)
                     op1 = bank[pc]
                     pc += 1
                     ixy_cb_mode = True
@@ -115,33 +121,43 @@ class Tracer:
             else:
                 op_args: list[str] = []
                 for a in spec.args:
+                    arg_phys_addr = PhysAddress(bank_phys_addr + pc)
                     if a == OA.Byte:
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
-                        atype = self.rom.addr_types[bank_phys_addr + pc]
+                        self.set_addr_type(arg_phys_addr, AT.DataByte)
+                        atype = self.rom.addr_types[arg_phys_addr]
                         (val,) = struct.unpack("<B", bank[pc:][:1])
                         if atype == AT.DataByteLabelLo:
-                            refaddr = self.rom.addr_refs[bank_phys_addr + pc]
-                            assert (refaddr & 0xFF) == val
-                            label = self.rom.labels_from_addr[refaddr][0]
+                            refaddr = self.rom.addr_refs[arg_phys_addr]
+                            assert (refaddr[1] & 0xFF) == val
+                            label = self.rom.labels_from_addr[
+                                self.rom.virt_to_phys(refaddr)
+                            ][0]
                             op_args.append(f"{label}&$FF")
                         elif atype == AT.DataByteLabelHi:
-                            refaddr = self.rom.addr_refs[bank_phys_addr + pc]
-                            assert ((refaddr >> 8) & 0xFF) == val
-                            label = self.rom.labels_from_addr[refaddr][0]
+                            refaddr = self.rom.addr_refs[arg_phys_addr]
+                            assert ((refaddr[1] >> 8) & 0xFF) == val
+                            label = self.rom.labels_from_addr[
+                                self.rom.virt_to_phys(refaddr)
+                            ][0]
                             op_args.append(f"{label}>>8")
                         else:
                             op_args.append(f"${val:02X}")
                         pc += 1
 
                     elif a == OA.Word:
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataWord)
+                        self.set_addr_type(arg_phys_addr, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        if (0xC000 <= val <= 0xDFFF or (
-                            val < 0xE000
-                            and val > 0x0038
-                            and val in self.rom.labels_from_addr
-                        )) and (bank_phys_addr + pc) not in self.rom.forced_immediates:
-                            label = self.ensure_label(val, relative_to=pc - 2)
+                        if (
+                            0xC000 <= val <= 0xDFFF
+                            or (
+                                val < 0xE000
+                                and val > 0x0038
+                                and val in self.rom.labels_from_addr
+                            )
+                        ) and (arg_phys_addr) not in self.rom.forced_immediates:
+                            label = self.ensure_label(
+                                val, relative_to=VirtAddress((bank_idx, pc - 2))
+                            )
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
@@ -149,42 +165,48 @@ class Tracer:
 
                     elif a == OA.MemByteImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
+                        self.set_addr_type(arg_phys_addr, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        label = self.ensure_label(val, relative_to=pc - 2)
-                        self.set_addr_type(val, AT.DataByte)
+                        label = self.ensure_label(
+                            val, relative_to=VirtAddress((bank_idx, pc - 2))
+                        )
+                        self.set_addr_type(self.rom.virt_to_phys(self.rom.naive_to_virt(val)), AT.DataByte)
                         op_args.append(f"({label})")
 
                     elif a == OA.MemWordImmWord:
                         # TODO: Handle the diff between virtual and physical labels --GM
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
+                        self.set_addr_type(arg_phys_addr, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2
-                        label = self.ensure_label(val, relative_to=pc - 2)
-                        self.set_addr_type(val, AT.DataWord)
+                        label = self.ensure_label(
+                            val, relative_to=VirtAddress((bank_idx, pc - 2))
+                        )
+                        self.set_addr_type(self.rom.virt_to_phys(self.rom.naive_to_virt(val)), AT.DataWord)
                         op_args.append(f"({label})")
 
                     elif a == OA.PortByteImm:
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
+                        self.set_addr_type(arg_phys_addr, AT.DataWordLabel)
                         (val,) = struct.unpack("<B", bank[pc:][:1])
                         pc += 1
                         op_args.append(f"(${val:02X})")
 
                     elif a == OA.JumpRelByte:
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataByteRelLabel)
+                        self.set_addr_type(arg_phys_addr, AT.DataByteRelLabel)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += bank_phys_addr + pc + 1
                         assert val < self.rom.bank_size * 3
                         label = self.ensure_label(
-                            val, relative_to=pc - 1, allow_relative_labels=True
+                            val,
+                            relative_to=VirtAddress((bank_idx, pc - 1)),
+                            allow_relative_labels=True,
                         )
-                        self.rom.tracer_stack.append(val)
+                        self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
                         pc += 1
                         op_args.append(f"{label}")
 
                     elif a == OA.JumpWord:
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataWordLabel)
+                        self.set_addr_type(arg_phys_addr, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         upper_bound = self.rom.bank_size * 1
                         # TODO: Better overlay handling --GM
@@ -194,9 +216,11 @@ class Tracer:
                             upper_bound += self.rom.bank_size
                         if val < upper_bound:
                             label = self.ensure_label(
-                                val, relative_to=pc, allow_relative_labels=True
+                                val,
+                                relative_to=VirtAddress((bank_idx, pc)),
+                                allow_relative_labels=True,
                             )
-                            self.rom.tracer_stack.append(val)
+                            self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
                             op_args.append(f"{label}")
                         else:
                             op_args.append(f"${val:04X}")
@@ -207,8 +231,9 @@ class Tracer:
 
                     elif a in OA_MAP_CONST_ADDR:
                         val = OA_MAP_CONST_ADDR[a]
-                        self.rom.set_label(val, f"ENTRY_RST_{val:02X}")
-                        self.rom.tracer_stack.append(val)
+                        val_virt_addr = self.rom.naive_to_virt(val)
+                        self.rom.set_label(val_virt_addr, f"ENTRY_RST_{val:02X}")
+                        self.rom.tracer_stack.append(val_virt_addr)
                         op_args.append(f"${val:02X}")
 
                     elif a == OA.MemHL:
@@ -223,7 +248,10 @@ class Tracer:
                                 # SPECIAL CASE FOR SONIC 1:
                                 # IY is, as far as I can tell, always set to D200.
                                 val += 0xD200
-                                label = self.ensure_label(val, relative_to=pc - 1)
+                                label = self.ensure_label(
+                                    val,
+                                    relative_to=VirtAddress((bank_idx, pc - 1)),
+                                )
                                 op_args.append(f"(iy+{label}-IYBASE)")
                             else:
                                 if val >= 0:
@@ -235,7 +263,7 @@ class Tracer:
                             op_args.append("(hl)")
 
                     elif a == OA.MemIXdd:
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                        self.set_addr_type(arg_phys_addr, AT.DataByte)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         pc += 1
                         if val >= 0:
@@ -246,11 +274,14 @@ class Tracer:
                     elif a == OA.MemIYdd:
                         # SPECIAL CASE FOR SONIC 1:
                         # IY is, as far as I can tell, always set to D200.
-                        self.set_addr_type(bank_phys_addr + pc, AT.DataByte)
+                        self.set_addr_type(arg_phys_addr, AT.DataByte)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += 0xD200
                         pc += 1
-                        label = self.ensure_label(val, relative_to=pc - 1)
+                        label = self.ensure_label(
+                            val,
+                            relative_to=VirtAddress((bank_idx, pc - 1)),
+                        )
                         op_args.append(f"(iy+{label}-IYBASE)")
 
                     else:
@@ -265,20 +296,31 @@ class Tracer:
                 )
                 op_name = op_name.lower()
                 op_str = f"{op_name}{op_args_str}"
-                # print(f"{bank_idx:02X}:{virt_addr:04X}: {op_str}")
-                self.rom.op_decodes[phys_addr] = (pc - rel_addr, op_str)
+                self.rom.op_decodes[op_phys_addr] = (
+                    op_virt_addr,
+                    pc - rel_addr,
+                    op_str,
+                )
 
                 if not spec.stop:
-                    self.rom.tracer_stack.append(bank_phys_addr + pc)
+                    self.rom.tracer_stack.append(
+                        self.rom.phys_to_virt(
+                            PhysAddress(bank_phys_addr + pc), relative_to=op_virt_addr
+                        )
+                    )
 
-    def set_addr_type(self, addr: int, addr_type: AT) -> None:
+    def set_addr_type(self, addr: PhysAddress, addr_type: AT) -> None:
         self.rom.set_addr_type(addr, addr_type)
 
     def ensure_label(
-        self, addr: int, *, relative_to: int, allow_relative_labels: bool = False
+        self,
+        val: int,
+        *,
+        relative_to: VirtAddress,
+        allow_relative_labels: bool = False,
     ) -> str:
         return self.rom.ensure_label(
-            addr,
+            self.rom.naive_to_virt(val),
             relative_to=relative_to,
             allow_relative_labels=allow_relative_labels,
         )
