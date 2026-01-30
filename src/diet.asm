@@ -28,6 +28,9 @@
 
 ;; bool: No Speed Cap: Go as fast as you like!
 .DEF cht_no_speed_cap 0
+;; bool: Inverse Speed Cap: Like No Speed Cap but you start at the speed cap.
+;; NOT COMPATIBLE WITH cht_no_speed_cap.
+.DEF cht_inverse_speed_cap 0
 
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
@@ -9467,7 +9470,11 @@ addr_04F01:
    sbc    hl, de                       ; 01:4F1B - ED 52
    exx                                 ; 01:4F1D - D9
    ;; Are we below the speed cap?
+   .IF cht_inverse_speed_cap
+   jp nc, addr_04B1B
+   .ELSE
    jp     c, addr_04B1B                ; 01:4F1E - DA 1B 4B
+   .ENDIF
    .IF cht_no_speed_cap
    .ELSE
    ld     b, a                         ; 01:4F21 - 47
@@ -9539,7 +9546,11 @@ addr_04F68:
    sbc    hl, de                       ; 01:4F88 - ED 52
    exx                                 ; 01:4F8A - D9
    ;; Are we below the speed cap?
+   .IF cht_inverse_speed_cap
+   jp nc, addr_04B1B
+   .ELSE
    jp     c, addr_04B1B                ; 01:4F8B - DA 1B 4B
+   .ENDIF
    .IF cht_no_speed_cap
    .ELSE
    ld     e, a                         ; 01:4F8E - 5F
