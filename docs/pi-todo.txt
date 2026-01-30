@@ -9,7 +9,6 @@ No known PI problems on this bank!
 
 BANK 01:
 
-- The bottom of the animal capsule does not appear... and the capsule completely disappears when it opens. (seen in BRI3, JUN3)
 - In LAB3, a weird dark-blue box shows on the right side of where Robotnik shows up at the bottom.
 
 BANK 02:
