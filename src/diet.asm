@@ -21,10 +21,12 @@
 ;; - $7F causes a reset.
 ;; - $80 upwards behaves a bit like $00 upwards but things are weird and you have weird starting times and the clock goes in the middle of the screen... and you're stuck on the same level repeatedly.
 ;; - Go explore if you want to find out what the out-of-range values do.
-.DEF cht_starting_level $00
+;.DEF cht_starting_level $11
+.DEF cht_starting_level $0B
+;.DEF cht_starting_level $05
 
 ;; bool: No Death On Hit
-.DEF cht_no_death_on_hit 0
+.DEF cht_no_death_on_hit 1
 
 ;; bool: No Speed Cap: Go as fast as you like!
 .DEF cht_no_speed_cap 0
@@ -8352,7 +8354,7 @@ LUT_3FF0:
 .db $03, $08, $03, $03, $03, $03, $03, $03, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:4000
 .db $00, $00, $00, $00, $00, $00, $00, $03, $03, $04, $04, $03, $03, $03, $03, $00  ; 01:4010
 
-;.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
+.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
 
 UNK_04020:
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4020
@@ -16114,7 +16116,7 @@ addr_0900F:
    ret                                 ; 02:9028 - C9
 
 addr_09029:
-   ld     bc, $9054                    ; 02:9029 - 01 54 90
+   ld     bc, UNK_09054                ; 02:9029 - 01 54 90
    bit    1, (ix+24)                   ; 02:902C - DD CB 18 4E
    jr     nz, addr_09035               ; 02:9030 - 20 03
    ld     bc, UNK_0904F                ; 02:9032 - 01 4F 90
@@ -16134,7 +16136,10 @@ UNK_0904A:
 .db $02, $04, $03, $04, $FF                                                         ; 02:904A
 
 UNK_0904F:
-.db $04, $04, $04, $04, $FF, $05, $04, $05, $04, $FF                                ; 02:904F
+.db $04, $04, $04, $04, $FF                                                         ; 02:904F
+
+UNK_09054:
+.db $05, $04, $05, $04, $FF                                                         ; 02:9054
 
 UNK_09059:
 .db $44, $46, $FF, $FF, $FF, $FF, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9059
@@ -16408,7 +16413,7 @@ addr_092F3:
    ld     (ix+12), $00                 ; 02:92FB - DD 36 0C 00
 
 addr_092FF:
-   ld     hl, $9487                    ; 02:92FF - 21 87 94
+   ld     hl, UNK_09487                ; 02:92FF - 21 87 94
    ld     a, (ix+19)                   ; 02:9302 - DD 7E 13
    add    a, a                         ; 02:9305 - 87
    ld     e, a                         ; 02:9306 - 5F
@@ -16495,7 +16500,7 @@ addr_093C0:
    ld     (ix+12), $FF                 ; 02:93C8 - DD 36 0C FF
 
 addr_093CC:
-   ld     hl, $948D                    ; 02:93CC - 21 8D 94
+   ld     hl, UNK_0948D                ; 02:93CC - 21 8D 94
    ld     a, (ix+19)                   ; 02:93CF - DD 7E 13
    add    a, a                         ; 02:93D2 - 87
    ld     e, a                         ; 02:93D3 - 5F
@@ -16572,8 +16577,13 @@ addr_09432:
    jp     addr_093F7                   ; 02:9478 - C3 F7 93
 
 UNK_0947B:
-.db $3C, $03, $60, $03, $EC, $02, $60, $02, $8C, $03, $60, $02, $28, $03, $B0, $02  ; 02:947B
-.db $B0, $02, $60, $03, $60, $02, $60, $02                                          ; 02:948B
+.db $3C, $03, $60, $03, $EC, $02, $60, $02, $8C, $03, $60, $02                      ; 02:947B
+
+UNK_09487:
+.db $28, $03, $B0, $02, $B0, $02                                                    ; 02:9487
+
+UNK_0948D:
+.db $60, $03, $60, $02, $60, $02                                                    ; 02:948D
 
 UNK_09493:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:9493
