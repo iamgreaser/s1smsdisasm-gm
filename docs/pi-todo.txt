@@ -5,7 +5,7 @@ BANK 00:
 Easy testing: Move 00:3A62-3A74 to 00:0073, just after the NMI handler.
 Currently using src/diet.asm as a testbed for more extreme testing of PI.
 
-- One of Robotnik's running sprites at the end of SKY3 are invisible.
+No known PI problems on this bank!
 
 BANK 01:
 
@@ -14,4 +14,4 @@ BANK 01:
 
 BANK 02:
 
-- Some Bank 01 code calls into Bank 02 but uses an absolute pointer. This is due to the disassembler being very conservative about where it can and can't jump. I need to make this work safely.
+No known PI problems on this bank!
