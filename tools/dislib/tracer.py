@@ -148,7 +148,7 @@ class Tracer:
                         self.set_addr_type(arg_phys_addr, AT.DataWord)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         virt_val = self.rom.naive_to_virt(
-                            val, relative_to=VirtAddress((bank_idx, pc - 2))
+                            val, relative_to=VirtAddress((bank_idx, pc))
                         )
                         phys_val = self.rom.virt_to_phys(virt_val)
                         if (
@@ -158,9 +158,10 @@ class Tracer:
                                 and val > 0x0038
                                 and phys_val in self.rom.labels_from_addr
                             )
+                            or arg_phys_addr in self.rom.bank_overrides[val // self.rom.bank_size]
                         ) and (arg_phys_addr) not in self.rom.forced_immediates:
-                            label = self.ensure_label(
-                                val, relative_to=VirtAddress((bank_idx, pc - 2))
+                            label = self.ensure_label_phys(
+                                phys_val, relative_to=VirtAddress((bank_idx, pc))
                             )
                             op_args.append(f"{label}")
                         else:
@@ -168,7 +169,6 @@ class Tracer:
                         pc += 2
 
                     elif a == OA.MemByteImmWord:
-                        # TODO: Handle the diff between virtual and physical labels --GM
                         self.set_addr_type(arg_phys_addr, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
                         pc += 2

@@ -35,7 +35,7 @@ class Saver:
         self.write(f"SLOT 0 START $0000 SIZE $4000\n")
         self.write(f"SLOT 1 START $4000 SIZE $4000\n")
         self.write(f"SLOT 2 START $8000 SIZE $4000\n")
-        self.write(f"SLOT 3 START $C000 SIZE $2000\n")
+        self.write(f"SLOT 3 START $C000 SIZE $4000\n")
         self.write(f"DEFAULTSLOT 2\n")
         self.write(f"DEFAULTRAMSECTIONSLOT 3\n")
         self.write(f".ENDME\n")
@@ -113,9 +113,13 @@ class Saver:
             # Assume all banks past the first 2 want to be in slot 2 UNLESS overridden to be slot 1
             slot_idx = min(2, bank_idx)
             bank_phys_addr = PhysAddress(bank_idx * self.rom.bank_size)
-            if self.rom.bank_overrides[1].get(bank_phys_addr, None) == bank_idx:
+            if self.rom.bank_overrides[0].get(bank_phys_addr, None) == bank_idx:
+                slot_idx = 0
+            elif self.rom.bank_overrides[3].get(bank_phys_addr, None) == bank_idx:
+                slot_idx = 3
+            elif self.rom.bank_overrides[1].get(bank_phys_addr, None) == bank_idx:
                 slot_idx = 1
-            assert 0 <= slot_idx <= 2
+            assert 0 <= slot_idx <= 3
             self.write(
                 f'\n.SECTION "Bank{bank_idx:02X}" SLOT {slot_idx} BANK ${bank_idx:02X} FORCE ORG $0000\n'
             )

@@ -91,7 +91,7 @@ class Annotator:
         assert len(slot_idx_str) == 1
         bank_idx = int(bank_idx_str, 16)
         slot_idx = int(slot_idx_str)
-        assert 0 <= slot_idx <= 2
+        assert 0 <= slot_idx <= 3
         for addr in range(
             bank_idx * self.rom.bank_size, (bank_idx + 1) * self.rom.bank_size, 1
         ):
@@ -113,7 +113,7 @@ class Annotator:
         assert start_addr[0] == end_addr[0]
         phys_start = self.rom.virt_to_phys(start_addr)
         phys_end = self.rom.virt_to_phys(end_addr)
-        assert 0 <= slot_idx <= 2
+        assert 0 <= slot_idx <= 3
         for addr in range(phys_start, phys_end, 1):
             self.rom.bank_overrides[slot_idx][PhysAddress(addr)] = bank_idx
 
@@ -127,8 +127,8 @@ class Annotator:
             if virt_addr[0] < self.rom.bank_count:
                 val = struct.unpack("<H", self.rom.data[phys_addr : phys_addr + 2])[0]
                 val_virt = self.rom.naive_to_virt(val, relative_to=virt_addr)
-                if virt_addr[0] == 0x03:
-                    print(hex(virt_addr[0]), hex(virt_addr[1]), hex(val), hex(val_virt[0]), hex(val_virt[1]))
+                # if virt_addr[0] == 0x03:
+                #     print(hex(virt_addr[0]), hex(virt_addr[1]), hex(val), hex(val_virt[0]), hex(val_virt[1]))
                 self.rom.ensure_label(val_virt, relative_to=virt_addr)
                 if ltype_str == "codewptr":
                     if self.rom.virt_to_phys(val_virt) not in self.rom.addr_types:
