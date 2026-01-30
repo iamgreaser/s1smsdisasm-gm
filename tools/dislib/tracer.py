@@ -227,13 +227,7 @@ class Tracer:
                     elif a == OA.JumpWord:
                         self.set_addr_type(arg_phys_addr, AT.DataWordLabel)
                         (val,) = struct.unpack("<H", bank[pc:][:2])
-                        upper_bound = self.rom.bank_size * 1
-                        # TODO: Better overlay handling --GM
-                        if bank_phys_addr + pc >= upper_bound:
-                            upper_bound += self.rom.bank_size
-                        if bank_phys_addr + pc >= upper_bound:
-                            upper_bound += self.rom.bank_size
-                        if val < upper_bound:
+                        if val < 0xC000:
                             label = self.ensure_label(
                                 val,
                                 relative_to=VirtAddress((bank_idx, pc)),

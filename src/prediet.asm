@@ -353,7 +353,7 @@ irq_start:
    ld     a, $03                       ; 00:00C3 - 3E 03
    ld     (rompage_1), a               ; 00:00C5 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:00C8 - 32 35 D2
-   call   $4000                        ; 00:00CB - CD 00 40
+   call   snddrv_update                ; 00:00CB - CD 00 40
    call   poll_player_1_inputs         ; 00:00CE - CD A7 05
    bit    4, (iy+g_inputs_player_1-IYBASE)  ; 00:00D1 - FD CB 03 66
    call   z, addr_000F2                ; 00:00D5 - CC F2 00
@@ -603,7 +603,7 @@ di_call_s1_b03_4012_a_DI:
    ld     (rompage_1), a               ; 00:02DB - 32 FE FF
    pop    af                           ; 00:02DE - F1
    ld     (var_D2D2), a                ; 00:02DF - 32 D2 D2
-   call   $4012                        ; 00:02E2 - CD 12 40
+   call   snddrv_play_music            ; 00:02E2 - CD 12 40
    ld     a, (g_committed_rompage_1)   ; 00:02E5 - 3A 35 D2
    ld     (rompage_1), a               ; 00:02E8 - 32 FE FF
    ei                                  ; 00:02EB - FB
@@ -613,7 +613,7 @@ di_call_s1_b03_4006_DI:
    di                                  ; 00:02ED - F3
    ld     a, $03                       ; 00:02EE - 3E 03
    ld     (rompage_1), a               ; 00:02F0 - 32 FE FF
-   call   $4006                        ; 00:02F3 - CD 06 40
+   call   snddrv_stop                  ; 00:02F3 - CD 06 40
    ld     a, (g_committed_rompage_1)   ; 00:02F6 - 3A 35 D2
    ld     (rompage_1), a               ; 00:02F9 - 32 FE FF
    ei                                  ; 00:02FC - FB
@@ -625,7 +625,7 @@ play_sound_effect_a_DI:
    ld     a, $03                       ; 00:0300 - 3E 03
    ld     (rompage_1), a               ; 00:0302 - 32 FE FF
    pop    af                           ; 00:0305 - F1
-   call   $4015                        ; 00:0306 - CD 15 40
+   call   snddrv_play_sound            ; 00:0306 - CD 15 40
    ld     a, (g_committed_rompage_1)   ; 00:0309 - 3A 35 D2
    ld     (rompage_1), a               ; 00:030C - 32 FE FF
    ei                                  ; 00:030F - FB
@@ -4524,7 +4524,7 @@ addr_01EA4:
    ld     a, $03                       ; 00:1ECC - 3E 03
    ld     (rompage_1), a               ; 00:1ECE - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1ED1 - 32 35 D2
-   call   $4009                        ; 00:1ED4 - CD 09 40
+   call   snddrv_UNK_4009              ; 00:1ED4 - CD 09 40
    ret                                 ; 00:1ED7 - C9
 
 addr_01ED8:
@@ -4815,7 +4815,7 @@ addr_020B8:
    ld     (rompage_1), a               ; 00:20BA - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:20BD - 32 35 D2
    ld     hl, $0028                    ; 00:20C0 - 21 28 00
-   call   $400C                        ; 00:20C3 - CD 0C 40
+   call   snddrv_UNK_400C              ; 00:20C3 - CD 0C 40
    call   addr_00A40                   ; 00:20C6 - CD 40 0A
    xor    a                            ; 00:20C9 - AF
    ret                                 ; 00:20CA - C9
@@ -7163,7 +7163,7 @@ addr_03618:
 addr_03644:
    xor    a                            ; 00:3644 - AF
    ld     (g_rings_BCD), a             ; 00:3645 - 32 AA D2
-   call   $7C7B                        ; 00:3648 - CD 7B 7C
+   call   addr_07C7B                   ; 00:3648 - CD 7B 7C
    jr     c, addr_0367E                ; 00:364B - 38 31
    push   ix                           ; 00:364D - DD E5
    push   hl                           ; 00:364F - E5
@@ -9222,10 +9222,10 @@ addr_05009:
    ld     (var_D287), a                ; 01:503E - 32 87 D2
    ld     a, $0A                       ; 01:5041 - 3E 0A
    rst    $18                          ; 01:5043 - DF
-   call   $91EB                        ; 01:5044 - CD EB 91
-   call   $91EB                        ; 01:5047 - CD EB 91
-   call   $91EB                        ; 01:504A - CD EB 91
-   call   $91EB                        ; 01:504D - CD EB 91
+   call   UNK_091EB                    ; 01:5044 - CD EB 91
+   call   UNK_091EB                    ; 01:5047 - CD EB 91
+   call   UNK_091EB                    ; 01:504A - CD EB 91
+   call   UNK_091EB                    ; 01:504D - CD EB 91
    xor    a                            ; 01:5050 - AF
 
 addr_05051:
@@ -9496,7 +9496,7 @@ addr_05224:
    ret    z                            ; 01:5228 - C8
    ld     a, (var_D223)                ; 01:5229 - 3A 23 D2
    and    a                            ; 01:522C - A7
-   call   z, $91EB                     ; 01:522D - CC EB 91
+   call   z, UNK_091EB                 ; 01:522D - CC EB 91
    ret                                 ; 01:5230 - C9
 
 addr_05231:
@@ -11497,7 +11497,7 @@ addr_0662D:
    ld     de, $0000                    ; 01:6647 - 11 00 00
    ld     c, e                         ; 01:664A - 4B
    ld     b, d                         ; 01:664B - 42
-   call   $AC96                        ; 01:664C - CD 96 AC
+   call   UNK_0AC96                    ; 01:664C - CD 96 AC
    ld     hl, $0001                    ; 01:664F - 21 01 00
    ld     (var_D212), hl               ; 01:6652 - 22 12 D2
    ld     hl, $FFFC                    ; 01:6655 - 21 FC FF
@@ -11506,7 +11506,7 @@ addr_0662D:
    jr     c, addr_06678                ; 01:665E - 38 18
    ld     de, $000E                    ; 01:6660 - 11 0E 00
    ld     bc, $0000                    ; 01:6663 - 01 00 00
-   call   $AC96                        ; 01:6666 - CD 96 AC
+   call   UNK_0AC96                    ; 01:6666 - CD 96 AC
    ld     a, $0A                       ; 01:6669 - 3E 0A
    rst    $28                          ; 01:666B - EF
    jp     addr_06678                   ; 01:666C - C3 78 66
@@ -13957,11 +13957,11 @@ addr_07F0C:
 addr_07F2A:
    ld     a, (var_D408)                ; 01:7F2A - 3A 08 D4
    and    a                            ; 01:7F2D - A7
-   jp     m, $8003                     ; 01:7F2E - FA 03 80
+   jp     m, UNK_08003                 ; 01:7F2E - FA 03 80
    ld     hl, $0806                    ; 01:7F31 - 21 06 08
    ld     (var_D214), hl               ; 01:7F34 - 22 14 D2
    call   UNK_03956                    ; 01:7F37 - CD 56 39
-   jp     c, $8003                     ; 01:7F3A - DA 03 80
+   jp     c, UNK_08003                 ; 01:7F3A - DA 03 80
    ld     bc, $0010                    ; 01:7F3D - 01 10 00
    ld     e, (ix+10)                   ; 01:7F40 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:7F43 - DD 56 0B
@@ -20548,7 +20548,13 @@ snddrv_update:
 .db $C3, $3A, $42, $C3, $18, $40                                                    ; 03:4000
 
 snddrv_stop:
-.db $C3, $2D, $41, $C3, $E5, $41, $C3, $24, $42, $C3, $71, $41                      ; 03:4006
+.db $C3, $2D, $41                                                                   ; 03:4006
+
+snddrv_UNK_4009:
+.db $C3, $E5, $41                                                                   ; 03:4009
+
+snddrv_UNK_400C:
+.db $C3, $24, $42, $C3, $71, $41                                                    ; 03:400C
 
 snddrv_play_music:
 .db $C3, $EB, $46                                                                   ; 03:4012
