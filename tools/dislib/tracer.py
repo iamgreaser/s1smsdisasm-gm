@@ -31,8 +31,8 @@ class Tracer:
     def run(self) -> None:
         while len(self.rom.tracer_stack) >= 1:
             op_virt_addr = self.rom.tracer_stack.pop()
-            if op_virt_addr[0] >= 0x03:
-                # TODO: Support upper banks --GM
+            if op_virt_addr[0] >= self.rom.bank_count:
+                # Don't attempt to run from RAM
                 continue
 
             op_phys_addr = self.rom.virt_to_phys(op_virt_addr)
@@ -209,15 +209,15 @@ class Tracer:
                         self.set_addr_type(arg_phys_addr, AT.DataByteRelLabel)
                         (val,) = struct.unpack("<b", bank[pc:][:1])
                         val += bank_phys_addr + pc + 1
-                        assert val < self.rom.bank_size * 3
-                        label = self.ensure_label(
-                            val,
+                        label = self.ensure_label_phys(
+                            PhysAddress(val),
                             relative_to=VirtAddress((bank_idx, pc - 1)),
                             allow_relative_labels=True,
                         )
                         self.rom.tracer_stack.append(
-                            self.rom.naive_to_virt(
-                                val, relative_to=VirtAddress((bank_idx, pc - 1))
+                            self.rom.phys_to_virt(
+                                PhysAddress(val),
+                                relative_to=VirtAddress((bank_idx, pc - 1)),
                             )
                         )
                         # self.rom.tracer_stack.append(self.rom.naive_to_virt(val))
@@ -266,7 +266,6 @@ class Tracer:
                                 # SPECIAL CASE FOR SONIC 1:
                                 # IY is, as far as I can tell, always set to D200.
                                 val += 0xD200
-                                print(hex(bank_idx), hex(pc-1), hex(val))
                                 label = self.ensure_label(
                                     val,
                                     relative_to=VirtAddress((bank_idx, pc - 1)),
@@ -340,6 +339,19 @@ class Tracer:
     ) -> str:
         return self.rom.ensure_label(
             self.rom.naive_to_virt(val, relative_to=relative_to),
+            relative_to=relative_to,
+            allow_relative_labels=allow_relative_labels,
+        )
+
+    def ensure_label_phys(
+        self,
+        val: PhysAddress,
+        *,
+        relative_to: VirtAddress,
+        allow_relative_labels: bool = False,
+    ) -> str:
+        return self.rom.ensure_label(
+            self.rom.phys_to_virt(val, relative_to=relative_to),
             relative_to=relative_to,
             allow_relative_labels=allow_relative_labels,
         )

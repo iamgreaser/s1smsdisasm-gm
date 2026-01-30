@@ -291,6 +291,11 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     0o051: OS(name="ADD", args=[OA.RegIX, OA.RegHL]),
     0o071: OS(name="ADD", args=[OA.RegIX, OA.RegSP]),
     #
+    0o042: OS(name="LD", args=[OA.MemWordImmWord, OA.RegIX]),
+    0o052: OS(name="LD", args=[OA.RegIX, OA.MemWordImmWord]),
+    #
+    0o043: OS(name="INC", args=[OA.RegIX]),
+    #
     0o064: OS(name="INC", args=[OA.MemIXdd]),
     #
     0o065: OS(name="DEC", args=[OA.MemIXdd]),
@@ -300,6 +305,7 @@ OP_SPECS_DD_XX: dict[int, OS] = {
     0o206: OS(name="ADD", args=[OA.RegA, OA.MemIXdd]),
     0o216: OS(name="ADC", args=[OA.RegA, OA.MemIXdd]),
     0o226: OS(name="SUB", args=[OA.MemIXdd]),
+    0o246: OS(name="AND", args=[OA.MemIXdd]),
     0o266: OS(name="OR", args=[OA.MemIXdd]),
     0o276: OS(name="CP", args=[OA.MemIXdd]),
     #
@@ -314,6 +320,11 @@ OP_SPECS_FD_XX: dict[int, OS] = {
     0o051: OS(name="ADD", args=[OA.RegIY, OA.RegHL]),
     0o071: OS(name="ADD", args=[OA.RegIY, OA.RegSP]),
     #
+    0o042: OS(name="LD", args=[OA.MemWordImmWord, OA.RegIY]),
+    0o052: OS(name="LD", args=[OA.RegIY, OA.MemWordImmWord]),
+    #
+    0o043: OS(name="INC", args=[OA.RegIY]),
+    #
     0o064: OS(name="INC", args=[OA.MemIYdd]),
     #
     0o065: OS(name="DEC", args=[OA.MemIYdd]),
@@ -323,6 +334,7 @@ OP_SPECS_FD_XX: dict[int, OS] = {
     0o206: OS(name="ADD", args=[OA.RegA, OA.MemIYdd]),
     0o216: OS(name="ADC", args=[OA.RegA, OA.MemIYdd]),
     0o226: OS(name="SUB", args=[OA.MemIYdd]),
+    0o246: OS(name="AND", args=[OA.MemIYdd]),
     0o266: OS(name="OR", args=[OA.MemIYdd]),
     0o276: OS(name="CP", args=[OA.MemIYdd]),
     #

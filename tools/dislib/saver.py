@@ -182,9 +182,7 @@ class Saver:
         while offs < len(data):
             op_phys_addr = PhysAddress(phys_addr + offs)
             ltype = self.rom.addr_types.get(op_phys_addr, AT.DataByte)
-            if op_phys_addr >= 0xC000:
-                # FIXME: Actually handle bank memory mapping properly,
-                # this works around an issue where Bank03 gets weirdly sliced based on RAM labels --GM
+            if op_phys_addr >= self.rom.bank_size * self.rom.bank_count:
                 ltype = AT.DataByte
 
             if ltype == AT.Op:
