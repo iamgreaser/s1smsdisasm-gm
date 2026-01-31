@@ -1574,17 +1574,19 @@ random_A:
    push   hl                           ; 00:0625 - E5
    push   de                           ; 00:0626 - D5
    ld     hl, (g_random_seed)          ; 00:0627 - 2A D7 D2
-   .IF 0
+   .IF 1
    ld     e, l                         ; 00:062A - 5D
    ld     d, h                         ; 00:062B - 54
    add    hl, de                       ; 00:062C - 19
    add    hl, de                       ; 00:062D - 19
    .ELSE
+   ;; THIS "OPTIMISATION" IS WRONG - the code above does a x3, *NOT* a x4!
+   ;; Comment left for your amusement:
+
    ;; Well, that was an oversight.
    add hl, hl
    add hl, hl
    .ENDIF
-   ; SAVING: 2 bytes
    ld     a, l                         ; 00:062E - 7D
    add    a, h                         ; 00:062F - 84
    ld     h, a                         ; 00:0630 - 67
