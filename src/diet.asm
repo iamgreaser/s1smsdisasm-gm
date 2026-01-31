@@ -1722,13 +1722,26 @@ addr_006BD:
    bit    0, (iy+var_D202-IYBASE)      ; 00:06E6 - FD CB 02 46
    jp     z, addr_00772                ; 00:06EA - CA 72 07
    bit    6, (iy+var_D200-IYBASE)      ; 00:06ED - FD CB 00 76
+   .IF 0
    jr     nz, addr_006FA               ; 00:06F1 - 20 07
    ld     b, $00                       ; 00:06F3 - 06 00
    ld     c, $08                       ; 00:06F5 - 0E 08
    jp     addr_0070B                   ; 00:06F7 - C3 0B 07
+   .ELSE
+   ;; Hoist out common code.
+   ;; If we do it here, we have B=$00 and C=$08 as useful constants!
+   ;; We can also invert the jump condition and change the branch as we've emptied this branch out.
+   ld bc, $0008
+   jr z, addr_0070B
+   ; 06FA -> 06F6 - SAVING: 4 bytes (although one JP kinda became a JR)
+   .ENDIF
 
 addr_006FA:
    ld     a, (g_vdp_scroll_x)          ; 00:06FA - 3A 51 D2
+   ;; Basically:
+   ;; %000ABCDE + %00001000
+   ;; -> get %00x00000 and set C to %0000000x
+   .IF 0
    and    $1F                          ; 00:06FD - E6 1F
    add    a, $08                       ; 00:06FF - C6 08
    rrca                                ; 00:0701 - 0F
@@ -1739,6 +1752,17 @@ addr_006FA:
    and    $01                          ; 00:0706 - E6 01
    ld     b, $00                       ; 00:0708 - 06 00
    ld     c, a                         ; 00:070A - 4F
+   .ELSE
+   ;; But we can rely on unsigned overflow here.
+   or $E0      ; 06FD 2
+   ;; Also, C=$08 on entry
+   add a, c    ; 06FF 1
+   ;; But we want C to be $00 here... oh look, B=$00 on entry
+   ld c, b     ; 0700 1
+   ;; Shift it in!
+   rl c        ; 0701 2
+   ; 070B -> 0703 - SAVING: 8 bytes
+   .ENDIF
 
 addr_0070B:
    call   addr_008D5                   ; 00:070B - CD D5 08
@@ -1748,10 +1772,18 @@ addr_0070B:
    add    a, $08                       ; 00:0717 - C6 08
 
 addr_00719:
+   .IF 0
    and    $1F                          ; 00:0719 - E6 1F
    srl    a                            ; 00:071B - CB 3F
    srl    a                            ; 00:071D - CB 3F
    srl    a                            ; 00:071F - CB 3F
+   .ELSE
+   rrca     ; 0719 1
+   rrca     ; 071A 1
+   rrca     ; 071B 1
+   and $03  ; 071C 2
+   ; 0721 -> 071E - SAVING: 3 bytes (and 12 cycles)
+   .ENDIF
    ld     c, a                         ; 00:0721 - 4F
    ld     b, $00                       ; 00:0722 - 06 00
    ld     (g_FF_string_high_byte), bc  ; 00:0724 - ED 43 0E D2
@@ -1813,6 +1845,8 @@ addr_00772:
    bit    1, (iy+var_D202-IYBASE)      ; 00:0772 - FD CB 02 4E
    jp     z, addr_007DA                ; 00:0776 - CA DA 07
    bit    7, (iy+var_D200-IYBASE)      ; 00:0779 - FD CB 00 7E
+   .IF 0
+   ;; Original code
    jr     nz, addr_00786               ; 00:077D - 20 07
    ld     b, $06                       ; 00:077F - 06 06
    ld     c, $00                       ; 00:0781 - 0E 00
@@ -1821,6 +1855,17 @@ addr_00772:
 addr_00786:
    ld     b, $00                       ; 00:0786 - 06 00
    ld     c, b                         ; 00:0788 - 48
+
+   .ELSE
+   ;; New code
+   ;;
+   ;; Misuse some constants for size.
+   ;; Also we ate a branch, so invert the branch condition!
+   ld bc, $0600     ; 077D 3
+   jr z, addr_00789 ; 0780 2
+   ld b, c          ; 0782 1
+   ; 0789 -> 0783 - SAVING: 6 bytes
+   .ENDIF
 
 addr_00789:
    call   addr_008D5                   ; 00:0789 - CD D5 08
