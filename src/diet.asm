@@ -2650,7 +2650,12 @@ addr_00B6E:
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0B73 - 32 35 D2
    ld     (rompage_1), a               ; 00:0B70 - 32 FE FF
+   .IF 0
    ld     a, $02                       ; 00:0B76 - 3E 02
+   .ELSE
+   inc a
+   ; SAVING: 1 byte
+   .ENDIF
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0B7B - 32 36 D2
    ld     (rompage_2), a               ; 00:0B78 - 32 FF FF
