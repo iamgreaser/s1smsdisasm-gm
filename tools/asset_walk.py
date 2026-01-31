@@ -187,6 +187,7 @@ class Rom:
             (0x61E9, 0x0095, "Score Tally, Special, high byte $00"),
             (0x6830, 0x0179, "00:25A9 UNKNOWN, high byte $00"),
             (0x69A9, 0x0145, "00:267D UNKNOWN, high byte $00"),
+            (0x6AEE, 0x0173, "UNUSED beta credits backdrop, high byte $00"),
             (0x6C61, 0x0189, "00:26AB UNKNOWN, high byte $00"),
         ]
         for aoffs, alen, adesc in artmaps:
@@ -199,6 +200,11 @@ class Rom:
 
         # Mark junk
         junk_regions = [
+            (
+                0x07FDB,
+                0x00015,
+                "$00 repeated",
+            ),
             (
                 0x0BFF8,
                 0x00008,
