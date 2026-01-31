@@ -2652,6 +2652,12 @@ addr_00B58:
 
    ;; FIXME: This is only used for fading up to white. Get rid of the all-white palette and generate it here. --GM
 addr_00B60:
+   .IF 0
+   .ELSE
+   ;; Hoist this one in. Appears 2 times total.
+   ld hl, LUT_02047_all7F
+   ;; SAVING: 3 bytes
+   .ENDIF
    ld     (var_D214), hl               ; 00:0B60 - 22 14 D2
    ld     hl, (var_D230)               ; 00:0B63 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0B66 - 11 BC D3
@@ -5382,7 +5388,10 @@ _signpost_go_to_next_level:
    jr     nc, _level_was_bonus         ; 00:1FEB - 30 28
    bit    0, (iy+var_D207-IYBASE)      ; 00:1FED - FD CB 07 46
    jr     z, _level_was_normal_no_bonus  ; 00:1FF1 - 28 1B
+   .IF 0
+   ;; Hoisted into the function.
    ld     hl, LUT_02047_all7F          ; 00:1FF3 - 21 47 20
+   .ENDIF
    call   addr_00B60                   ; 00:1FF6 - CD 60 0B
    ld     a, (g_level)                 ; 00:1FF9 - 3A 3E D2
    push   af                           ; 00:1FFC - F5
@@ -6160,7 +6169,10 @@ addr_0262E:
    djnz   addr_0262E                   ; 00:2666 - 10 C6
    pop    bc                           ; 00:2668 - C1
    djnz   addr_02610                   ; 00:2669 - 10 A5
+   .IF 0
+   ;; Hoisted into the function.
    ld     hl, LUT_02047_all7F          ; 00:266B - 21 47 20
+   .ENDIF
    call   addr_00B60                   ; 00:266E - CD 60 0B
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2671 - FD 36 0A 00
    ld     a, $05                       ; 00:2675 - 3E 05
