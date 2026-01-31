@@ -41,6 +41,15 @@ class TkApp:
         self.tk = tkinter.Tk(className="s1sms_asset_walk")
         self.tk.wm_title("Sonic 1 SMS Asset Walker")
 
+        region_ordering = list(range(len(self.rom.region_list)))
+        region_ordering.sort(
+            key=lambda ri: (
+                self.rom.region_list[ri][0] if self.rom.region_list[ri][0] else -1,
+                self.rom.region_list[ri][2],
+                self.rom.region_list[ri][3],
+            )
+        )
+
         self.tv_regions_tags: dict[Optional[int], str] = {
             None: "",
         }
@@ -69,14 +78,15 @@ class TkApp:
         self.tv_regions.column("#0", width=130, stretch=False)
         self.tv_regions.column("Length", width=100, stretch=False)
         self.tv_regions.column("Description", width=600)
-        for ri, (rparent, rt, rstart, rlen, rdesc) in enumerate(self.rom.region_list):
+        for ri in region_ordering:
+            rparent, rt, rstart, rlen, rdesc = self.rom.region_list[ri]
             self.tv_regions_tags[ri] = self.tv_regions.insert(
                 self.tv_regions_tags[rparent],
                 "end",
                 text=f"${rstart:05X}",
                 values=[
                     f"${rlen:05X}",
-                    " / ".join(rdesc),
+                    rdesc,
                 ],
             )
 
@@ -101,9 +111,7 @@ class Rom:
     def __init__(self, *, data: bytes) -> None:
         self.log = logging.getLogger(self.__class__.__name__)
         self.data = data
-        self.region_list: list[
-            tuple[Optional[int], RegionType, int, int, list[str]]
-        ] = []
+        self.region_list: list[tuple[Optional[int], RegionType, int, int, str]] = []
 
     def find_everything(self) -> None:
         regions = [
@@ -142,19 +150,19 @@ class Rom:
                 # If this is an alias, treat it as such
                 if start == ostart and length == olen:
                     # It is.
-                    new_idx = other_idx
                     assert (
                         rt == ort
                     ), f"region alias type mismatch, tried to turn {ort!r} into {rt!r}"
-                    self.region_list[other_idx][4].append(desc)
+                    parent = oparent
                     break
-                parent = other_idx
+                else:
+                    parent = other_idx
             else:
                 assert (
                     start >= ostart + olen or start + length <= ostart
                 ), f"New region {start:05X}/{length:05X} partially overlaps region at {ostart:05X}:{olen:05X}"
-        else:
-            self.region_list.append((parent, rt, start, length, [desc]))
+
+        self.region_list.append((parent, rt, start, length, desc))
 
         parent_str = "-----"
         if parent is not None:
