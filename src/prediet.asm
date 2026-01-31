@@ -14465,13 +14465,7 @@ addr_0834B:
    call   addr_07C41                   ; 02:835D - CD 41 7C
 
 addr_08360:
-   ;; FIXME: Label appears mid-op!
-.db $3A                                                                             ; 02:8360
-   ;; FIXME: Word table not a multiple of 2!
-.db $23                                                                             ; 02:8361
-
-UNK_08362:
-.db $D2                                                                             ; 02:8362
+   ld     a, (var_D223)                ; 02:8360 - 3A 23 D2
    and    $07                          ; 02:8363 - E6 07
    ret    nz                           ; 02:8365 - C0
    inc    (ix+17)                      ; 02:8366 - DD 34 11
@@ -14619,7 +14613,7 @@ addr_084DA:
    add    a, a                         ; 02:84E6 - 87
    ld     e, a                         ; 02:84E7 - 5F
    ld     d, $00                       ; 02:84E8 - 16 00
-   ld     hl, $8632                    ; 02:84EA - 21 32 86
+   ld     hl, UNK_08632                ; 02:84EA - 21 32 86
    add    hl, de                       ; 02:84ED - 19
    ld     a, (hl)                      ; 02:84EE - 7E
    ld     (ix+2), a                    ; 02:84EF - DD 77 02
@@ -14785,6 +14779,8 @@ addr_08626:
    ld     (ix+12), a                   ; 02:862C - DD 77 0C
    pop    ix                           ; 02:862F - DD E1
    ret                                 ; 02:8631 - C9
+
+UNK_08632:
 .db $D4, $03, $C0, $03, $44, $04, $C0, $03, $00, $00, $F6, $FF, $C0, $FE, $00, $FC  ; 02:8632
 .db $60, $FE, $80, $FD, $C0, $FD, $00, $FF, $20, $00, $F6, $FF, $40, $01, $00, $FC  ; 02:8642
 .db $A0, $01, $80, $FD, $40, $02, $00, $FF                                          ; 02:8652
