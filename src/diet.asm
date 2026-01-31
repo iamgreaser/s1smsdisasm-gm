@@ -4732,6 +4732,11 @@ fill_ram_at_hl_for_b_bytes_with_a:
    djnz   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1CEA - 10 FC
    ret                                 ; 00:1CEC - C9
 
+.IF 1
+;; SEE BELOW - if unreferenced, turn this off!
+load_level_header_LUT_01: .dw $0060, $0088, $0060, $0070
+.ENDIF
+
 load_level_header_UNCONFIRMED:
    ld     a, $05                       ; 00:1CED - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -4783,6 +4788,7 @@ addr_01D42:
    ld     (rompage_1), a               ; 00:1D57 - 32 FE FF
    bit    2, (iy+var_D205-IYBASE)      ; 00:1D5D - FD CB 05 56
    call   nz, addr_03879               ; 00:1D61 - C4 79 38
+   .IF 0
    ld     hl, $0060                    ; 00:1D64 - 21 60 00
    ld     (var_D25F), hl               ; 00:1D67 - 22 5F D2
    ld     hl, $0088                    ; 00:1D6A - 21 88 00
@@ -4791,12 +4797,21 @@ addr_01D42:
    ld     (var_D263), hl               ; 00:1D73 - 22 63 D2
    ld     hl, $0070                    ; 00:1D76 - 21 70 00
    ld     (var_D265), hl               ; 00:1D79 - 22 65 D2
+   .ELSE
+   ;; Load from a LUT.
+   ld hl, load_level_header_LUT_01 ; 1D64 3
+   ld de, var_D25F                 ; 1D67 3
+   ld bc, $0008                    ; 1D6A 3
+   ldir                            ; 1D6D 2
+   .ENDIF
+   ; 1D7C -> 1D6F - SAVING: 13 bytes
    call   addr_0239C                   ; 00:1D7C - CD 9C 23
    ld     a, $01                       ; 00:1D7F - 3E 01
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1D84 - 32 35 D2
    ld     (rompage_1), a               ; 00:1D81 - 32 FE FF
-   ld     a, $02                       ; 00:1D87 - 3E 02
+   ;ld     a, $02                       ; 00:1D87 - 3E 02
+   inc a   ; SAVING: 1 byte
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:1D8C - 32 36 D2
    ld     (rompage_2), a               ; 00:1D89 - 32 FF FF
@@ -4888,7 +4903,8 @@ addr_01E48:
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1E55 - 32 35 D2
    ld     (rompage_1), a               ; 00:1E52 - 32 FE FF
-   ld     a, $02                       ; 00:1E58 - 3E 02
+   ;ld     a, $02                       ; 00:1E58 - 3E 02
+   inc a   ; SAVING: 1 byte
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:1E5D - 32 36 D2
    ld     (rompage_2), a               ; 00:1E5A - 32 FF FF
@@ -4986,7 +5002,8 @@ addr_01F06:
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1F11 - 32 35 D2
    ld     (rompage_1), a               ; 00:1F0E - 32 FE FF
-   ld     a, $02                       ; 00:1F14 - 3E 02
+   ;ld     a, $02                       ; 00:1F14 - 3E 02
+   inc a   ; SAVING: 1 byte
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:1F19 - 32 36 D2
    ld     (rompage_2), a               ; 00:1F16 - 32 FF FF
@@ -5421,6 +5438,10 @@ addr_021ED:
    inc    hl                           ; 00:2210 - 23
    push   hl                           ; 00:2211 - E5
    ex     de, hl                       ; 00:2212 - EB
+   ;; The usual implementation of this is a bit wasteful.
+   ;; However, we can go one better.
+   ;; Instead of merely being less wasteful, we can allow access to up to 16 KB more for level data!
+   .IF 0
    ld     a, h                         ; 00:2213 - 7C
    di                                  ; 00:2214 - F3
    cp     $40                          ; 00:2215 - FE 40
@@ -5451,6 +5472,26 @@ addr_0223E:
    ei                                  ; 00:223E - FB
    ld     de, $4000                    ; 00:223F - 11 00 40
    add    hl, de                       ; 00:2242 - 19
+
+   .ELSE
+   ;; BETTER VERSION
+   ;;
+   ;; The interrupt should be fine now that stuff is ordered properly so let's not turn them off.
+   ld a, h                        ; 2213 1
+   rlca                           ; 2214 1
+   rlca                           ; 2215 1
+   and $03                        ; 2216 2
+   add a, $05                     ; 221C 2
+   ld e, a                        ; 221E 1
+   inc a                          ; 221F 1
+   ld d, a                        ; 2220 1
+   ld (g_committed_rompage_1), de ; 2221 3
+   ld (rompage_1), de             ; 2224 3
+   ;; Set top bits of H to 01 - that is, put HL in the $4000 through $7FFF range
+   res 7, h                       ; 2218 2
+   set 6, h                       ; 221A 2
+   ; 2243 -> 2227 - SAVING: 28 bytes
+   .ENDIF
    call   unpack_level_layout_into_ram  ; 00:2243 - CD 10 0A
    pop    hl                           ; 00:2246 - E1
    ld     e, (hl)                      ; 00:2247 - 5E
