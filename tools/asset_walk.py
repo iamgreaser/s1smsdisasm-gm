@@ -46,7 +46,7 @@ class TkApp:
             key=lambda ri: (
                 self.rom.region_list[ri][0] if self.rom.region_list[ri][0] else -1,
                 self.rom.region_list[ri][2],
-                self.rom.region_list[ri][3],
+                -self.rom.region_list[ri][3],
             )
         )
 
@@ -99,6 +99,7 @@ class TkApp:
 
 
 class RegionType(enum.Enum):
+    unmapped = enum.auto()
     misc = enum.auto()
     level_header_pointer = enum.auto()
     level_header = enum.auto()
@@ -112,6 +113,7 @@ class Rom:
         self.log = logging.getLogger(self.__class__.__name__)
         self.data = data
         self.region_list: list[tuple[Optional[int], RegionType, int, int, str]] = []
+        self.unmapped_regions: dict[Optional[int], list[tuple[int, int]]] = {}
 
     def find_everything(self) -> None:
         regions = [
@@ -156,6 +158,16 @@ class Rom:
 
         self.walk_level_headers(headers_ptr=0x15580, base_ptr=0x14000)
 
+        # Now add all unmapped regions.
+        for rparent, rlist in self.unmapped_regions.items():
+            for rstart, rlen in rlist:
+                self.log.warning(
+                    f"Found unmapped region {rstart:05X}/{rlen:05X} (last byte {rstart+rlen-1:05X})"
+                )
+                self.region_list.append(
+                    (rparent, RegionType.unmapped, rstart, rlen, "### UNMAPPED ###")
+                )
+
     def add_region(self, *, rt: RegionType, start: int, length: int, desc: str) -> None:
         # Check if we have a parent, be as specific as we can
         parent: Optional[int] = None
@@ -179,8 +191,39 @@ class Rom:
                     start >= ostart + olen or start + length <= ostart
                 ), f"New region {start:05X}/{length:05X} partially overlaps region at {ostart:05X}:{olen:05X}"
 
+        # Mark unmapped regions as mapped.
+        if parent not in self.unmapped_regions:
+            if parent is None:
+                self.unmapped_regions[parent] = [(0x00000, 0x40000)]
+            else:
+                oparent, ort, ostart, olen, odesc = self.region_list[parent]
+                self.unmapped_regions[parent] = [(ostart, olen)]
+
+        end = start + length
+        ui = 0
+        while ui < len(self.unmapped_regions[parent]):
+            ustart, ulen = self.unmapped_regions[parent][ui]
+            uend = ustart + ulen
+
+            if end <= ustart or uend <= start:
+                # No overlap! Leave this alone.
+                ui += 1
+            else:
+                # There is an overlap.
+                del self.unmapped_regions[parent][ui]
+                if end < uend:
+                    # Got unmapped space after the new mapping.
+                    self.unmapped_regions[parent].insert(ui, (end, (uend - end)))
+                    ui += 1
+                if ustart < start:
+                    # Got unmapped space before the new mapping.
+                    self.unmapped_regions[parent].insert(ui, (ustart, (start - ustart)))
+                    ui += 1
+
+        # Add region
         self.region_list.append((parent, rt, start, length, desc))
 
+        # Some debug text!
         parent_str = "-----"
         if parent is not None:
             parent_str = f"{parent:5d}"
