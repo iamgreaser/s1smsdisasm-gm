@@ -2612,8 +2612,10 @@ addr_00AFC:
    ld     b, $20                       ; 00:0B03 - 06 20
 
 addr_00B05:
-   push   bc                           ; 00:0B05 - C5
+   ;; FIXME: I need to find out where this code gets called! --GM
+.IF 1
    ;; Original code
+   push   bc                           ; 00:0B05 - C5
    ld     a, (hl)                      ; 00:0B06 - 7E
    and    $03                          ; 00:0B07 - E6 03
    ld     b, a                         ; 00:0B09 - 47
@@ -2652,6 +2654,27 @@ addr_00B2C:
    inc    hl                           ; 00:0B2E - 23
    inc    de                           ; 00:0B2F - 13
    pop    bc                           ; 00:0B30 - C1
+
+.ELSE
+   ;; New code
+   ;; FIXME: NOT TESTED, NOT SURE WHERE IT'S CALLED --GM
+   ;; Use bit twiddling, and leave the B register alone.
+   ;; We only ever fade *down* to a given colour.
+   ;; So we can do 3 positions, and set it to 0 if and only if the two bits in the palette are equal.
+   ld a, (de)  ; 0B05 1
+   xor (hl)    ; 0B06 1
+   ld c, a     ; 0B07 1
+   rrca        ; 0B08 1
+   or c        ; 0B09 1
+   and $15     ; 0B0A 2
+   ld c, a     ; 0B0C 1
+   ld a, (de)  ; 0B0D 1
+   sub c       ; 0B0E 1
+   ld (de), a  ; 0B0F 1
+   inc hl      ; 0B10 1
+   inc de      ; 0B11 1
+   ; 0B31 -> 0B12 - SAVING: 31 bytes
+.ENDIF
    djnz   addr_00B05                   ; 00:0B31 - 10 D2
    ld     hl, var_D3BC                 ; 00:0B33 - 21 BC D3
    ld     a, $03                       ; 00:0B36 - 3E 03
