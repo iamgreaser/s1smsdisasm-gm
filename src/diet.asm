@@ -21,9 +21,7 @@
 ;; - $7F causes a reset.
 ;; - $80 upwards behaves a bit like $00 upwards but things are weird and you have weird starting times and the clock goes in the middle of the screen... and you're stuck on the same level repeatedly.
 ;; - Go explore if you want to find out what the out-of-range values do.
-;.DEF cht_starting_level $11
-.DEF cht_starting_level $0B
-;.DEF cht_starting_level $05
+.DEF cht_starting_level $00
 
 ;; bool: No Death On Hit
 .DEF cht_no_death_on_hit 1
@@ -8354,7 +8352,7 @@ LUT_3FF0:
 .db $03, $08, $03, $03, $03, $03, $03, $03, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:4000
 .db $00, $00, $00, $00, $00, $00, $00, $03, $03, $04, $04, $03, $03, $03, $03, $00  ; 01:4010
 
-.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
+;.dsb 7, 0 ; TEST: Force non-PI code to break. --GM
 
 UNK_04020:
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4020
