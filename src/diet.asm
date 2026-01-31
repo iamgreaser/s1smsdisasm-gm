@@ -2511,18 +2511,36 @@ addr_00A40:
    res    0, (iy+var_D200-IYBASE)      ; 00:0A53 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0A57 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0A5A - FD 77 0A
+   .IF 0
    ld     b, $04                       ; 00:0A5D - 06 04
+   .ELSE
+   ;; C is now otherwise unused, so we can avoid a PUSH BC.
+   ;; Savings noted in the former-DJNZ.
+   ld c, $04
+   .ENDIF
 
 addr_00A5F:
+   .IF 0
+   ;; See above, B is safe now.
    push   bc                           ; 00:0A5F - C5
+   .ENDIF
    ld     hl, (var_D230)               ; 00:0A60 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0A63 - 11 BC D3
+   .IF 0
+   .ELSE
+   push de
+   .ENDIF
    ld     b, $10                       ; 00:0A66 - 06 10
    call   addr_00A90                   ; 00:0A68 - CD 90 0A
    ld     hl, (var_D232)               ; 00:0A6B - 2A 32 D2
    ld     b, $10                       ; 00:0A6E - 06 10
    call   addr_00A90                   ; 00:0A70 - CD 90 0A
+   .IF 0
    ld     hl, var_D3BC                 ; 00:0A73 - 21 BC D3
+   .ELSE
+   pop hl
+   ; SAVING: 1 byte
+   .ENDIF
    ld     a, $03                       ; 00:0A76 - 3E 03
    call   signal_load_palettes         ; 00:0A78 - CD 33 03
    ld     b, $0A                       ; 00:0A7B - 06 0A
@@ -2533,8 +2551,15 @@ addr_00A7D:
    call   wait_until_irq_ticked        ; 00:0A84 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0A87 - FD 77 0A
    djnz   addr_00A7D                   ; 00:0A8A - 10 F1
+   .IF 0
+   ;; See above, B is safe now.
    pop    bc                           ; 00:0A8C - C1
    djnz   addr_00A5F                   ; 00:0A8D - 10 D0
+   .ELSE
+   dec c
+   jr nz, addr_00A5F
+   ; SAVING: 1 byte
+   .ENDIF
    ret                                 ; 00:0A8F - C9
 
 addr_00A90:
