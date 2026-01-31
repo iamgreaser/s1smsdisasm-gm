@@ -101,6 +101,7 @@ class TkApp:
 class RegionType(enum.Enum):
     unmapped = enum.auto()
     misc = enum.auto()
+    junk = enum.auto()
     level_header_pointer = enum.auto()
     level_header = enum.auto()
     level_metatile_layout = enum.auto()
@@ -123,8 +124,8 @@ class Rom:
             (0x10000, 0x05580, "4x4 tile layouts"),
             (0x15580, 0x0004A, "level header pointers relative to $15580"),
             (0x155CA, 0x004EA, "level headers"),
-            (0x15AB4, 0x00510, "level object layouts"),
-            (0x15FC4, 0x00E26, "compressed transparent tilemaps"),
+            (0x15AB4, 0x0054C, "level object layouts"),
+            (0x16000, 0x00DEA, "compressed transparent tilemaps"),
             (0x16DEA, 0x09216, "level block layouts"),
             (0x20000, 0x06000, "uncompressed art?"),
             (0x26000, 0x0A000, "compressed art, part 1"),
@@ -194,6 +195,47 @@ class Rom:
                 start=aoffs + 0x10000,
                 length=alen,
                 desc=adesc,
+            )
+
+        # Mark junk
+        junk_regions = [
+            (
+                0x0BFF8,
+                0x00008,
+                '"｢SONIC THE HEDGEHOG｣ Master System & Game Gear Version.  \'1991 (C)Ancient. (BANK0-4)"',
+            ),
+            (
+                0x0FFA1,
+                0x0005F,
+                '"｢SONIC THE HEDGEHOG｣ Master System & Game Gear Version.  \'1991 (C)Ancient. (BANK0-4)"',
+            ),
+            (
+                0x15FC4,
+                0x0003C,
+                '"｢SONIC THE HEDGEHOG｣ Master System & Game Gear Version.  \'1991 (C)Ancient. (BANK0-4)"',
+            ),
+            (
+                0x1FBA1,
+                0x0045F,
+                '"｢SONIC THE HEDGEHOG｣ Master System & Game Gear Version.  \'1991 (C)Ancient. (BANK0-4)"',
+            ),
+            (
+                0x2FFF0,
+                0x00010,
+                '"｢SONIC THE HEDGEHOG｣ Master System & Game Gear Version.  \'1991 (C)Ancient. (BANK8-11)"',
+            ),
+            (
+                0x3FF21,
+                0x000DF,
+                '"｢SONIC THE HEDGEHOG｣ Master System & Game Gear Version.  \'1991 (C)Ancient. (BANK12-15)"',
+            ),
+        ]
+        for joffs, jlen, jtext in junk_regions:
+            self.add_region(
+                rt=RegionType.junk,
+                start=joffs,
+                length=jlen,
+                desc="JUNK: " + jtext,
             )
 
         self.walk_level_headers(headers_ptr=0x15580, base_ptr=0x14000)
