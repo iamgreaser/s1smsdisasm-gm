@@ -1936,6 +1936,10 @@ addr_007DB:
    push   de                           ; 00:07E4 - D5
    push   bc                           ; 00:07E5 - C5
    ld     a, (g_vdp_scroll_y)          ; 00:07E6 - 3A 52 D2
+
+   ;; Compute tilemap VRAM address.
+   .IF 0
+   ;; Original code
    and    $F8                          ; 00:07E9 - E6 F8
    ld     b, $00                       ; 00:07EB - 06 00
    add    a, a                         ; 00:07ED - 87
@@ -1959,12 +1963,46 @@ addr_00802:
    ld     hl, $3800                    ; 00:080A - 21 00 38
    add    hl, bc                       ; 00:080D - 09
    set    6, h                         ; 00:080E - CB F4
+   .ELSE
+
+   ;; New code
+   ;;
+   ;; Swap HL and BC around.
+   ;; ADD HL,HL is 1 cycle faster than ADD A,A / RL B.
+   ;; It might be faster to use 3x RLCA than 3x ADD HL,HL, but it is definitely a bit bigger.
+   and $F8                      ; 07E9 2
+   ld h, $00                    ; 07EB 2
+   ld l, a                      ; 07ED 1
+   add hl, hl                   ; 07EE 1
+   add hl, hl                   ; 07EF 1
+   add hl, hl                   ; 07F0 1
+   ld a, (g_vdp_scroll_x)       ; 07F1 3
+   bit 6, (iy+var_D200-IYBASE)  ; 07F4 4
+   jr z, +                      ; 07F8 2
+      add a, $08                ; 07FA 2
+   +:
+   and $F8                      ; 07FC 2
+   rrca                         ; 07FE 1
+   rrca                         ; 07FF 1
+   ld b, $78                    ; 0800 2
+   ld c, a                      ; 0802 1
+   add hl, bc                   ; 0803 1
+   ; 0810 -> 0804 - SAVING: 12 bytes
+   .ENDIF
+
    ld     bc, $0040                    ; 00:0810 - 01 40 00
+   .IF 0
    ld     d, $7F                       ; 00:0813 - 16 7F
    ld     e, $07                       ; 00:0815 - 1E 07
+   .ELSE
+   ld de, $7F07
+   ; SAVING: 1 byte
+   .ENDIF
    exx                                 ; 00:0817 - D9
    ld     hl, var_D180                 ; 00:0818 - 21 80 D1
    ld     a, (g_vdp_scroll_y)          ; 00:081B - 3A 52 D2
+
+   .IF 0
    and    $1F                          ; 00:081E - E6 1F
    srl    a                            ; 00:0820 - CB 3F
    srl    a                            ; 00:0822 - CB 3F
@@ -1973,8 +2011,24 @@ addr_00802:
    ld     b, $00                       ; 00:0827 - 06 00
    add    hl, bc                       ; 00:0829 - 09
    add    hl, bc                       ; 00:082A - 09
+   .ELSE
+   and $18     ; 081E 2
+   rrca        ; 0820 1
+   rrca        ; 0821 1
+   ;; One right rotate is omitted so we can premultiply A by 2.
+   ld c, a     ; 0822 1
+   ld b, $00   ; 0823 2
+   add hl, bc  ; 0825 1
+   ; 082B -> 0826 - SAVING: 5 bytes (and 27 cycles)
+   .ENDIF
+
+   .IF 0
    ld     b, $32                       ; 00:082B - 06 32
    ld     c, $BE                       ; 00:082D - 0E BE
+   .ELSE
+   ld bc, $32BE
+   ; SAVING: 1 byte
+   .ENDIF
 
 addr_0082F:
    exx                                 ; 00:082F - D9
