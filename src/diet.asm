@@ -2057,9 +2057,17 @@ addr_00849:
    jp     z, addr_008CF                ; 00:084D - CA CF 08
    ld     a, (g_vdp_scroll_y)          ; 00:0850 - 3A 52 D2
    ld     b, $00                       ; 00:0853 - 06 00
+   .IF 0
    srl    a                            ; 00:0855 - CB 3F
    srl    a                            ; 00:0857 - CB 3F
    srl    a                            ; 00:0859 - CB 3F
+   .ELSE
+   rrca
+   rrca
+   rrca
+   and $1F
+   ; SAVING: 1 byte
+   .ENDIF
    bit    7, (iy+var_D200-IYBASE)      ; 00:085B - FD CB 00 7E
    jr     nz, addr_00863               ; 00:085F - 20 02
    add    a, $18                       ; 00:0861 - C6 18
