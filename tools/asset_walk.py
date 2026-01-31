@@ -147,6 +147,23 @@ class Rom:
             (0x0C, 0x1801, "World Map 2, VRAM $0000"),
             (0x09, 0x5942, "World Map 2, VRAM $2000"),
             (0x09, 0xB92E, "World Map 2, VRAM $3000"),
+            (0x09, 0x2000, "00:1296 UNKNOWN, VRAM $0000"),
+            (0x09, 0x4B0A, "00:1296 UNKNOWN, VRAM $2000"),
+            (0x09, 0x351F, "00:1411 UNKNOWN, VRAM $0000"),
+            (0x09, 0xB92E, "Score Tally Screen, VRAM $3000"),
+            (0x09, 0x351F, "Score Tally Screen, VRAM $0000"),
+            (0x09, 0xB92E, "00:2172 UNKNOWN, VRAM $3000"),
+            (0x0C, 0x0000, "00:25A9 UNKNOWN, VRAM $0000"),
+            (0x0C, 0x0000, "00:26AB UNKNOWN, VRAM $0000"),
+            (0x09, 0x4B0A, "00:26AB UNKNOWN, VRAM $2000"),
+            (0x09, 0x4294, "Signpost, VRAM $2000"),
+            (0x09, 0xAEB1, "GHZ3 Boss, VRAM $2000"),
+            (0x0C, 0xDA28, "01:7916 UNKNOWN, VRAM $2000"),
+            (0x09, 0xAEB1, "JUN3 Boss, VRAM $2000"),
+            (0x0C, 0xE508, "BRI3 Boss, VRAM $2000"),
+            (0x0C, 0xE508, "LAB3 Boss, VRAM $2000"),
+            (0x0C, 0xEF3F, "SCR3 Boss, VRAM $2000"),
+            (0x0C, 0xEF3F, "SKY3 Boss (zapper), VRAM $2000"),
         ]
         for abank, aoffs, adesc in misc_art:
             astart = (abank * 0x4000) + aoffs
