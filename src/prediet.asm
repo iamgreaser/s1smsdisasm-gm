@@ -2343,7 +2343,7 @@ addr_00C6C:
    ld     de, $0000                    ; 00:0C8C - 11 00 00
    ld     a, $0C                       ; 00:0C8F - 3E 0C
    call   load_art                     ; 00:0C91 - CD 05 04
-   ld     hl, ART_09_562B              ; 00:0C94 - 21 6B 52
+   ld     hl, ART_09_526B              ; 00:0C94 - 21 6B 52
    ld     de, $2000                    ; 00:0C97 - 11 00 20
    ld     a, $09                       ; 00:0C9A - 3E 09
    call   load_art                     ; 00:0C9C - CD 05 04
@@ -28999,7 +28999,7 @@ ART_09_4B0A:
 .db $F8, $80, $F8, $F8, $F8, $00, $F0, $F0, $F0, $00, $E0, $E0, $E0, $00, $C0, $C0  ; 0A:525A
 .db $C0                                                                             ; 0A:526A
 
-ART_09_562B:
+ART_09_526B:
 .db $48, $59, $88, $00, $C3, $03, $00, $04, $30, $E0, $FF, $83, $FF, $C1, $FF, $D1  ; 0A:526B
 .db $61, $FD, $FF, $FF, $FF, $FF, $FF, $FF, $91, $21, $80, $00, $81, $01, $FF, $3F  ; 0A:527B
 .db $FF, $3F, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FA, $FF, $3F, $FF, $FF, $FF  ; 0A:528B
