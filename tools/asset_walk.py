@@ -94,6 +94,7 @@ class RegionType(enum.Enum):
     level_header = enum.auto()
     level_metatile_layout = enum.auto()
     level_object_layout = enum.auto()
+    art_tiles = enum.auto()
 
 
 class Rom:
@@ -259,7 +260,6 @@ class Rom:
             )
             obj_count = self.data[hobjoffs_15580 + 0x15580] - 1
             obj_len = 1 + (3 * obj_count)
-            print(hex(hobjoffs_15580 + 0x15580), obj_count)
             self.add_region(
                 rt=RegionType.level_object_layout,
                 start=hobjoffs_15580 + 0x15580,
@@ -267,7 +267,57 @@ class Rom:
                 desc=f"Level object layout for header ${hi:02X}",
             )
 
+            self.add_compressed_art_tiles(
+                start=hart0offs_30000_V0000 + 0x30000,
+                desc=f"Art for level header ${hi:02X}, VRAM $0000",
+            )
+            self.add_compressed_art_tiles(
+                start=hart1offs_V2000 + (0x4000 * hart1bank),
+                desc=f"Art for level header ${hi:02X}, VRAM $2000",
+            )
+
             self.log.debug(f"header ${hoffs:05X} {header_str}")
+
+    def add_compressed_art_tiles(self, *, start: int, desc: str) -> None:
+        # Walk the art somehow!
+        body_offs = start
+        magic = self.data[body_offs : body_offs + 2]
+        assert magic == b"HY", f"Invalid header ID for art at {start:05X}"
+        body_offs += 2
+        backrefs_offs, rows_offs, row_count = struct.unpack(
+            "<HHH", self.data[body_offs : body_offs + 6]
+        )
+        body_offs += 6
+        backrefs_offs += start
+        rows_offs += start
+        bitmask_offs = body_offs
+        # If the bit mask was the final pointer, this would be a lot easier to calculate.
+        # It's not, so we actually have to walk the bitmask table and count bits.
+        #
+        # But it could be worse. If the final pointer was the backrefs,
+        # we'd have to walk that and find out how many offsets are 16-bit and how many are 8-bit.
+        #
+        # ... actually, I'm not sure if that would actually be worse.
+        assert bitmask_offs < backrefs_offs < rows_offs
+
+        full_row_count = 0
+        assert row_count % 8 == 0
+        for byte_idx in range(row_count // 8):
+            v = self.data[bitmask_offs + byte_idx]
+            # Get the population count
+            v = (v & 0x55) + ((v >> 1) & 0x55)
+            v = (v & 0x33) + ((v >> 2) & 0x33)
+            v = (v & 0x0F) + ((v >> 4) & 0x0F)
+            assert 0 <= v <= 8
+            full_row_count += 8 - v
+
+        end_offs = rows_offs + (full_row_count * 4)
+        self.add_region(
+            rt=RegionType.art_tiles,
+            start=start,
+            length=end_offs - start,
+            desc=desc,
+        )
 
 
 if __name__ == "__main__":
