@@ -6384,6 +6384,8 @@ addr_02693:
    xor    a                            ; 00:26D2 - AF
    ld     (g_FF_string_high_byte), a   ; 00:26D3 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:26D6 - CD 01 05
+
+   .IF 0
    xor    a                            ; 00:26D9 - AF
    ld     hl, var_D322                 ; 00:26DA - 21 22 D3
    ld     (hl), credits_sprite_00&$FF  ; 00:26DD - 36 48
@@ -6409,6 +6411,18 @@ addr_02693:
    ld     (hl), credits_sprite_03>>8   ; 00:26F8 - 36 28
    inc    hl                           ; 00:26FA - 23
    ld     (hl), a                      ; 00:26FB - 77
+
+   .ELSE
+   ;; Use a table
+   ld hl, credits_sprite_ptrs
+   ld de, var_D322
+   ld bc, 3*4
+   ldir
+   ; 11 bytes, add 12 for the table itself, totalling 23 bytes
+   ; Original code: 35 bytes
+   ; SAVING: 22 bytes
+   .ENDIF
+
    ld     bc, $0001                    ; 00:26FC - 01 01 00
    call   addr_02718                   ; 00:26FF - CD 18 27
    ld     hl, LUT_02AD6                ; 00:2702 - 21 D6 2A
@@ -6628,7 +6642,19 @@ PAL3_02828:
 .db $35, $01, $06, $0B, $04, $08, $0C, $3D, $1F, $39, $2A, $14, $25, $2B, $00, $3F  ; 00:2828
 .db $35, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $00, $3C, $00, $3F  ; 00:2838
 
-;; See function 00:275A, where HL = $D322 (var_D322), and there are 4 entries initialised with the form:
+.IF 0
+.ELSE
+credits_sprite_ptrs:
+   .dw credits_sprite_00
+   .db 0
+   .dw credits_sprite_01
+   .db 0
+   .dw credits_sprite_02
+   .db 0
+   .dw credits_sprite_03
+   .db 0
+.ENDIF
+;; See function 00:275A, where HL = $D322 (var_D322), and there are 4 entries initialised with the form: = SAVING: 49 bytes
 ;; .dw some_ptr (this one is the first!) -> gets stored into DE
 ;; .db $00  <-- gets incremented
 ;; And this structure:
