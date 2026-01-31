@@ -3014,7 +3014,7 @@ addr_00CDC:
    ld     de, $2000                    ; 00:0CF9 - 11 00 20
    ld     a, $09                       ; 00:0CFC - 3E 09
    call   load_art                     ; 00:0CFE - CD 05 04
-   ld     hl, $B92E                    ; 00:0D01 - 21 2E B9
+   ld     hl, ART_09_B92E              ; 00:0D01 - 21 2E B9
    ld     de, $3000                    ; 00:0D04 - 11 00 30
    ld     a, $09                       ; 00:0D07 - 3E 09
    call   load_art                     ; 00:0D09 - CD 05 04
