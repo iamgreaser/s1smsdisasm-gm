@@ -106,6 +106,7 @@ class RegionType(enum.Enum):
     level_metatile_layout = enum.auto()
     level_object_layout = enum.auto()
     art_tiles = enum.auto()
+    art_tilemap = enum.auto()
 
 
 class Rom:
@@ -122,7 +123,8 @@ class Rom:
             (0x10000, 0x05580, "4x4 tile layouts"),
             (0x15580, 0x0004A, "level header pointers relative to $15580"),
             (0x155CA, 0x004EA, "level headers"),
-            (0x15AB4, 0x01336, "level object layouts"),
+            (0x15AB4, 0x00510, "level object layouts"),
+            (0x15FC4, 0x00E26, "compressed transparent tilemaps"),
             (0x16DEA, 0x09216, "level block layouts"),
             (0x20000, 0x06000, "uncompressed art?"),
             (0x26000, 0x0A000, "compressed art, part 1"),
@@ -154,7 +156,7 @@ class Rom:
             (0x09, 0x351F, "Score Tally Screen, VRAM $0000"),
             (0x09, 0xB92E, "00:2172 UNKNOWN, VRAM $3000"),
             (0x0C, 0x0000, "00:25A9 UNKNOWN, VRAM $0000"),
-            (0x0C, 0x0000, "00:26AB UNKNOWN, VRAM $0000"),
+            (0x0C, 0x1801, "00:26AB UNKNOWN, VRAM $0000"),
             (0x09, 0x4B0A, "00:26AB UNKNOWN, VRAM $2000"),
             (0x09, 0x4294, "Signpost, VRAM $2000"),
             (0x09, 0xAEB1, "GHZ3 Boss, VRAM $2000"),
@@ -167,9 +169,30 @@ class Rom:
         ]
         for abank, aoffs, adesc in misc_art:
             astart = (abank * 0x4000) + aoffs
-            print(hex(astart))
             self.add_compressed_art_tiles(
                 start=astart,
+                desc=adesc,
+            )
+
+        # Handle artmaps in bank $05 slot 1
+        artmaps = [
+            (0x627E, 0x0178, "World Map 1, high byte $10"),
+            (0x63F6, 0x0145, "World Map 1, high byte $00"),
+            (0x653B, 0x0170, "World Map 2, high byte $10"),
+            (0x66AB, 0x0153, "World Map 2, high byte $00"),
+            (0x6000, 0x012E, "00:1296 UNKNOWN, high byte $00"),
+            (0x67FE, 0x0032, "00:1411 UNKNOWN, high byte $00"),
+            (0x612E, 0x00BB, "Score Tally, Normal, high byte $00"),
+            (0x61E9, 0x0095, "Score Tally, Special, high byte $00"),
+            (0x6830, 0x0179, "00:25A9 UNKNOWN, high byte $00"),
+            (0x69A9, 0x0145, "00:267D UNKNOWN, high byte $00"),
+            (0x6C61, 0x0189, "00:26AB UNKNOWN, high byte $00"),
+        ]
+        for aoffs, alen, adesc in artmaps:
+            self.add_region(
+                rt=RegionType.art_tilemap,
+                start=aoffs + 0x10000,
+                length=alen,
                 desc=adesc,
             )
 
