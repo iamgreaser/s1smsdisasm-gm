@@ -24,7 +24,7 @@
 .DEF cht_starting_level $00
 
 ;; bool: No Death On Hit
-.DEF cht_no_death_on_hit 1
+.DEF cht_no_death_on_hit 0
 
 ;; bool: No Speed Cap: Go as fast as you like!
 .DEF cht_no_speed_cap 0
@@ -2181,7 +2181,54 @@ addr_009B6:
 
 unpack_level_layout_into_ram:
    ld     de, var_C000                 ; 00:0A10 - 11 00 C0
+.IF 1
+   ;; Optimising this function should be a rite of passage.
+   ;; Pre-decrement so we only need to read the top bit of B.
+   ;; BIT takes 8 cycles, the same amount as LD A, B / OR C but this also leaves the A register alone.
+---:
+   dec bc          ; 0A13 1
+--:
+   ;; Check count
+   bit 7, b        ; 0A15 2
+   ret nz          ; 0A17 1
+   ;; Stash current and copy
+   ld a, (hl)      ; 0A18 1
+   ldi             ; 0A19 2
+   ;; If there is no difference in the next one, then loop.
+   cp (hl)         ; 0A1B 1
+   jr nz, --       ; 0A1D 2
+   ;; Check count, again, just in case the above overflowed.
+   bit 7, b        ; 0A1F 2
+   ret nz          ; 0A21 1
+   ;; No more length checks should be needed. If they are, the input is screwed up.
+   ;; Take note that neither this nor the old version protects against the *output* overflowing.
+   ;; We need to save BC as we'll be making use of B here.
+   ;; A = the byte we wish to copy.
+   push bc         ; 0A22 1
+      ;; Advance past the values in the `cp (hl)` op.
+      inc hl          ; 0A23 1
+      ;; Read the length.
+      ld b, (hl)      ; 0A24 1
+      inc hl          ; 0A25 1
+      -:
+         ld (de), a      ; 0A26 1
+         inc de          ; 0A27 1
+         djnz -          ; 0A28 2
+   pop bc          ; 0A2A 1
+   dec bc          ; 0A2B 1
+   jr ---          ; 0A2C 2 - sneak an extra DEC BC
+   ;; 0A40 -> 0A2E - SAVING: 18 bytes
+   ;; Note, the original uses JP for speed, so a fair comparison might be a 16-byte saving.
+   ;; But it also uses IY, so we can probably take the hit with JR anyway.
 
+   ;; Let's do a cycle count compare anyway...
+   ;; Original -> Register instead of IY -> New
+   ;; - Literal:  95 ->  65 ->  54
+   ;; - Copy:    152 -> 122 -> 120 (+25*N for all cases as the copy loop is identical)
+   ;; So basically, always faster, and a lot smaller.
+   ;; Also if we simply had a spare register then the original code would save 6 bytes.
+
+.ELSE
 --:
    ld     a, (hl)                      ; 00:0A13 - 7E
    cpl                                 ; 00:0A14 - 2F
@@ -2222,6 +2269,7 @@ unpack_level_layout_into_ram:
    or     c                            ; 00:0A3B - B1
    jp     nz, --                       ; 00:0A3C - C2 13 0A
    ret                                 ; 00:0A3F - C9
+.ENDIF
 
 addr_00A40:
    ld     a, $01                       ; 00:0A40 - 3E 01
