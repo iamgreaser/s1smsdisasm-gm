@@ -2538,6 +2538,8 @@ addr_00A7D:
    ret                                 ; 00:0A8F - C9
 
 addr_00A90:
+.IF 0
+   ;; Original code
    ld     a, (hl)                      ; 00:0A90 - 7E
    and    $03                          ; 00:0A91 - E6 03
    jr     z, addr_00A96                ; 00:0A93 - 28 01
@@ -2560,6 +2562,20 @@ addr_00A9E:
 
 addr_00AA7:
    or     c                            ; 00:0AA7 - B1
+
+.ELSE
+   ;; New code
+   ;; Use bit twiddling.
+   ;; We only ever fade *down* to black
+   ;; So we can do 3 positions, and set it to 0 if and only if the two bits in the palette are 0.
+   ld a, (hl)  ; 0A90 1
+   rrca        ; 0A91 1
+   or (hl)     ; 0A92 1
+   and $15     ; 0A93 2
+   sub (hl)    ; 0A95 1
+   neg         ; 0A96 2
+   ; 0AA8 -> 0A98 - SAVING: 16 bytes
+.ENDIF
    ld     (de), a                      ; 00:0AA8 - 12
    inc    hl                           ; 00:0AA9 - 23
    inc    de                           ; 00:0AAA - 13
