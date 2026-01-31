@@ -14,6 +14,16 @@ IY = $D200
    b7 = ?
 
 (IY+$03) contains the player 1 inputs from port $DC with its two player 2 inputs forced to 1 (unasserted).
+   These are inverted. A button is pressed if a given bit is 0.
+   TIP FOR REMEMBERING THE BIT ORDERING OF THE DIRECTIONS: The SMS is Catholic. That is:
+   - b0 = up
+   - b1 = down
+   - b2 = left
+   - b3 = right
+   Amen.
+   Also:
+   b4 = button 1
+   b5 = button 2 or button 1 (if either are pressed, this is 0)
 
 (IY+$05) is a bit field:
    b0 = ? (used in objfuncs, 1 makes 00:3956 terminate early with CF=1)
