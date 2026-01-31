@@ -2927,6 +2927,7 @@ UNK_00C1D:
    ld     b, $04                       ; 00:0C3C - 06 04
 
 -:
+   .IF 0
    ld     a, (de)                      ; 00:0C3E - 1A
    out    ($BE), a                     ; 00:0C3F - D3 BE
    nop                                 ; 00:0C41 - 00
@@ -2935,6 +2936,16 @@ UNK_00C1D:
    ld     a, (de)                      ; 00:0C44 - 1A
    out    ($BE), a                     ; 00:0C45 - D3 BE
    inc    de                           ; 00:0C47 - 13
+   .ELSE
+   ;; Minimum of 30 cycles, slightly above the floor of 28.
+   ld a, (de)     ; 0C3E 1
+   out ($BE), a   ; 0C3F 2
+   inc de         ; 0C41 1
+   ld a, (de)     ; 0C42 1
+   inc de         ; 0C43 1
+   out ($BE), a   ; 0C44 2
+   ; 0C48 -> 0C46 - SAVING: 2 bytes
+   .ENDIF
    djnz   -                            ; 00:0C48 - 10 F4
    ld     a, (g_committed_rompage_1)   ; 00:0C4A - 3A 35 D2
    ld     (rompage_1), a               ; 00:0C4D - 32 FE FF
