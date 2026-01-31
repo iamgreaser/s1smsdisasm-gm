@@ -1277,6 +1277,27 @@ LUT_004F9_left_shift_bitmask:
 .ENDIF
 
 unpack_art_tilemap_into_vram:
+   .IF 0
+   .ELSE
+   ;; This function is only used to load from bank $05 in slot 1, so let's do the temporary page switch here!
+   ld a, (g_committed_rompage_1)     ; 0000 3
+   push af                           ; 0003 1
+      ld a, $05                      ; 0004 2
+      ld (g_committed_rompage_1), a  ; 0006 3
+      ld (rompage_1), a              ; 0009 3
+      call @actually_unpack_art      ; 000C 3
+   pop af                            ; 000F 1
+   ld (g_committed_rompage_1), a     ; 0010 3
+   ld (rompage_1), a                 ; 0013 3
+   ret                               ; 0016 1
+   ; 0017 -> 23 bytes
+   ; The cost of doing the page switch elsewhere is 8 bytes.
+   ; Forward page switches deleted (to $05): 8
+   ; Reverse page switches deleted (to $01): 1
+   ; (8*9)-23 = SAVING: 49 bytes
+
+@actually_unpack_art:
+   .ENDIF
    di                                  ; 00:0501 - F3
    ld     a, e                         ; 00:0502 - 7B
    out    ($BF), a                     ; 00:0503 - D3 BF
@@ -2991,10 +3012,12 @@ addr_00C6C:
    ld     de, $3000                    ; 00:0CA2 - 11 00 30
    ld     a, $09                       ; 00:0CA5 - 3E 09
    call   load_art                     ; 00:0CA7 - CD 05 04
+   .IF 0
    ld     a, $05                       ; 00:0CAA - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0CAF - 32 35 D2
    ld     (rompage_1), a               ; 00:0CAC - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_627E           ; 00:0CB2 - 21 7E 62
    ld     bc, $0178                    ; 00:0CB5 - 01 78 01
    ld     de, $3800                    ; 00:0CB8 - 11 00 38
@@ -3029,10 +3052,12 @@ addr_00CDC:
    ld     de, $3000                    ; 00:0D04 - 11 00 30
    ld     a, $09                       ; 00:0D07 - 3E 09
    call   load_art                     ; 00:0D09 - CD 05 04
+   .IF 0
    ld     a, $05                       ; 00:0D0C - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0D11 - 32 35 D2
    ld     (rompage_1), a               ; 00:0D0E - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_653B           ; 00:0D14 - 21 3B 65
    ld     bc, $0170                    ; 00:0D17 - 01 70 01
    ld     de, $3800                    ; 00:0D1A - 11 00 38
@@ -3780,10 +3805,12 @@ addr_01287:
    ld     a, $09                       ; 00:12A7 - 3E 09
    call   load_art                     ; 00:12A9 - CD 05 04
    ;; Load tile art
+   .IF 0
    ld     a, $05                       ; 00:12AC - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:12B1 - 32 35 D2
    ld     (rompage_1), a               ; 00:12AE - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_6000           ; 00:12B4 - 21 00 60
    ld     de, $3800                    ; 00:12B7 - 11 00 38
    ld     bc, $012E                    ; 00:12BA - 01 2E 01
@@ -4006,10 +4033,12 @@ addr_01401:
    ld     de, $0000                    ; 00:1414 - 11 00 00
    ld     a, $09                       ; 00:1417 - 3E 09
    call   load_art                     ; 00:1419 - CD 05 04
+   .IF 0
    ld     a, $05                       ; 00:141C - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1421 - 32 35 D2
    ld     (rompage_1), a               ; 00:141E - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_67FE           ; 00:1424 - 21 FE 67
    ld     bc, $0032                    ; 00:1427 - 01 32 00
    ld     de, $3800                    ; 00:142A - 11 00 38
@@ -4170,10 +4199,12 @@ handle_level_score_screen:
    ld     de, $0000                    ; 00:1583 - 11 00 00
    ld     a, $09                       ; 00:1586 - 3E 09
    call   load_art                     ; 00:1588 - CD 05 04
+   .IF 0
    ld     a, $05                       ; 00:158B - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:1590 - 32 35 D2
    ld     (rompage_1), a               ; 00:158D - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_612E           ; 00:1593 - 21 2E 61
    ld     bc, $00BB                    ; 00:1596 - 01 BB 00
    ld     de, $3800                    ; 00:1599 - 11 00 38
@@ -6208,10 +6239,12 @@ addr_0258B:
    ld     de, $0000                    ; 00:25AC - 11 00 00
    ld     a, $0C                       ; 00:25AF - 3E 0C
    call   load_art                     ; 00:25B1 - CD 05 04
+   .IF 0
    ld     a, $05                       ; 00:25B4 - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:25B9 - 32 35 D2
    ld     (rompage_1), a               ; 00:25B6 - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_6830           ; 00:25BC - 21 30 68
    ld     bc, $0179                    ; 00:25BF - 01 79 01
    ld     de, $3800                    ; 00:25C2 - 11 00 38
@@ -6223,10 +6256,12 @@ addr_0258B:
    ld     (g_saved_vdp_reg_01), a      ; 00:25D1 - 32 19 D2
    res    0, (iy+var_D200-IYBASE)      ; 00:25D4 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:25D8 - CD 1C 03
+   .IF 0
    ld     a, $01                       ; 00:25DB - 3E 01
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:25E0 - 32 35 D2
    ld     (rompage_1), a               ; 00:25DD - 32 FE FF
+   .ENDIF
    ld     a, (var_D27F)                ; 00:25E3 - 3A 7F D2
    cp     $06                          ; 00:25E6 - FE 06
    jp     c, addr_02693                ; 00:25E8 - DA 93 26
@@ -6305,10 +6340,12 @@ addr_0262E:
    .ENDIF
    call   addr_00B60                   ; 00:266E - CD 60 0B
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2671 - FD 36 0A 00
+   .IF 0
    ld     a, $05                       ; 00:2675 - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:267A - 32 35 D2
    ld     (rompage_1), a               ; 00:2677 - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_69A9           ; 00:267D - 21 A9 69
    ld     bc, $0145                    ; 00:2680 - 01 45 01
    ld     de, $3800                    ; 00:2683 - 11 00 38
@@ -6335,10 +6372,12 @@ addr_02693:
    ld     de, $2000                    ; 00:26B9 - 11 00 20
    ld     a, $09                       ; 00:26BC - 3E 09
    call   load_art                     ; 00:26BE - CD 05 04
+   .IF 0
    ld     a, $05                       ; 00:26C1 - 3E 05
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:26C6 - 32 35 D2
    ld     (rompage_1), a               ; 00:26C3 - 32 FE FF
+   .ENDIF
    ld     hl, ARTMAP_05_6C61           ; 00:26C9 - 21 61 6C
    ld     bc, $0189                    ; 00:26CC - 01 89 01
    ld     de, $3800                    ; 00:26CF - 11 00 38
