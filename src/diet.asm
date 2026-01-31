@@ -2541,7 +2541,12 @@ addr_00AAE:
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_1), a   ; 00:0AC1 - 32 35 D2
    ld     (rompage_1), a               ; 00:0ABE - 32 FE FF
+   .IF 0
    ld     a, $02                       ; 00:0AC4 - 3E 02
+   .ELSE
+   inc a
+   ; SAVING: 1 byte
+   .ENDIF
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:0AC9 - 32 36 D2
    ld     (rompage_2), a               ; 00:0AC6 - 32 FF FF
@@ -2573,6 +2578,7 @@ addr_00AFC:
 
 addr_00B05:
    push   bc                           ; 00:0B05 - C5
+   ;; Original code
    ld     a, (hl)                      ; 00:0B06 - 7E
    and    $03                          ; 00:0B07 - E6 03
    ld     b, a                         ; 00:0B09 - 47
@@ -2636,8 +2642,15 @@ addr_00B58:
    ld     (hl), $00                    ; 00:0B58 - 36 00
    inc    hl                           ; 00:0B5A - 23
    djnz   addr_00B58                   ; 00:0B5B - 10 FB
+   .IF 0
    jp     addr_00B6E                   ; 00:0B5D - C3 6E 0B
+   .ELSE
+   ;; Using JP instead of JR is a bit overkill here.
+   jr addr_00B6E
+   ; SAVING: 1 byte
+   .ENDIF
 
+   ;; FIXME: This is only used for fading up to white. Get rid of the all-white palette and generate it here. --GM
 addr_00B60:
    ld     (var_D214), hl               ; 00:0B60 - 22 14 D2
    ld     hl, (var_D230)               ; 00:0B63 - 2A 30 D2
@@ -2686,6 +2699,8 @@ addr_00BAE:
    ld     b, $20                       ; 00:0BB5 - 06 20
 
 addr_00BB7:
+   .IF 0
+   ;; Original code
    push   bc                           ; 00:0BB7 - C5
    ld     a, (hl)                      ; 00:0BB8 - 7E
    and    $03                          ; 00:0BB9 - E6 03
@@ -2725,6 +2740,27 @@ addr_00BDE:
    inc    hl                           ; 00:0BE0 - 23
    inc    de                           ; 00:0BE1 - 13
    pop    bc                           ; 00:0BE2 - C1
+
+   .ELSE
+   ;; New code
+   ;; Use bit twiddling, and leave the B register alone.
+   ;; We only ever fade *up* to a given colour.
+   ;; So we can do 3 positions, and set it to 0 if and only if the two bits in the palette are equal.
+   ld a, (de)  ; 0BB7 1
+   xor (hl)    ; 0BB8 1
+   ld c, a     ; 0BB9 1
+   rrca        ; 0BBA 1
+   or c        ; 0BBB 1
+   and $15     ; 0BBC 2
+   ld c, a     ; 0BBE 1
+   ld a, (de)  ; 0BBF 1
+   add a, c    ; 0BC0 1
+   ld (de), a  ; 0BC1 1
+   inc hl      ; 0BC2 1
+   inc de      ; 0BC3 1
+   ; 0BE3 -> 0BC4 - SAVING: 31 bytes
+   .ENDIF
+
    djnz   addr_00BB7                   ; 00:0BE3 - 10 D2
    ld     hl, var_D3BC                 ; 00:0BE5 - 21 BC D3
    ld     a, $03                       ; 00:0BE8 - 3E 03
