@@ -137,6 +137,23 @@ class Rom:
             prev_addr += rlen
         assert prev_addr == 0x40000, f"gap at end from ${prev_addr:05X}"
 
+        # Handle miscellaneous art
+        misc_art = [
+            (0x0C, 0x0000, "World Map 1, VRAM $0000"),
+            (0x09, 0x526B, "World Map 1, VRAM $2000"),
+            (0x09, 0xB92E, "World Map 1, VRAM $3000"),
+            (0x0C, 0x1801, "World Map 2, VRAM $0000"),
+            (0x09, 0x5942, "World Map 2, VRAM $2000"),
+            (0x09, 0xB92E, "World Map 2, VRAM $3000"),
+        ]
+        for abank, aoffs, adesc in misc_art:
+            astart = (abank * 0x4000) + aoffs
+            print(hex(astart))
+            self.add_compressed_art_tiles(
+                start=astart,
+                desc=adesc,
+            )
+
         self.walk_level_headers(headers_ptr=0x15580, base_ptr=0x14000)
 
     def add_region(self, *, rt: RegionType, start: int, length: int, desc: str) -> None:
