@@ -1343,8 +1343,13 @@ __:
 
 load_palettes_IRQ:
    push   af                           ; 00:0566 - F5
+   .IF 0
    ld     b, $10                       ; 00:0567 - 06 10
    ld     c, $00                       ; 00:0569 - 0E 00
+   .ELSE
+   ld bc, $1000
+   .ENDIF
+   ; SAVING: 1 byte
    bit    0, a                         ; 00:056B - CB 47
    jr     z, +                         ; 00:056D - 28 06
    ld     (var_D230), hl               ; 00:056F - 22 30 D2
@@ -1355,13 +1360,23 @@ load_palettes_IRQ:
    bit    1, a                         ; 00:0576 - CB 4F
    ret    z                            ; 00:0578 - C8
    ld     (var_D232), hl               ; 00:0579 - 22 32 D2
+   .IF 0
    ld     b, $10                       ; 00:057C - 06 10
    ld     c, $10                       ; 00:057E - 0E 10
+   .ELSE
+   ld bc, $1010
+   .ENDIF
+   ; SAVING: 1 byte
    bit    0, a                         ; 00:0580 - CB 47
    jr     nz, ++                       ; 00:0582 - 20 05
    inc    hl                           ; 00:0584 - 23
+   .IF 0
    ld     b, $0F                       ; 00:0585 - 06 0F
    ld     c, $11                       ; 00:0587 - 0E 11
+   .ELSE
+   ld bc, $0F11
+   ; SAVING: 1 byte
+   .ENDIF
 
 ++:
    ld     a, c                         ; 00:0589 - 79
@@ -1402,18 +1417,38 @@ print_positioned_FF_string:
    inc    hl                           ; 00:05B2 - 23
    rrca                                ; 00:05B3 - 0F
    rrca                                ; 00:05B4 - 0F
+
+   .IF 0
    ld     e, a                         ; 00:05B5 - 5F
    and    $3F                          ; 00:05B6 - E6 3F
    ld     d, a                         ; 00:05B8 - 57
    ld     a, e                         ; 00:05B9 - 7B
    and    $C0                          ; 00:05BA - E6 C0
    ld     e, a                         ; 00:05BC - 5F
+   .ELSE
+   ld e, a  ; 05B5 1
+   and $3F  ; 05B6 2
+   ld d, a  ; 05B8 1
+   xor e    ; 05B9 1
+   ld e, a  ; 05BA 1
+   .ENDIF
+   ; 05BD -> 05BB - SAVING: 2 bytes
+
+   .IF 0
    ld     b, $00                       ; 00:05BD - 06 00
    ex     de, hl                       ; 00:05BF - EB
    sla    c                            ; 00:05C0 - CB 21
    add    hl, bc                       ; 00:05C2 - 09
    ld     bc, $3800                    ; 00:05C3 - 01 00 38
    add    hl, bc                       ; 00:05C6 - 09
+   .ELSE
+   ex de, hl           ; 05BD 1
+   sla c               ; 05BE 2
+   ld b, $38           ; 05C0 2
+   add hl, bc          ; 05C2 1
+   .ENDIF
+   ; 05C7 -> 05C3 - SAVING: 4 bytes
+
    di                                  ; 00:05C7 - F3
    ld     a, l                         ; 00:05C8 - 7D
    out    ($BF), a                     ; 00:05C9 - D3 BF
@@ -1427,13 +1462,30 @@ print_positioned_FF_string:
    cp     $FF                          ; 00:05D2 - FE FF
    ret    z                            ; 00:05D4 - C8
    out    ($BE), a                     ; 00:05D5 - D3 BE
+
+   .IF 0
    push   af                           ; 00:05D7 - F5
    pop    af                           ; 00:05D8 - F1
    ld     a, (g_FF_string_high_byte)   ; 00:05D9 - 3A 0E D2
    out    ($BE), a                     ; 00:05DC - D3 BE
    inc    de                           ; 00:05DE - 13
+   .ELSE
+   ;; We don't have to be *that* cautious with our timings!
+   ;; This repeated would be "every 30 cycles".
+   inc de                          ; 05D7 1
+   ld a, (g_FF_string_high_byte)   ; 05D8 3
+   out ($BE), a                    ; 05DB 2
+   .ENDIF
+   ; 05DF -> 05DD - SAVING: 2 bytes
+
+   .IF 0
    djnz   -                            ; 00:05DF - 10 F0
    ret                                 ; 00:05E1 - C9
+   .ELSE
+   ;; The DJNZ seems to be erroneous here.
+   jr -
+   .ENDIF
+   ; SAVING: 1 byte
 
 clear_sprite_table:
    ;; Fill sprite table with x=E0, y=E0, tile=(garbage) repeating.
@@ -1522,10 +1574,17 @@ random_A:
    push   hl                           ; 00:0625 - E5
    push   de                           ; 00:0626 - D5
    ld     hl, (g_random_seed)          ; 00:0627 - 2A D7 D2
+   .IF 0
    ld     e, l                         ; 00:062A - 5D
    ld     d, h                         ; 00:062B - 54
    add    hl, de                       ; 00:062C - 19
    add    hl, de                       ; 00:062D - 19
+   .ELSE
+   ;; Well, that was an oversight.
+   add hl, hl
+   add hl, hl
+   .ENDIF
+   ; SAVING: 2 bytes
    ld     a, l                         ; 00:062E - 7D
    add    a, h                         ; 00:062F - 84
    ld     h, a                         ; 00:0630 - 67
@@ -1546,19 +1605,30 @@ addr_0063E:
    and    a                            ; 00:0649 - A7
    sbc    hl, de                       ; 00:064A - ED 52
    jr     c, addr_00658                ; 00:064C - 38 0A
+   .IF 0
    ld     a, l                         ; 00:064E - 7D
    add    a, c                         ; 00:064F - 81
    ld     c, a                         ; 00:0650 - 4F
+   .ENDIF
    res    6, (iy+var_D200-IYBASE)      ; 00:0651 - FD CB 00 B6
    jp     addr_0065F                   ; 00:0655 - C3 5F 06
 
 addr_00658:
+   .IF 0
    ld     a, l                         ; 00:0658 - 7D
    add    a, c                         ; 00:0659 - 81
    ld     c, a                         ; 00:065A - 4F
+   .ENDIF
    set    6, (iy+var_D200-IYBASE)      ; 00:065B - FD CB 00 F6
 
 addr_0065F:
+   .IF 1
+   ;; Hoist out common code from above.
+   ld a, l
+   add a, c
+   ld c, a
+   ; SAVING: 3 bytes
+   .ENDIF
    ld     hl, (var_D25D)               ; 00:065F - 2A 5D D2
    ld     de, (var_D271)               ; 00:0662 - ED 5B 71 D2
    and    a                            ; 00:0666 - A7
@@ -1589,20 +1659,34 @@ addr_00683:
 addr_00688:
    ld     (g_vdp_scroll_x), bc         ; 00:0688 - ED 43 51 D2
    ld     hl, (var_D25A)               ; 00:068C - 2A 5A D2
+   .IF 0
    sla    l                            ; 00:068F - CB 25
    rl     h                            ; 00:0691 - CB 14
    sla    l                            ; 00:0693 - CB 25
    rl     h                            ; 00:0695 - CB 14
    sla    l                            ; 00:0697 - CB 25
    rl     h                            ; 00:0699 - CB 14
+   .ELSE
+   add hl, hl
+   add hl, hl
+   add hl, hl
+   ; SAVING: 9 bytes (and 15 cycles)
+   .ENDIF
    ld     c, h                         ; 00:069B - 4C
    ld     hl, (var_D25D)               ; 00:069C - 2A 5D D2
+   .IF 0
    sla    l                            ; 00:069F - CB 25
    rl     h                            ; 00:06A1 - CB 14
    sla    l                            ; 00:06A3 - CB 25
    rl     h                            ; 00:06A5 - CB 14
    sla    l                            ; 00:06A7 - CB 25
    rl     h                            ; 00:06A9 - CB 14
+   .ELSE
+   add hl, hl
+   add hl, hl
+   add hl, hl
+   ; SAVING: 9 bytes (and 15 cycles)
+   .ENDIF
    ld     b, h                         ; 00:06AB - 44
    ld     (var_D257), bc               ; 00:06AC - ED 43 57 D2
    ld     hl, (var_D25A)               ; 00:06B0 - 2A 5A D2
