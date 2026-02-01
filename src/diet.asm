@@ -601,11 +601,16 @@ addr_001A0:
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    ld     (g_committed_rompage_2), a   ; 00:01B2 - 32 36 D2
    ld     (rompage_2), a               ; 00:01AF - 32 FF FF
+   .IF 0
    ld     b, $00                       ; 00:01B5 - 06 00
 
 -:
    nop                                 ; 00:01B7 - 00
    djnz   -                            ; 00:01B8 - 10 FD
+   .ELSE
+   ;; TODO: Why do we have this delay? I'm about to find out the hard way. --GM
+   ; SAVING: 5 bytes
+   .ENDIF
 
 addr_001BA:
    ld     a, (var_D2DB)                ; 00:01BA - 3A DB D2
@@ -664,7 +669,12 @@ irq_line_state_2:
 irq_line_state_1_load_water_palette:
    dec    a                            ; 00:0215 - 3D
    ld     (g_water_irq_line_state), a  ; 00:0216 - 32 47 D2
+   .IF 0
    ld     a, $00                       ; 00:0219 - 3E 00
+   .ELSE
+   xor a
+   ; SAVING: 1 byte
+   .ENDIF
    out    ($BF), a                     ; 00:021B - D3 BF
    ld     a, $C0                       ; 00:021D - 3E C0
    out    ($BF), a                     ; 00:021F - D3 BF
