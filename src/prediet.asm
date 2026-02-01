@@ -6976,7 +6976,7 @@ addr_035FD:
    and    a                            ; 00:3615 - A7
    jr     nz, addr_03644               ; 00:3616 - 20 2C
 
-addr_03618:
+kill_sonic:
    set    0, (iy+var_D205-IYBASE)      ; 00:3618 - FD CB 05 C6
    ld     hl, var_D414                 ; 00:361C - 21 14 D4
    set    7, (hl)                      ; 00:361F - CB FE
@@ -7587,14 +7587,14 @@ tick_game_time:
    ret    nz                           ; 00:3A07 - C0
    ld     hl, g_time_subsecs           ; 00:3A08 - 21 D0 D2
    bit    0, (iy+var_D207-IYBASE)      ; 00:3A0B - FD CB 07 46
-   jr     nz, addr_03A37               ; 00:3A0F - 20 26
+   jr     nz, @time_ticks_downwards    ; 00:3A0F - 20 26
    ld     a, (hl)                      ; 00:3A11 - 7E
    inc    a                            ; 00:3A12 - 3C
    cp     $3C                          ; 00:3A13 - FE 3C
-   jr     c, addr_03A18                ; 00:3A15 - 38 01
+   jr     c, @up_skip_subseconds_carry_up  ; 00:3A15 - 38 01
    xor    a                            ; 00:3A17 - AF
 
-addr_03A18:
+@up_skip_subseconds_carry_up:
    ld     (hl), a                      ; 00:3A18 - 77
    dec    hl                           ; 00:3A19 - 2B
    ccf                                 ; 00:3A1A - 3F
@@ -7602,10 +7602,10 @@ addr_03A18:
    adc    a, $00                       ; 00:3A1C - CE 00
    daa                                 ; 00:3A1E - 27
    cp     $60                          ; 00:3A1F - FE 60
-   jr     c, addr_03A24                ; 00:3A21 - 38 01
+   jr     c, @up_skip_seconds_carry_up  ; 00:3A21 - 38 01
    xor    a                            ; 00:3A23 - AF
 
-addr_03A24:
+@up_skip_seconds_carry_up:
    ld     (hl), a                      ; 00:3A24 - 77
    dec    hl                           ; 00:3A25 - 2B
    ccf                                 ; 00:3A26 - 3F
@@ -7613,24 +7613,24 @@ addr_03A24:
    adc    a, $00                       ; 00:3A28 - CE 00
    daa                                 ; 00:3A2A - 27
    cp     $10                          ; 00:3A2B - FE 10
-   jr     c, addr_03A35                ; 00:3A2D - 38 06
+   jr     c, @up_time_not_expired      ; 00:3A2D - 38 06
    push   hl                           ; 00:3A2F - E5
-   call   addr_03618                   ; 00:3A30 - CD 18 36
+   call   kill_sonic                   ; 00:3A30 - CD 18 36
    pop    hl                           ; 00:3A33 - E1
    xor    a                            ; 00:3A34 - AF
 
-addr_03A35:
+@up_time_not_expired:
    ld     (hl), a                      ; 00:3A35 - 77
    ret                                 ; 00:3A36 - C9
 
-addr_03A37:
+@time_ticks_downwards:
    ld     a, (hl)                      ; 00:3A37 - 7E
    inc    a                            ; 00:3A38 - 3C
    cp     $3C                          ; 00:3A39 - FE 3C
-   jr     c, addr_03A3E                ; 00:3A3B - 38 01
+   jr     c, @down_skip_subseconds_carry_up  ; 00:3A3B - 38 01
    xor    a                            ; 00:3A3D - AF
 
-addr_03A3E:
+@down_skip_subseconds_carry_up:
    ld     (hl), a                      ; 00:3A3E - 77
    dec    hl                           ; 00:3A3F - 2B
    ccf                                 ; 00:3A40 - 3F
@@ -7638,10 +7638,10 @@ addr_03A3E:
    sbc    a, $00                       ; 00:3A42 - DE 00
    daa                                 ; 00:3A44 - 27
    cp     $60                          ; 00:3A45 - FE 60
-   jr     c, addr_03A4B                ; 00:3A47 - 38 02
+   jr     c, @down_skip_seconds_carry_down  ; 00:3A47 - 38 02
    ld     a, $59                       ; 00:3A49 - 3E 59
 
-addr_03A4B:
+@down_skip_seconds_carry_down:
    ld     (hl), a                      ; 00:3A4B - 77
    dec    hl                           ; 00:3A4C - 2B
    ccf                                 ; 00:3A4D - 3F
@@ -7649,13 +7649,13 @@ addr_03A4B:
    sbc    a, $00                       ; 00:3A4F - DE 00
    daa                                 ; 00:3A51 - 27
    cp     $60                          ; 00:3A52 - FE 60
-   jr     c, addr_03A60                ; 00:3A54 - 38 0A
+   jr     c, @down_time_not_expired    ; 00:3A54 - 38 0A
    ld     a, $01                       ; 00:3A56 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 00:3A58 - 32 89 D2
    set    2, (iy+var_D209-IYBASE)      ; 00:3A5B - FD CB 09 D6
    xor    a                            ; 00:3A5F - AF
 
-addr_03A60:
+@down_time_not_expired:
    ld     (hl), a                      ; 00:3A60 - 77
    ret                                 ; 00:3A61 - C9
 
@@ -8203,7 +8203,7 @@ addr_04A28:
    add    hl, bc                       ; 01:4A36 - 09
    xor    a                            ; 01:4A37 - AF
    sbc    hl, de                       ; 01:4A38 - ED 52
-   call   c, addr_03618                ; 01:4A3A - DC 18 36
+   call   c, kill_sonic                ; 01:4A3A - DC 18 36
    ld     hl, $0000                    ; 01:4A3D - 21 00 00
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A40 - FD 7E 03
    cp     $FF                          ; 01:4A43 - FE FF
