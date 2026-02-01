@@ -822,12 +822,17 @@ wait_until_irq_ticked:
    jr     z, wait_until_irq_ticked     ; 00:0320 - 28 FA
    ret                                 ; 00:0322 - C9
 
+.IF 0
+;; That flag seems to genuinely do nothing and this is free for use.
+;; Also, those variable seem unused too!
 UNUSED_00323:
    set    2, (iy+var_D200-IYBASE)      ; 00:0323 - FD CB 00 D6
    ld     (var_D225), hl               ; 00:0327 - 22 25 D2
    ld     (var_D227), de               ; 00:032A - ED 53 27 D2
    ld     (var_D229), bc               ; 00:032E - ED 43 29 D2
    ret                                 ; 00:0332 - C9
+; SAVING: 16 bytes
+.ENDIF
 
 signal_load_palettes:
    set    3, (iy+var_D200-IYBASE)      ; 00:0333 - FD CB 00 DE
@@ -896,6 +901,7 @@ upload_sprite_table_IRQ:
    ld     (iy+g_sprite_count-IYBASE), b  ; 00:0393 - FD 70 0A
    ret                                 ; 00:0396 - C9
 
+.IF 0
 UNUSED_00397:
    di                                  ; 00:0397 - F3
    ld     a, e                         ; 00:0398 - 7B
@@ -914,7 +920,10 @@ UNUSED_00397:
    or     c                            ; 00:03A7 - B1
    jp     nz, -                        ; 00:03A8 - C2 A1 03
    ret                                 ; 00:03AB - C9
+.ENDIF
+; SAVING: 21 bytes
 
+.IF 0
 UNUSED_003AC:
    di                                  ; 00:03AC - F3
    push   af                           ; 00:03AD - F5
@@ -986,6 +995,8 @@ UNUSED_003AC:
    ld     (rompage_2), a               ; 00:0400 - 32 FF FF
    ei                                  ; 00:0403 - FB
    ret                                 ; 00:0404 - C9
+.ENDIF
+; SAVING: 89 bytes
 
 load_art:
    di                                  ; 00:0405 - F3
@@ -21269,8 +21280,11 @@ addr_0B9D5:
    pop    ix                           ; 02:BA18 - DD E1
    ret                                 ; 02:BA1A - C9
 
+.IF 0
 UNUSED_0BA1B:
    ret                                 ; 02:BA1B - C9
+.ENDIF
+; SAVING: 1 byte
 
 UNK_0BA1C:
 .db $00, $00                                                                        ; 02:BA1C
