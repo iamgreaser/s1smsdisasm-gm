@@ -7106,13 +7106,23 @@ addr_02EE6:
    ld     (var_D2BF), a                ; 00:2EFC - 32 BF D2
    ld     a, $FF                       ; 00:2EFF - 3E FF
    ld     (var_D2C0), a                ; 00:2F01 - 32 C0 D2
+   .IF 0
    ld     c, $14                       ; 00:2F04 - 0E 14
    ld     b, $00                       ; 00:2F06 - 06 00
+   .ELSE
+   ld bc, $0014
+   ; SAVING: 1 byte
+   .ENDIF
    ld     hl, (var_D23C)               ; 00:2F08 - 2A 3C D2
    ld     de, LUT_02E52                ; 00:2F0B - 11 52 2E
    call   draw_sprite_text             ; 00:2F0E - CD CC 35
+   .IF 0
    ld     c, $28                       ; 00:2F11 - 0E 28
    ld     b, $00                       ; 00:2F13 - 06 00
+   .ELSE
+   ld bc, $0028
+   ; SAVING: 1 byte
+   .ENDIF
    ld     de, g_HUD_FFstr_buf          ; 00:2F15 - 11 BE D2
    call   draw_sprite_text             ; 00:2F18 - CD CC 35
    ld     (var_D23C), hl               ; 00:2F1B - 22 3C D2
@@ -7145,13 +7155,23 @@ draw_level_timer:
    ld     (hl), a                      ; 00:2F46 - 77
    inc    hl                           ; 00:2F47 - 23
    ld     (hl), $FF                    ; 00:2F48 - 36 FF
+   .IF 0
    ld     c, $18                       ; 00:2F4A - 0E 18
    ld     b, $10                       ; 00:2F4C - 06 10
+   .ELSE
+   ld bc, $1018
+   ; SAVING: 1 byte
+   .ENDIF
    ld     a, (g_level)                 ; 00:2F4E - 3A 3E D2
    cp     $1C                          ; 00:2F51 - FE 1C
    jr     c, addr_02F59                ; 00:2F53 - 38 04
+   .IF 0
    ld     c, $70                       ; 00:2F55 - 0E 70
    ld     b, $38                       ; 00:2F57 - 06 38
+   .ELSE
+   ld bc, $3870
+   ; SAVING: 1 byte
+   .ENDIF
 
 addr_02F59:
    ld     hl, (var_D23C)               ; 00:2F59 - 2A 3C D2
