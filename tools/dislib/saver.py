@@ -293,26 +293,34 @@ class Saver:
 
         elif atype == AT.File:
             # Find start of file
+            data_len = len(data)
             phys_addr = self.rom.virt_to_phys(virt_addr)
-            blob_offs = 0
-            while True:
-                key = PhysAddress(phys_addr - blob_offs)
-                assert key >= 0
-                if key in self.rom.binexports:
-                    file_len, file_name = self.rom.binexports[key]
-                    break
-                blob_offs -= 1
+            while data_len > 0:
+                blob_offs = 0
+                while True:
+                    key = PhysAddress(phys_addr - blob_offs)
+                    assert key >= 0
+                    if key in self.rom.binexports:
+                        file_len, file_name = self.rom.binexports[key]
+                        break
+                    blob_offs += 1
 
-            blob_len = file_len - blob_offs
-            assert len(data) <= blob_len
-            args: list[str] = []
-            file_name = file_name.replace("\\", "\\\\").replace('"', '\\"')
-            args.append(f'.INCBIN "{file_name}"')
-            if blob_offs != 0:
-                args.append(f"SKIP ${blob_offs:05X}")
-            if blob_len != len(data):
-                args.append(f"READ ${len(data):05X}")
-            self.write(" ".join(args) + "\n")
+                blob_len = file_len - blob_offs
+                print(
+                    f"saving blob {blob_offs:05X} {blob_len:05X} {file_len:05X} {data_len:05X} {file_name!r}"
+                )
+                part_len = min(data_len, blob_len)
+                assert part_len <= blob_len
+                args: list[str] = []
+                file_name = file_name.replace("\\", "\\\\").replace('"', '\\"')
+                args.append(f'.INCBIN "{file_name}"')
+                if blob_offs != 0:
+                    args.append(f"SKIP ${blob_offs:05X}")
+                if blob_len != part_len:
+                    args.append(f"READ ${part_len:05X}")
+                self.write(" ".join(args) + "\n")
+                data_len -= blob_len
+                phys_addr = PhysAddress(phys_addr + blob_len)
 
         elif atype in {AT.DataWord, AT.DataWordLabel}:
             for row_idx in range((len(data) + 16 - 1) // 16):
