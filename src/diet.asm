@@ -6195,7 +6195,7 @@ addr_0223E:
    .ELSE
    call set_slot_1
    .ENDIF
-   call   addr_0232B                   ; 00:22E8 - CD 2B 23
+   call   load_object_list             ; 00:22E8 - CD 2B 23
    pop    hl                           ; 00:22EB - E1
    ld     c, (hl)                      ; 00:22EC - 4E
    ld     a, (iy+var_D205-IYBASE)      ; 00:22ED - FD 7E 05
@@ -6237,7 +6237,7 @@ addr_0231B:
    set    5, (iy+var_D206-IYBASE)      ; 00:2326 - FD CB 06 EE
    ret                                 ; 00:232A - C9
 
-addr_0232B:
+load_object_list:
    push   hl                           ; 00:232B - E5
    ld     ix, var_D3FC                 ; 00:232C - DD 21 FC D3
    ld     de, $001A                    ; 00:2330 - 11 1A 00
@@ -6257,7 +6257,7 @@ addr_0232B:
    ;; See below
    .ENDIF
 
-addr_02345:
+-:
    ld     a, (hl)                      ; 00:2345 - 7E
    inc    hl                           ; 00:2346 - 23
    call   load_object_from_level_spec  ; 00:2347 - CD 5E 23
@@ -6267,7 +6267,7 @@ addr_02345:
    ret z
    ;; See below
    .ENDIF
-   djnz   addr_02345                   ; 00:234A - 10 F9
+   djnz   -                            ; 00:234A - 10 F9
    .IF 0
    ld     a, (var_D2F2)                ; 00:234C - 3A F2 D2
    ld     b, a                         ; 00:234F - 47
@@ -6281,10 +6281,10 @@ addr_02345:
    ; SAVING: 4 bytes
    .ENDIF
 
-addr_02355:
+-:
    ld     (ix+0), $FF                  ; 00:2355 - DD 36 00 FF
    add    ix, de                       ; 00:2359 - DD 19
-   djnz   addr_02355                   ; 00:235B - 10 F8
+   djnz   -                            ; 00:235B - 10 F8
    ret                                 ; 00:235D - C9
 
 load_object_from_level_spec:
@@ -6322,10 +6322,10 @@ load_object_from_level_spec:
    ld     b, $13                       ; 00:2390 - 06 13
    xor    a                            ; 00:2392 - AF
 
-addr_02393:
+-:
    ld     (hl), a                      ; 00:2393 - 77
    inc    hl                           ; 00:2394 - 23
-   djnz   addr_02393                   ; 00:2395 - 10 FC
+   djnz   -                            ; 00:2395 - 10 FC
    exx                                 ; 00:2397 - D9
    inc    hl                           ; 00:2398 - 23
    add    ix, de                       ; 00:2399 - DD 19
