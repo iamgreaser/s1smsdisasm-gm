@@ -2004,10 +2004,10 @@ addr_00A5F:
    ld     hl, (var_D230)               ; 00:0A60 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0A63 - 11 BC D3
    ld     b, $10                       ; 00:0A66 - 06 10
-   call   addr_00A90                   ; 00:0A68 - CD 90 0A
+   call   palette_fade_to_black        ; 00:0A68 - CD 90 0A
    ld     hl, (var_D232)               ; 00:0A6B - 2A 32 D2
    ld     b, $10                       ; 00:0A6E - 06 10
-   call   addr_00A90                   ; 00:0A70 - CD 90 0A
+   call   palette_fade_to_black        ; 00:0A70 - CD 90 0A
    ld     hl, var_D3BC                 ; 00:0A73 - 21 BC D3
    ld     a, $03                       ; 00:0A76 - 3E 03
    call   signal_load_palettes         ; 00:0A78 - CD 33 03
@@ -2023,33 +2023,33 @@ addr_00A7D:
    djnz   addr_00A5F                   ; 00:0A8D - 10 D0
    ret                                 ; 00:0A8F - C9
 
-addr_00A90:
+palette_fade_to_black:
    ld     a, (hl)                      ; 00:0A90 - 7E
    and    $03                          ; 00:0A91 - E6 03
-   jr     z, addr_00A96                ; 00:0A93 - 28 01
+   jr     z, @clamp_red                ; 00:0A93 - 28 01
    dec    a                            ; 00:0A95 - 3D
 
-addr_00A96:
+@clamp_red:
    ld     c, a                         ; 00:0A96 - 4F
    ld     a, (hl)                      ; 00:0A97 - 7E
    and    $0C                          ; 00:0A98 - E6 0C
-   jr     z, addr_00A9E                ; 00:0A9A - 28 02
+   jr     z, @clamp_green              ; 00:0A9A - 28 02
    sub    $04                          ; 00:0A9C - D6 04
 
-addr_00A9E:
+@clamp_green:
    or     c                            ; 00:0A9E - B1
    ld     c, a                         ; 00:0A9F - 4F
    ld     a, (hl)                      ; 00:0AA0 - 7E
    and    $30                          ; 00:0AA1 - E6 30
-   jr     z, addr_00AA7                ; 00:0AA3 - 28 02
+   jr     z, @clamp_blue               ; 00:0AA3 - 28 02
    sub    $10                          ; 00:0AA5 - D6 10
 
-addr_00AA7:
+@clamp_blue:
    or     c                            ; 00:0AA7 - B1
    ld     (de), a                      ; 00:0AA8 - 12
    inc    hl                           ; 00:0AA9 - 23
    inc    de                           ; 00:0AAA - 13
-   djnz   addr_00A90                   ; 00:0AAB - 10 E3
+   djnz   palette_fade_to_black        ; 00:0AAB - 10 E3
    ret                                 ; 00:0AAD - C9
 
 addr_00AAE:
@@ -2146,25 +2146,25 @@ addr_00B3D:
    djnz   addr_00AFC                   ; 00:0B4D - 10 AD
    ret                                 ; 00:0B4F - C9
 
-fade_palette_in_banks_01_02:
+palette_fade_in_banks_01_02:
    ld     (var_D214), hl               ; 00:0B50 - 22 14 D2
    ld     hl, var_D3BC                 ; 00:0B53 - 21 BC D3
    ld     b, $20                       ; 00:0B56 - 06 20
 
-addr_00B58:
+@clear_starting_palette:
    ld     (hl), $00                    ; 00:0B58 - 36 00
    inc    hl                           ; 00:0B5A - 23
-   djnz   addr_00B58                   ; 00:0B5B - 10 FB
-   jp     addr_00B6E                   ; 00:0B5D - C3 6E 0B
+   djnz   @clear_starting_palette      ; 00:0B5B - 10 FB
+   jp     _palette_fade_up_common      ; 00:0B5D - C3 6E 0B
 
-addr_00B60:
+palette_fade_up:
    ld     (var_D214), hl               ; 00:0B60 - 22 14 D2
    ld     hl, (var_D230)               ; 00:0B63 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0B66 - 11 BC D3
    ld     bc, $0020                    ; 00:0B69 - 01 20 00
    ldir                                ; 00:0B6C - ED B0
 
-addr_00B6E:
+_palette_fade_up_common:
    ld     a, $01                       ; 00:0B6E - 3E 01
    ld     (rompage_1), a               ; 00:0B70 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:0B73 - 32 35 D2
@@ -2183,21 +2183,21 @@ addr_00B6E:
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:0B98 - FD 71 0A
    ld     b, $09                       ; 00:0B9B - 06 09
 
-addr_00B9D:
+-:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0B9D - FD 7E 0A
    res    0, (iy+var_D200-IYBASE)      ; 00:0BA0 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0BA4 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0BA7 - FD 77 0A
-   djnz   addr_00B9D                   ; 00:0BAA - 10 F1
+   djnz   -                            ; 00:0BAA - 10 F1
    ld     b, $04                       ; 00:0BAC - 06 04
 
-addr_00BAE:
+--:
    push   bc                           ; 00:0BAE - C5
    ld     hl, (var_D214)               ; 00:0BAF - 2A 14 D2
    ld     de, var_D3BC                 ; 00:0BB2 - 11 BC D3
    ld     b, $20                       ; 00:0BB5 - 06 20
 
-addr_00BB7:
+-:
    push   bc                           ; 00:0BB7 - C5
    ld     a, (hl)                      ; 00:0BB8 - 7E
    and    $03                          ; 00:0BB9 - E6 03
@@ -2205,10 +2205,10 @@ addr_00BB7:
    ld     a, (de)                      ; 00:0BBC - 1A
    and    $03                          ; 00:0BBD - E6 03
    cp     b                            ; 00:0BBF - B8
-   jr     nc, addr_00BC3               ; 00:0BC0 - 30 01
+   jr     nc, @clamp_red               ; 00:0BC0 - 30 01
    inc    a                            ; 00:0BC2 - 3C
 
-addr_00BC3:
+@clamp_red:
    ld     c, a                         ; 00:0BC3 - 4F
    ld     a, (hl)                      ; 00:0BC4 - 7E
    and    $0C                          ; 00:0BC5 - E6 0C
@@ -2216,10 +2216,10 @@ addr_00BC3:
    ld     a, (de)                      ; 00:0BC8 - 1A
    and    $0C                          ; 00:0BC9 - E6 0C
    cp     b                            ; 00:0BCB - B8
-   jr     nc, addr_00BD0               ; 00:0BCC - 30 02
+   jr     nc, @clamp_green             ; 00:0BCC - 30 02
    add    a, $04                       ; 00:0BCE - C6 04
 
-addr_00BD0:
+@clamp_green:
    or     c                            ; 00:0BD0 - B1
    ld     c, a                         ; 00:0BD1 - 4F
    ld     a, (hl)                      ; 00:0BD2 - 7E
@@ -2228,29 +2228,29 @@ addr_00BD0:
    ld     a, (de)                      ; 00:0BD6 - 1A
    and    $30                          ; 00:0BD7 - E6 30
    cp     b                            ; 00:0BD9 - B8
-   jr     nc, addr_00BDE               ; 00:0BDA - 30 02
+   jr     nc, @clamp_blue              ; 00:0BDA - 30 02
    add    a, $10                       ; 00:0BDC - C6 10
 
-addr_00BDE:
+@clamp_blue:
    or     c                            ; 00:0BDE - B1
    ld     (de), a                      ; 00:0BDF - 12
    inc    hl                           ; 00:0BE0 - 23
    inc    de                           ; 00:0BE1 - 13
    pop    bc                           ; 00:0BE2 - C1
-   djnz   addr_00BB7                   ; 00:0BE3 - 10 D2
+   djnz   -                            ; 00:0BE3 - 10 D2
    ld     hl, var_D3BC                 ; 00:0BE5 - 21 BC D3
    ld     a, $03                       ; 00:0BE8 - 3E 03
    call   signal_load_palettes         ; 00:0BEA - CD 33 03
    ld     b, $0A                       ; 00:0BED - 06 0A
 
-addr_00BEF:
+-:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0BEF - FD 7E 0A
    res    0, (iy+var_D200-IYBASE)      ; 00:0BF2 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0BF6 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0BF9 - FD 77 0A
-   djnz   addr_00BEF                   ; 00:0BFC - 10 F1
+   djnz   -                            ; 00:0BFC - 10 F1
    pop    bc                           ; 00:0BFE - C1
-   djnz   addr_00BAE                   ; 00:0BFF - 10 AD
+   djnz   --                           ; 00:0BFF - 10 AD
    ret                                 ; 00:0C01 - C9
 
 calc_level_offset_HL_and_mask_C:
@@ -2367,7 +2367,7 @@ addr_00C6C:
    ld     (g_FF_string_high_byte), a   ; 00:0CCE - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0CD1 - CD 01 05
    ld     hl, LUT_00F0E                ; 00:0CD4 - 21 0E 0F
-   call   fade_palette_in_banks_01_02  ; 00:0CD7 - CD 50 0B
+   call   palette_fade_in_banks_01_02  ; 00:0CD7 - CD 50 0B
    jr     addr_00D3C                   ; 00:0CDA - 18 60
 
 addr_00CDC:
@@ -2404,7 +2404,7 @@ addr_00CDC:
    ld     (g_FF_string_high_byte), a   ; 00:0D30 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0D33 - CD 01 05
    ld     hl, LUT_00F2E                ; 00:0D36 - 21 2E 0F
-   call   fade_palette_in_banks_01_02  ; 00:0D39 - CD 50 0B
+   call   palette_fade_in_banks_01_02  ; 00:0D39 - CD 50 0B
 
 addr_00D3C:
    ld     a, $07                       ; 00:0D3C - 3E 07
@@ -3385,12 +3385,12 @@ handle_level_score_screen:
    ld     de, $3800                    ; 00:1599 - 11 00 38
    ld     a, (g_level)                 ; 00:159C - 3A 3E D2
    cp     $1C                          ; 00:159F - FE 1C
-   jr     c, +                         ; 00:15A1 - 38 09
+   jr     c, @artmap_not_bonus         ; 00:15A1 - 38 09
    ld     hl, ARTMAP_05_61E9           ; 00:15A3 - 21 E9 61
    ld     bc, $0095                    ; 00:15A6 - 01 95 00
    ld     de, $3800                    ; 00:15A9 - 11 00 38
 
-+:
+@artmap_not_bonus:
    xor    a                            ; 00:15AC - AF
    ld     (g_FF_string_high_byte), a   ; 00:15AD - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:15B0 - CD 01 05
@@ -3509,7 +3509,7 @@ _handle_level_score_screen_UNK_01658:
    set    1, (iy+var_D200-IYBASE)      ; 00:1672 - FD CB 00 CE
    ld     b, $78                       ; 00:1676 - 06 78
 
-_handle_level_score_screen_wait_before_counting:
+@wait_before_counting:
    push   bc                           ; 00:1678 - C5
    ld     a, (g_saved_vdp_reg_01)      ; 00:1679 - 3A 19 D2
    or     $40                          ; 00:167C - F6 40
@@ -3518,7 +3518,7 @@ _handle_level_score_screen_wait_before_counting:
    call   wait_until_irq_ticked        ; 00:1685 - CD 1C 03
    call   addr_01A18                   ; 00:1688 - CD 18 1A
    pop    bc                           ; 00:168B - C1
-   djnz   _handle_level_score_screen_wait_before_counting  ; 00:168C - 10 EA
+   djnz   @wait_before_counting        ; 00:168C - 10 EA
 
 -:
    res    0, (iy+var_D200-IYBASE)      ; 00:168E - FD CB 00 86
@@ -4609,7 +4609,7 @@ LUT_01FA5_elem_1FA7:
 update_signpost_timer:
    dec    a                            ; 00:1FA9 - 3D
    ld     (g_signpost_tickdown_counter), a  ; 00:1FAA - 32 89 D2
-   jr     z, _signpost_go_to_next_level  ; 00:1FAD - 28 15
+   jr     z, @go_to_next_level         ; 00:1FAD - 28 15
    cp     $88                          ; 00:1FAF - FE 88
    ret    nz                           ; 00:1FB1 - C0
    ld     a, (g_current_signpost)      ; 00:1FB2 - 3A 88 D2
@@ -4626,7 +4626,7 @@ update_signpost_timer:
    ret    z                            ; 00:1FC2 - C8
    jp     (hl)                         ; 00:1FC3 - E9
 
-_signpost_go_to_next_level:
+@go_to_next_level:
    call   addr_00A40                   ; 00:1FC4 - CD 40 0A
    pop    hl                           ; 00:1FC7 - E1
    res    5, (iy+var_D200-IYBASE)      ; 00:1FC8 - FD CB 00 AE
@@ -4641,11 +4641,11 @@ _signpost_go_to_next_level:
    call   handle_level_score_screen    ; 00:1FE3 - CD 5E 15
    ld     a, (g_level)                 ; 00:1FE6 - 3A 3E D2
    cp     $1A                          ; 00:1FE9 - FE 1A
-   jr     nc, _level_was_bonus         ; 00:1FEB - 30 28
+   jr     nc, @level_was_bonus         ; 00:1FEB - 30 28
    bit    0, (iy+var_D207-IYBASE)      ; 00:1FED - FD CB 07 46
-   jr     z, _level_was_normal_no_bonus  ; 00:1FF1 - 28 1B
+   jr     z, @level_was_normal_no_bonus  ; 00:1FF1 - 28 1B
    ld     hl, LUT_02047_all7F          ; 00:1FF3 - 21 47 20
-   call   addr_00B60                   ; 00:1FF6 - CD 60 0B
+   call   palette_fade_up              ; 00:1FF6 - CD 60 0B
    ld     a, (g_level)                 ; 00:1FF9 - 3A 3E D2
    push   af                           ; 00:1FFC - F5
    ld     a, (g_next_bonus_level)      ; 00:1FFD - 3A 3F D2
@@ -4656,13 +4656,13 @@ _signpost_go_to_next_level:
    pop    af                           ; 00:200A - F1
    ld     (g_level), a                 ; 00:200B - 32 3E D2
 
-_level_was_normal_no_bonus:
+@level_was_normal_no_bonus:
    ld     hl, g_level                  ; 00:200E - 21 3E D2
    inc    (hl)                         ; 00:2011 - 34
    ld     a, $01                       ; 00:2012 - 3E 01
    ret                                 ; 00:2014 - C9
 
-_level_was_bonus:
+@level_was_bonus:
    res    0, (iy+var_D207-IYBASE)      ; 00:2015 - FD CB 07 86
    ld     a, $FF                       ; 00:2019 - 3E FF
    ret                                 ; 00:201B - C9
@@ -5387,7 +5387,7 @@ addr_0262E:
    pop    bc                           ; 00:2668 - C1
    djnz   addr_02610                   ; 00:2669 - 10 A5
    ld     hl, LUT_02047_all7F          ; 00:266B - 21 47 20
-   call   addr_00B60                   ; 00:266E - CD 60 0B
+   call   palette_fade_up              ; 00:266E - CD 60 0B
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2671 - FD 36 0A 00
    ld     a, $05                       ; 00:2675 - 3E 05
    ld     (rompage_1), a               ; 00:2677 - 32 FE FF
@@ -5455,7 +5455,7 @@ addr_02693:
    ld     bc, $0001                    ; 00:26FC - 01 01 00
    call   addr_02718                   ; 00:26FF - CD 18 27
    ld     hl, LUT_02AD6                ; 00:2702 - 21 D6 2A
-   call   fade_palette_in_banks_01_02  ; 00:2705 - CD 50 0B
+   call   palette_fade_in_banks_01_02  ; 00:2705 - CD 50 0B
    ld     a, $0E                       ; 00:2708 - 3E 0E
    rst    $18                          ; 00:270A - DF
    xor    a                            ; 00:270B - AF

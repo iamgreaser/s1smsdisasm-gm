@@ -91,7 +91,12 @@ class Rom:
             return
         else:
             # Don't track relative labels here
-            if not (label.strip("-") == "" or label.strip("+") == "" or label == "__"):
+            if not (
+                label.strip("-") == ""
+                or label.strip("+") == ""
+                or label == "__"
+                or label.startswith("@")
+            ):
                 self.label_to_addr[label] = virt_addr
             phys_addr = self.virt_to_phys(virt_addr)
             if phys_addr not in self.labels_from_addr:
@@ -127,7 +132,7 @@ class Rom:
             else:
                 return label
         else:
-            if label == "__" or label.strip("+-") == "":
+            if label == "__" or label.strip("+-") == "" or label.startswith("@"):
                 # Relative label - use a constant instead.
                 return f"${virt_addr[1]:04X}"
             else:
