@@ -2207,8 +2207,14 @@ addr_00869:
    ld     a, (g_vdp_scroll_x)          ; 00:0876 - 3A 51 D2
    add    a, $08                       ; 00:0879 - C6 08
    and    $F8                          ; 00:087B - E6 F8
+   .IF 0
    srl    a                            ; 00:087D - CB 3F
    srl    a                            ; 00:087F - CB 3F
+   .ELSE
+   rrca
+   rrca
+   ; SAVING: 2 bytes
+   .ENDIF
    add    a, c                         ; 00:0881 - 81
    ld     c, a                         ; 00:0882 - 4F
    ld     hl, $3800                    ; 00:0883 - 21 00 38
@@ -2217,6 +2223,7 @@ addr_00869:
    ex     de, hl                       ; 00:0889 - EB
    ld     hl, var_D100                 ; 00:088A - 21 00 D1
    ld     a, (g_vdp_scroll_x)          ; 00:088D - 3A 51 D2
+   .IF 0
    and    $1F                          ; 00:0890 - E6 1F
    add    a, $08                       ; 00:0892 - C6 08
    srl    a                            ; 00:0894 - CB 3F
@@ -2226,6 +2233,16 @@ addr_00869:
    ld     b, $00                       ; 00:089B - 06 00
    add    hl, bc                       ; 00:089D - 09
    add    hl, bc                       ; 00:089E - 09
+   .ELSE
+   and $18
+   add a, $08
+   rrca
+   rrca
+   ld c, a
+   ld b, $00
+   add hl, bc
+   ; SAVING: 5 bytes
+   .ENDIF
    ld     a, e                         ; 00:089F - 7B
    and    $C0                          ; 00:08A0 - E6 C0
    ld     (g_FF_string_high_byte), a   ; 00:08A2 - 32 0E D2
