@@ -8886,6 +8886,8 @@ UNK_03956:
    ret                                 ; 00:39AB - C9
 
 add_A_rings:
+.IF 0
+   ;; Original code
    ld     c, a                         ; 00:39AC - 4F
    ld     a, (g_rings_BCD)             ; 00:39AD - 3A AA D2
    add    a, c                         ; 00:39B0 - 81
@@ -8915,6 +8917,23 @@ add_A_rings:
    ld     a, $02                       ; 00:39D4 - 3E 02
    rst    $28                          ; 00:39D6 - EF
    ret                                 ; 00:39D7 - C9
+.ELSE
+   ;; New code
+   ld hl, g_rings_BCD
+   add a, (hl)
+   daa
+   ld (hl), a
+   ld a, $02
+   jr nz, +
+      ;;
+      ld hl, g_lives
+      inc (hl)
+      ld a, $09
+   +:
+   rst $28
+   ret
+   ; SAVING: 26 bytes
+.ENDIF
 
 addr_039D8:
    ld     hl, var_D2BD                 ; 00:39D8 - 21 BD D2
