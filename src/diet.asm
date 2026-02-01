@@ -5022,8 +5022,14 @@ addr_01C9F:
    call   addr_00C52                   ; 00:1CB1 - CD 52 0C
    bit    1, (iy+var_D205-IYBASE)      ; 00:1CB4 - FD CB 05 4E
    jr     z, addr_01CBD                ; 00:1CB8 - 28 03
-   ;jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
+   .IF 0
+   jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
+   .ELIF 0
+   ; This literally cannot work - it seems that BIT clears the carry flag.
    jr c, reset_trampoline_after_title
+   .ELSE
+   ; SAVING: 3 bytes
+   .ENDIF
 
 addr_01CBD:
    call   addr_00A40                   ; 00:1CBD - CD 40 0A
