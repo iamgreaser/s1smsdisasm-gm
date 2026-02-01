@@ -5111,7 +5111,7 @@ addr_0232B:
    ld     c, $00                       ; 00:2333 - 0E 00
    ld     hl, (var_D216)               ; 00:2335 - 2A 16 D2
    ld     a, $00                       ; 00:2338 - 3E 00
-   call   addr_0235E                   ; 00:233A - CD 5E 23
+   call   load_object_from_level_spec  ; 00:233A - CD 5E 23
    pop    hl                           ; 00:233D - E1
    ld     a, (hl)                      ; 00:233E - 7E
    inc    hl                           ; 00:233F - 23
@@ -5122,7 +5122,7 @@ addr_0232B:
 addr_02345:
    ld     a, (hl)                      ; 00:2345 - 7E
    inc    hl                           ; 00:2346 - 23
-   call   addr_0235E                   ; 00:2347 - CD 5E 23
+   call   load_object_from_level_spec  ; 00:2347 - CD 5E 23
    djnz   addr_02345                   ; 00:234A - 10 F9
    ld     a, (var_D2F2)                ; 00:234C - 3A F2 D2
    ld     b, a                         ; 00:234F - 47
@@ -5137,7 +5137,7 @@ addr_02355:
    djnz   addr_02355                   ; 00:235B - 10 F8
    ret                                 ; 00:235D - C9
 
-addr_0235E:
+load_object_from_level_spec:
    ld     (ix+0), a                    ; 00:235E - DD 77 00
    ld     a, (hl)                      ; 00:2361 - 7E
    exx                                 ; 00:2362 - D9

@@ -6244,25 +6244,42 @@ addr_0232B:
    ld     c, $00                       ; 00:2333 - 0E 00
    ld     hl, (var_D216)               ; 00:2335 - 2A 16 D2
    ld     a, $00                       ; 00:2338 - 3E 00
-   call   addr_0235E                   ; 00:233A - CD 5E 23
+   call   load_object_from_level_spec  ; 00:233A - CD 5E 23
    pop    hl                           ; 00:233D - E1
    ld     a, (hl)                      ; 00:233E - 7E
    inc    hl                           ; 00:233F - 23
    ld     (var_D2F2), a                ; 00:2340 - 32 F2 D2
    dec    a                            ; 00:2343 - 3D
    ld     b, a                         ; 00:2344 - 47
+   .IF 0
+   .ELSE
+   ld c, $20
+   ;; See below
+   .ENDIF
 
 addr_02345:
    ld     a, (hl)                      ; 00:2345 - 7E
    inc    hl                           ; 00:2346 - 23
-   call   addr_0235E                   ; 00:2347 - CD 5E 23
+   call   load_object_from_level_spec  ; 00:2347 - CD 5E 23
+   .IF 0
+   .ELSE
+   dec c
+   ret z
+   ;; See below
+   .ENDIF
    djnz   addr_02345                   ; 00:234A - 10 F9
+   .IF 0
    ld     a, (var_D2F2)                ; 00:234C - 3A F2 D2
    ld     b, a                         ; 00:234F - 47
    ld     a, $20                       ; 00:2350 - 3E 20
    sub    b                            ; 00:2352 - 90
    ret    z                            ; 00:2353 - C8
    ld     b, a                         ; 00:2354 - 47
+   .ELSE
+   ;; Welcome to below.
+   ld b, c
+   ; SAVING: 4 bytes
+   .ENDIF
 
 addr_02355:
    ld     (ix+0), $FF                  ; 00:2355 - DD 36 00 FF
@@ -6270,7 +6287,7 @@ addr_02355:
    djnz   addr_02355                   ; 00:235B - 10 F8
    ret                                 ; 00:235D - C9
 
-addr_0235E:
+load_object_from_level_spec:
    ld     (ix+0), a                    ; 00:235E - DD 77 00
    ld     a, (hl)                      ; 00:2361 - 7E
    exx                                 ; 00:2362 - D9
