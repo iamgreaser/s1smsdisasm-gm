@@ -6099,6 +6099,7 @@ addr_0223E:
    pop    hl                           ; 00:22A1 - E1
    inc    hl                           ; 00:22A2 - 23
    ld     de, var_D2A4                 ; 00:22A3 - 11 A4 D2
+   .IF 0
    ld     a, (hl)                      ; 00:22A6 - 7E
    ld     (de), a                      ; 00:22A7 - 12
    inc    de                           ; 00:22A8 - 13
@@ -6111,6 +6112,17 @@ addr_0223E:
    ld     a, (hl)                      ; 00:22AF - 7E
    ld     (de), a                      ; 00:22B0 - 12
    inc    hl                           ; 00:22B1 - 23
+   .ELSE
+   ld a, (hl)
+   ld (de), a
+   inc de
+   ldi
+   xor a
+   ld (de), a
+   inc de
+   ldi
+   ; SAVING: 2 bytes
+   .ENDIF
    ld     a, (hl)                      ; 00:22B2 - 7E
    ex     de, hl                       ; 00:22B3 - EB
    add    a, a                         ; 00:22B4 - 87
