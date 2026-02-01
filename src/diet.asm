@@ -8718,6 +8718,7 @@ addr_038B0:
    and    $F8                          ; 00:38CD - E6 F8
    ld     e, a                         ; 00:38CF - 5F
    add    hl, de                       ; 00:38D0 - 19
+   .IF 0
    srl    h                            ; 00:38D1 - CB 3C
    rr     l                            ; 00:38D3 - CB 1D
    srl    h                            ; 00:38D5 - CB 3C
@@ -8725,6 +8726,17 @@ addr_038B0:
    srl    h                            ; 00:38D9 - CB 3C
    rr     l                            ; 00:38DB - CB 1D
    ld     a, l                         ; 00:38DD - 7D
+   .ELSE
+   ld a, l
+   srl h
+   rra
+   srl h
+   rra
+   srl h
+   rra
+   ld l, a
+   ; SAVING: 2 bytes
+   .ENDIF
    and    $1F                          ; 00:38DE - E6 1F
    add    a, a                         ; 00:38E0 - 87
    ld     c, a                         ; 00:38E1 - 4F
@@ -8749,6 +8761,7 @@ addr_038B0:
    and    $F8                          ; 00:3900 - E6 F8
    ld     e, a                         ; 00:3902 - 5F
    add    hl, de                       ; 00:3903 - 19
+   .IF 0
    srl    h                            ; 00:3904 - CB 3C
    rr     l                            ; 00:3906 - CB 1D
    srl    h                            ; 00:3908 - CB 3C
@@ -8756,6 +8769,16 @@ addr_038B0:
    srl    h                            ; 00:390C - CB 3C
    rr     l                            ; 00:390E - CB 1D
    ld     a, l                         ; 00:3910 - 7D
+   .ELSE
+   ld a, l
+   srl h
+   rra
+   srl h
+   rra
+   srl h
+   rra
+   ; SAVING: 3 bytes
+   .ENDIF
    cp     $1C                          ; 00:3911 - FE 1C
    jr     c, addr_03917                ; 00:3913 - 38 02
    sub    $1C                          ; 00:3915 - D6 1C
@@ -8771,10 +8794,17 @@ addr_03917:
    ld     l, a                         ; 00:3920 - 6F
    ld     a, h                         ; 00:3921 - 7C
    xor    l                            ; 00:3922 - AD
+   .IF 0
    ld     h, a                         ; 00:3923 - 67
    add    hl, bc                       ; 00:3924 - 09
    ld     bc, $3800                    ; 00:3925 - 01 00 38
    add    hl, bc                       ; 00:3928 - 09
+   .ELSE
+   add a, $38
+   ld h, a
+   add hl, bc
+   ; SAVING: 2 bytes
+   .ENDIF
    ld     de, (var_D2AF)               ; 00:3929 - ED 5B AF D2
    ld     b, $02                       ; 00:392D - 06 02
 
