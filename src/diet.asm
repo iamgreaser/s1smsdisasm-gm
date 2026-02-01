@@ -7446,12 +7446,21 @@ addr_03122:
    ret    z                            ; 00:3129 - C8
    jr     c, addr_03136                ; 00:312A - 38 0A
    inc    de                           ; 00:312C - 13
+   .IF 0
    ld     (var_D277), de               ; 00:312D - ED 53 77 D2
    ld     (var_D279), de               ; 00:3131 - ED 53 79 D2
    ret                                 ; 00:3135 - C9
+   .ELSE
+   jr addr_03136@skip_dec
+   ; SAVING: 7 bytes
+   .ENDIF
 
 addr_03136:
    dec    de                           ; 00:3136 - 1B
+   .IF 0
+   .ELSE
+   @skip_dec:
+   .ENDIF
    ld     (var_D277), de               ; 00:3137 - ED 53 77 D2
    ld     (var_D279), de               ; 00:313B - ED 53 79 D2
    ret                                 ; 00:313F - C9
@@ -7463,12 +7472,21 @@ addr_03140:
    ret    z                            ; 00:3147 - C8
    jr     c, addr_03154                ; 00:3148 - 38 0A
    inc    de                           ; 00:314A - 13
+   .IF 0
    ld     (var_D273), de               ; 00:314B - ED 53 73 D2
    ld     (var_D275), de               ; 00:314F - ED 53 75 D2
    ret                                 ; 00:3153 - C9
+   .ELSE
+   jr addr_03154@skip_dec
+   ; SAVING: 7 bytes
+   .ENDIF
 
 addr_03154:
    dec    de                           ; 00:3154 - 1B
+   .IF 0
+   .ELSE
+   @skip_dec:
+   .ENDIF
    ld     (var_D273), de               ; 00:3155 - ED 53 73 D2
    ld     (var_D275), de               ; 00:3159 - ED 53 75 D2
    ret                                 ; 00:315D - C9
@@ -7491,7 +7509,12 @@ addr_03164:
    and    a                            ; 00:3170 - A7
    jp     p, addr_03179                ; 00:3171 - F2 79 31
    neg                                 ; 00:3174 - ED 44
+   .IF 0
    ld     bc, $FE00                    ; 00:3176 - 01 00 FE
+   .ELSE
+   ld b, $FE
+   ; SAVING: 1 byte
+   .ENDIF
 
 addr_03179:
    cp     $02                          ; 00:3179 - FE 02
@@ -7550,9 +7573,12 @@ addr_031D3:
    ld     bc, $0070                    ; 00:31D3 - 01 70 00
    ret                                 ; 00:31D6 - C9
 
+.IF 0
 UNUSED_031D7:
    ld     bc, $0070                    ; 00:31D7 - 01 70 00
    ret                                 ; 00:31DA - C9
+.ENDIF
+; Not used? Then... SAVING: 4 bytes
 
 addr_031DB:
    bit    6, (iy+var_D205-IYBASE)      ; 00:31DB - FD CB 05 76
@@ -7786,7 +7812,11 @@ addr_0333F:
    ld     (var_D214), a                ; 00:3361 - 32 14 D2
    pop    hl                           ; 00:3364 - E1
    pop    de                           ; 00:3365 - D1
+   .IF 0
    and    $3F                          ; 00:3366 - E6 3F
+   ;; Already masked above, flags not touched since then.
+   ; SAVING: 2 bytes
+   .ENDIF
    jp     z, addr_033F6                ; 00:3368 - CA F6 33
    ld     a, (var_D214)                ; 00:336B - 3A 14 D2
    add    a, a                         ; 00:336E - 87
@@ -7910,7 +7940,11 @@ addr_03417:
    ld     (var_D214), a                ; 00:3439 - 32 14 D2
    pop    hl                           ; 00:343C - E1
    pop    bc                           ; 00:343D - C1
+   .IF 0
    and    $3F                          ; 00:343E - E6 3F
+   ;; Already masked above, flags not touched since then.
+   ; SAVING: 2 bytes
+   .ENDIF
    jp     z, addr_034E6                ; 00:3440 - CA E6 34
    ld     a, (var_D214)                ; 00:3443 - 3A 14 D2
    add    a, a                         ; 00:3446 - 87
@@ -8034,15 +8068,25 @@ addr_0350F:
    exx                                 ; 00:3513 - D9
    pop    bc                           ; 00:3514 - C1
    exx                                 ; 00:3515 - D9
+   .IF 0
    ld     b, $00                       ; 00:3516 - 06 00
    ld     c, $03                       ; 00:3518 - 0E 03
+   .ELSE
+   ld bc, $0003
+   ; SAVING: 1 byte
+   .ENDIF
 
 addr_0351A:
    exx                                 ; 00:351A - D9
    ld     hl, (var_D214)               ; 00:351B - 2A 14 D2
    ld     a, (bc)                      ; 00:351E - 0A
    exx                                 ; 00:351F - D9
+   .IF 0
    cp     $FF                          ; 00:3520 - FE FF
+   .ELSE
+   inc a
+   ; SAVING: 1 byte
+   .ENDIF
    ret    z                            ; 00:3522 - C8
    ld     a, d                         ; 00:3523 - 7A
    cp     $FF                          ; 00:3524 - FE FF
