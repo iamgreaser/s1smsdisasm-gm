@@ -65,6 +65,20 @@ class Annotator:
                 self.rom.add_to_virt(addr, (i * lsize)), ltype, ltype_str
             )
 
+    def _annotcmd_stridearraylabel(
+        self, addr_str: str, lstride_str: str, ltype_str: str, llen_str: str, label: str
+    ) -> None:
+        lstride = parse_int(lstride_str)
+        ltype = LTYPEMAP[ltype_str]
+        llen = parse_int(llen_str)
+        addr = parse_addr(addr_str)
+        lsize = LTYPESIZE[ltype]
+        self.rom.set_label(addr, label)
+        for i in range(llen):
+            self.annot_set_addr_type(
+                self.rom.add_to_virt(addr, (i * lstride)), ltype, ltype_str
+            )
+
     def _annotcmd_splitaddr(
         self, from_addr_str: str, part: str, to_addr_str: str
     ) -> None:
@@ -154,6 +168,7 @@ class Annotator:
         "code": _annotcmd_code,
         "label": _annotcmd_label,
         "arraylabel": _annotcmd_arraylabel,
+        "stridearraylabel": _annotcmd_stridearraylabel,
         "splitaddr": _annotcmd_splitaddr,
         "forceimm": _annotcmd_forceimm,
         "bankslot": _annotcmd_bankslot,
