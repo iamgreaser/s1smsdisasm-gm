@@ -2220,8 +2220,13 @@ addr_00869:
    ld     e, a                         ; 00:08AA - 5F
    ld     a, d                         ; 00:08AB - 7A
    out    ($BF), a                     ; 00:08AC - D3 BF
+   .IF 0
    ld     b, $3E                       ; 00:08AE - 06 3E
    ld     c, $BE                       ; 00:08B0 - 0E BE
+   .ELSE
+   ld bc, $3EBE
+   ; SAVING: 1 byte
+   .ENDIF
 
 addr_008B2:
    bit    6, e                         ; 00:08B2 - CB 73
