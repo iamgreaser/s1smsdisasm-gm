@@ -6958,11 +6958,17 @@ LUT_2BA2:
 LUT_02E52:
 .db $A6, $A8, $FF                                                                   ; 00:2E52
 
+.IF 0
 CONST_sonic_lives_FFstr_template:
 .db $A0, $A2, $A4, $00, $FF                                                         ; 00:2E55
+.ELSE
+; Removed - SAVING: 5 bytes
+.ENDIF
 
 addr_02E5A:
    res    7, (iy+var_D207-IYBASE)      ; 00:2E5A - FD CB 07 BE
+   .IF 0
+   ;; Original code
    ld     hl, CONST_sonic_lives_FFstr_template  ; 00:2E5E - 21 55 2E
    ld     de, g_HUD_FFstr_buf          ; 00:2E61 - 11 BE D2
    ld     bc, $0005                    ; 00:2E64 - 01 05 00
@@ -6980,6 +6986,32 @@ addr_02E72:
    ld     b, $AC                       ; 00:2E7A - 06 AC
    ld     hl, (var_D23C)               ; 00:2E7C - 2A 3C D2
    ld     de, g_HUD_FFstr_buf          ; 00:2E7F - 11 BE D2
+   .ELSE
+   ;; New code
+   ld hl, g_HUD_FFstr_buf  ; 2E5E 3
+   push hl                 ; 2E61 1
+      ld bc, $03A0         ; 2E62 3
+      -:
+         ld (hl), c        ; 2E65 1
+         inc hl            ; 2E66 1
+         inc c             ; 2E67 1
+         inc c             ; 2E68 1
+         djnz -            ; 2E69 2
+      ld a, (g_lives)      ; 2E6B 3
+      cp $09               ; 2E6E 2
+      jr c, +              ; 2E70 2
+         ld a, $09         ; 2E72 2
+      +:
+      add a, a             ; 2E74 1
+      add a, $80           ; 2E75 2
+      ld (hl), a           ; 2E77 1
+      inc hl               ; 2E78 1
+      ld (hl), $FF         ; 2E79 2
+      ld bc, $AC10         ; 2E7B 3
+      ld hl, (var_D23C)    ; 2E7E 3
+   pop de                  ; 2E81 1
+   ; 2E82 -> 2E82 - Parity. But we saved 5 bytes by removing the table.
+   .ENDIF
    call   draw_sprite_text             ; 00:2E82 - CD CC 35
    ld     (var_D23C), hl               ; 00:2E85 - 22 3C D2
    bit    2, (iy+var_D205-IYBASE)      ; 00:2E88 - FD CB 05 56
