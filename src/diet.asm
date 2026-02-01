@@ -6556,6 +6556,9 @@ addr_02795:
 addr_027A0:
    ld     a, (hl)                      ; 00:27A0 - 7E
    inc    hl                           ; 00:27A1 - 23
+
+   .IF 0
+   ;; Original code
    cp     $FF                          ; 00:27A2 - FE FF
    ret    z                            ; 00:27A4 - C8
    cp     $FE                          ; 00:27A5 - FE FE
@@ -6582,6 +6585,39 @@ addr_027BA:
    inc    (hl)                         ; 00:27CD - 34
    pop    hl                           ; 00:27CE - E1
    jr     addr_027A0                   ; 00:27CF - 18 CF
+
+   .ELSE
+   ;; New code
+   ;; Need to invert a branch to do this.
+   inc a                            ; 27A2 1 - compare $FF
+   ret z                            ; 27A3 1
+   inc a                            ; 27A4 1 - compare $FE
+   jr z, addr_02795                 ; 27A5 2
+   inc a                            ; 27A7 1 - compare $FD
+   jr z, @do_FD                     ; 27A8 2
+   inc a                            ; 27AA 1 - compare $FC
+   jr z, addr_027D1                 ; 27AB 2
+   sub $04                          ; 27AD 2
+   push hl                          ; 27AF 1
+   ld (var_D2C0), a                 ; 27B0 3
+   ld bc, $0008                     ; 27B3 3
+   call addr_02718                  ; 27B6 3
+   ld hl, g_HUD_FFstr_buf           ; 27B9 3
+   push hl                          ; 27BC 1
+   call print_positioned_FF_string  ; 27BD 3
+   pop hl                           ; 27C0 1
+   inc (hl)                         ; 27C1 1
+   pop hl                           ; 27C2 1
+   jr addr_027A0                    ; 27C3 2
+@do_FD:
+   ld     c, (hl)                   ; 27C5 1
+   inc    hl                        ; 27C6 1
+   ld     b, (hl)                   ; 27C7 1
+   inc    hl                        ; 27C8 1
+   call   addr_02718                ; 27C9 3
+   jr     addr_027A0                ; 27CC 2
+   ; 27D1 -> 27CE - SAVING: 3 bytes
+   .ENDIF
 
 addr_027D1:
    ld     b, (hl)                      ; 00:27D1 - 46
