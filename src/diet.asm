@@ -6434,8 +6434,16 @@ addr_02693:
    ld     hl, UNK_2905                 ; 00:270F - 21 05 29
    call   addr_02795                   ; 00:2712 - CD 95 27
 
+   .IF 0
 end_of_credits_infloop:
    jp     end_of_credits_infloop       ; 00:2715 - C3 15 27
+   .ELSE
+   ;; Use JR.
+   ;; I tried using RST $00 for quality of life but it resets straight after the last END letter.
+   ;; That's a bit too quick, as the music hasn't finished.
+   -: jr -
+   ; SAVING: 1 bytes
+   .ENDIF
 
 addr_02718:
    push   af                           ; 00:2718 - F5
