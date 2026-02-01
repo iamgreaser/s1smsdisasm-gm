@@ -2961,24 +2961,45 @@ addr_00BEF:
 
 calc_level_offset_HL_and_mask_C:
    ld     a, (g_level)                 ; 00:0C02 - 3A 3E D2
+   .IF 0
    ld     c, a                         ; 00:0C05 - 4F
    srl    a                            ; 00:0C06 - CB 3F
    srl    a                            ; 00:0C08 - CB 3F
    srl    a                            ; 00:0C0A - CB 3F
    ld     e, a                         ; 00:0C0C - 5F
+   .ELSE
+   ld e, a
+   srl e
+   srl e
+   srl e
+   ; SAVING: 1 byte
+   .ENDIF
    ld     d, $00                       ; 00:0C0D - 16 00
    add    hl, de                       ; 00:0C0F - 19
+   .IF 0
    ld     a, c                         ; 00:0C10 - 79
+   .ENDIF
+   ; SAVING: 1 byte
    ld     c, $01                       ; 00:0C11 - 0E 01
    and    $07                          ; 00:0C13 - E6 07
    ret    z                            ; 00:0C15 - C8
    ld     b, a                         ; 00:0C16 - 47
+   .IF 0
    ld     a, c                         ; 00:0C17 - 79
+   .ENDIF
+   ; SAVING: 1 byte
 
+   .IF 0
 addr_00C18:
    rlca                                ; 00:0C18 - 07
    djnz   addr_00C18                   ; 00:0C19 - 10 FD
    ld     c, a                         ; 00:0C1B - 4F
+   .ELSE
+   -:
+      rlc c
+      djnz -
+   .ENDIF
+   ; At parity.
    ret                                 ; 00:0C1C - C9
 
 UNK_00C1D:
