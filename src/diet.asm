@@ -263,18 +263,18 @@ g_active_object_ptrs dw   ; D37E
 .  dsb 60
 var_D3BC db   ; D3BC (auto)
 .  dsb 63
-var_D3FC db   ; D3FC
-var_D3FD db   ; D3FD
-var_D3FE db   ; D3FE
+object_list db   ; D3FC
+sonic_x_sub db   ; D3FD
+sonic_x db   ; D3FE
 var_D3FF db   ; D3FF
-var_D400 db   ; D400
-var_D401 dw   ; D401
-var_D403 db   ; D403
-var_D404 db   ; D404
-var_D405 db   ; D405
-var_D406 db   ; D406
-var_D407 db   ; D407
-var_D408 db   ; D408
+sonic_y_sub db   ; D400
+sonic_y dw   ; D401
+sonic_vel_x_sub db   ; D403
+sonic_vel_x db   ; D404
+sonic_vel_x_hi db   ; D405
+sonic_vel_y_sub db   ; D406
+sonic_vel_y db   ; D407
+sonic_vel_y_hi db   ; D408
 var_D409 db   ; D409
 var_D40A db   ; D40A
 var_D40B dw   ; D40B
@@ -286,7 +286,7 @@ var_D412 db   ; D412
 .  dsb 1
 var_D414 db   ; D414
 .  dsb 1
-var_D416 db   ; D416 (auto)
+object_list_past_sonic db   ; D416
 .  dsb 2029
 var_DC04 db   ; DC04
 var_DC05 db   ; DC05
@@ -5443,17 +5443,17 @@ addr_01E78:
    ld     de, $0112                    ; 00:1E7F - 11 12 01
    add    hl, de                       ; 00:1E82 - 19
    ex     de, hl                       ; 00:1E83 - EB
-   ld     hl, (var_D3FE)               ; 00:1E84 - 2A FE D3
+   ld     hl, (sonic_x)                ; 00:1E84 - 2A FE D3
    xor    a                            ; 00:1E87 - AF
    sbc    hl, de                       ; 00:1E88 - ED 52
    ret    c                            ; 00:1E8A - D8
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 00:1E8B - FD 36 03 FF
    ld     l, a                         ; 00:1E8F - 6F
    ld     h, a                         ; 00:1E90 - 67
-   ld     (var_D403), hl               ; 00:1E91 - 22 03 D4
-   ld     (var_D405), a                ; 00:1E94 - 32 05 D4
-   ld     (var_D406), hl               ; 00:1E97 - 22 06 D4
-   ld     (var_D408), a                ; 00:1E9A - 32 08 D4
+   ld     (sonic_vel_x_sub), hl        ; 00:1E91 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 00:1E94 - 32 05 D4
+   ld     (sonic_vel_y_sub), hl        ; 00:1E97 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 00:1E9A - 32 08 D4
    ret                                 ; 00:1E9D - C9
 
 addr_01E9E:
@@ -6190,7 +6190,7 @@ addr_0231B:
 
 load_object_list:
    push   hl                           ; 00:232B - E5
-   ld     ix, var_D3FC                 ; 00:232C - DD 21 FC D3
+   ld     ix, object_list              ; 00:232C - DD 21 FC D3
    ld     de, $001A                    ; 00:2330 - 11 1A 00
    ld     c, $00                       ; 00:2333 - 0E 00
    ld     hl, (var_D216)               ; 00:2335 - 2A 16 D2
@@ -7334,7 +7334,7 @@ addr_02F66:
    call   nz, addr_0315E               ; 00:2FB8 - C4 5E 31
    ld     (var_D265), de               ; 00:2FBB - ED 53 65 D2
    ld     bc, (var_D25F)               ; 00:2FBF - ED 4B 5F D2
-   ld     de, (var_D3FE)               ; 00:2FC3 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 00:2FC3 - ED 5B FE D3
    ld     hl, (var_D25A)               ; 00:2FC7 - 2A 5A D2
    add    hl, bc                       ; 00:2FCA - 09
    and    a                            ; 00:2FCB - A7
@@ -7424,7 +7424,7 @@ addr_03055:
    bit    6, (iy+var_D205-IYBASE)      ; 00:3055 - FD CB 05 76
    call   nz, addr_03164               ; 00:3059 - C4 64 31
    ld     bc, (var_D263)               ; 00:305C - ED 4B 63 D2
-   ld     de, (var_D401)               ; 00:3060 - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 00:3060 - ED 5B 01 D4
    ld     hl, (var_D25D)               ; 00:3064 - 2A 5D D2
    bit    6, (iy+var_D205-IYBASE)      ; 00:3067 - FD CB 05 76
    call   nz, addr_031CF               ; 00:306B - C4 CF 31
@@ -7702,7 +7702,7 @@ addr_031E6:
    ld     c, a                         ; 00:31EB - 4F
    ld     hl, $0068                    ; 00:31EC - 21 68 00
    call   mul_hl_by_c_trashing_abcde_PURE  ; 00:31EF - CD FC 05
-   ld     de, var_D3FC                 ; 00:31F2 - 11 FC D3
+   ld     de, object_list              ; 00:31F2 - 11 FC D3
    add    hl, de                       ; 00:31F5 - 19
    ex     de, hl                       ; 00:31F6 - EB
    ld     a, (var_D223)                ; 00:31F7 - 3A 23 D2
@@ -7829,7 +7829,7 @@ run_all_objfuncs:
    push   hl                           ; 00:32B2 - E5
    ld     hl, var_D024                 ; 00:32B3 - 21 24 D0
    ld     (var_D23C), hl               ; 00:32B6 - 22 3C D2
-   ld     de, var_D3FC                 ; 00:32B9 - 11 FC D3
+   ld     de, object_list              ; 00:32B9 - 11 FC D3
    call   try_run_objfunc_DE           ; 00:32BC - CD C8 32
    pop    hl                           ; 00:32BF - E1
    pop    af                           ; 00:32C0 - F1
@@ -8377,8 +8377,8 @@ addr_03618:
    set    7, (hl)                      ; 00:361F - CB FE
    ld     hl, $FFFA                    ; 00:3621 - 21 FA FF
    xor    a                            ; 00:3624 - AF
-   ld     (var_D406), a                ; 00:3625 - 32 06 D4
-   ld     (var_D407), hl               ; 00:3628 - 22 07 D4
+   ld     (sonic_vel_y_sub), a         ; 00:3625 - 32 06 D4
+   ld     (sonic_vel_y), hl            ; 00:3628 - 22 07 D4
    ld     a, $60                       ; 00:362B - 3E 60
    ld     (var_D287), a                ; 00:362D - 32 87 D2
    res    6, (iy+var_D206-IYBASE)      ; 00:3630 - FD CB 06 B6
@@ -8400,10 +8400,10 @@ addr_03644:
    ld     (ix+0), $55                  ; 00:3652 - DD 36 00 55
    ld     (ix+17), $06                 ; 00:3656 - DD 36 11 06
    ld     (ix+18), $00                 ; 00:365A - DD 36 12 00
-   ld     hl, (var_D3FE)               ; 00:365E - 2A FE D3
+   ld     hl, (sonic_x)                ; 00:365E - 2A FE D3
    ld     (ix+2), l                    ; 00:3661 - DD 75 02
    ld     (ix+3), h                    ; 00:3664 - DD 74 03
-   ld     hl, (var_D401)               ; 00:3667 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 00:3667 - 2A 01 D4
    ld     (ix+5), l                    ; 00:366A - DD 75 05
    ld     (ix+6), h                    ; 00:366D - DD 74 06
    ld     (ix+10), $00                 ; 00:3670 - DD 36 0A 00
@@ -8420,8 +8420,8 @@ addr_0367E:
    ld     de, $FFFE                    ; 00:3689 - 11 FE FF
 
 addr_0368C:
-   ld     (var_D406), a                ; 00:368C - 32 06 D4
-   ld     (var_D407), de               ; 00:368F - ED 53 07 D4
+   ld     (sonic_vel_y_sub), a         ; 00:368C - 32 06 D4
+   ld     (sonic_vel_y), de            ; 00:368F - ED 53 07 D4
    bit    1, (hl)                      ; 00:3693 - CB 4E
    jr     z, addr_036A1                ; 00:3695 - 28 0A
    ld     a, (hl)                      ; 00:3697 - 7E
@@ -8437,8 +8437,8 @@ addr_036A1:
    ld     de, $FFFE                    ; 00:36A4 - 11 FE FF
 
 addr_036A7:
-   ld     (var_D403), a                ; 00:36A7 - 32 03 D4
-   ld     (var_D404), de               ; 00:36AA - ED 53 04 D4
+   ld     (sonic_vel_x_sub), a         ; 00:36A7 - 32 03 D4
+   ld     (sonic_vel_x), de            ; 00:36AA - ED 53 04 D4
    res    5, (iy+var_D206-IYBASE)      ; 00:36AE - FD CB 06 AE
    set    6, (iy+var_D206-IYBASE)      ; 00:36B2 - FD CB 06 F6
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 00:36B6 - FD 36 03 FF
@@ -8957,7 +8957,7 @@ UNK_03956:
    ld     c, (ix+13)                   ; 00:3962 - DD 4E 0D
    ld     b, $00                       ; 00:3965 - 06 00
    add    hl, bc                       ; 00:3967 - 09
-   ld     de, (var_D3FE)               ; 00:3968 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 00:3968 - ED 5B FE D3
    xor    a                            ; 00:396C - AF
    sbc    hl, de                       ; 00:396D - ED 52
    ret    c                            ; 00:396F - D8
@@ -8977,7 +8977,7 @@ UNK_03956:
    ld     h, (ix+6)                    ; 00:3988 - DD 66 06
    ld     c, (ix+14)                   ; 00:398B - DD 4E 0E
    add    hl, bc                       ; 00:398E - 09
-   ld     de, (var_D401)               ; 00:398F - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 00:398F - ED 5B 01 D4
    xor    a                            ; 00:3993 - AF
    sbc    hl, de                       ; 00:3994 - ED 52
    ret    c                            ; 00:3996 - D8
@@ -9706,7 +9706,7 @@ addr_049D9:
    jp     (hl)                         ; 01:4A27 - E9
 
 addr_04A28:
-   ld     hl, (var_D401)               ; 01:4A28 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:4A28 - 2A 01 D4
    ld     de, $0024                    ; 01:4A2B - 11 24 00
    add    hl, de                       ; 01:4A2E - 19
    ex     de, hl                       ; 01:4A2F - EB
@@ -9720,7 +9720,7 @@ addr_04A28:
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A40 - FD 7E 03
    cp     $FF                          ; 01:4A43 - FE FF
    jr     nz, addr_04A59               ; 01:4A45 - 20 12
-   ld     de, (var_D403)               ; 01:4A47 - ED 5B 03 D4
+   ld     de, (sonic_vel_x_sub)        ; 01:4A47 - ED 5B 03 D4
    ld     a, e                         ; 01:4A4B - 7B
    or     d                            ; 01:4A4C - B2
    jr     nz, addr_04A59               ; 01:4A4D - 20 0A
@@ -9750,15 +9750,15 @@ addr_04A59:
    ld     a, (ix+14)                   ; 01:4A89 - DD 7E 0E
    cp     $20                          ; 01:4A8C - FE 20
    jr     z, addr_04A9A                ; 01:4A8E - 28 0A
-   ld     hl, (var_D401)               ; 01:4A90 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:4A90 - 2A 01 D4
    ld     de, $FFF8                    ; 01:4A93 - 11 F8 FF
    add    hl, de                       ; 01:4A96 - 19
-   ld     (var_D401), hl               ; 01:4A97 - 22 01 D4
+   ld     (sonic_y), hl                ; 01:4A97 - 22 01 D4
 
 addr_04A9A:
    ld     (ix+13), $18                 ; 01:4A9A - DD 36 0D 18
    ld     (ix+14), $20                 ; 01:4A9E - DD 36 0E 20
-   ld     hl, (var_D403)               ; 01:4AA2 - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:4AA2 - 2A 03 D4
    ld     b, (ix+9)                    ; 01:4AA5 - DD 46 09
    ld     c, $00                       ; 01:4AA8 - 0E 00
    ld     e, c                         ; 01:4AAA - 59
@@ -9836,7 +9836,7 @@ addr_04B1B:
    adc    a, c                         ; 01:4B21 - 89
    ld     c, a                         ; 01:4B22 - 4F
    jp     p, addr_04B42                ; 01:4B23 - F2 42 4B
-   ld     a, (var_D403)                ; 01:4B26 - 3A 03 D4
+   ld     a, (sonic_vel_x_sub)         ; 01:4B26 - 3A 03 D4
    or     (ix+8)                       ; 01:4B29 - DD B6 08
    or     (ix+9)                       ; 01:4B2C - DD B6 09
    jr     z, addr_04B42                ; 01:4B2F - 28 11
@@ -9856,11 +9856,11 @@ addr_04B38:
 
 addr_04B42:
    ld     a, c                         ; 01:4B42 - 79
-   ld     (var_D403), hl               ; 01:4B43 - 22 03 D4
-   ld     (var_D405), a                ; 01:4B46 - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:4B43 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:4B46 - 32 05 D4
 
 addr_04B49:
-   ld     hl, (var_D406)               ; 01:4B49 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 01:4B49 - 2A 06 D4
    ld     b, (ix+12)                   ; 01:4B4C - DD 46 0C
    ld     c, $00                       ; 01:4B4F - 0E 00
    ld     e, c                         ; 01:4B51 - 59
@@ -9947,8 +9947,8 @@ addr_04BD6:
    add    hl, de                       ; 01:4BD6 - 19
    ld     a, b                         ; 01:4BD7 - 78
    adc    a, c                         ; 01:4BD8 - 89
-   ld     (var_D406), hl               ; 01:4BD9 - 22 06 D4
-   ld     (var_D408), a                ; 01:4BDC - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:4BD9 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:4BDC - 32 08 D4
    push   hl                           ; 01:4BDF - E5
    ld     a, e                         ; 01:4BE0 - 7B
    cpl                                 ; 01:4BE1 - 2F
@@ -10078,7 +10078,7 @@ addr_04C90:
    call   nz, addr_04E4D               ; 01:4CC5 - C4 4D 4E
    ld     (var_D40B), hl               ; 01:4CC8 - 22 0B D4
    ld     c, $10                       ; 01:4CCB - 0E 10
-   ld     a, (var_D404)                ; 01:4CCD - 3A 04 D4
+   ld     a, (sonic_vel_x)             ; 01:4CCD - 3A 04 D4
    and    a                            ; 01:4CD0 - A7
    jp     p, addr_04CD8                ; 01:4CD1 - F2 D8 4C
    neg                                 ; 01:4CD4 - ED 44
@@ -10088,11 +10088,11 @@ addr_04CD8:
    cp     $10                          ; 01:4CD8 - FE 10
    jr     c, addr_04CE0                ; 01:4CDA - 38 04
    ld     a, c                         ; 01:4CDC - 79
-   ld     (var_D404), a                ; 01:4CDD - 32 04 D4
+   ld     (sonic_vel_x), a             ; 01:4CDD - 32 04 D4
 
 addr_04CE0:
    ld     c, $10                       ; 01:4CE0 - 0E 10
-   ld     a, (var_D407)                ; 01:4CE2 - 3A 07 D4
+   ld     a, (sonic_vel_y)             ; 01:4CE2 - 3A 07 D4
    and    a                            ; 01:4CE5 - A7
    jp     p, addr_04CED                ; 01:4CE6 - F2 ED 4C
    neg                                 ; 01:4CE9 - ED 44
@@ -10102,16 +10102,16 @@ addr_04CED:
    cp     $10                          ; 01:4CED - FE 10
    jr     c, addr_04CF5                ; 01:4CEF - 38 04
    ld     a, c                         ; 01:4CF1 - 79
-   ld     (var_D407), a                ; 01:4CF2 - 32 07 D4
+   ld     (sonic_vel_y), a             ; 01:4CF2 - 32 07 D4
 
 addr_04CF5:
-   ld     de, (var_D401)               ; 01:4CF5 - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 01:4CF5 - ED 5B 01 D4
    ld     hl, $0010                    ; 01:4CF9 - 21 10 00
    and    a                            ; 01:4CFC - A7
    sbc    hl, de                       ; 01:4CFD - ED 52
    jr     c, addr_04D05                ; 01:4CFF - 38 04
    add    hl, de                       ; 01:4D01 - 19
-   ld     (var_D401), hl               ; 01:4D02 - 22 01 D4
+   ld     (sonic_y), hl                ; 01:4D02 - 22 01 D4
 
 addr_04D05:
    bit    7, (iy+var_D206-IYBASE)      ; 01:4D05 - FD CB 06 7E
@@ -10130,18 +10130,18 @@ addr_04D05:
    ld     bc, $0008                    ; 01:4D2A - 01 08 00
    add    hl, bc                       ; 01:4D2D - 09
    ex     de, hl                       ; 01:4D2E - EB
-   ld     hl, (var_D3FE)               ; 01:4D2F - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:4D2F - 2A FE D3
    and    a                            ; 01:4D32 - A7
    sbc    hl, de                       ; 01:4D33 - ED 52
    jr     nc, addr_04D4F               ; 01:4D35 - 30 18
-   ld     (var_D3FE), de               ; 01:4D37 - ED 53 FE D3
-   ld     a, (var_D405)                ; 01:4D3B - 3A 05 D4
+   ld     (sonic_x), de                ; 01:4D37 - ED 53 FE D3
+   ld     a, (sonic_vel_x_hi)          ; 01:4D3B - 3A 05 D4
    and    a                            ; 01:4D3E - A7
    jp     p, addr_04D81                ; 01:4D3F - F2 81 4D
    xor    a                            ; 01:4D42 - AF
-   ld     (var_D403), a                ; 01:4D43 - 32 03 D4
-   ld     (var_D404), a                ; 01:4D46 - 32 04 D4
-   ld     (var_D405), a                ; 01:4D49 - 32 05 D4
+   ld     (sonic_vel_x_sub), a         ; 01:4D43 - 32 03 D4
+   ld     (sonic_vel_x), a             ; 01:4D46 - 32 04 D4
+   ld     (sonic_vel_x_hi), a          ; 01:4D49 - 32 05 D4
    jp     addr_04D81                   ; 01:4D4C - C3 81 4D
 
 addr_04D4F:
@@ -10149,7 +10149,7 @@ addr_04D4F:
    ld     de, $00F8                    ; 01:4D52 - 11 F8 00
    add    hl, de                       ; 01:4D55 - 19
    ex     de, hl                       ; 01:4D56 - EB
-   ld     hl, (var_D3FE)               ; 01:4D57 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:4D57 - 2A FE D3
    ld     c, $18                       ; 01:4D5A - 0E 18
    add    hl, bc                       ; 01:4D5C - 09
    and    a                            ; 01:4D5D - A7
@@ -10158,18 +10158,18 @@ addr_04D4F:
    ex     de, hl                       ; 01:4D62 - EB
    scf                                 ; 01:4D63 - 37
    sbc    hl, bc                       ; 01:4D64 - ED 42
-   ld     (var_D3FE), hl               ; 01:4D66 - 22 FE D3
-   ld     a, (var_D405)                ; 01:4D69 - 3A 05 D4
+   ld     (sonic_x), hl                ; 01:4D66 - 22 FE D3
+   ld     a, (sonic_vel_x_hi)          ; 01:4D69 - 3A 05 D4
    and    a                            ; 01:4D6C - A7
    jp     m, addr_04D81                ; 01:4D6D - FA 81 4D
-   ld     hl, (var_D404)               ; 01:4D70 - 2A 04 D4
+   ld     hl, (sonic_vel_x)            ; 01:4D70 - 2A 04 D4
    or     h                            ; 01:4D73 - B4
    or     l                            ; 01:4D74 - B5
    jr     z, addr_04D81                ; 01:4D75 - 28 0A
    xor    a                            ; 01:4D77 - AF
-   ld     (var_D403), a                ; 01:4D78 - 32 03 D4
-   ld     (var_D404), a                ; 01:4D7B - 32 04 D4
-   ld     (var_D405), a                ; 01:4D7E - 32 05 D4
+   ld     (sonic_vel_x_sub), a         ; 01:4D78 - 32 03 D4
+   ld     (sonic_vel_x), a             ; 01:4D7B - 32 04 D4
+   ld     (sonic_vel_x_hi), a          ; 01:4D7E - 32 05 D4
 
 addr_04D81:
    ld     a, (var_D414)                ; 01:4D81 - 3A 14 D4
@@ -10190,7 +10190,7 @@ addr_04D81:
 addr_04DA1:
    ld     a, (var_D2E0)                ; 01:4DA1 - 3A E0 D2
    ld     b, a                         ; 01:4DA4 - 47
-   ld     hl, (var_D403)               ; 01:4DA5 - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:4DA5 - 2A 03 D4
    bit    7, h                         ; 01:4DA8 - CB 7C
    jr     z, addr_04DB3                ; 01:4DAA - 28 07
    ld     a, l                         ; 01:4DAC - 7D
@@ -10231,7 +10231,7 @@ UNK_4DE6:
 
 addr_04DEF:
    ex     de, hl                       ; 01:4DEF - EB
-   ld     hl, (var_D401)               ; 01:4DF0 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:4DF0 - 2A 01 D4
    ld     bc, (var_D25D)               ; 01:4DF3 - ED 4B 5D D2
    and    a                            ; 01:4DF7 - A7
    sbc    hl, bc                       ; 01:4DF8 - ED 42
@@ -10240,7 +10240,7 @@ addr_04DEF:
    and    a                            ; 01:4DFE - A7
    sbc    hl, bc                       ; 01:4DFF - ED 42
    ret    c                            ; 01:4E01 - D8
-   ld     hl, (var_D3FE)               ; 01:4E02 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:4E02 - 2A FE D3
    ld     bc, $000C                    ; 01:4E05 - 01 0C 00
    add    hl, bc                       ; 01:4E08 - 09
    ld     a, (de)                      ; 01:4E09 - 1A
@@ -10264,7 +10264,7 @@ addr_04DEF:
    ld     a, c                         ; 01:4E21 - 79
    xor    b                            ; 01:4E22 - A8
    ld     (de), a                      ; 01:4E23 - 12
-   ld     hl, (var_D401)               ; 01:4E24 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:4E24 - 2A 01 D4
    ld     bc, $0008                    ; 01:4E27 - 01 08 00
    add    hl, bc                       ; 01:4E2A - 09
    ld     a, l                         ; 01:4E2B - 7D
@@ -10320,9 +10320,9 @@ addr_04E88:
    ret                                 ; 01:4E8C - C9
 
 addr_04E8D:
-   ld     hl, (var_D3FE)               ; 01:4E8D - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:4E8D - 2A FE D3
    ld     (g_FF_string_high_byte), hl  ; 01:4E90 - 22 0E D2
-   ld     hl, (var_D401)               ; 01:4E93 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:4E93 - 2A 01 D4
    ld     (var_D210), hl               ; 01:4E96 - 22 10 D2
    ld     hl, var_D2F3                 ; 01:4E99 - 21 F3 D2
    ld     a, (var_D223)                ; 01:4E9C - 3A 23 D2
@@ -10367,7 +10367,7 @@ addr_04ECE:
    ret                                 ; 01:4EDC - C9
 
 addr_04EDD:
-   ld     hl, (var_D403)               ; 01:4EDD - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:4EDD - 2A 03 D4
    ld     a, h                         ; 01:4EE0 - 7C
    or     l                            ; 01:4EE1 - B5
    ret    nz                           ; 01:4EE2 - C0
@@ -10621,14 +10621,14 @@ addr_0506C:
    ld     a, (var_D223)                ; 01:506C - 3A 23 D2
    rrca                                ; 01:506F - 0F
    ret    nc                           ; 01:5070 - D0
-   ld     hl, (var_D3FE)               ; 01:5071 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:5071 - 2A FE D3
    ld     de, (var_D25A)               ; 01:5074 - ED 5B 5A D2
    and    a                            ; 01:5078 - A7
    sbc    hl, de                       ; 01:5079 - ED 52
    ld     a, l                         ; 01:507B - 7D
    add    a, $08                       ; 01:507C - C6 08
    ld     c, a                         ; 01:507E - 4F
-   ld     hl, (var_D401)               ; 01:507F - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:507F - 2A 01 D4
    ld     de, (var_D25D)               ; 01:5082 - ED 5B 5D D2
    and    a                            ; 01:5086 - A7
    sbc    hl, de                       ; 01:5087 - ED 52
@@ -10653,7 +10653,7 @@ addr_0509D:
 
 addr_050AF:
    exx                                 ; 01:50AF - D9
-   ld     hl, (var_D401)               ; 01:50B0 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:50B0 - 2A 01 D4
    ld     (var_D2D9), hl               ; 01:50B3 - 22 D9 D2
    exx                                 ; 01:50B6 - D9
    bit    2, (ix+24)                   ; 01:50B7 - DD CB 18 56
@@ -10669,7 +10669,7 @@ addr_050C1:
    bit    7, (ix+24)                   ; 01:50CB - DD CB 18 7E
    ret    z                            ; 01:50CF - C8
    set    0, (ix+24)                   ; 01:50D0 - DD CB 18 C6
-   ld     hl, (var_D403)               ; 01:50D4 - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:50D4 - 2A 03 D4
    ld     a, l                         ; 01:50D7 - 7D
    or     h                            ; 01:50D8 - B4
    jr     z, addr_050DE                ; 01:50D9 - 28 03
@@ -10686,7 +10686,7 @@ addr_050E3:
 
 addr_050E8:
    ld     hl, (var_D2DC)               ; 01:50E8 - 2A DC D2
-   ld     de, (var_D401)               ; 01:50EB - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 01:50EB - ED 5B 01 D4
    and    a                            ; 01:50EF - A7
    sbc    hl, de                       ; 01:50F0 - ED 52
    jp     c, addr_055A8                ; 01:50F2 - DA A8 55
@@ -10719,10 +10719,10 @@ addr_05117:
    xor    a                            ; 01:5121 - AF
    ld     l, a                         ; 01:5122 - 6F
    ld     h, a                         ; 01:5123 - 67
-   ld     (var_D403), a                ; 01:5124 - 32 03 D4
-   ld     (var_D404), hl               ; 01:5127 - 22 04 D4
-   ld     (var_D406), a                ; 01:512A - 32 06 D4
-   ld     (var_D407), hl               ; 01:512D - 22 07 D4
+   ld     (sonic_vel_x_sub), a         ; 01:5124 - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:5127 - 22 04 D4
+   ld     (sonic_vel_y_sub), a         ; 01:512A - 32 06 D4
+   ld     (sonic_vel_y), hl            ; 01:512D - 22 07 D4
    ld     (ix+20), $0F                 ; 01:5130 - DD 36 14 0F
    jp     addr_04C39                   ; 01:5134 - C3 39 4C
 
@@ -10765,7 +10765,7 @@ addr_05168:
    ld     l, a                         ; 01:516D - 6F
    ld     de, $0008                    ; 01:516E - 11 08 00
    add    hl, de                       ; 01:5171 - 19
-   ld     (var_D3FE), hl               ; 01:5172 - 22 FE D3
+   ld     (sonic_x), hl                ; 01:5172 - 22 FE D3
    ld     a, c                         ; 01:5175 - 79
    ld     h, $00                       ; 01:5176 - 26 00
    add    a, a                         ; 01:5178 - 87
@@ -10779,18 +10779,18 @@ addr_05168:
    add    a, a                         ; 01:5184 - 87
    rl     h                            ; 01:5185 - CB 14
    ld     l, a                         ; 01:5187 - 6F
-   ld     (var_D401), hl               ; 01:5188 - 22 01 D4
+   ld     (sonic_y), hl                ; 01:5188 - 22 01 D4
    xor    a                            ; 01:518B - AF
-   ld     (var_D3FD), a                ; 01:518C - 32 FD D3
-   ld     (var_D400), a                ; 01:518F - 32 00 D4
+   ld     (sonic_x_sub), a             ; 01:518C - 32 FD D3
+   ld     (sonic_y_sub), a             ; 01:518F - 32 00 D4
    ret                                 ; 01:5192 - C9
 
 addr_05193:
    xor    a                            ; 01:5193 - AF
    ld     l, a                         ; 01:5194 - 6F
    ld     h, a                         ; 01:5195 - 67
-   ld     (var_D406), hl               ; 01:5196 - 22 06 D4
-   ld     (var_D408), a                ; 01:5199 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:5196 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:5199 - 32 08 D4
    ld     (ix+20), $16                 ; 01:519C - DD 36 14 16
    ld     a, (var_D40F)                ; 01:51A0 - 3A 0F D4
    cp     $12                          ; 01:51A3 - FE 12
@@ -10814,9 +10814,9 @@ addr_051BC:
    ret    z                            ; 01:51CD - C8
    res    6, (iy+var_D206-IYBASE)      ; 01:51CE - FD CB 06 B6
    xor    a                            ; 01:51D2 - AF
-   ld     (var_D403), a                ; 01:51D3 - 32 03 D4
-   ld     (var_D404), a                ; 01:51D6 - 32 04 D4
-   ld     (var_D405), a                ; 01:51D9 - 32 05 D4
+   ld     (sonic_vel_x_sub), a         ; 01:51D3 - 32 03 D4
+   ld     (sonic_vel_x), a             ; 01:51D6 - 32 04 D4
+   ld     (sonic_vel_x_hi), a          ; 01:51D9 - 32 05 D4
    ret                                 ; 01:51DC - C9
 
 addr_051DD:
@@ -10926,13 +10926,13 @@ addr_05285:
 
 addr_0529C:
    ld     (iy+g_inputs_player_1-IYBASE), $FB  ; 01:529C - FD 36 03 FB
-   ld     hl, (var_D3FE)               ; 01:52A0 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:52A0 - 2A FE D3
    ld     de, $1B60                    ; 01:52A3 - 11 60 1B
    and    a                            ; 01:52A6 - A7
    sbc    hl, de                       ; 01:52A7 - ED 52
    ret    nc                           ; 01:52A9 - D0
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:52AA - FD 36 03 FF
-   ld     hl, (var_D403)               ; 01:52AE - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:52AE - 2A 03 D4
    ld     a, l                         ; 01:52B1 - 7D
    or     h                            ; 01:52B2 - B4
    ret    nz                           ; 01:52B3 - C0
@@ -10954,13 +10954,13 @@ addr_0529C:
    ld     (ix+17), a                   ; 01:52DC - DD 77 11
    ld     (ix+24), a                   ; 01:52DF - DD 77 18
    ld     (ix+1), a                    ; 01:52E2 - DD 77 01
-   ld     hl, (var_D3FE)               ; 01:52E5 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:52E5 - 2A FE D3
    ld     de, $0002                    ; 01:52E8 - 11 02 00
    add    hl, de                       ; 01:52EB - 19
    ld     (ix+2), l                    ; 01:52EC - DD 75 02
    ld     (ix+3), h                    ; 01:52EF - DD 74 03
    ld     (ix+4), a                    ; 01:52F2 - DD 77 04
-   ld     hl, (var_D401)               ; 01:52F5 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:52F5 - 2A 01 D4
    ld     de, $000E                    ; 01:52F8 - 11 0E 00
    add    hl, de                       ; 01:52FB - 19
    ld     (ix+5), l                    ; 01:52FC - DD 75 05
@@ -10993,15 +10993,15 @@ addr_0532E:
    ld     a, (ix+14)                   ; 01:532E - DD 7E 0E
    cp     $18                          ; 01:5331 - FE 18
    jr     z, addr_0533F                ; 01:5333 - 28 0A
-   ld     hl, (var_D401)               ; 01:5335 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:5335 - 2A 01 D4
    ld     de, $0008                    ; 01:5338 - 11 08 00
    add    hl, de                       ; 01:533B - 19
-   ld     (var_D401), hl               ; 01:533C - 22 01 D4
+   ld     (sonic_y), hl                ; 01:533C - 22 01 D4
 
 addr_0533F:
    ld     (ix+13), $18                 ; 01:533F - DD 36 0D 18
    ld     (ix+14), $18                 ; 01:5343 - DD 36 0E 18
-   ld     hl, (var_D403)               ; 01:5347 - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:5347 - 2A 03 D4
    ld     b, (ix+9)                    ; 01:534A - DD 46 09
    ld     c, $00                       ; 01:534D - 0E 00
    ld     e, c                         ; 01:534F - 59
@@ -11111,9 +11111,9 @@ addr_05419:
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:5419 - FD CB 03 6E
    jr     nz, addr_05435               ; 01:541D - 20 16
    res    0, (ix+24)                   ; 01:541F - DD CB 18 86
-   ld     a, (var_D403)                ; 01:5423 - 3A 03 D4
+   ld     a, (sonic_vel_x_sub)         ; 01:5423 - 3A 03 D4
    and    $F8                          ; 01:5426 - E6 F8
-   ld     (var_D403), a                ; 01:5428 - 32 03 D4
+   ld     (sonic_vel_x_sub), a         ; 01:5428 - 32 03 D4
    jp     addr_04B7F                   ; 01:542B - C3 7F 4B
 
 addr_0542E:
@@ -11134,7 +11134,7 @@ addr_0543C:
    ld     hl, (var_D25D)               ; 01:5447 - 2A 5D D2
    ld     de, $00C0                    ; 01:544A - 11 C0 00
    add    hl, de                       ; 01:544D - 19
-   ld     de, (var_D401)               ; 01:544E - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 01:544E - ED 5B 01 D4
    sbc    hl, de                       ; 01:5452 - ED 52
    jr     nc, addr_0546C               ; 01:5454 - 30 16
    bit    2, (iy+var_D206-IYBASE)      ; 01:5456 - FD CB 06 56
@@ -11151,7 +11151,7 @@ addr_0546C:
    ld     hl, $0080                    ; 01:546D - 21 80 00
    bit    3, (iy+var_D208-IYBASE)      ; 01:5470 - FD CB 08 5E
    jr     nz, addr_0549B               ; 01:5474 - 20 25
-   ld     de, (var_D406)               ; 01:5476 - ED 5B 06 D4
+   ld     de, (sonic_vel_y_sub)        ; 01:5476 - ED 5B 06 D4
    bit    7, d                         ; 01:547A - CB 7A
    jr     nz, addr_05486               ; 01:547C - 20 08
    ld     hl, $0600                    ; 01:547E - 21 00 06
@@ -11178,15 +11178,15 @@ addr_05498:
    adc    a, c                         ; 01:549A - 89
 
 addr_0549B:
-   ld     (var_D406), hl               ; 01:549B - 22 06 D4
-   ld     (var_D408), a                ; 01:549E - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:549B - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:549E - 32 08 D4
 
 addr_054A1:
    xor    a                            ; 01:54A1 - AF
    ld     l, a                         ; 01:54A2 - 6F
    ld     h, a                         ; 01:54A3 - 67
-   ld     (var_D403), hl               ; 01:54A4 - 22 03 D4
-   ld     (var_D405), a                ; 01:54A7 - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:54A4 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:54A7 - 32 05 D4
 
 addr_054AA:
    ld     (ix+20), $0B                 ; 01:54AA - DD 36 14 0B
@@ -11295,24 +11295,24 @@ addr_05556:
 addr_05578:
    bit    7, (ix+24)                   ; 01:5578 - DD CB 18 7E
    ret    z                            ; 01:557C - C8
-   ld     hl, (var_D3FD)               ; 01:557D - 2A FD D3
+   ld     hl, (sonic_x_sub)            ; 01:557D - 2A FD D3
    ld     a, (var_D3FF)                ; 01:5580 - 3A FF D3
    ld     de, $FE80                    ; 01:5583 - 11 80 FE
    add    hl, de                       ; 01:5586 - 19
    adc    a, $FF                       ; 01:5587 - CE FF
-   ld     (var_D3FD), hl               ; 01:5589 - 22 FD D3
+   ld     (sonic_x_sub), hl            ; 01:5589 - 22 FD D3
    ld     (var_D3FF), a                ; 01:558C - 32 FF D3
    ret                                 ; 01:558F - C9
 
 addr_05590:
    bit    7, (ix+24)                   ; 01:5590 - DD CB 18 7E
    ret    z                            ; 01:5594 - C8
-   ld     hl, (var_D3FD)               ; 01:5595 - 2A FD D3
+   ld     hl, (sonic_x_sub)            ; 01:5595 - 2A FD D3
    ld     a, (var_D3FF)                ; 01:5598 - 3A FF D3
    ld     de, $0200                    ; 01:559B - 11 00 02
    add    hl, de                       ; 01:559E - 19
    adc    a, $00                       ; 01:559F - CE 00
-   ld     (var_D3FD), hl               ; 01:55A1 - 22 FD D3
+   ld     (sonic_x_sub), hl            ; 01:55A1 - 22 FD D3
    ld     (var_D3FF), a                ; 01:55A4 - 32 FF D3
    ret                                 ; 01:55A7 - C9
 
@@ -11357,14 +11357,14 @@ addr_055E2:
 addr_055EB:
    bit    4, (iy+var_D206-IYBASE)      ; 01:55EB - FD CB 06 66
    ret    nz                           ; 01:55EF - C0
-   ld     a, (var_D3FE)                ; 01:55F0 - 3A FE D3
+   ld     a, (sonic_x)                 ; 01:55F0 - 3A FE D3
    add    a, $0C                       ; 01:55F3 - C6 0C
    and    $1F                          ; 01:55F5 - E6 1F
    cp     $08                          ; 01:55F7 - FE 08
    ret    c                            ; 01:55F9 - D8
    cp     $18                          ; 01:55FA - FE 18
    ret    nc                           ; 01:55FC - D0
-   ld     hl, (var_D3FE)               ; 01:55FD - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:55FD - 2A FE D3
    ld     bc, $000C                    ; 01:5600 - 01 0C 00
    add    hl, bc                       ; 01:5603 - 09
    ld     a, l                         ; 01:5604 - 7D
@@ -11375,7 +11375,7 @@ addr_055EB:
    add    a, a                         ; 01:560B - 87
    rl     h                            ; 01:560C - CB 14
    ld     e, h                         ; 01:560E - 5C
-   ld     hl, (var_D401)               ; 01:560F - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:560F - 2A 01 D4
    ld     bc, $0010                    ; 01:5612 - 01 10 00
    add    hl, bc                       ; 01:5615 - 09
    ld     a, l                         ; 01:5616 - 7D
@@ -11418,13 +11418,13 @@ UNK_05643:
 .db $32, $00, $00, $17, $2F, $0C, $00, $00, $FF                                     ; 01:5653
 
 addr_0565C:
-   ld     hl, (var_D403)               ; 01:565C - 2A 03 D4
-   ld     a, (var_D405)                ; 01:565F - 3A 05 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:565C - 2A 03 D4
+   ld     a, (sonic_vel_x_hi)          ; 01:565F - 3A 05 D4
    ld     de, $FFF8                    ; 01:5662 - 11 F8 FF
    add    hl, de                       ; 01:5665 - 19
    adc    a, $FF                       ; 01:5666 - CE FF
-   ld     (var_D403), hl               ; 01:5668 - 22 03 D4
-   ld     (var_D405), a                ; 01:566B - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:5668 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:566B - 32 05 D4
    bit    4, (ix+24)                   ; 01:566E - DD CB 18 66
    jr     nz, addr_05677               ; 01:5672 - 20 03
    ld     a, $12                       ; 01:5674 - 3E 12
@@ -11437,8 +11437,8 @@ addr_05677:
 addr_0567C:
    xor    a                            ; 01:567C - AF
    ld     hl, $0005                    ; 01:567D - 21 05 00
-   ld     (var_D403), a                ; 01:5680 - 32 03 D4
-   ld     (var_D404), hl               ; 01:5683 - 22 04 D4
+   ld     (sonic_vel_x_sub), a         ; 01:5680 - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:5683 - 22 04 D4
    res    1, (ix+24)                   ; 01:5686 - DD CB 18 8E
 
 addr_0568A:
@@ -11450,7 +11450,7 @@ addr_0568F:
    or     $0F                          ; 01:5692 - F6 0F
    ld     (iy+g_inputs_player_1-IYBASE), a  ; 01:5694 - FD 77 03
    ld     hl, $0004                    ; 01:5697 - 21 04 00
-   ld     (var_D407), hl               ; 01:569A - 22 07 D4
+   ld     (sonic_vel_y), hl            ; 01:569A - 22 07 D4
    res    0, (ix+24)                   ; 01:569D - DD CB 18 86
    res    2, (ix+24)                   ; 01:56A1 - DD CB 18 96
    ret                                 ; 01:56A5 - C9
@@ -11458,24 +11458,24 @@ addr_0568F:
 addr_056A6:
    xor    a                            ; 01:56A6 - AF
    ld     hl, $0006                    ; 01:56A7 - 21 06 00
-   ld     (var_D403), a                ; 01:56AA - 32 03 D4
-   ld     (var_D404), hl               ; 01:56AD - 22 04 D4
+   ld     (sonic_vel_x_sub), a         ; 01:56AA - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:56AD - 22 04 D4
    res    1, (ix+24)                   ; 01:56B0 - DD CB 18 8E
    jr     addr_0568A                   ; 01:56B4 - 18 D4
 
 addr_056B6:
    xor    a                            ; 01:56B6 - AF
    ld     hl, $FFFB                    ; 01:56B7 - 21 FB FF
-   ld     (var_D403), a                ; 01:56BA - 32 03 D4
-   ld     (var_D404), hl               ; 01:56BD - 22 04 D4
+   ld     (sonic_vel_x_sub), a         ; 01:56BA - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:56BD - 22 04 D4
    set    1, (ix+24)                   ; 01:56C0 - DD CB 18 CE
    jr     addr_0568A                   ; 01:56C4 - 18 C4
 
 addr_056C6:
    xor    a                            ; 01:56C6 - AF
    ld     hl, $FFFA                    ; 01:56C7 - 21 FA FF
-   ld     (var_D403), a                ; 01:56CA - 32 03 D4
-   ld     (var_D404), hl               ; 01:56CD - 22 04 D4
+   ld     (sonic_vel_x_sub), a         ; 01:56CA - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:56CD - 22 04 D4
    set    1, (ix+24)                   ; 01:56D0 - DD CB 18 CE
    jr     addr_0568A                   ; 01:56D4 - 18 B4
 
@@ -11485,14 +11485,14 @@ addr_056D6:
    ret    nc                           ; 01:56DB - D0
    call   addr_05727                   ; 01:56DC - CD 27 57
    ld     de, $0001                    ; 01:56DF - 11 01 00
-   ld     hl, (var_D406)               ; 01:56E2 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 01:56E2 - 2A 06 D4
    ld     a, l                         ; 01:56E5 - 7D
    cpl                                 ; 01:56E6 - 2F
    ld     l, a                         ; 01:56E7 - 6F
    ld     a, h                         ; 01:56E8 - 7C
    cpl                                 ; 01:56E9 - 2F
    ld     h, a                         ; 01:56EA - 67
-   ld     a, (var_D408)                ; 01:56EB - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:56EB - 3A 08 D4
    cpl                                 ; 01:56EE - 2F
    add    hl, de                       ; 01:56EF - 19
    adc    a, $00                       ; 01:56F0 - CE 00
@@ -11503,17 +11503,17 @@ addr_056D6:
    adc    a, $FF                       ; 01:56FA - CE FF
 
 addr_056FC:
-   ld     (var_D406), hl               ; 01:56FC - 22 06 D4
-   ld     (var_D408), a                ; 01:56FF - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:56FC - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:56FF - 32 08 D4
    ld     bc, $000C                    ; 01:5702 - 01 0C 00
-   ld     hl, (var_D3FE)               ; 01:5705 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:5705 - 2A FE D3
    add    hl, bc                       ; 01:5708 - 09
    ld     a, l                         ; 01:5709 - 7D
    and    $E0                          ; 01:570A - E6 E0
    ld     l, a                         ; 01:570C - 6F
    ld     (var_D2E2), hl               ; 01:570D - 22 E2 D2
    ld     bc, $0010                    ; 01:5710 - 01 10 00
-   ld     hl, (var_D401)               ; 01:5713 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:5713 - 2A 01 D4
    add    hl, bc                       ; 01:5716 - 09
    ld     a, l                         ; 01:5717 - 7D
    and    $E0                          ; 01:5718 - E6 E0
@@ -11526,12 +11526,12 @@ addr_056FC:
    ret                                 ; 01:5726 - C9
 
 addr_05727:
-   ld     hl, (var_D403)               ; 01:5727 - 2A 03 D4
-   ld     a, (var_D405)                ; 01:572A - 3A 05 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:5727 - 2A 03 D4
+   ld     a, (sonic_vel_x_hi)          ; 01:572A - 3A 05 D4
    ld     c, a                         ; 01:572D - 4F
    and    $80                          ; 01:572E - E6 80
    ld     b, a                         ; 01:5730 - 47
-   ld     a, (var_D3FE)                ; 01:5731 - 3A FE D3
+   ld     a, (sonic_x)                 ; 01:5731 - 3A FE D3
    add    a, $0C                       ; 01:5734 - C6 0C
    and    $1F                          ; 01:5736 - E6 1F
    sub    $10                          ; 01:5738 - D6 10
@@ -11561,8 +11561,8 @@ addr_05748:
    rr     e                            ; 01:5756 - CB 1B
    add    hl, de                       ; 01:5758 - 19
    adc    a, c                         ; 01:5759 - 89
-   ld     (var_D403), hl               ; 01:575A - 22 03 D4
-   ld     (var_D405), a                ; 01:575D - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:575A - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:575D - 32 05 D4
    ret                                 ; 01:5760 - C9
 
 addr_05761:
@@ -11594,14 +11594,14 @@ addr_05791:
    and    a                            ; 01:5794 - A7
    ret    nz                           ; 01:5795 - C0
    ld     de, $0001                    ; 01:5796 - 11 01 00
-   ld     hl, (var_D403)               ; 01:5799 - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:5799 - 2A 03 D4
    ld     a, l                         ; 01:579C - 7D
    cpl                                 ; 01:579D - 2F
    ld     l, a                         ; 01:579E - 6F
    ld     a, h                         ; 01:579F - 7C
    cpl                                 ; 01:57A0 - 2F
    ld     h, a                         ; 01:57A1 - 67
-   ld     a, (var_D405)                ; 01:57A2 - 3A 05 D4
+   ld     a, (sonic_vel_x_hi)          ; 01:57A2 - 3A 05 D4
    cpl                                 ; 01:57A5 - 2F
    add    hl, de                       ; 01:57A6 - 19
    adc    a, $00                       ; 01:57A7 - CE 00
@@ -11614,8 +11614,8 @@ addr_05791:
 addr_057B6:
    add    hl, de                       ; 01:57B6 - 19
    adc    a, c                         ; 01:57B7 - 89
-   ld     (var_D403), hl               ; 01:57B8 - 22 03 D4
-   ld     (var_D405), a                ; 01:57BB - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:57B8 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:57BB - 32 05 D4
 
 addr_057BE:
    ld     hl, var_D2B1                 ; 01:57BE - 21 B1 D2
@@ -11631,14 +11631,14 @@ addr_057BE:
 addr_057CD:
    call   addr_05727                   ; 01:57CD - CD 27 57
    ld     de, $0001                    ; 01:57D0 - 11 01 00
-   ld     hl, (var_D406)               ; 01:57D3 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 01:57D3 - 2A 06 D4
    ld     a, l                         ; 01:57D6 - 7D
    cpl                                 ; 01:57D7 - 2F
    ld     l, a                         ; 01:57D8 - 6F
    ld     a, h                         ; 01:57D9 - 7C
    cpl                                 ; 01:57DA - 2F
    ld     h, a                         ; 01:57DB - 67
-   ld     a, (var_D408)                ; 01:57DC - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:57DC - 3A 08 D4
    cpl                                 ; 01:57DF - 2F
    add    hl, de                       ; 01:57E0 - 19
    adc    a, $00                       ; 01:57E1 - CE 00
@@ -11649,8 +11649,8 @@ addr_057CD:
    adc    a, $FF                       ; 01:57EB - CE FF
 
 addr_057ED:
-   ld     (var_D406), hl               ; 01:57ED - 22 06 D4
-   ld     (var_D408), a                ; 01:57F0 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:57ED - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:57F0 - 32 08 D4
    jp     addr_057BE                   ; 01:57F3 - C3 BE 57
 
 addr_057F6:
@@ -11667,7 +11667,7 @@ addr_05808:
    ld     a, (var_D414)                ; 01:5808 - 3A 14 D4
    rlca                                ; 01:580B - 07
    ret    nc                           ; 01:580C - D0
-   ld     hl, (var_D3FE)               ; 01:580D - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:580D - 2A FE D3
    ld     bc, $000C                    ; 01:5810 - 01 0C 00
    add    hl, bc                       ; 01:5813 - 09
    ld     a, l                         ; 01:5814 - 7D
@@ -11676,14 +11676,14 @@ addr_05808:
    jr     nc, addr_05858               ; 01:5819 - 30 3D
 
 addr_0581B:
-   ld     hl, (var_D3FE)               ; 01:581B - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:581B - 2A FE D3
    ld     bc, $000C                    ; 01:581E - 01 0C 00
    add    hl, bc                       ; 01:5821 - 09
    ld     a, l                         ; 01:5822 - 7D
    and    $E0                          ; 01:5823 - E6 E0
    ld     c, a                         ; 01:5825 - 4F
    ld     b, h                         ; 01:5826 - 44
-   ld     hl, (var_D401)               ; 01:5827 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:5827 - 2A 01 D4
    ld     de, $0010                    ; 01:582A - 11 10 00
    add    hl, de                       ; 01:582D - 19
    ld     a, l                         ; 01:582E - 7D
@@ -11706,7 +11706,7 @@ addr_05849:
    ret                                 ; 01:584A - C9
 
 addr_0584B:
-   ld     hl, (var_D3FE)               ; 01:584B - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:584B - 2A FE D3
    ld     bc, $000C                    ; 01:584E - 01 0C 00
    add    hl, bc                       ; 01:5851 - 09
    ld     a, l                         ; 01:5852 - 7D
@@ -11720,7 +11720,7 @@ addr_05858:
    add    a, $10                       ; 01:585B - C6 10
    ld     c, a                         ; 01:585D - 4F
    ld     b, h                         ; 01:585E - 44
-   ld     hl, (var_D401)               ; 01:585F - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:585F - 2A 01 D4
    ld     de, $0010                    ; 01:5862 - 11 10 00
    add    hl, de                       ; 01:5865 - 19
    ld     a, l                         ; 01:5866 - 7D
@@ -11741,7 +11741,7 @@ addr_05858:
    ret                                 ; 01:5882 - C9
 
 addr_05883:
-   ld     hl, (var_D3FE)               ; 01:5883 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:5883 - 2A FE D3
    ld     bc, $000C                    ; 01:5886 - 01 0C 00
    add    hl, bc                       ; 01:5889 - 09
    ld     a, l                         ; 01:588A - 7D
@@ -11782,7 +11782,7 @@ addr_05893:
 addr_058D0:
    bit    7, (ix+24)                   ; 01:58D0 - DD CB 18 7E
    ret    z                            ; 01:58D4 - C8
-   ld     hl, (var_D401)               ; 01:58D5 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:58D5 - 2A 01 D4
    ld     de, (var_D25D)               ; 01:58D8 - ED 5B 5D D2
    and    a                            ; 01:58DC - A7
    sbc    hl, de                       ; 01:58DD - ED 52
@@ -12258,7 +12258,7 @@ addr_05DEB:
    ld     a, (var_D414)                ; 01:5DF1 - 3A 14 D4
    and    $01                          ; 01:5DF4 - E6 01
    jr     nz, addr_05E49               ; 01:5DF6 - 20 51
-   ld     de, (var_D3FE)               ; 01:5DF8 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 01:5DF8 - ED 5B FE D3
    ld     c, (ix+2)                    ; 01:5DFC - DD 4E 02
    ld     b, (ix+3)                    ; 01:5DFF - DD 46 03
    ld     hl, $FFEE                    ; 01:5E02 - 21 EE FF
@@ -12281,19 +12281,19 @@ addr_05DEB:
    xor    a                            ; 01:5E25 - AF
    ld     b, a                         ; 01:5E26 - 47
    sbc    hl, bc                       ; 01:5E27 - ED 42
-   ld     (var_D401), hl               ; 01:5E29 - 22 01 D4
+   ld     (sonic_y), hl                ; 01:5E29 - 22 01 D4
    ld     (var_D28E), a                ; 01:5E2C - 32 8E D2
    ld     a, (var_D2E8)                ; 01:5E2F - 3A E8 D2
    ld     hl, (var_D2E6)               ; 01:5E32 - 2A E6 D2
-   ld     (var_D406), hl               ; 01:5E35 - 22 06 D4
-   ld     (var_D408), a                ; 01:5E38 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:5E35 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:5E38 - 32 08 D4
    ld     hl, var_D414                 ; 01:5E3B - 21 14 D4
    set    7, (hl)                      ; 01:5E3E - CB FE
    scf                                 ; 01:5E40 - 37
    ret                                 ; 01:5E41 - C9
 
 addr_05E42:
-   ld     a, (var_D408)                ; 01:5E42 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:5E42 - 3A 08 D4
    and    a                            ; 01:5E45 - A7
    jp     m, addr_05E4E                ; 01:5E46 - FA 4E 5E
 
@@ -12308,15 +12308,15 @@ addr_05E4E:
    ld     (ix+12), $FF                 ; 01:5E56 - DD 36 0C FF
    ld     hl, $0400                    ; 01:5E5A - 21 00 04
    xor    a                            ; 01:5E5D - AF
-   ld     (var_D406), hl               ; 01:5E5E - 22 06 D4
-   ld     (var_D408), a                ; 01:5E61 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:5E5E - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:5E61 - 32 08 D4
    ld     (var_D28E), a                ; 01:5E64 - 32 8E D2
    set    1, (ix+24)                   ; 01:5E67 - DD CB 18 CE
    scf                                 ; 01:5E6B - 37
    ret                                 ; 01:5E6C - C9
 
 addr_05E6D:
-   ld     hl, (var_D3FE)               ; 01:5E6D - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:5E6D - 2A FE D3
    ld     de, $000C                    ; 01:5E70 - 11 0C 00
    add    hl, de                       ; 01:5E73 - 19
    ex     de, hl                       ; 01:5E74 - EB
@@ -12334,13 +12334,13 @@ addr_05E8A:
    ld     l, (ix+2)                    ; 01:5E8A - DD 6E 02
    ld     h, (ix+3)                    ; 01:5E8D - DD 66 03
    add    hl, bc                       ; 01:5E90 - 09
-   ld     (var_D3FE), hl               ; 01:5E91 - 22 FE D3
+   ld     (sonic_x), hl                ; 01:5E91 - 22 FE D3
    xor    a                            ; 01:5E94 - AF
-   ld     (var_D3FD), a                ; 01:5E95 - 32 FD D3
+   ld     (sonic_x_sub), a             ; 01:5E95 - 32 FD D3
    ld     l, a                         ; 01:5E98 - 6F
    ld     h, a                         ; 01:5E99 - 67
-   ld     (var_D403), a                ; 01:5E9A - 32 03 D4
-   ld     (var_D404), hl               ; 01:5E9D - 22 04 D4
+   ld     (sonic_vel_x_sub), a         ; 01:5E9A - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:5E9D - 22 04 D4
    scf                                 ; 01:5EA0 - 37
    ret                                 ; 01:5EA1 - C9
 
@@ -12439,7 +12439,7 @@ addr_05F44:
    jr     z, addr_05FA4                ; 01:5F77 - 28 2B
    ld     e, (ix+2)                    ; 01:5F79 - DD 5E 02
    ld     d, (ix+3)                    ; 01:5F7C - DD 56 03
-   ld     hl, (var_D3FE)               ; 01:5F7F - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:5F7F - 2A FE D3
    and    a                            ; 01:5F82 - A7
    sbc    hl, de                       ; 01:5F83 - ED 52
    bit    7, h                         ; 01:5F85 - CB 7C
@@ -12497,7 +12497,7 @@ addr_05FE8:
    jr     nz, addr_06030               ; 01:5FF7 - 20 37
    bit    1, (ix+17)                   ; 01:5FF9 - DD CB 11 4E
    jr     nz, addr_06030               ; 01:5FFD - 20 31
-   ld     de, (var_D403)               ; 01:5FFF - ED 5B 03 D4
+   ld     de, (sonic_vel_x_sub)        ; 01:5FFF - ED 5B 03 D4
    bit    7, d                         ; 01:6003 - CB 7A
    jr     z, addr_0600E                ; 01:6005 - 28 07
    ld     a, e                         ; 01:6007 - 7B
@@ -13016,17 +13016,17 @@ addr_067C5:
    add    hl, de                       ; 01:67CC - 19
    ld     (ix+5), l                    ; 01:67CD - DD 75 05
    ld     (ix+6), h                    ; 01:67D0 - DD 74 06
-   ld     a, (var_D408)                ; 01:67D3 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:67D3 - 3A 08 D4
    and    a                            ; 01:67D6 - A7
    jp     m, addr_067F9                ; 01:67D7 - FA F9 67
    ld     hl, $0806                    ; 01:67DA - 21 06 08
    ld     (var_D214), hl               ; 01:67DD - 22 14 D2
    call   UNK_03956                    ; 01:67E0 - CD 56 39
    jr     c, addr_067F9                ; 01:67E3 - 38 14
-   ld     hl, (var_D3FE)               ; 01:67E5 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:67E5 - 2A FE D3
    ld     de, (g_FF_string_high_byte)  ; 01:67E8 - ED 5B 0E D2
    add    hl, de                       ; 01:67EC - 19
-   ld     (var_D3FE), hl               ; 01:67ED - 22 FE D3
+   ld     (sonic_x), hl                ; 01:67ED - 22 FE D3
    ld     bc, $0010                    ; 01:67F0 - 01 10 00
    ld     de, $0000                    ; 01:67F3 - 11 00 00
    call   addr_07CC1                   ; 01:67F6 - CD C1 7C
@@ -13110,21 +13110,21 @@ objfunc_0A_UNKNOWN:
    ld     de, (var_D2E6)               ; 01:696E - ED 5B E6 D2
    inc    de                           ; 01:6972 - 13
    ld     c, a                         ; 01:6973 - 4F
-   ld     hl, (var_D406)               ; 01:6974 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 01:6974 - 2A 06 D4
    ld     a, l                         ; 01:6977 - 7D
    cpl                                 ; 01:6978 - 2F
    ld     l, a                         ; 01:6979 - 6F
    ld     a, h                         ; 01:697A - 7C
    cpl                                 ; 01:697B - 2F
    ld     h, a                         ; 01:697C - 67
-   ld     a, (var_D408)                ; 01:697D - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:697D - 3A 08 D4
    and    a                            ; 01:6980 - A7
    jp     m, addr_0698D                ; 01:6981 - FA 8D 69
    cpl                                 ; 01:6984 - 2F
    add    hl, de                       ; 01:6985 - 19
    adc    a, c                         ; 01:6986 - 89
-   ld     (var_D406), hl               ; 01:6987 - 22 06 D4
-   ld     (var_D408), a                ; 01:698A - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:6987 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:698A - 32 08 D4
 
 addr_0698D:
    xor    a                            ; 01:698D - AF
@@ -13158,7 +13158,7 @@ objfunc_0B_UNKNOWN:
    ld     (ix+14), $10                 ; 01:69F1 - DD 36 0E 10
    ld     (ix+15), UNK_06911&$FF       ; 01:69F5 - DD 36 0F 11
    ld     (ix+16), UNK_06911>>8        ; 01:69F9 - DD 36 10 69
-   ld     a, (var_D408)                ; 01:69FD - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:69FD - 3A 08 D4
    and    a                            ; 01:6A00 - A7
    jp     m, addr_06A2E                ; 01:6A01 - FA 2E 6A
    ld     hl, $0806                    ; 01:6A04 - 21 06 08
@@ -13216,7 +13216,7 @@ objfunc_0C_UNKNOWN:
 addr_06A6F:
    ld     (ix+13), $1A                 ; 01:6A6F - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6A73 - DD 36 0E 10
-   ld     a, (var_D408)                ; 01:6A77 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:6A77 - 3A 08 D4
    and    a                            ; 01:6A7A - A7
    jp     m, addr_06A99                ; 01:6A7B - FA 99 6A
    ld     hl, $0806                    ; 01:6A7E - 21 06 08
@@ -13362,7 +13362,7 @@ addr_06BAB:
    ld     (ix+14), $20                 ; 01:6BAF - DD 36 0E 20
    ld     l, (ix+2)                    ; 01:6BB3 - DD 6E 02
    ld     h, (ix+3)                    ; 01:6BB6 - DD 66 03
-   ld     de, (var_D3FE)               ; 01:6BB9 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 01:6BB9 - ED 5B FE D3
    and    a                            ; 01:6BBD - A7
    sbc    hl, de                       ; 01:6BBE - ED 52
    jr     c, addr_06BD4                ; 01:6BC0 - 38 12
@@ -13539,7 +13539,7 @@ addr_06D88:
    ld     (ix+13), $1A                 ; 01:6D88 - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6D8C - DD 36 0E 10
    ld     c, $00                       ; 01:6D90 - 0E 00
-   ld     a, (var_D408)                ; 01:6D92 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:6D92 - 3A 08 D4
    and    a                            ; 01:6D95 - A7
    jp     m, addr_06DB1                ; 01:6D96 - FA B1 6D
    ld     hl, $0806                    ; 01:6D99 - 21 06 08
@@ -13581,9 +13581,9 @@ addr_06DDB:
    ld     a, c                         ; 01:6DE8 - 79
    and    a                            ; 01:6DE9 - A7
    jr     z, addr_06DF3                ; 01:6DEA - 28 07
-   ld     hl, (var_D3FE)               ; 01:6DEC - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:6DEC - 2A FE D3
    add    hl, de                       ; 01:6DEF - 19
-   ld     (var_D3FE), hl               ; 01:6DF0 - 22 FE D3
+   ld     (sonic_x), hl                ; 01:6DF0 - 22 FE D3
 
 addr_06DF3:
    ld     hl, UNK_06911                ; 01:6DF3 - 21 11 69
@@ -14181,12 +14181,12 @@ addr_07396:
    ld     (var_D214), hl               ; 01:73B2 - 22 14 D2
    call   UNK_03956                    ; 01:73B5 - CD 56 39
    jp     c, addr_0745B                ; 01:73B8 - DA 5B 74
-   ld     a, (var_D408)                ; 01:73BB - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:73BB - 3A 08 D4
    and    a                            ; 01:73BE - A7
    jp     m, addr_0745B                ; 01:73BF - FA 5B 74
    ld     e, (ix+5)                    ; 01:73C2 - DD 5E 05
    ld     d, (ix+6)                    ; 01:73C5 - DD 56 06
-   ld     hl, (var_D401)               ; 01:73C8 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 01:73C8 - 2A 01 D4
    and    a                            ; 01:73CB - A7
    sbc    hl, de                       ; 01:73CC - ED 52
    jr     c, addr_073F6                ; 01:73CE - 38 26
@@ -14195,7 +14195,7 @@ addr_07396:
    ld     de, $0010                    ; 01:73D6 - 11 10 00
    add    hl, de                       ; 01:73D9 - 19
    ld     de, $FFEA                    ; 01:73DA - 11 EA FF
-   ld     bc, (var_D3FE)               ; 01:73DD - ED 4B FE D3
+   ld     bc, (sonic_x)                ; 01:73DD - ED 4B FE D3
    and    a                            ; 01:73E1 - A7
    sbc    hl, bc                       ; 01:73E2 - ED 42
    jr     nc, addr_073E9               ; 01:73E4 - 30 03
@@ -14205,11 +14205,11 @@ addr_073E9:
    ld     l, (ix+2)                    ; 01:73E9 - DD 6E 02
    ld     h, (ix+3)                    ; 01:73EC - DD 66 03
    add    hl, de                       ; 01:73EF - 19
-   ld     (var_D3FE), hl               ; 01:73F0 - 22 FE D3
+   ld     (sonic_x), hl                ; 01:73F0 - 22 FE D3
    jp     addr_07452                   ; 01:73F3 - C3 52 74
 
 addr_073F6:
-   ld     hl, (var_D3FE)               ; 01:73F6 - 2A FE D3
+   ld     hl, (sonic_x)                ; 01:73F6 - 2A FE D3
    ld     bc, $000C                    ; 01:73F9 - 01 0C 00
    add    hl, bc                       ; 01:73FC - 09
    ld     c, l                         ; 01:73FD - 4D
@@ -14237,11 +14237,11 @@ addr_073F6:
    ld     de, $FFE0                    ; 01:7423 - 11 E0 FF
    add    hl, de                       ; 01:7426 - 19
    add    hl, bc                       ; 01:7427 - 09
-   ld     (var_D401), hl               ; 01:7428 - 22 01 D4
+   ld     (sonic_y), hl                ; 01:7428 - 22 01 D4
    ld     a, (var_D2E8)                ; 01:742B - 3A E8 D2
    ld     hl, (var_D2E6)               ; 01:742E - 2A E6 D2
-   ld     (var_D406), hl               ; 01:7431 - 22 06 D4
-   ld     (var_D408), a                ; 01:7434 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:7431 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:7434 - 32 08 D4
    ld     hl, var_D414                 ; 01:7437 - 21 14 D4
    set    7, (hl)                      ; 01:743A - CB FE
    ld     a, c                         ; 01:743C - 79
@@ -14257,8 +14257,8 @@ addr_07452:
    xor    a                            ; 01:7452 - AF
    ld     l, a                         ; 01:7453 - 6F
    ld     h, a                         ; 01:7454 - 67
-   ld     (var_D403), hl               ; 01:7455 - 22 03 D4
-   ld     (var_D405), a                ; 01:7458 - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:7455 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:7458 - 32 05 D4
 
 addr_0745B:
    bit    1, (iy+var_D206-IYBASE)      ; 01:745B - FD CB 06 4E
@@ -14587,24 +14587,24 @@ addr_077BE:
 
 addr_077E6:
    ld     de, $0001                    ; 01:77E6 - 11 01 00
-   ld     hl, (var_D406)               ; 01:77E9 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 01:77E9 - 2A 06 D4
    ld     a, l                         ; 01:77EC - 7D
    cpl                                 ; 01:77ED - 2F
    ld     l, a                         ; 01:77EE - 6F
    ld     a, h                         ; 01:77EF - 7C
    cpl                                 ; 01:77F0 - 2F
    ld     h, a                         ; 01:77F1 - 67
-   ld     a, (var_D408)                ; 01:77F2 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:77F2 - 3A 08 D4
    cpl                                 ; 01:77F5 - 2F
    add    hl, de                       ; 01:77F6 - 19
    adc    a, $00                       ; 01:77F7 - CE 00
-   ld     (var_D406), hl               ; 01:77F9 - 22 06 D4
-   ld     (var_D408), a                ; 01:77FC - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:77F9 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:77FC - 32 08 D4
    xor    a                            ; 01:77FF - AF
    ld     l, a                         ; 01:7800 - 6F
    ld     h, a                         ; 01:7801 - 67
-   ld     (var_D403), hl               ; 01:7802 - 22 03 D4
-   ld     (var_D405), a                ; 01:7805 - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 01:7802 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 01:7805 - 32 05 D4
    ld     a, $18                       ; 01:7808 - 3E 18
    ld     (var_D2B1), a                ; 01:780A - 32 B1 D2
    ld     a, $8F                       ; 01:780D - 3E 8F
@@ -14844,12 +14844,12 @@ objfunc_4B_UNKNOWN:
    ret    z                            ; 01:7AC7 - C8
    ld     hl, $FFFB                    ; 01:7AC8 - 21 FB FF
    xor    a                            ; 01:7ACB - AF
-   ld     (var_D406), a                ; 01:7ACC - 32 06 D4
-   ld     (var_D407), hl               ; 01:7ACF - 22 07 D4
+   ld     (sonic_vel_y_sub), a         ; 01:7ACC - 32 06 D4
+   ld     (sonic_vel_y), hl            ; 01:7ACF - 22 07 D4
    ld     hl, $0003                    ; 01:7AD2 - 21 03 00
    xor    a                            ; 01:7AD5 - AF
-   ld     (var_D403), a                ; 01:7AD6 - 32 03 D4
-   ld     (var_D404), hl               ; 01:7AD9 - 22 04 D4
+   ld     (sonic_vel_x_sub), a         ; 01:7AD6 - 32 03 D4
+   ld     (sonic_vel_x), hl            ; 01:7AD9 - 22 04 D4
    ld     hl, var_D414                 ; 01:7ADC - 21 14 D4
    res    1, (hl)                      ; 01:7ADF - CB 8E
    set    6, (iy+var_D206-IYBASE)      ; 01:7AE1 - FD CB 06 F6
@@ -15050,7 +15050,7 @@ addr_07C54:
    ret                                 ; 01:7C7A - C9
 
 spawn_object:
-   ld     hl, var_D416                 ; 01:7C7B - 21 16 D4
+   ld     hl, object_list_past_sonic   ; 01:7C7B - 21 16 D4
    ld     de, $001A                    ; 01:7C7E - 11 1A 00
    ld     b, $1F                       ; 01:7C81 - 06 1F
 
@@ -15109,11 +15109,11 @@ addr_07CD2:
    xor    a                            ; 01:7CDD - AF
    ld     b, a                         ; 01:7CDE - 47
    sbc    hl, bc                       ; 01:7CDF - ED 42
-   ld     (var_D401), hl               ; 01:7CE1 - 22 01 D4
+   ld     (sonic_y), hl                ; 01:7CE1 - 22 01 D4
    ld     a, (var_D2E8)                ; 01:7CE4 - 3A E8 D2
    ld     hl, (var_D2E6)               ; 01:7CE7 - 2A E6 D2
-   ld     (var_D406), hl               ; 01:7CEA - 22 06 D4
-   ld     (var_D408), a                ; 01:7CED - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 01:7CEA - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 01:7CED - 32 08 D4
    ld     hl, var_D414                 ; 01:7CF0 - 21 14 D4
    set    7, (hl)                      ; 01:7CF3 - CB FE
    ret                                 ; 01:7CF5 - C9
@@ -15250,7 +15250,7 @@ addr_07E3C:
    xor    a                            ; 01:7E40 - AF
    ld     (ix+11), a                   ; 01:7E41 - DD 77 0B
    ld     (ix+12), a                   ; 01:7E44 - DD 77 0C
-   ld     a, (var_D408)                ; 01:7E47 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:7E47 - 3A 08 D4
    and    a                            ; 01:7E4A - A7
    jp     m, addr_07E65                ; 01:7E4B - FA 65 7E
    ld     hl, $0806                    ; 01:7E4E - 21 06 08
@@ -15333,7 +15333,7 @@ addr_07F0C:
    ld     (ix+12), $FF                 ; 01:7F26 - DD 36 0C FF
 
 addr_07F2A:
-   ld     a, (var_D408)                ; 01:7F2A - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 01:7F2A - 3A 08 D4
    and    a                            ; 01:7F2D - A7
    jp     m, UNK_08003                 ; 01:7F2E - FA 03 80
    ld     hl, $0806                    ; 01:7F31 - 21 06 08
@@ -15344,7 +15344,7 @@ addr_07F2A:
    ld     e, (ix+10)                   ; 01:7F40 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:7F43 - DD 56 0B
    call   addr_07CC1                   ; 01:7F46 - CD C1 7C
-   ld     hl, (var_D403)               ; 01:7F49 - 2A 03 D4
+   ld     hl, (sonic_vel_x_sub)        ; 01:7F49 - 2A 03 D4
    ld     a, l                         ; 01:7F4C - 7D
    or     h                            ; 01:7F4D - B4
    jr     z, addr_07F79                ; 01:7F4E - 28 29
@@ -15376,8 +15376,8 @@ addr_07F5A:
    jr     nz, addr_07F85               ; 01:7F77 - 20 0C
 
 addr_07F79:
-   ld     a, (var_D403)                ; 01:7F79 - 3A 03 D4
-   ld     de, (var_D404)               ; 01:7F7C - ED 5B 04 D4
+   ld     a, (sonic_vel_x_sub)         ; 01:7F79 - 3A 03 D4
+   ld     de, (sonic_vel_x)            ; 01:7F7C - ED 5B 04 D4
    sra    d                            ; 01:7F80 - CB 2A
    rr     e                            ; 01:7F82 - CB 1B
    rra                                 ; 01:7F84 - 1F
@@ -15390,11 +15390,11 @@ addr_07F85:
    ld     (ix+1), a                    ; 01:7F90 - DD 77 01
    ld     (ix+2), l                    ; 01:7F93 - DD 75 02
    ld     (ix+3), h                    ; 01:7F96 - DD 74 03
-   ld     (var_D3FD), a                ; 01:7F99 - 32 FD D3
+   ld     (sonic_x_sub), a             ; 01:7F99 - 32 FD D3
    ld     de, $FFFC                    ; 01:7F9C - 11 FC FF
    add    hl, de                       ; 01:7F9F - 19
-   ld     (var_D3FE), hl               ; 01:7FA0 - 22 FE D3
-   ld     de, (var_D403)               ; 01:7FA3 - ED 5B 03 D4
+   ld     (sonic_x), hl                ; 01:7FA0 - 22 FE D3
+   ld     de, (sonic_vel_x_sub)        ; 01:7FA3 - ED 5B 03 D4
    bit    7, d                         ; 01:7FA7 - CB 7A
    jr     z, addr_07FB2                ; 01:7FA9 - 28 07
    ld     a, e                         ; 01:7FAB - 7B
@@ -15477,7 +15477,7 @@ objfunc_2C_UNKNOWN:
    ld     (ix+14), $1C                 ; 02:805B - DD 36 0E 1C
    bit    0, (ix+24)                   ; 02:805F - DD CB 18 46
    jr     nz, addr_080B0               ; 02:8063 - 20 4B
-   ld     hl, (var_D401)               ; 02:8065 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 02:8065 - 2A 01 D4
    ld     de, $00E0                    ; 02:8068 - 11 E0 00
    and    a                            ; 02:806B - A7
    sbc    hl, de                       ; 02:806C - ED 52
@@ -15877,7 +15877,7 @@ addr_08467:
    ld     (var_D214), hl               ; 02:846A - 22 14 D2
    call   UNK_03956                    ; 02:846D - CD 56 39
    ret    c                            ; 02:8470 - D8
-   ld     a, (var_D408)                ; 02:8471 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:8471 - 3A 08 D4
    and    a                            ; 02:8474 - A7
    ret    m                            ; 02:8475 - F8
    ld     de, (g_FF_string_high_byte)  ; 02:8476 - ED 5B 0E D2
@@ -15974,7 +15974,7 @@ addr_0852F:
    ld     a, (var_D2EC)                ; 02:854A - 3A EC D2
    cp     $08                          ; 02:854D - FE 08
    jr     nc, addr_085C7               ; 02:854F - 30 76
-   ld     hl, (var_D3FE)               ; 02:8551 - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:8551 - 2A FE D3
    ld     e, (ix+2)                    ; 02:8554 - DD 5E 02
    ld     d, (ix+3)                    ; 02:8557 - DD 56 03
    and    a                            ; 02:855A - A7
@@ -16152,8 +16152,8 @@ addr_086A4:
    jr     nz, addr_086E0               ; 02:86D0 - 20 0E
    ld     a, (var_D2E8)                ; 02:86D2 - 3A E8 D2
    ld     hl, (var_D2E6)               ; 02:86D5 - 2A E6 D2
-   ld     (var_D406), hl               ; 02:86D8 - 22 06 D4
-   ld     (var_D408), a                ; 02:86DB - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:86D8 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:86DB - 32 08 D4
    jr     addr_086F4                   ; 02:86DE - 18 14
 
 addr_086E0:
@@ -16166,9 +16166,9 @@ addr_086E0:
    inc    hl                           ; 02:86E6 - 23
    ld     de, (var_D2E6)               ; 02:86E7 - ED 5B E6 D2
    add    hl, de                       ; 02:86EB - 19
-   ld     (var_D406), hl               ; 02:86EC - 22 06 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:86EC - 22 06 D4
    ld     a, $FF                       ; 02:86EF - 3E FF
-   ld     (var_D408), a                ; 02:86F1 - 32 08 D4
+   ld     (sonic_vel_y_hi), a          ; 02:86F1 - 32 08 D4
 
 addr_086F4:
    ld     a, $1C                       ; 02:86F4 - 3E 1C
@@ -16238,7 +16238,7 @@ addr_0871B:
    ld     (var_D215), a                ; 02:878C - 32 15 D2
    call   UNK_03956                    ; 02:878F - CD 56 39
    jr     nc, addr_087BC               ; 02:8792 - 30 28
-   ld     a, (var_D408)                ; 02:8794 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:8794 - 3A 08 D4
    and    a                            ; 02:8797 - A7
    ret    m                            ; 02:8798 - F8
    ld     (ix+13), $3C                 ; 02:8799 - DD 36 0D 3C
@@ -16258,13 +16258,13 @@ addr_0871B:
 
 addr_087BC:
    set    1, (ix+24)                   ; 02:87BC - DD CB 18 CE
-   ld     a, (var_D408)                ; 02:87C0 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:87C0 - 3A 08 D4
    and    a                            ; 02:87C3 - A7
    ret    m                            ; 02:87C4 - F8
    ld     a, (ix+17)                   ; 02:87C5 - DD 7E 11
    cp     $1C                          ; 02:87C8 - FE 1C
    jr     z, addr_087ED                ; 02:87CA - 28 21
-   ld     hl, (var_D406)               ; 02:87CC - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 02:87CC - 2A 06 D4
    ld     a, l                         ; 02:87CF - 7D
    cpl                                 ; 02:87D0 - 2F
    ld     l, a                         ; 02:87D1 - 6F
@@ -16274,7 +16274,7 @@ addr_087BC:
    inc    hl                           ; 02:87D5 - 23
    ld     (ix+18), l                   ; 02:87D6 - DD 75 12
    ld     (ix+19), h                   ; 02:87D9 - DD 74 13
-   ld     a, (var_D407)                ; 02:87DC - 3A 07 D4
+   ld     a, (sonic_vel_y)             ; 02:87DC - 3A 07 D4
    add    a, (ix+17)                   ; 02:87DF - DD 86 11
    ld     (ix+17), a                   ; 02:87E2 - DD 77 11
    cp     $1C                          ; 02:87E5 - FE 1C
@@ -16284,8 +16284,8 @@ addr_087BC:
 addr_087ED:
    ld     a, (var_D2E8)                ; 02:87ED - 3A E8 D2
    ld     hl, (var_D2E6)               ; 02:87F0 - 2A E6 D2
-   ld     (var_D406), hl               ; 02:87F3 - 22 06 D4
-   ld     (var_D408), a                ; 02:87F6 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:87F3 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:87F6 - 32 08 D4
 
 addr_087F9:
    ld     l, (ix+5)                    ; 02:87F9 - DD 6E 05
@@ -16300,7 +16300,7 @@ addr_087F9:
    ld     c, a                         ; 02:880D - 4F
    xor    a                            ; 02:880E - AF
    sbc    hl, bc                       ; 02:880F - ED 42
-   ld     (var_D401), hl               ; 02:8811 - 22 01 D4
+   ld     (sonic_y), hl                ; 02:8811 - 22 01 D4
    ld     hl, var_D414                 ; 02:8814 - 21 14 D4
    set    7, (hl)                      ; 02:8817 - CB FE
    ret                                 ; 02:8819 - C9
@@ -16996,7 +16996,7 @@ addr_08FA4:
    ld     l, (ix+2)                    ; 02:8FB7 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8FBA - DD 66 03
    add    hl, de                       ; 02:8FBD - 19
-   ld     de, (var_D3FE)               ; 02:8FBE - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:8FBE - ED 5B FE D3
    and    a                            ; 02:8FC2 - A7
    sbc    hl, de                       ; 02:8FC3 - ED 52
    jr     nc, addr_08FE6               ; 02:8FC5 - 30 1F
@@ -17015,7 +17015,7 @@ addr_08FA4:
 addr_08FE6:
    ld     l, (ix+2)                    ; 02:8FE6 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8FE9 - DD 66 03
-   ld     de, (var_D3FE)               ; 02:8FEC - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:8FEC - ED 5B FE D3
    and    a                            ; 02:8FF0 - A7
    sbc    hl, de                       ; 02:8FF1 - ED 52
    jr     c, addr_0900F                ; 02:8FF3 - 38 1A
@@ -17193,7 +17193,7 @@ addr_091B7:
    call   UNK_03956                    ; 02:91BD - CD 56 39
    ret    c                            ; 02:91C0 - D8
    set    0, (ix+24)                   ; 02:91C1 - DD CB 18 C6
-   ld     a, (var_D407)                ; 02:91C5 - 3A 07 D4
+   ld     a, (sonic_vel_y)             ; 02:91C5 - 3A 07 D4
    and    a                            ; 02:91C8 - A7
    jp     p, addr_091D1                ; 02:91C9 - F2 D1 91
    neg                                 ; 02:91CC - ED 44
@@ -17523,7 +17523,7 @@ objfunc_2F_UNKNOWN:
    bit    1, (ix+24)                   ; 02:94BD - DD CB 18 4E
    jr     nz, addr_094E2               ; 02:94C1 - 20 1F
    set    1, (ix+24)                   ; 02:94C3 - DD CB 18 CE
-   ld     hl, (var_D3FE)               ; 02:94C7 - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:94C7 - 2A FE D3
    ld     de, $000C                    ; 02:94CA - 11 0C 00
    add    hl, de                       ; 02:94CD - 19
    ex     de, hl                       ; 02:94CE - EB
@@ -17550,7 +17550,7 @@ addr_094E2:
 addr_09500:
    ld     (ix+15), l                   ; 02:9500 - DD 75 0F
    ld     (ix+16), h                   ; 02:9503 - DD 74 10
-   ld     hl, (var_D401)               ; 02:9506 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 02:9506 - 2A 01 D4
    ld     e, (ix+5)                    ; 02:9509 - DD 5E 05
    ld     d, (ix+6)                    ; 02:950C - DD 56 06
    and    a                            ; 02:950F - A7
@@ -17628,7 +17628,7 @@ addr_09583:
    ld     (ix+7), l                    ; 02:9583 - DD 75 07
    ld     (ix+8), h                    ; 02:9586 - DD 74 08
    ld     (ix+9), c                    ; 02:9589 - DD 71 09
-   ld     hl, (var_D401)               ; 02:958C - 2A 01 D4
+   ld     hl, (sonic_y)                ; 02:958C - 2A 01 D4
    ld     de, $0010                    ; 02:958F - 11 10 00
    add    hl, de                       ; 02:9592 - 19
    ex     de, hl                       ; 02:9593 - EB
@@ -17875,7 +17875,7 @@ addr_09797:
    ld     (var_D214), hl               ; 02:979A - 22 14 D2
    call   UNK_03956                    ; 02:979D - CD 56 39
    jr     c, addr_097E3                ; 02:97A0 - 38 41
-   ld     bc, (var_D401)               ; 02:97A2 - ED 4B 01 D4
+   ld     bc, (sonic_y)                ; 02:97A2 - ED 4B 01 D4
    ld     e, (ix+5)                    ; 02:97A6 - DD 5E 05
    ld     d, (ix+6)                    ; 02:97A9 - DD 56 06
    ld     hl, $FFF8                    ; 02:97AC - 21 F8 FF
@@ -17894,8 +17894,8 @@ addr_09797:
    xor    a                            ; 02:97C4 - AF
    ld     l, a                         ; 02:97C5 - 6F
    ld     h, a                         ; 02:97C6 - 67
-   ld     (var_D406), hl               ; 02:97C7 - 22 06 D4
-   ld     (var_D408), a                ; 02:97CA - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:97C7 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:97CA - 32 08 D4
    ld     (var_D28E), a                ; 02:97CD - 32 8E D2
    ld     (var_D29B), hl               ; 02:97D0 - 22 9B D2
    set    2, (iy+var_D208-IYBASE)      ; 02:97D3 - FD CB 08 D6
@@ -18010,15 +18010,15 @@ addr_09894:
    ret    nc                           ; 02:98B3 - D0
    ld     a, (var_D2E8)                ; 02:98B4 - 3A E8 D2
    ld     hl, (var_D2E6)               ; 02:98B7 - 2A E6 D2
-   ld     (var_D406), hl               ; 02:98BA - 22 06 D4
-   ld     (var_D408), a                ; 02:98BD - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:98BA - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:98BD - 32 08 D4
    ld     de, $FFFC                    ; 02:98C0 - 11 FC FF
-   ld     hl, (var_D403)               ; 02:98C3 - 2A 03 D4
-   ld     a, (var_D405)                ; 02:98C6 - 3A 05 D4
+   ld     hl, (sonic_vel_x_sub)        ; 02:98C3 - 2A 03 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:98C6 - 3A 05 D4
    add    hl, de                       ; 02:98C9 - 19
    adc    a, $FF                       ; 02:98CA - CE FF
-   ld     (var_D403), hl               ; 02:98CC - 22 03 D4
-   ld     (var_D405), a                ; 02:98CF - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:98CC - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:98CF - 32 05 D4
    ret                                 ; 02:98D2 - C9
 
 addr_098D3:
@@ -18038,7 +18038,7 @@ addr_098D3:
    ld     a, (ix+18)                   ; 02:98F9 - DD 7E 12
    cp     (ix+17)                      ; 02:98FC - DD BE 11
    ret    nc                           ; 02:98FF - D0
-   ld     a, (var_D3FE)                ; 02:9900 - 3A FE D3
+   ld     a, (sonic_x)                 ; 02:9900 - 3A FE D3
    add    a, $0C                       ; 02:9903 - C6 0C
    and    $1F                          ; 02:9905 - E6 1F
    add    a, a                         ; 02:9907 - 87
@@ -18049,30 +18049,30 @@ addr_098D3:
    ld     e, (hl)                      ; 02:990F - 5E
    inc    hl                           ; 02:9910 - 23
    ld     d, (hl)                      ; 02:9911 - 56
-   ld     hl, (var_D403)               ; 02:9912 - 2A 03 D4
-   ld     a, (var_D405)                ; 02:9915 - 3A 05 D4
+   ld     hl, (sonic_vel_x_sub)        ; 02:9912 - 2A 03 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:9915 - 3A 05 D4
    add    hl, de                       ; 02:9918 - 19
    adc    a, $FF                       ; 02:9919 - CE FF
-   ld     (var_D403), hl               ; 02:991B - 22 03 D4
-   ld     (var_D405), a                ; 02:991E - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:991B - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:991E - 32 05 D4
    ld     hl, UNK_09A3E                ; 02:9921 - 21 3E 9A
    add    hl, bc                       ; 02:9924 - 09
    ld     e, (hl)                      ; 02:9925 - 5E
    inc    hl                           ; 02:9926 - 23
    ld     d, (hl)                      ; 02:9927 - 56
-   ld     hl, (var_D406)               ; 02:9928 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 02:9928 - 2A 06 D4
    ld     a, l                         ; 02:992B - 7D
    cpl                                 ; 02:992C - 2F
    ld     l, a                         ; 02:992D - 6F
    ld     a, h                         ; 02:992E - 7C
    cpl                                 ; 02:992F - 2F
    ld     h, a                         ; 02:9930 - 67
-   ld     a, (var_D408)                ; 02:9931 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:9931 - 3A 08 D4
    cpl                                 ; 02:9934 - 2F
    add    hl, de                       ; 02:9935 - 19
    adc    a, $FF                       ; 02:9936 - CE FF
-   ld     (var_D406), hl               ; 02:9938 - 22 06 D4
-   ld     (var_D408), a                ; 02:993B - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:9938 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:993B - 32 08 D4
    ret                                 ; 02:993E - C9
 .db $3A, $E8, $D2, $2A, $E6, $D2, $22, $06, $D4, $32, $08, $D4, $11, $08, $00, $2A  ; 02:993F
 .db $03, $D4, $3A, $05, $D4, $19, $CE, $00, $22, $03, $D4, $32, $05, $D4, $C9       ; 02:994F
@@ -18091,15 +18091,15 @@ addr_0995E:
    ret    nc                           ; 02:997E - D0
    ld     a, (var_D2E8)                ; 02:997F - 3A E8 D2
    ld     hl, (var_D2E6)               ; 02:9982 - 2A E6 D2
-   ld     (var_D406), hl               ; 02:9985 - 22 06 D4
-   ld     (var_D408), a                ; 02:9988 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:9985 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:9988 - 32 08 D4
    ld     de, $001A                    ; 02:998B - 11 1A 00
-   ld     hl, (var_D403)               ; 02:998E - 2A 03 D4
-   ld     a, (var_D405)                ; 02:9991 - 3A 05 D4
+   ld     hl, (sonic_vel_x_sub)        ; 02:998E - 2A 03 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:9991 - 3A 05 D4
    add    hl, de                       ; 02:9994 - 19
    adc    a, $00                       ; 02:9995 - CE 00
-   ld     (var_D403), hl               ; 02:9997 - 22 03 D4
-   ld     (var_D405), a                ; 02:999A - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:9997 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:999A - 32 05 D4
    ret                                 ; 02:999D - C9
 
 UNK_0999E:
@@ -18138,10 +18138,10 @@ UNK_09AA2:
 .db $FE, $12, $14, $16, $FF, $FF, $FE, $32, $34, $36, $FF, $FF, $FF                 ; 02:9AA2
 
 addr_09AAF:
-   ld     a, (var_D408)                ; 02:9AAF - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:9AAF - 3A 08 D4
    and    a                            ; 02:9AB2 - A7
    ret    m                            ; 02:9AB3 - F8
-   ld     a, (var_D3FE)                ; 02:9AB4 - 3A FE D3
+   ld     a, (sonic_x)                 ; 02:9AB4 - 3A FE D3
    add    a, $0C                       ; 02:9AB7 - C6 0C
    and    $1F                          ; 02:9AB9 - E6 1F
    ld     l, a                         ; 02:9ABB - 6F
@@ -18157,8 +18157,8 @@ addr_09AC7:
    ld     l, (ix+5)                    ; 02:9AC7 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9ACA - DD 66 06
    add    hl, bc                       ; 02:9ACD - 09
-   ld     (var_D401), hl               ; 02:9ACE - 22 01 D4
-   ld     a, (var_D407)                ; 02:9AD1 - 3A 07 D4
+   ld     (sonic_y), hl                ; 02:9ACE - 22 01 D4
+   ld     a, (sonic_vel_y)             ; 02:9AD1 - 3A 07 D4
    cp     $03                          ; 02:9AD4 - FE 03
    jr     nc, addr_09ADA               ; 02:9AD6 - 30 02
    scf                                 ; 02:9AD8 - 37
@@ -18166,22 +18166,22 @@ addr_09AC7:
 
 addr_09ADA:
    ld     de, $0001                    ; 02:9ADA - 11 01 00
-   ld     hl, (var_D406)               ; 02:9ADD - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 02:9ADD - 2A 06 D4
    ld     a, l                         ; 02:9AE0 - 7D
    cpl                                 ; 02:9AE1 - 2F
    ld     l, a                         ; 02:9AE2 - 6F
    ld     a, h                         ; 02:9AE3 - 7C
    cpl                                 ; 02:9AE4 - 2F
    ld     h, a                         ; 02:9AE5 - 67
-   ld     a, (var_D408)                ; 02:9AE6 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:9AE6 - 3A 08 D4
    cpl                                 ; 02:9AE9 - 2F
    add    hl, de                       ; 02:9AEA - 19
    adc    a, $00                       ; 02:9AEB - CE 00
    sra    a                            ; 02:9AED - CB 2F
    rr     h                            ; 02:9AEF - CB 1C
    rr     l                            ; 02:9AF1 - CB 1D
-   ld     (var_D406), hl               ; 02:9AF3 - 22 06 D4
-   ld     (var_D408), a                ; 02:9AF6 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:9AF3 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:9AF6 - 32 08 D4
    and    a                            ; 02:9AF9 - A7
    ret                                 ; 02:9AFA - C9
 
@@ -18218,22 +18218,22 @@ addr_09B2C:
    ld     a, (var_D2E8)                ; 02:9B3F - 3A E8 D2
    ld     de, (var_D2E6)               ; 02:9B42 - ED 5B E6 D2
    ld     c, a                         ; 02:9B46 - 4F
-   ld     hl, (var_D406)               ; 02:9B47 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 02:9B47 - 2A 06 D4
    ld     a, l                         ; 02:9B4A - 7D
    cpl                                 ; 02:9B4B - 2F
    ld     l, a                         ; 02:9B4C - 6F
    ld     a, h                         ; 02:9B4D - 7C
    cpl                                 ; 02:9B4E - 2F
    ld     h, a                         ; 02:9B4F - 67
-   ld     a, (var_D408)                ; 02:9B50 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:9B50 - 3A 08 D4
    cpl                                 ; 02:9B53 - 2F
    add    hl, de                       ; 02:9B54 - 19
    adc    a, c                         ; 02:9B55 - 89
    ld     de, $0001                    ; 02:9B56 - 11 01 00
    add    hl, de                       ; 02:9B59 - 19
    adc    a, $00                       ; 02:9B5A - CE 00
-   ld     (var_D406), hl               ; 02:9B5C - 22 06 D4
-   ld     (var_D408), a                ; 02:9B5F - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:9B5C - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:9B5F - 32 08 D4
    ld     (ix+17), $08                 ; 02:9B62 - DD 36 11 08
    ld     a, $07                       ; 02:9B66 - 3E 07
    rst    $28                          ; 02:9B68 - EF
@@ -18507,7 +18507,7 @@ objfunc_17_UNKNOWN:
    call   UNK_03956                    ; 02:9E0E - CD 56 39
    jr     c, addr_09E33                ; 02:9E11 - 38 20
    ld     de, $0005                    ; 02:9E13 - 11 05 00
-   ld     a, (var_D405)                ; 02:9E16 - 3A 05 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:9E16 - 3A 05 D4
    and    a                            ; 02:9E19 - A7
    jp     m, addr_09E20                ; 02:9E1A - FA 20 9E
    ld     de, $FFEC                    ; 02:9E1D - 11 EC FF
@@ -18516,19 +18516,19 @@ addr_09E20:
    ld     l, (ix+2)                    ; 02:9E20 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9E23 - DD 66 03
    add    hl, de                       ; 02:9E26 - 19
-   ld     (var_D3FE), hl               ; 02:9E27 - 22 FE D3
+   ld     (sonic_x), hl                ; 02:9E27 - 22 FE D3
    xor    a                            ; 02:9E2A - AF
    ld     l, a                         ; 02:9E2B - 6F
    ld     h, a                         ; 02:9E2C - 67
-   ld     (var_D403), hl               ; 02:9E2D - 22 03 D4
-   ld     (var_D405), a                ; 02:9E30 - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:9E2D - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:9E30 - 32 05 D4
 
 addr_09E33:
    ld     l, (ix+2)                    ; 02:9E33 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9E36 - DD 66 03
    ld     de, $FFC8                    ; 02:9E39 - 11 C8 FF
    add    hl, de                       ; 02:9E3C - 19
-   ld     de, (var_D3FE)               ; 02:9E3D - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:9E3D - ED 5B FE D3
    xor    a                            ; 02:9E41 - AF
    sbc    hl, de                       ; 02:9E42 - ED 52
    jr     nc, addr_09E78               ; 02:9E44 - 30 32
@@ -18541,7 +18541,7 @@ addr_09E33:
    ld     h, (ix+6)                    ; 02:9E54 - DD 66 06
    ld     de, $FFE0                    ; 02:9E57 - 11 E0 FF
    add    hl, de                       ; 02:9E5A - 19
-   ld     de, (var_D401)               ; 02:9E5B - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 02:9E5B - ED 5B 01 D4
    xor    a                            ; 02:9E5F - AF
    sbc    hl, de                       ; 02:9E60 - ED 52
    jr     nc, addr_09E78               ; 02:9E62 - 30 14
@@ -18674,7 +18674,7 @@ objfunc_18_UNKNOWN:
    call   UNK_03956                    ; 02:9F76 - CD 56 39
    jr     c, addr_09F9C                ; 02:9F79 - 38 21
    ld     de, $0005                    ; 02:9F7B - 11 05 00
-   ld     a, (var_D405)                ; 02:9F7E - 3A 05 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:9F7E - 3A 05 D4
    and    a                            ; 02:9F81 - A7
    jp     m, addr_09F88                ; 02:9F82 - FA 88 9F
    ld     de, $FFEC                    ; 02:9F85 - 11 EC FF
@@ -18683,18 +18683,18 @@ addr_09F88:
    ld     l, (ix+2)                    ; 02:9F88 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9F8B - DD 66 03
    add    hl, de                       ; 02:9F8E - 19
-   ld     (var_D3FE), hl               ; 02:9F8F - 22 FE D3
+   ld     (sonic_x), hl                ; 02:9F8F - 22 FE D3
    xor    a                            ; 02:9F92 - AF
-   ld     (var_D403), a                ; 02:9F93 - 32 03 D4
-   ld     (var_D404), a                ; 02:9F96 - 32 04 D4
-   ld     (var_D405), a                ; 02:9F99 - 32 05 D4
+   ld     (sonic_vel_x_sub), a         ; 02:9F93 - 32 03 D4
+   ld     (sonic_vel_x), a             ; 02:9F96 - 32 04 D4
+   ld     (sonic_vel_x_hi), a          ; 02:9F99 - 32 05 D4
 
 addr_09F9C:
    ld     l, (ix+2)                    ; 02:9F9C - DD 6E 02
    ld     h, (ix+3)                    ; 02:9F9F - DD 66 03
    ld     de, $FFF0                    ; 02:9FA2 - 11 F0 FF
    add    hl, de                       ; 02:9FA5 - 19
-   ld     de, (var_D3FE)               ; 02:9FA6 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:9FA6 - ED 5B FE D3
    xor    a                            ; 02:9FAA - AF
    sbc    hl, de                       ; 02:9FAB - ED 52
    jr     nc, addr_09FE5               ; 02:9FAD - 30 36
@@ -18709,7 +18709,7 @@ addr_09F9C:
    ld     h, (ix+6)                    ; 02:9FC1 - DD 66 06
    ld     de, $FFE0                    ; 02:9FC4 - 11 E0 FF
    add    hl, de                       ; 02:9FC7 - 19
-   ld     de, (var_D401)               ; 02:9FC8 - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 02:9FC8 - ED 5B 01 D4
    xor    a                            ; 02:9FCC - AF
    sbc    hl, de                       ; 02:9FCD - ED 52
    jr     nc, addr_09FE5               ; 02:9FCF - 30 14
@@ -18747,7 +18747,7 @@ objfunc_19_UNKNOWN:
    call   UNK_03956                    ; 02:A039 - CD 56 39
    jr     c, addr_0A05F                ; 02:A03C - 38 21
    ld     de, $0005                    ; 02:A03E - 11 05 00
-   ld     a, (var_D405)                ; 02:A041 - 3A 05 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:A041 - 3A 05 D4
    and    a                            ; 02:A044 - A7
    jp     m, addr_0A04B                ; 02:A045 - FA 4B A0
    ld     de, $FFEC                    ; 02:A048 - 11 EC FF
@@ -18756,18 +18756,18 @@ addr_0A04B:
    ld     l, (ix+2)                    ; 02:A04B - DD 6E 02
    ld     h, (ix+3)                    ; 02:A04E - DD 66 03
    add    hl, de                       ; 02:A051 - 19
-   ld     (var_D3FE), hl               ; 02:A052 - 22 FE D3
+   ld     (sonic_x), hl                ; 02:A052 - 22 FE D3
    xor    a                            ; 02:A055 - AF
-   ld     (var_D403), a                ; 02:A056 - 32 03 D4
-   ld     (var_D404), a                ; 02:A059 - 32 04 D4
-   ld     (var_D405), a                ; 02:A05C - 32 05 D4
+   ld     (sonic_vel_x_sub), a         ; 02:A056 - 32 03 D4
+   ld     (sonic_vel_x), a             ; 02:A059 - 32 04 D4
+   ld     (sonic_vel_x_hi), a          ; 02:A05C - 32 05 D4
 
 addr_0A05F:
    ld     l, (ix+2)                    ; 02:A05F - DD 6E 02
    ld     h, (ix+3)                    ; 02:A062 - DD 66 03
    ld     de, $FFC8                    ; 02:A065 - 11 C8 FF
    add    hl, de                       ; 02:A068 - 19
-   ld     de, (var_D3FE)               ; 02:A069 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:A069 - ED 5B FE D3
    xor    a                            ; 02:A06D - AF
    sbc    hl, de                       ; 02:A06E - ED 52
    jr     nc, addr_0A0A8               ; 02:A070 - 30 36
@@ -18782,7 +18782,7 @@ addr_0A05F:
    ld     h, (ix+6)                    ; 02:A084 - DD 66 06
    ld     de, $FFE0                    ; 02:A087 - 11 E0 FF
    add    hl, de                       ; 02:A08A - 19
-   ld     de, (var_D401)               ; 02:A08B - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 02:A08B - ED 5B 01 D4
    xor    a                            ; 02:A08F - AF
    sbc    hl, de                       ; 02:A090 - ED 52
    jr     nc, addr_0A0A8               ; 02:A092 - 30 14
@@ -18897,7 +18897,7 @@ objfunc_1B_UNKNOWN:
    ld     de, $000A                    ; 02:A1D6 - 11 0A 00
    add    hl, de                       ; 02:A1D9 - 19
    ex     de, hl                       ; 02:A1DA - EB
-   ld     hl, (var_D3FE)               ; 02:A1DB - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:A1DB - 2A FE D3
    ld     bc, $000C                    ; 02:A1DE - 01 0C 00
    add    hl, bc                       ; 02:A1E1 - 09
    and    a                            ; 02:A1E2 - A7
@@ -19100,7 +19100,7 @@ addr_0A41A:
    ld     (var_D214), hl               ; 02:A41D - 22 14 D2
    call   UNK_03956                    ; 02:A420 - CD 56 39
    jr     c, addr_0A464                ; 02:A423 - 38 3F
-   ld     a, (var_D408)                ; 02:A425 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:A425 - 3A 08 D4
    and    a                            ; 02:A428 - A7
    jp     m, addr_0A464                ; 02:A429 - FA 64 A4
    ld     (ix+15), UNK_0A48B&$FF       ; 02:A42C - DD 36 0F 8B
@@ -19167,7 +19167,7 @@ objfunc_1E_door_from_button:
    call   UNK_03956                    ; 02:A4BF - CD 56 39
    jr     c, addr_0A4E5                ; 02:A4C2 - 38 21
    ld     de, $0005                    ; 02:A4C4 - 11 05 00
-   ld     a, (var_D405)                ; 02:A4C7 - 3A 05 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:A4C7 - 3A 05 D4
    and    a                            ; 02:A4CA - A7
    jp     m, addr_0A4D1                ; 02:A4CB - FA D1 A4
    ld     de, $FFEC                    ; 02:A4CE - 11 EC FF
@@ -19176,11 +19176,11 @@ addr_0A4D1:
    ld     l, (ix+2)                    ; 02:A4D1 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A4D4 - DD 66 03
    add    hl, de                       ; 02:A4D7 - 19
-   ld     (var_D3FE), hl               ; 02:A4D8 - 22 FE D3
+   ld     (sonic_x), hl                ; 02:A4D8 - 22 FE D3
    xor    a                            ; 02:A4DB - AF
-   ld     (var_D403), a                ; 02:A4DC - 32 03 D4
-   ld     (var_D404), a                ; 02:A4DF - 32 04 D4
-   ld     (var_D405), a                ; 02:A4E2 - 32 05 D4
+   ld     (sonic_vel_x_sub), a         ; 02:A4DC - 32 03 D4
+   ld     (sonic_vel_x), a             ; 02:A4DF - 32 04 D4
+   ld     (sonic_vel_x_hi), a          ; 02:A4E2 - 32 05 D4
 
 addr_0A4E5:
    ld     hl, var_D317                 ; 02:A4E5 - 21 17 D3
@@ -19455,12 +19455,12 @@ addr_0A830:
    call   addr_07C41                   ; 02:A842 - CD 41 7C
    ld     l, (ix+2)                    ; 02:A845 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A848 - DD 66 03
-   ld     de, (var_D3FE)               ; 02:A84B - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:A84B - ED 5B FE D3
    xor    a                            ; 02:A84F - AF
    sbc    hl, de                       ; 02:A850 - ED 52
    ld     de, $0040                    ; 02:A852 - 11 40 00
    xor    a                            ; 02:A855 - AF
-   ld     bc, (var_D403)               ; 02:A856 - ED 4B 03 D4
+   ld     bc, (sonic_vel_x_sub)        ; 02:A856 - ED 4B 03 D4
    bit    7, b                         ; 02:A85A - CB 78
    jr     nz, addr_0A862               ; 02:A85C - 20 04
    sbc    hl, de                       ; 02:A85E - ED 52
@@ -19484,8 +19484,8 @@ addr_0A865:
    ld     h, a                         ; 02:A87F - 67
    ld     (ix+7), a                    ; 02:A880 - DD 77 07
    ld     (ix+8), a                    ; 02:A883 - DD 77 08
-   ld     (var_D403), hl               ; 02:A886 - 22 03 D4
-   ld     (var_D405), a                ; 02:A889 - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:A886 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:A889 - 32 05 D4
    set    1, (ix+24)                   ; 02:A88C - DD CB 18 CE
    jp     addr_0A974                   ; 02:A890 - C3 74 A9
 
@@ -19524,7 +19524,7 @@ addr_0A8CD:
 addr_0A8EB:
    bit    4, (ix+24)                   ; 02:A8EB - DD CB 18 66
    jr     nz, addr_0A96B               ; 02:A8EF - 20 7A
-   ld     de, (var_D3FE)               ; 02:A8F1 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:A8F1 - ED 5B FE D3
    ld     hl, $0596                    ; 02:A8F5 - 21 96 05
    and    a                            ; 02:A8F8 - A7
    sbc    hl, de                       ; 02:A8F9 - ED 52
@@ -19535,40 +19535,40 @@ addr_0A8EB:
    jr     c, addr_0A974                ; 02:A903 - 38 6F
    or     (ix+17)                      ; 02:A905 - DD B6 11
    jr     nz, addr_0A91D               ; 02:A908 - 20 13
-   ld     hl, (var_D401)               ; 02:A90A - 2A 01 D4
+   ld     hl, (sonic_y)                ; 02:A90A - 2A 01 D4
    ld     de, $028D                    ; 02:A90D - 11 8D 02
    xor    a                            ; 02:A910 - AF
    sbc    hl, de                       ; 02:A911 - ED 52
    jr     c, addr_0A974                ; 02:A913 - 38 5F
    ld     l, a                         ; 02:A915 - 6F
    ld     h, a                         ; 02:A916 - 67
-   ld     (var_D403), hl               ; 02:A917 - 22 03 D4
-   ld     (var_D405), a                ; 02:A91A - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:A917 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:A91A - 32 05 D4
 
 addr_0A91D:
    ld     a, $80                       ; 02:A91D - 3E 80
    ld     (var_D414), a                ; 02:A91F - 32 14 D4
    ld     hl, $05A0                    ; 02:A922 - 21 A0 05
-   ld     (var_D3FE), hl               ; 02:A925 - 22 FE D3
+   ld     (sonic_x), hl                ; 02:A925 - 22 FE D3
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:A928 - FD 36 03 FF
    ld     e, (ix+17)                   ; 02:A92C - DD 5E 11
    ld     d, $00                       ; 02:A92F - 16 00
    ld     hl, $028E                    ; 02:A931 - 21 8E 02
    xor    a                            ; 02:A934 - AF
    sbc    hl, de                       ; 02:A935 - ED 52
-   ld     (var_D400), a                ; 02:A937 - 32 00 D4
-   ld     (var_D401), hl               ; 02:A93A - 22 01 D4
+   ld     (sonic_y_sub), a             ; 02:A937 - 32 00 D4
+   ld     (sonic_y), hl                ; 02:A93A - 22 01 D4
    ld     a, (var_D2E8)                ; 02:A93D - 3A E8 D2
    ld     hl, (var_D2E6)               ; 02:A940 - 2A E6 D2
-   ld     (var_D406), hl               ; 02:A943 - 22 06 D4
-   ld     (var_D408), a                ; 02:A946 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:A943 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:A946 - 32 08 D4
    inc    (ix+17)                      ; 02:A949 - DD 34 11
    ld     a, (ix+17)                   ; 02:A94C - DD 7E 11
    cp     $C0                          ; 02:A94F - FE C0
    jr     nz, addr_0A974               ; 02:A951 - 20 21
    ld     hl, (var_D25A)               ; 02:A953 - 2A 5A D2
    inc    h                            ; 02:A956 - 24
-   ld     (var_D3FE), hl               ; 02:A957 - 22 FE D3
+   ld     (sonic_x), hl                ; 02:A957 - 22 FE D3
    set    4, (ix+24)                   ; 02:A95A - DD CB 18 E6
    ld     a, $09                       ; 02:A95E - 3E 09
    rst    $18                          ; 02:A960 - DF
@@ -19785,7 +19785,7 @@ objfunc_32_UNKNOWN:
    ld     de, $FFC8                    ; 02:AB36 - 11 C8 FF
    add    hl, de                       ; 02:AB39 - 19
    ex     de, hl                       ; 02:AB3A - EB
-   ld     hl, (var_D3FE)               ; 02:AB3B - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:AB3B - 2A FE D3
    and    a                            ; 02:AB3E - A7
    sbc    hl, de                       ; 02:AB3F - ED 52
    jr     c, addr_0AB5A                ; 02:AB41 - 38 17
@@ -19794,7 +19794,7 @@ objfunc_32_UNKNOWN:
    ld     de, $002C                    ; 02:AB49 - 11 2C 00
    add    hl, de                       ; 02:AB4C - 19
    ex     de, hl                       ; 02:AB4D - EB
-   ld     hl, (var_D3FE)               ; 02:AB4E - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:AB4E - 2A FE D3
    and    a                            ; 02:AB51 - A7
    sbc    hl, de                       ; 02:AB52 - ED 52
    jr     nc, addr_0AB5A               ; 02:AB54 - 30 04
@@ -20107,7 +20107,7 @@ objfunc_35_UNKNOWN:
 addr_0AEA6:
    ld     l, (ix+2)                    ; 02:AEA6 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AEA9 - DD 66 03
-   ld     de, (var_D3FE)               ; 02:AEAC - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:AEAC - ED 5B FE D3
    and    a                            ; 02:AEB0 - A7
    sbc    hl, de                       ; 02:AEB1 - ED 52
    jr     c, addr_0AED8                ; 02:AEB3 - 38 23
@@ -20231,7 +20231,7 @@ addr_0AF98:
    ld     h, (ix+6)                    ; 02:AFA7 - DD 66 06
    ld     de, $FFD0                    ; 02:AFAA - 11 D0 FF
    add    hl, de                       ; 02:AFAD - 19
-   ld     de, (var_D401)               ; 02:AFAE - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 02:AFAE - ED 5B 01 D4
    and    a                            ; 02:AFB2 - A7
    sbc    hl, de                       ; 02:AFB3 - ED 52
    ret    nc                           ; 02:AFB5 - D0
@@ -20519,7 +20519,7 @@ addr_0B2B7:
    ld     (ix+4), l                    ; 02:B2CA - DD 75 04
    ld     (ix+5), h                    ; 02:B2CD - DD 74 05
    ld     (ix+6), a                    ; 02:B2D0 - DD 77 06
-   ld     a, (var_D408)                ; 02:B2D3 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:B2D3 - 3A 08 D4
    and    a                            ; 02:B2D6 - A7
    jp     m, addr_0B329                ; 02:B2D7 - FA 29 B3
    ld     (ix+13), $1E                 ; 02:B2DA - DD 36 0D 1E
@@ -20544,11 +20544,11 @@ addr_0B2B7:
    ld     (ix+1), l                    ; 02:B311 - DD 75 01
    ld     (ix+2), h                    ; 02:B314 - DD 74 02
    ld     (ix+3), a                    ; 02:B317 - DD 77 03
-   ld     hl, (var_D3FD)               ; 02:B31A - 2A FD D3
+   ld     hl, (sonic_x_sub)            ; 02:B31A - 2A FD D3
    ld     a, (var_D3FF)                ; 02:B31D - 3A FF D3
    add    hl, de                       ; 02:B320 - 19
    adc    a, $00                       ; 02:B321 - CE 00
-   ld     (var_D3FD), hl               ; 02:B323 - 22 FD D3
+   ld     (sonic_x_sub), hl            ; 02:B323 - 22 FD D3
    ld     (var_D3FF), a                ; 02:B326 - 32 FF D3
 
 addr_0B329:
@@ -20663,7 +20663,7 @@ addr_0B3B2:
    ld     (ix+3), a                    ; 02:B439 - DD 77 03
 
 addr_0B43C:
-   ld     de, (var_D401)               ; 02:B43C - ED 5B 01 D4
+   ld     de, (sonic_y)                ; 02:B43C - ED 5B 01 D4
    ld     hl, $FFE0                    ; 02:B440 - 21 E0 FF
    add    hl, bc                       ; 02:B443 - 09
    xor    a                            ; 02:B444 - AF
@@ -20736,7 +20736,7 @@ addr_0B48C:
    exx                                 ; 02:B4BF - D9
    ld     e, (ix+2)                    ; 02:B4C0 - DD 5E 02
    ld     d, (ix+3)                    ; 02:B4C3 - DD 56 03
-   ld     hl, (var_D3FE)               ; 02:B4C6 - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:B4C6 - 2A FE D3
    and    a                            ; 02:B4C9 - A7
    sbc    hl, de                       ; 02:B4CA - ED 52
    ld     a, h                         ; 02:B4CC - 7C
@@ -20747,7 +20747,7 @@ addr_0B48C:
    exx                                 ; 02:B4D1 - D9
    ld     e, (ix+5)                    ; 02:B4D2 - DD 5E 05
    ld     d, (ix+6)                    ; 02:B4D5 - DD 56 06
-   ld     hl, (var_D401)               ; 02:B4D8 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 02:B4D8 - 2A 01 D4
    and    a                            ; 02:B4DB - A7
    sbc    hl, de                       ; 02:B4DC - ED 52
    ld     a, h                         ; 02:B4DE - 7C
@@ -20829,7 +20829,7 @@ addr_0B581:
    ld     (ix+12), $00                 ; 02:B58D - DD 36 0C 00
 
 addr_0B591:
-   ld     a, (var_D408)                ; 02:B591 - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:B591 - 3A 08 D4
    and    a                            ; 02:B594 - A7
    ret    m                            ; 02:B595 - F8
    ld     (ix+13), $1E                 ; 02:B596 - DD 36 0D 1E
@@ -21102,15 +21102,15 @@ addr_0B7E6:
    ret    z                            ; 02:B7F8 - C8
 
 addr_0B7F9:
-   ld     hl, (var_D3FE)               ; 02:B7F9 - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:B7F9 - 2A FE D3
    ld     de, $0410                    ; 02:B7FC - 11 10 04
    and    a                            ; 02:B7FF - A7
    sbc    hl, de                       ; 02:B800 - ED 52
    ret    c                            ; 02:B802 - D8
    ld     hl, $FD00                    ; 02:B803 - 21 00 FD
    ld     a, $FF                       ; 02:B806 - 3E FF
-   ld     (var_D403), hl               ; 02:B808 - 22 03 D4
-   ld     (var_D405), a                ; 02:B80B - 32 05 D4
+   ld     (sonic_vel_x_sub), hl        ; 02:B808 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:B80B - 32 05 D4
    ld     hl, var_D2B1                 ; 02:B80E - 21 B1 D2
    ld     (hl), $18                    ; 02:B811 - 36 18
    inc    hl                           ; 02:B813 - 23
@@ -21172,12 +21172,12 @@ addr_0B86A:
 
 addr_0B87D:
    ex     de, hl                       ; 02:B87D - EB
-   ld     de, (var_D3FE)               ; 02:B87E - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:B87E - ED 5B FE D3
    xor    a                            ; 02:B882 - AF
    sbc    hl, de                       ; 02:B883 - ED 52
    ld     de, $0040                    ; 02:B885 - 11 40 00
    xor    a                            ; 02:B888 - AF
-   ld     bc, (var_D403)               ; 02:B889 - ED 4B 03 D4
+   ld     bc, (sonic_vel_x_sub)        ; 02:B889 - ED 4B 03 D4
    bit    7, b                         ; 02:B88D - CB 78
    jr     nz, addr_0B895               ; 02:B88F - 20 04
    sbc    hl, de                       ; 02:B891 - ED 52
@@ -21489,7 +21489,7 @@ addr_0BBF3:
    ld     b, h                         ; 02:BC0D - 44
    ld     hl, $000C                    ; 02:BC0E - 21 0C 00
    add    hl, bc                       ; 02:BC11 - 09
-   ld     de, (var_D3FE)               ; 02:BC12 - ED 5B FE D3
+   ld     de, (sonic_x)                ; 02:BC12 - ED 5B FE D3
    and    a                            ; 02:BC16 - A7
    sbc    hl, de                       ; 02:BC17 - ED 52
    jr     c, addr_0BC2B                ; 02:BC19 - 38 10
@@ -21534,7 +21534,7 @@ addr_0BC58:
    ret                                 ; 02:BC64 - C9
 
 addr_0BC65:
-   ld     hl, (var_D3FE)               ; 02:BC65 - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:BC65 - 2A FE D3
    ld     e, (ix+2)                    ; 02:BC68 - DD 5E 02
    ld     d, (ix+3)                    ; 02:BC6B - DD 56 03
    and    a                            ; 02:BC6E - A7
@@ -21625,7 +21625,7 @@ addr_0BCFC:
    and    a                            ; 02:BD1B - A7
    sbc    hl, de                       ; 02:BD1C - ED 52
    jp     c, addr_0BDBE                ; 02:BD1E - DA BE BD
-   ld     hl, (var_D3FE)               ; 02:BD21 - 2A FE D3
+   ld     hl, (sonic_x)                ; 02:BD21 - 2A FE D3
    and    a                            ; 02:BD24 - A7
    sbc    hl, de                       ; 02:BD25 - ED 52
    ld     l, (ix+7)                    ; 02:BD27 - DD 6E 07
@@ -21666,7 +21666,7 @@ addr_0BD4C:
    and    a                            ; 02:BD70 - A7
    sbc    hl, de                       ; 02:BD71 - ED 52
    jr     c, addr_0BDBE                ; 02:BD73 - 38 49
-   ld     hl, (var_D401)               ; 02:BD75 - 2A 01 D4
+   ld     hl, (sonic_y)                ; 02:BD75 - 2A 01 D4
    and    a                            ; 02:BD78 - A7
    sbc    hl, de                       ; 02:BD79 - ED 52
    ld     l, (ix+10)                   ; 02:BD7B - DD 6E 0A
@@ -21727,9 +21727,9 @@ objfunc_53_UNKNOWN:
    ld     a, $02                       ; 02:BE0A - 3E 02
    call   signal_load_palettes         ; 02:BE0C - CD 33 03
    ld     a, $FF                       ; 02:BE0F - 3E FF
-   ld     (var_D3FC), a                ; 02:BE11 - 32 FC D3
+   ld     (object_list), a             ; 02:BE11 - 32 FC D3
    ld     hl, $0000                    ; 02:BE14 - 21 00 00
-   ld     (var_D401), hl               ; 02:BE17 - 22 01 D4
+   ld     (sonic_y), hl                ; 02:BE17 - 22 01 D4
    ld     (ix+18), $FF                 ; 02:BE1A - DD 36 12 FF
    set    6, (iy+var_D207-IYBASE)      ; 02:BE1E - FD CB 07 F6
    set    1, (ix+24)                   ; 02:BE22 - DD CB 18 CE
@@ -21747,14 +21747,14 @@ addr_0BE26:
    ld     h, (ix+3)                    ; 02:BE3A - DD 66 03
    ld     de, $003C                    ; 02:BE3D - 11 3C 00
    add    hl, de                       ; 02:BE40 - 19
-   ld     (var_D3FE), hl               ; 02:BE41 - 22 FE D3
+   ld     (sonic_x), hl                ; 02:BE41 - 22 FE D3
    ld     l, (ix+5)                    ; 02:BE44 - DD 6E 05
    ld     h, (ix+6)                    ; 02:BE47 - DD 66 06
    ld     de, $FFC0                    ; 02:BE4A - 11 C0 FF
    add    hl, de                       ; 02:BE4D - 19
-   ld     (var_D401), hl               ; 02:BE4E - 22 01 D4
+   ld     (sonic_y), hl                ; 02:BE4E - 22 01 D4
    xor    a                            ; 02:BE51 - AF
-   ld     (var_D3FC), a                ; 02:BE52 - 32 FC D3
+   ld     (object_list), a             ; 02:BE52 - 32 FC D3
    set    6, (iy+var_D208-IYBASE)      ; 02:BE55 - FD CB 08 F6
    ld     a, $06                       ; 02:BE59 - 3E 06
    rst    $28                          ; 02:BE5B - EF
@@ -21792,19 +21792,19 @@ addr_0BE96:
    call   UNK_03956                    ; 02:BEAA - CD 56 39
    jr     c, addr_0BED7                ; 02:BEAD - 38 28
    ld     de, $0001                    ; 02:BEAF - 11 01 00
-   ld     hl, (var_D406)               ; 02:BEB2 - 2A 06 D4
+   ld     hl, (sonic_vel_y_sub)        ; 02:BEB2 - 2A 06 D4
    ld     a, l                         ; 02:BEB5 - 7D
    cpl                                 ; 02:BEB6 - 2F
    ld     l, a                         ; 02:BEB7 - 6F
    ld     a, h                         ; 02:BEB8 - 7C
    cpl                                 ; 02:BEB9 - 2F
    ld     h, a                         ; 02:BEBA - 67
-   ld     a, (var_D408)                ; 02:BEBB - 3A 08 D4
+   ld     a, (sonic_vel_y_hi)          ; 02:BEBB - 3A 08 D4
    cpl                                 ; 02:BEBE - 2F
    add    hl, de                       ; 02:BEBF - 19
    adc    a, $00                       ; 02:BEC0 - CE 00
-   ld     (var_D406), hl               ; 02:BEC2 - 22 06 D4
-   ld     (var_D408), a                ; 02:BEC5 - 32 08 D4
+   ld     (sonic_vel_y_sub), hl        ; 02:BEC2 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:BEC5 - 32 08 D4
    res    6, (iy+var_D207-IYBASE)      ; 02:BEC8 - FD CB 07 B6
    set    0, (ix+24)                   ; 02:BECC - DD CB 18 C6
    ld     (ix+17), $01                 ; 02:BED0 - DD 36 11 01
