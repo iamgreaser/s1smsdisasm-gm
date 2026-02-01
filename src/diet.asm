@@ -4983,6 +4983,8 @@ PAL3_01B8D:
 .db $35, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $00, $00, $00  ; 00:1B9D
 
 update_demo_inputs:
+   .IF 0
+   ;; Original code
    ld     hl, (g_demo_next_input_relptr)  ; 00:1BAD - 2A B5 D2
    ld     de, ARRAY_demo_inputs        ; 00:1BB0 - 11 C6 1B
    add    hl, de                       ; 00:1BB3 - 19
@@ -4996,7 +4998,48 @@ update_demo_inputs:
    ld     (g_demo_next_input_relptr), hl  ; 00:1BC2 - 22 B5 D2
    ret                                 ; 00:1BC5 - C9
 
+   .ELSE
+   ;; New code
+   ;; Hi = previous input
+   ;; Lo = actual relptr to fetch
+   ld hl, (g_demo_next_input_relptr)
+   ld a, h
+   sub $20
+   ld h, a
+   jr nc, +
+      ;; RLE counter decremented, need to fetch new byte
+      ld h, $00
+      ld de, ARRAY_demo_inputs
+      ld a, l
+      add hl, de
+      ld h, (hl)
+      inc a
+      ld l, a
+   +:
+   ;; Build input
+   ld a, h
+   and $1F
+   add a, $10
+   or $D0
+   ld (iy+g_inputs_player_1-IYBASE), a
+
+   ;; See if we can advance
+   ld a, (var_D223)
+   and $1F
+   ret nz
+
+   ;; We can. Store our update!
+   ld (g_demo_next_input_relptr), hl
+   ret
+   ;; This costs 14 bytes. But if we actually compress the demo data, then...
+   ; SAVING: 62 bytes
+   ;; We actually save 76 bytes on the actual data.
+   ;; That is: 131 -> 55 bytes.
+   .ENDIF
+
+
 ARRAY_demo_inputs:
+.IF 0
 .db $F7, $F7, $F7, $F7, $DF, $F7, $FF, $FF, $D7, $F7, $F7, $F7, $FF, $DF, $F7, $F7  ; 00:1BC6
 .db $DF, $F7, $F7, $F7, $F7, $FF, $FF, $DF, $F7, $FF, $FF, $FF, $FB, $F7, $F7, $F5  ; 00:1BD6
 .db $FF, $FF, $FF, $FF, $FB, $FB, $F9, $FF, $FF, $FF, $FF, $F7, $F7, $F7, $F7, $D7  ; 00:1BE6
@@ -5006,6 +5049,121 @@ ARRAY_demo_inputs:
 .db $D7, $F7, $F7, $F7, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $F7, $F7, $F7, $D7, $FF  ; 00:1C26
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1C36
 .db $FF, $FF, $00                                                                   ; 00:1C46
+
+.ELIF 0
+;; RLE-compatible uncompressed.
+.db $17, $17, $17, $17
+.db $0F
+.db $17
+.db $1F, $1F
+.db $07
+.db $17, $17, $17
+.db $1F
+.db $0F
+.db $17, $17
+.db $0F
+.db $17, $17, $17, $17
+.db $1F, $1F
+.db $0F
+.db $17
+.db $1F, $1F, $1F
+.db $1B
+.db $17, $17
+.db $15
+.db $1F, $1F, $1F, $1F
+.db $1B, $1B
+.db $19
+.db $1F, $1F, $1F, $1F
+.db $17, $17, $17, $17
+.db $07
+.db $1F, $1F
+.db $07
+.db $1F, $1F, $1F, $1F, $1F, $1F, $1F
+.db $07
+.db $1B
+.db $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F
+.db $07
+.db $17, $17
+.db $1F
+.db $07
+.db $1B
+.db $17, $17, $17, $17
+.db $1B, $1B
+.db $17
+.db $1F
+.db $07
+.db $1B
+.db $1F
+.db $17, $17
+.db $07
+.db $1B
+.db $07
+.db $17, $17, $17
+.db $1F, $1F, $1F, $1F, $1F, $1F, $1F
+.db $17, $17, $17
+.db $07
+.db $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F
+.db $00
+
+.ELSE
+;; RLE-compressed.
+.db $17 | ((4-1)<<5)
+.db $0F
+.db $17
+.db $1F | ((2-1)<<5)
+.db $07
+.db $17 | ((3-1)<<5)
+.db $1F
+.db $0F
+.db $17 | ((2-1)<<5)
+.db $0F
+.db $17 | ((3-1)<<5)
+.db $1F | ((2-1)<<5)
+.db $0F
+.db $17
+.db $1F | ((3-1)<<5)
+.db $1B
+.db $17 | ((2-1)<<5)
+.db $15
+.db $1F | ((4-1)<<5)
+.db $1B | ((2-1)<<5)
+.db $19
+.db $1F | ((4-1)<<5)
+.db $17 | ((4-1)<<5)
+.db $07
+.db $1F | ((2-1)<<5)
+.db $07
+.db $1F | ((7-1)<<5)
+.db $07
+.db $1B
+.db $1F | ((8-1)<<5)
+.db $1F | ((7-1)<<5)
+.db $07
+.db $17 | ((2-1)<<5)
+.db $1F
+.db $07
+.db $1B
+.db $17 | ((4-1)<<5)
+.db $1B | ((2-1)<<5)
+.db $17
+.db $1F
+.db $07
+.db $1B
+.db $1F
+.db $17 | ((2-1)<<5)
+.db $07
+.db $1B
+.db $07
+.db $17 | ((3-1)<<5)
+.db $1F | ((7-1)<<5)
+.db $17 | ((3-1)<<5)
+.db $07
+.db $1F | ((8-1)<<5)
+.db $1F | ((8-1)<<5)
+.db $1F | ((3-1)<<5)
+.db $00
+
+.ENDIF
 
 _reset_01C49:
    set    0, (iy+var_D200-IYBASE)      ; 00:1C49 - FD CB 00 C6
