@@ -228,7 +228,7 @@ var_D2EC db   ; D2EC
 var_D2ED db   ; D2ED (auto)
 var_D2EE db   ; D2EE
 .  dsb 3
-var_D2F2 db   ; D2F2
+g_object_count db   ; D2F2
 var_D2F3 db   ; D2F3 (auto)
 .  dsb 3
 var_D2F7 db   ; D2F7 (auto)
@@ -6219,7 +6219,12 @@ load_object_list:
    pop    hl                           ; 00:233D - E1
    ld     a, (hl)                      ; 00:233E - 7E
    inc    hl                           ; 00:233F - 23
-   ld     (var_D2F2), a                ; 00:2340 - 32 F2 D2
+   .IF 0
+   ld     (g_object_count), a          ; 00:2340 - 32 F2 D2
+   .ELSE
+   ;; g_object_count only exists for the benefit of this function, and we no longer need it.
+   ; SAVING: 3 bytes
+   .ENDIF
    dec    a                            ; 00:2343 - 3D
    ld     b, a                         ; 00:2344 - 47
    .IF 0
@@ -6240,7 +6245,7 @@ load_object_list:
    .ENDIF
    djnz   -                            ; 00:234A - 10 F9
    .IF 0
-   ld     a, (var_D2F2)                ; 00:234C - 3A F2 D2
+   ld     a, (g_object_count)          ; 00:234C - 3A F2 D2
    ld     b, a                         ; 00:234F - 47
    ld     a, $20                       ; 00:2350 - 3E 20
    sub    b                            ; 00:2352 - 90
