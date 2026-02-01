@@ -7020,22 +7020,37 @@ addr_02E72:
    call   nz, draw_level_timer         ; 00:2E93 - C4 1F 2F
    ld     de, $0060                    ; 00:2E96 - 11 60 00
    ld     hl, var_D267                 ; 00:2E99 - 21 67 D2
+   .IF 0
    ld     a, (hl)                      ; 00:2E9C - 7E
    inc    hl                           ; 00:2E9D - 23
    or     (hl)                         ; 00:2E9E - B6
    call   z, addr_0311A                ; 00:2E9F - CC 1A 31
+   .ELSE
+   ;; Hoisted into the call.
+   call addr_0311A
+   .ENDIF
    inc    hl                           ; 00:2EA2 - 23
    ld     de, $0088                    ; 00:2EA3 - 11 88 00
+   .IF 0
    ld     a, (hl)                      ; 00:2EA6 - 7E
    inc    hl                           ; 00:2EA7 - 23
    or     (hl)                         ; 00:2EA8 - B6
    call   z, addr_0311A                ; 00:2EA9 - CC 1A 31
+   .ELSE
+   ;; Hoisted into the call.
+   call addr_0311A
+   .ENDIF
    inc    hl                           ; 00:2EAC - 23
    ld     de, $0060                    ; 00:2EAD - 11 60 00
+   .IF 0
    ld     a, (hl)                      ; 00:2EB0 - 7E
    inc    hl                           ; 00:2EB1 - 23
    or     (hl)                         ; 00:2EB2 - B6
    call   z, addr_0311A                ; 00:2EB3 - CC 1A 31
+   .ELSE
+   ;; Hoisted into the call.
+   call addr_0311A
+   .ENDIF
    inc    hl                           ; 00:2EB6 - 23
    ld     de, $0070                    ; 00:2EB7 - 11 70 00
    bit    6, (iy+var_D205-IYBASE)      ; 00:2EBA - FD CB 05 76
@@ -7043,17 +7058,32 @@ addr_02E72:
    ld     de, $0080                    ; 00:2EC0 - 11 80 00
 
 addr_02EC3:
+   .IF 0
    ld     a, (hl)                      ; 00:2EC3 - 7E
    inc    hl                           ; 00:2EC4 - 23
    or     (hl)                         ; 00:2EC5 - B6
    call   z, addr_0311A                ; 00:2EC6 - CC 1A 31
+   .ELSE
+   ;; Hoisted into the call.
+   call addr_0311A
+   .ENDIF
    bit    0, (iy+var_D205-IYBASE)      ; 00:2EC9 - FD CB 05 46
    call   z, addr_02F66                ; 00:2ECD - CC 66 2F
+   .IF 0
    ld     hl, $0000                    ; 00:2ED0 - 21 00 00
    ld     (var_D267), hl               ; 00:2ED3 - 22 67 D2
    ld     (var_D269), hl               ; 00:2ED6 - 22 69 D2
    ld     (var_D26B), hl               ; 00:2ED9 - 22 6B D2
    ld     (var_D26D), hl               ; 00:2EDC - 22 6D D2
+   .ELSE
+   ld b, $08        ; 2ED0 2
+   ld hl, var_D267  ; 2ED2 3
+   -:
+      ld (hl), $00  ; 2ED5 2
+      inc hl        ; 2ED7 1
+      djnz -        ; 2ED8 2
+   ; 2EDF -> 2EDA - SAVING: 5 bytes
+   .ENDIF
    call   addr_031E6                   ; 00:2EDF - CD E6 31
    call   run_all_objfuncs             ; 00:2EE2 - CD 9B 32
    ret                                 ; 00:2EE5 - C9
@@ -7360,6 +7390,16 @@ addr_03119:
    ret                                 ; 00:3119 - C9
 
 addr_0311A:
+   .IF 0
+   .ELSE
+   ;; Hoisted in from 4 different call sites.
+   ld a, (hl)
+   inc hl
+   or (hl)
+   ret nz
+   ; 3 bytes per call site, minus 4 bytes replicated here, and 4 call sites.
+   ; SAVING: 8 bytes
+   .ENDIF
    ld     (hl), d                      ; 00:311A - 72
    dec    hl                           ; 00:311B - 2B
    ld     (hl), e                      ; 00:311C - 73
