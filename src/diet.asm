@@ -2183,6 +2183,7 @@ addr_00863:
    sub    $1C                          ; 00:0867 - D6 1C
 
 addr_00869:
+   .IF 0
    add    a, a                         ; 00:0869 - 87
    add    a, a                         ; 00:086A - 87
    add    a, a                         ; 00:086B - 87
@@ -2193,6 +2194,16 @@ addr_00869:
    add    a, a                         ; 00:0872 - 87
    rl     b                            ; 00:0873 - CB 10
    ld     c, a                         ; 00:0875 - 4F
+   .ELSE
+   rrca
+   rrca
+   ld b, a
+   and $C0
+   ld c, a
+   xor b
+   ld b, a
+   ; SAVING: 5 bytes
+   .ENDIF
    ld     a, (g_vdp_scroll_x)          ; 00:0876 - 3A 51 D2
    add    a, $08                       ; 00:0879 - C6 08
    and    $F8                          ; 00:087B - E6 F8
