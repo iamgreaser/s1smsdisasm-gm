@@ -7140,12 +7140,21 @@ draw_level_timer:
    inc    hl                           ; 00:2F2E - 23
    ld     a, (g_time_secs_BCD)         ; 00:2F2F - 3A CF D2
    ld     c, a                         ; 00:2F32 - 4F
+   .IF 0
    srl    a                            ; 00:2F33 - CB 3F
    srl    a                            ; 00:2F35 - CB 3F
    srl    a                            ; 00:2F37 - CB 3F
    srl    a                            ; 00:2F39 - CB 3F
    add    a, a                         ; 00:2F3B - 87
    add    a, $80                       ; 00:2F3C - C6 80
+   .ELSE
+   and $F0  ; 2F33 2
+   rrca     ; 2F35 1
+   rrca     ; 2F36 1
+   scf      ; 2F37 1
+   rra      ; 2F38 1
+   ; 2F3E -> 2F39 - SAVING: 5 bytes
+   .ENDIF
    ld     (hl), a                      ; 00:2F3E - 77
    inc    hl                           ; 00:2F3F - 23
    ld     a, c                         ; 00:2F40 - 79
