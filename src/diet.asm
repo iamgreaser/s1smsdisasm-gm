@@ -730,9 +730,9 @@ reset_init:
    ld     (rompage_2), a               ; 00:029C - 32 FF FF
 .ELSE
    ld hl, rompage_cfg ; 028B 3
-   ld (hl), a         ; 028E 1
-   inc hl             ; 028F 1
-   xor a              ; 0290 1
+   xor a              ; 028E 1
+   ld (hl), a         ; 028F 1
+   inc hl             ; 0290 1
    ld (hl), a         ; 0291 1
    inc hl             ; 0292 1
    inc a              ; 0293 1
