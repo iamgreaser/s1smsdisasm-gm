@@ -4891,8 +4891,13 @@ addr_01ACA:
    ld     (var_D2BF), a                ; 00:1AEF - 32 BF D2
    ld     a, $FF                       ; 00:1AF2 - 3E FF
    ld     (var_D2C0), a                ; 00:1AF4 - 32 C0 D2
+   .IF 0
    ld     c, $38                       ; 00:1AF7 - 0E 38
    ld     b, $9F                       ; 00:1AF9 - 06 9F
+   .ELSE
+   ld bc, $9F38
+   ; SAVING: 1 byte
+   .ENDIF
    ld     a, (g_level)                 ; 00:1AFB - 3A 3E D2
    cp     $13                          ; 00:1AFE - FE 13
    jr     nz, addr_01B06               ; 00:1B00 - 20 04
