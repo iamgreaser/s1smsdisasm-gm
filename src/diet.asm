@@ -2290,6 +2290,10 @@ addr_008D0:
    jp     addr_0083C                   ; 00:08D2 - C3 3C 08
 
 addr_008D5:
+.IF 0
+   ;;
+   ;; Original code
+   ;;
    ld     a, (var_D238)                ; 00:08D5 - 3A 38 D2
    rlca                                ; 00:08D8 - 07
    jr     c, addr_008E7                ; 00:08D9 - 38 0C
@@ -2383,6 +2387,36 @@ addr_00957:
    ld     hl, var_C000                 ; 00:0961 - 21 00 C0
    add    hl, de                       ; 00:0964 - 19
    ret                                 ; 00:0965 - C9
+
+.ELSE
+   ;;
+   ;; New code
+   ;;
+   ld hl, var_D258
+   ld a, (hl)
+   add a, b
+   ld d, a
+   ld a, (var_D238)
+   and a
+   jr z, +
+   ld e, a
+   xor a
+   -:
+      srl d
+      rra
+      rlc e
+      jp nc, -
+   +:
+   add a, c
+   dec l  ; HL = var_D257
+   add a, (hl)
+   ld e, a
+   ld hl, var_C000
+   add hl, de
+   ret
+   ; 1072 -> 1186
+   ; SAVING: 114 bytes
+.ENDIF
 
 addr_00966:
    di                                  ; 00:0966 - F3
