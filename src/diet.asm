@@ -3514,255 +3514,171 @@ PTR_level_map_11:
 .db $00                                                                             ; 00:0F83
 
 addr_00F84:
-level_map_00_CNK_00:
+level_map_00_chunks:
 .dw addr_010BD                                                                      ; 00:0F84
 .db $50, $68, $1E                                                                   ; 00:0F86
-
-level_map_00_CNK_01:
 .dw addr_010AB                                                                      ; 00:0F89
 .db $50, $68, $1E                                                                   ; 00:0F8B
-
-level_map_00_CNK_02:
 .dw addr_00F84                                                                      ; 00:0F8E
 .db $00, $00, $00                                                                   ; 00:0F90
 
 addr_00F93:
-level_map_01_CNK_00:
+level_map_01_chunks:
 .dw addr_010CF                                                                      ; 00:0F93
 .db $50, $60, $1E                                                                   ; 00:0F95
-
-level_map_01_CNK_01:
 .dw addr_010AB                                                                      ; 00:0F98
 .db $50, $60, $1E                                                                   ; 00:0F9A
-
-level_map_01_CNK_02:
 .dw addr_00F93                                                                      ; 00:0F9D
 .db $00, $00, $00                                                                   ; 00:0F9F
 
 addr_00FA2:
-level_map_03_CNK_00:
+level_map_03_chunks:
 .dw addr_010E1                                                                      ; 00:0FA2
 .db $60, $60, $1E                                                                   ; 00:0FA4
-
-level_map_03_CNK_01:
 .dw addr_010AB                                                                      ; 00:0FA7
 .db $60, $60, $1E                                                                   ; 00:0FA9
-
-level_map_03_CNK_02:
 .dw addr_00FA2                                                                      ; 00:0FAC
 .db $00, $00, $00                                                                   ; 00:0FAE
 
 addr_00FB1:
-level_map_04_CNK_00:
+level_map_04_chunks:
 .dw addr_010F3                                                                      ; 00:0FB1
 .db $80, $50, $1E                                                                   ; 00:0FB3
-
-level_map_04_CNK_01:
 .dw addr_010AB                                                                      ; 00:0FB6
 .db $80, $50, $1E                                                                   ; 00:0FB8
-
-level_map_04_CNK_02:
 .dw addr_00FB1                                                                      ; 00:0FBB
 .db $00, $00, $00                                                                   ; 00:0FBD
 
 addr_00FC0:
-level_map_06_CNK_00:
+level_map_06_chunks:
 .dw addr_01105                                                                      ; 00:0FC0
 .db $70, $48, $1E                                                                   ; 00:0FC2
-
-level_map_06_CNK_01:
 .dw addr_010AB                                                                      ; 00:0FC5
 .db $70, $48, $1E                                                                   ; 00:0FC7
-
-level_map_06_CNK_02:
 .dw addr_00FC0                                                                      ; 00:0FCA
 .db $00, $00, $00                                                                   ; 00:0FCC
 
 addr_00FCF:
-level_map_07_CNK_00:
+level_map_07_chunks:
 .dw addr_01117                                                                      ; 00:0FCF
 .db $70, $38, $1E                                                                   ; 00:0FD1
-
-level_map_07_CNK_01:
 .dw addr_010AB                                                                      ; 00:0FD4
 .db $70, $38, $1E                                                                   ; 00:0FD6
-
-level_map_07_CNK_02:
 .dw addr_00FCF                                                                      ; 00:0FD9
 .db $00, $00, $00                                                                   ; 00:0FDB
 
 addr_00FDE:
-level_map_02_CNK_00:
+level_map_02_chunks:
 .dw addr_01183                                                                      ; 00:0FDE
 .db $58, $58, $08                                                                   ; 00:0FE0
-
-level_map_02_CNK_01:
 .dw addr_01183                                                                      ; 00:0FE3
 .db $58, $58, $08                                                                   ; 00:0FE5
-
-level_map_02_CNK_02:
 .dw addr_01183                                                                      ; 00:0FE8
 .db $58, $56, $08                                                                   ; 00:0FEA
-
-level_map_02_CNK_03:
 .dw addr_01183                                                                      ; 00:0FED
 .db $58, $56, $08                                                                   ; 00:0FEF
-
-level_map_02_CNK_04:
 .dw addr_01183                                                                      ; 00:0FF2
 .db $58, $55, $08                                                                   ; 00:0FF4
-
-level_map_02_CNK_05:
 .dw addr_01183                                                                      ; 00:0FF7
 .db $58, $55, $08                                                                   ; 00:0FF9
-
-level_map_02_CNK_06:
 .dw addr_01183                                                                      ; 00:0FFC
 .db $58, $56, $08                                                                   ; 00:0FFE
-
-level_map_02_CNK_07:
 .dw addr_01183                                                                      ; 00:1001
 .db $58, $56, $08                                                                   ; 00:1003
-
-level_map_02_CNK_08:
 .dw addr_00FDE                                                                      ; 00:1006
 .db $00, $00, $00                                                                   ; 00:1008
 
 addr_0100B:
-level_map_09_CNK_00:
+level_map_09_chunks:
 .dw addr_01195                                                                      ; 00:100B
 .db $58, $68, $1E                                                                   ; 00:100D
-
-level_map_09_CNK_01:
 .dw addr_010AB                                                                      ; 00:1010
 .db $58, $68, $1E                                                                   ; 00:1012
-
-level_map_09_CNK_02:
 .dw addr_0100B                                                                      ; 00:1015
 .db $00, $00, $00                                                                   ; 00:1017
 
 addr_0101A:
-level_map_0A_CNK_00:
+level_map_0A_chunks:
 .dw addr_011A7                                                                      ; 00:101A
 .db $68, $78, $1E                                                                   ; 00:101C
-
-level_map_0A_CNK_01:
 .dw addr_010AB                                                                      ; 00:101F
 .db $68, $78, $1E                                                                   ; 00:1021
-
-level_map_0A_CNK_02:
 .dw addr_0101A                                                                      ; 00:1024
 .db $00, $00, $00                                                                   ; 00:1026
 
 addr_01029:
-level_map_0C_CNK_00:
+level_map_0C_chunks:
 .dw addr_011B9                                                                      ; 00:1029
 .db $70, $58, $1E                                                                   ; 00:102B
-
-level_map_0C_CNK_01:
 .dw addr_010AB                                                                      ; 00:102E
 .db $70, $58, $1E                                                                   ; 00:1030
-
-level_map_0C_CNK_02:
 .dw addr_01029                                                                      ; 00:1033
 .db $00, $00, $00                                                                   ; 00:1035
 
 addr_01038:
-level_map_0D_CNK_00:
+level_map_0D_chunks:
 .dw addr_011CB                                                                      ; 00:1038
 .db $78, $48, $1E                                                                   ; 00:103A
-
-level_map_0D_CNK_01:
 .dw addr_010AB                                                                      ; 00:103D
 .db $78, $48, $1E                                                                   ; 00:103F
-
-level_map_0D_CNK_02:
 .dw addr_01038                                                                      ; 00:1042
 .db $00, $00, $00                                                                   ; 00:1044
 
 addr_01047:
-level_map_0F_CNK_00:
+level_map_0F_chunks:
 .dw addr_011DD                                                                      ; 00:1047
 .db $68, $28, $1E                                                                   ; 00:1049
-
-level_map_0F_CNK_01:
 .dw addr_010AB                                                                      ; 00:104C
 .db $68, $28, $1E                                                                   ; 00:104E
-
-level_map_0F_CNK_02:
 .dw addr_01047                                                                      ; 00:1051
 .db $00, $00, $00                                                                   ; 00:1053
 
 addr_01056:
-level_map_10_CNK_00:
+level_map_10_chunks:
 .dw addr_011EF                                                                      ; 00:1056
 .db $80, $28, $1E                                                                   ; 00:1058
-
-level_map_10_CNK_01:
 .dw addr_011EF                                                                      ; 00:105B
 .db $80, $26, $08                                                                   ; 00:105D
-
-level_map_10_CNK_02:
 .dw addr_011EF                                                                      ; 00:1060
 .db $80, $26, $08                                                                   ; 00:1062
-
-level_map_10_CNK_03:
 .dw addr_011EF                                                                      ; 00:1065
 .db $80, $25, $08                                                                   ; 00:1067
-
-level_map_10_CNK_04:
 .dw addr_011EF                                                                      ; 00:106A
 .db $80, $25, $08                                                                   ; 00:106C
-
-level_map_10_CNK_05:
 .dw addr_011EF                                                                      ; 00:106F
 .db $80, $26, $08                                                                   ; 00:1071
-
-level_map_10_CNK_06:
 .dw addr_011EF                                                                      ; 00:1074
 .db $80, $26, $08                                                                   ; 00:1076
-
-level_map_10_CNK_07:
 .dw addr_01056                                                                      ; 00:1079
 .db $00, $00, $00                                                                   ; 00:107B
 
 addr_0107E:
-level_map_05_CNK_00:
+level_map_05_chunks:
 .dw addr_01183                                                                      ; 00:107E
 .db $80, $48, $08                                                                   ; 00:1080
-
-level_map_05_CNK_01:
 .dw addr_0107E                                                                      ; 00:1083
 .db $00, $00, $00                                                                   ; 00:1085
 
 addr_01088:
-level_map_08_CNK_00:
+level_map_08_chunks:
 .dw addr_01183                                                                      ; 00:1088
 .db $78, $30, $08                                                                   ; 00:108A
-
-level_map_08_CNK_01:
 .dw addr_01088                                                                      ; 00:108D
 .db $00, $00, $00                                                                   ; 00:108F
 
 addr_01092:
-level_map_0B_CNK_00:
+level_map_0B_chunks:
 .dw addr_01183                                                                      ; 00:1092
 .db $70, $60, $08                                                                   ; 00:1094
-
-level_map_0B_CNK_01:
 .dw addr_01092                                                                      ; 00:1097
 .db $00, $00, $00                                                                   ; 00:1099
 
 addr_0109C:
-level_map_0E_CNK_00:
+level_map_0E_chunks:
 .dw addr_01129                                                                      ; 00:109C
 .db $68, $40, $08                                                                   ; 00:109E
-
-level_map_0E_CNK_01:
 .dw addr_0113B                                                                      ; 00:10A1
 .db $68, $40, $08                                                                   ; 00:10A3
-
-level_map_0E_CNK_02:
 .dw addr_0109C                                                                      ; 00:10A6
 .db $00, $00, $00                                                                   ; 00:10A8
 
@@ -3990,101 +3906,55 @@ LUT_01362:
 UNK_01372:
 .dw addr_013BD                                                                      ; 00:1372
 .db $08                                                                             ; 00:1374
-
-UNK_01375:
 .dw addr_013CF                                                                      ; 00:1375
 .db $08                                                                             ; 00:1377
-
-UNK_01378:
 .dw addr_013BD                                                                      ; 00:1378
 .db $08                                                                             ; 00:137A
-
-UNK_0137B:
 .dw addr_013CF                                                                      ; 00:137B
 .db $08                                                                             ; 00:137D
-
-UNK_0137E:
 .dw addr_013BD                                                                      ; 00:137E
 .db $08                                                                             ; 00:1380
-
-UNK_01381:
 .dw addr_013CF                                                                      ; 00:1381
 .db $08                                                                             ; 00:1383
-
-UNK_01384:
 .dw addr_013BD                                                                      ; 00:1384
 .db $08                                                                             ; 00:1386
-
-UNK_01387:
 .dw addr_013CF                                                                      ; 00:1387
 .db $08                                                                             ; 00:1389
-
-UNK_0138A:
 .dw addr_013BD                                                                      ; 00:138A
 .db $08                                                                             ; 00:138C
-
-UNK_0138D:
 .dw addr_013CF                                                                      ; 00:138D
 .db $08                                                                             ; 00:138F
-
-UNK_01390:
 .dw addr_013BD                                                                      ; 00:1390
 .db $08                                                                             ; 00:1392
-
-UNK_01393:
 .dw addr_013CF                                                                      ; 00:1393
 .db $08                                                                             ; 00:1395
-
-UNK_01396:
 .dw addr_013BD                                                                      ; 00:1396
 .db $08                                                                             ; 00:1398
-
-UNK_01399:
 .dw addr_013CF                                                                      ; 00:1399
 .db $08                                                                             ; 00:139B
-
-UNK_0139C:
 .dw addr_013BD                                                                      ; 00:139C
 .db $08                                                                             ; 00:139E
-
-UNK_0139F:
 .dw addr_013CF                                                                      ; 00:139F
 .db $08                                                                             ; 00:13A1
-
-UNK_013A2:
 .dw addr_013BD                                                                      ; 00:13A2
 .db $08                                                                             ; 00:13A4
-
-UNK_013A5:
 .dw addr_013CF                                                                      ; 00:13A5
 .db $08                                                                             ; 00:13A7
-
-UNK_013A8:
 .dw addr_013BD                                                                      ; 00:13A8
 .db $08                                                                             ; 00:13AA
-
-UNK_013AB:
 .dw addr_013CF                                                                      ; 00:13AB
 .db $08                                                                             ; 00:13AD
-
-UNK_013AE:
 .dw addr_013BD                                                                      ; 00:13AE
 .db $08                                                                             ; 00:13B0
-
-UNK_013B1:
 .dw addr_013CF                                                                      ; 00:13B1
 .db $08                                                                             ; 00:13B3
 
-UNK_013B4:
+addr_013B4:
 .dw addr_013BD                                                                      ; 00:13B4
 .db $FF                                                                             ; 00:13B6
-
-UNK_013B7:
 .dw addr_013BD                                                                      ; 00:13B7
 .db $FF                                                                             ; 00:13B9
-
-UNK_013BA:
-.dw UNK_013B4                                                                       ; 00:13BA
+.dw addr_013B4                                                                      ; 00:13BA
 .db $00                                                                             ; 00:13BC
 
 addr_013BD:
@@ -5582,19 +5452,19 @@ addr_01F97:
 LUT_01F9D:
 .db $02, $04                                                                        ; 00:1F9D
 
-LUT_01F9_elem_1F9F:
+LUT_01F9D_elem_1F9F:
 .dw addr_0645E                                                                      ; 00:1F9F
 
 LUT_01FA1:
 .db $02, $04                                                                        ; 00:1FA1
 
-LUT_01F9_elem_1FA3:
+LUT_01FA1_elem_1FA3:
 .dw addr_0649E                                                                      ; 00:1FA3
 
 LUT_01FA5:
 .db $02, $04                                                                        ; 00:1FA5
 
-LUT_01F9_elem_1FA7:
+LUT_01FA5_elem_1FA7:
 .dw addr_064DE                                                                      ; 00:1FA7
 
 update_signpost_timer:
@@ -6808,125 +6678,75 @@ credits_sprite_ptrs:
 credits_sprite_00:
 .db $96                                                                             ; 00:2848
 
-credits_sprite_00_PTR_01:
+credits_sprite_00_ptrs:
 .dw addr_02902                                                                      ; 00:2849
 .db $86                                                                             ; 00:284B
-
-credits_sprite_00_PTR_02:
 .dw addr_0289F                                                                      ; 00:284C
 .db $E9                                                                             ; 00:284E
-
-credits_sprite_00_PTR_03:
 .dw addr_02902                                                                      ; 00:284F
 .db $6F                                                                             ; 00:2851
-
-credits_sprite_00_PTR_04:
 .dw addr_0289F                                                                      ; 00:2852
 .db $FF                                                                             ; 00:2854
-
-credits_sprite_00_JMP_05:
 .dw credits_sprite_00                                                               ; 00:2855
 
 credits_sprite_01:
 .db $36                                                                             ; 00:2857
 
-credits_sprite_01_PTR_01:
+credits_sprite_01_ptrs:
 .dw addr_028B1                                                                      ; 00:2858
 .db $48                                                                             ; 00:285A
-
-credits_sprite_01_PTR_02:
 .dw addr_028BA                                                                      ; 00:285B
 .db $54                                                                             ; 00:285D
-
-credits_sprite_01_PTR_03:
 .dw addr_028A8                                                                      ; 00:285E
 .db $1E                                                                             ; 00:2860
-
-credits_sprite_01_PTR_04:
 .dw addr_028B1                                                                      ; 00:2861
 .db $44                                                                             ; 00:2863
-
-credits_sprite_01_PTR_05:
 .dw addr_028BA                                                                      ; 00:2864
 .db $FF                                                                             ; 00:2866
-
-credits_sprite_01_JMP_06:
 .dw credits_sprite_01                                                               ; 00:2867
 
 credits_sprite_02:
 .db $23                                                                             ; 00:2869
 
-credits_sprite_02_PTR_01:
+credits_sprite_02_ptrs:
 .dw addr_028C3                                                                      ; 00:286A
 .db $23                                                                             ; 00:286C
-
-credits_sprite_02_PTR_02:
 .dw addr_028CC                                                                      ; 00:286D
 .db $FF                                                                             ; 00:286F
-
-credits_sprite_02_JMP_03:
 .dw credits_sprite_02                                                               ; 00:2870
 
 credits_sprite_03:
 .db $E4                                                                             ; 00:2872
 
-credits_sprite_03_PTR_01:
+credits_sprite_03_ptrs:
 .dw addr_028F3                                                                      ; 00:2873
 .db $19                                                                             ; 00:2875
-
-credits_sprite_03_PTR_02:
 .dw addr_028E4                                                                      ; 00:2876
 .db $19                                                                             ; 00:2878
-
-credits_sprite_03_PTR_03:
 .dw addr_028D5                                                                      ; 00:2879
 .db $19                                                                             ; 00:287B
-
-credits_sprite_03_PTR_04:
 .dw addr_028E4                                                                      ; 00:287C
 .db $19                                                                             ; 00:287E
-
-credits_sprite_03_PTR_05:
 .dw addr_028D5                                                                      ; 00:287F
 .db $FA                                                                             ; 00:2881
-
-credits_sprite_03_PTR_06:
 .dw addr_028F3                                                                      ; 00:2882
 .db $85                                                                             ; 00:2884
-
-credits_sprite_03_PTR_07:
 .dw addr_028E4                                                                      ; 00:2885
 .db $E8                                                                             ; 00:2887
-
-credits_sprite_03_PTR_08:
 .dw addr_028F3                                                                      ; 00:2888
 .db $19                                                                             ; 00:288A
-
-credits_sprite_03_PTR_09:
 .dw addr_028E4                                                                      ; 00:288B
 .db $19                                                                             ; 00:288D
-
-credits_sprite_03_PTR_0A:
 .dw addr_028D5                                                                      ; 00:288E
 .db $19                                                                             ; 00:2890
-
-credits_sprite_03_PTR_0B:
 .dw addr_028E4                                                                      ; 00:2891
 .db $19                                                                             ; 00:2893
-
-credits_sprite_03_PTR_0C:
 .dw addr_028D5                                                                      ; 00:2894
 .db $19                                                                             ; 00:2896
-
-credits_sprite_03_PTR_0D:
 .dw addr_028E4                                                                      ; 00:2897
 .db $19                                                                             ; 00:2899
-
-credits_sprite_03_PTR_0E:
 .dw addr_028D5                                                                      ; 00:289A
 .db $FF                                                                             ; 00:289C
-
-credits_sprite_03_JMP_0F:
 .dw credits_sprite_03                                                               ; 00:289D
 
 addr_0289F:
@@ -14980,24 +14800,14 @@ addr_07BF8:
 PTRTAB_UNK_07C17:
 .dw addr_07C29                                                                      ; 01:7C17
 .db $1C                                                                             ; 01:7C19
-
-UNK_07C17_PTR_01:
 .dw addr_07C31                                                                      ; 01:7C1A
 .db $1C                                                                             ; 01:7C1C
-
-UNK_07C17_PTR_02:
 .dw addr_07C39                                                                      ; 01:7C1D
 .db $1C                                                                             ; 01:7C1F
-
-UNK_07C17_PTR_03:
 .dw addr_07C29                                                                      ; 01:7C20
 .db $1D                                                                             ; 01:7C22
-
-UNK_07C17_PTR_04:
 .dw addr_07C31                                                                      ; 01:7C23
 .db $1D                                                                             ; 01:7C25
-
-UNK_07C17_PTR_05:
 .dw addr_07C39                                                                      ; 01:7C26
 .db $1D                                                                             ; 01:7C28
 
@@ -20138,7 +19948,7 @@ addr_0AEF9:
    ld     hl, $1212                    ; 02:AF01 - 21 12 12
    ld     (var_D214), hl               ; 02:AF04 - 22 14 D2
    call   UNK_03956                    ; 02:AF07 - CD 56 39
-   ld     hl, level_map_09_CNK_01      ; 02:AF0A - 21 10 10
+   ld     hl, $1010                    ; 02:AF0A - 21 10 10
    ld     (g_FF_string_high_byte), hl  ; 02:AF0D - 22 0E D2
    call   nc, UNK_035E5                ; 02:AF10 - D4 E5 35
    ld     l, (ix+2)                    ; 02:AF13 - DD 6E 02
@@ -21374,15 +21184,11 @@ UNUSED_0BA1B:
 UNK_0BA1C:
 .db $00, $00                                                                        ; 02:BA1C
 
-UNK_0BA1C_PTR_01:
+UNK_0BA1C_PTR:
 .dw UNK_0BAF9                                                                       ; 02:BA1E
 .db $00, $02                                                                        ; 02:BA20
-
-UNK_0BA1C_PTR_02:
 .dw addr_0BB0B                                                                      ; 02:BA22
 .db $00, $07                                                                        ; 02:BA24
-
-UNK_0BA1C_PTR_03:
 .dw addr_0BB0B                                                                      ; 02:BA26
 
 UNK_0BA28:
