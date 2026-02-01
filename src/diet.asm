@@ -4775,8 +4775,13 @@ addr_01A18:
    call   addr_01B13                   ; 00:1A2A - CD 13 1B
    ex     de, hl                       ; 00:1A2D - EB
    ld     hl, (var_D23C)               ; 00:1A2E - 2A 3C D2
+   .IF 0
    ld     c, $88                       ; 00:1A31 - 0E 88
    ld     b, $50                       ; 00:1A33 - 06 50
+   .ELSE
+   ld bc, $5088
+   ; SAVING: 1 byte
+   .ENDIF
    call   draw_sprite_text             ; 00:1A35 - CD CC 35
    ld     (var_D23C), hl               ; 00:1A38 - 22 3C D2
    ld     hl, g_rings_BCD              ; 00:1A3B - 21 AA D2
@@ -4785,8 +4790,13 @@ addr_01A18:
    call   addr_01B13                   ; 00:1A43 - CD 13 1B
    ex     de, hl                       ; 00:1A46 - EB
    ld     hl, (var_D23C)               ; 00:1A47 - 2A 3C D2
+   .IF 0
    ld     c, $98                       ; 00:1A4A - 0E 98
    ld     b, $80                       ; 00:1A4C - 06 80
+   .ELSE
+   ld bc, $8098
+   ; SAVING: 1 byte
+   .ENDIF
    ld     a, (g_level)                 ; 00:1A4E - 3A 3E D2
    cp     $1C                          ; 00:1A51 - FE 1C
    jr     c, addr_01A57                ; 00:1A53 - 38 02
@@ -4828,8 +4838,13 @@ addr_01A80:
    call   addr_01B13                   ; 00:1A9E - CD 13 1B
    ex     de, hl                       ; 00:1AA1 - EB
    ld     hl, (var_D23C)               ; 00:1AA2 - 2A 3C D2
+   .IF 0
    ld     c, $88                       ; 00:1AA5 - 0E 88
    ld     b, $68                       ; 00:1AA7 - 06 68
+   .ELSE
+   ld bc, $6888
+   ; SAVING: 1 byte
+   .ENDIF
    call   draw_sprite_text             ; 00:1AA9 - CD CC 35
    ld     (var_D23C), hl               ; 00:1AAC - 22 3C D2
    ret                                 ; 00:1AAF - C9
@@ -4841,8 +4856,13 @@ addr_01AB0:
    call   addr_01B13                   ; 00:1AB8 - CD 13 1B
    ex     de, hl                       ; 00:1ABB - EB
    ld     hl, (var_D23C)               ; 00:1ABC - 2A 3C D2
+   .IF 0
    ld     c, $A8                       ; 00:1ABF - 0E A8
    ld     b, $80                       ; 00:1AC1 - 06 80
+   .ELSE
+   ld bc, $80A8
+   ; SAVING: 1 byte
+   .ENDIF
    call   draw_sprite_text             ; 00:1AC3 - CD CC 35
    ld     (var_D23C), hl               ; 00:1AC6 - 22 3C D2
    ret                                 ; 00:1AC9 - C9
@@ -4876,8 +4896,13 @@ addr_01ACA:
    ld     a, (g_level)                 ; 00:1AFB - 3A 3E D2
    cp     $13                          ; 00:1AFE - FE 13
    jr     nz, addr_01B06               ; 00:1B00 - 20 04
+   .IF 0
    ld     b, $60                       ; 00:1B02 - 06 60
    ld     c, $90                       ; 00:1B04 - 0E 90
+   .ELSE
+   ld bc, $6090
+   ; SAVING: 1 byte
+   .ENDIF
 
 addr_01B06:
    ld     hl, (var_D23C)               ; 00:1B06 - 2A 3C D2
@@ -4911,6 +4936,7 @@ addr_01B13:
 
 addr_01B33:
    ld     a, (hl)                      ; 00:1B33 - 7E
+   .IF 0
    rrca                                ; 00:1B34 - 0F
    rrca                                ; 00:1B35 - 0F
    rrca                                ; 00:1B36 - 0F
@@ -4918,6 +4944,14 @@ addr_01B33:
    and    $0F                          ; 00:1B38 - E6 0F
    add    a, a                         ; 00:1B3A - 87
    add    a, $80                       ; 00:1B3B - C6 80
+   .ELSE
+   rrca
+   rrca
+   scf
+   rra
+   and $9E
+   ; SAVING: 3 bytes
+   .ENDIF
    ld     (de), a                      ; 00:1B3D - 12
    inc    de                           ; 00:1B3E - 13
 
