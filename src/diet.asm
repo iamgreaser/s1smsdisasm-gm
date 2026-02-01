@@ -8364,7 +8364,13 @@ addr_036BE:
    call   addr_039D8                   ; 00:36F5 - CD D8 39
    ret                                 ; 00:36F8 - C9
 
+;; This function gets called roughly 2 times per on-screen objfunc, except a not-dead Sonic calls this 4 times.
 addr_036F9:
+.IF 0
+;;
+;; Original code
+;; This is a long one.
+;;
    ld     a, (var_D238)                ; 00:36F9 - 3A 38 D2
    cp     $80                          ; 00:36FC - FE 80
    jr     z, addr_0370F                ; 00:36FE - 28 0F
@@ -8513,6 +8519,54 @@ addr_037B3:
    ld     de, var_C000                 ; 00:37DB - 11 00 C0
    add    hl, de                       ; 00:37DE - 19
    ret                                 ; 00:37DF - C9
+.ELSE
+;;
+;; New code
+;; Use power of two calculation.
+;;
+   ld l, (ix+5)
+   ld h, (ix+6)
+   add hl, de
+   ld a, l
+   srl h
+   rra
+   and $F0
+   ld l, a
+   ld a, (var_D238)
+   cp $10
+   jr z, +
+   inc a  ; Bottom bit untouched. Ensure this is set.
+   ;; Resulting values:
+   ;; $100 -> $01
+   ;; $080 -> $81
+   ;; $040 -> $41
+   ;; $020 -> $21
+   ;; $010 -> $11 (but we skip this particular case)
+   -:
+      add hl, hl
+      rrca
+      bit 4, a
+      jp z, -
+   +:
+   ex de, hl
+   ld l, (ix+2)
+   ld h, (ix+3)
+   add hl, bc
+   ld a, l
+   add a, a
+   rl h
+   add a, a
+   rl h
+   add a, a
+   rl h
+   ld a, h
+   add a, <var_C000
+   ld l, a
+   ld h, >var_C000
+   adc hl, de
+   ret
+; SAVING: 175 bytes
+.ENDIF
 
 addr_037E0:
    ld     de, (var_D28F)               ; 00:37E0 - ED 5B 8F D2
