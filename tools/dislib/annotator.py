@@ -117,6 +117,22 @@ class Annotator:
         for addr in range(phys_start, phys_end, 1):
             self.rom.bank_overrides[slot_idx][PhysAddress(addr)] = bank_idx
 
+    def _annotcmd_binexport(self, addr_str: str, len_str: str, fname: str) -> None:
+        assert len(len_str) == 5
+        length = int(len_str, 16)
+        addr = parse_addr(addr_str)
+        assert "\\" not in fname  # We only use forward slashes here.
+        phys_addr = self.rom.virt_to_phys(addr)
+        blob = self.rom.data[phys_addr : phys_addr + length]
+        assert len(blob) == length
+        assert phys_addr not in self.rom.binexports
+        self.rom.binexports[phys_addr] = (length, fname)
+        for offs in range(phys_addr, phys_addr + length, 1):
+            self.rom.set_addr_type(PhysAddress(offs), AT.File)
+        print(f"bin ${phys_addr:05X} len ${length:05X} {length:6d} file {fname!r}")
+        with open(fname, "wb") as outfp:
+            outfp.write(blob)
+
     def annot_set_addr_type(
         self, virt_addr: VirtAddress, ltype: AT, ltype_str: str
     ) -> None:
@@ -140,8 +156,9 @@ class Annotator:
         "arraylabel": _annotcmd_arraylabel,
         "splitaddr": _annotcmd_splitaddr,
         "forceimm": _annotcmd_forceimm,
-        "banksetting": _annotcmd_banksetting,
         "bankslot": _annotcmd_bankslot,
+        "banksetting": _annotcmd_banksetting,
+        "binexport": _annotcmd_binexport,
     }
 
 

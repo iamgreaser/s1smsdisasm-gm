@@ -243,7 +243,12 @@ class Saver:
 
                 offs += 2
 
-            elif ltype in {AT.DataByte, AT.DataByteLabelLo, AT.DataByteLabelHi}:
+            elif ltype in {
+                AT.DataByte,
+                AT.DataByteLabelLo,
+                AT.DataByteLabelHi,
+                AT.File,
+            }:
                 if offs != prev_subregion_offs and ltype != prev_subregion_type:
                     self.save_subregion(
                         bank_idx=bank_idx,
@@ -285,6 +290,29 @@ class Saver:
                 self.write(
                     f".db {row}  ; {virt_addr[0]:02X}:{virt_addr[1]+row_addr:04X}\n"
                 )
+
+        elif atype == AT.File:
+            # Find start of file
+            phys_addr = self.rom.virt_to_phys(virt_addr)
+            blob_offs = 0
+            while True:
+                key = PhysAddress(phys_addr - blob_offs)
+                assert key >= 0
+                if key in self.rom.binexports:
+                    file_len, file_name = self.rom.binexports[key]
+                    break
+                blob_offs -= 1
+
+            blob_len = file_len - blob_offs
+            assert len(data) <= blob_len
+            args: list[str] = []
+            file_name = file_name.replace("\\", "\\\\").replace('"', '\\"')
+            args.append(f'.INCBIN "{file_name}"')
+            if blob_offs != 0:
+                args.append(f"SKIP ${blob_offs:05X}")
+            if blob_len != len(data):
+                args.append(f"READ ${len(data):05X}")
+            self.write(" ".join(args) + "\n")
 
         elif atype in {AT.DataWord, AT.DataWordLabel}:
             for row_idx in range((len(data) + 16 - 1) // 16):

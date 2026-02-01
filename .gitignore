@@ -7,6 +7,7 @@
 
 # Generated source files
 /src/whole.asm
+/src/data/
 
 # Python garbage
 __pycache__/

@@ -32,6 +32,7 @@ class Rom:
         self.tracer_stack: list[VirtAddress] = []
         self.op_decodes: dict[PhysAddress, tuple[VirtAddress, int, str]] = {}
         self.forced_immediates: set[PhysAddress] = set()
+        self.binexports: dict[PhysAddress, tuple[int, str]] = {}
 
         # Never ever do this unless you like really annoying really subtle Python-esque bugs!
         # self.bank_overrides: list[dict[PhysAddress, int]] = [{}] * 4
@@ -64,6 +65,9 @@ class Rom:
             elif other_type == AT.DataByte and addr_type == AT.DataWord:
                 # Block upsize
                 pass
+            elif other_type == AT.File or addr_type == AT.File:
+                # A file is a file is a file
+                self.addr_types[phys_addr] = AT.File
             elif (
                 other_type in {AT.DataByteLabelLo, AT.DataByteLabelHi}
                 and addr_type == AT.DataByte

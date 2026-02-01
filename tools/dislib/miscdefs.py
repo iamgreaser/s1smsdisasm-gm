@@ -20,6 +20,8 @@ class AT(enum.Enum):
     DataByteRelLabel = enum.auto()
     DataWordLabel = enum.auto()
 
+    File = enum.auto()
+
 
 LTYPEMAP = {
     "byte": AT.DataByte,
