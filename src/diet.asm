@@ -4711,6 +4711,9 @@ bonus_to_score_BCD_UNCONFIRMED:
    or     d                            ; 00:19E8 - B2
    or     e                            ; 00:19E9 - B3
    ret    z                            ; 00:19EA - C8
+
+   .IF 0
+   ;; Original code
    ld     b, $03                       ; 00:19EB - 06 03
    ld     hl, var_D214                 ; 00:19ED - 21 14 D2
    scf                                 ; 00:19F0 - 37
@@ -4740,6 +4743,23 @@ addr_01A06:
    ld     de, $0100                    ; 00:1A0B - 11 00 01
    ld     c, $00                       ; 00:1A0E - 0E 00
    call   addr_039D8                   ; 00:1A10 - CD D8 39
+
+   .ELSE
+   ;; New code
+   ld bc, $0300
+   ld hl, var_D214
+   ld de, $0100
+   scf
+   -:
+      ld a, (hl)
+      sbc a, c
+      daa
+      ld (hl), a
+      dec hl
+      djnz -
+   call addr_039D8
+   .ENDIF
+
    ret                                 ; 00:1A13 - C9
 
 LUT_01A14_allzero:
