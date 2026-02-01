@@ -3444,132 +3444,91 @@ LUT_00F2E:
 .db $2B, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $07, $2D, $00, $3F  ; 00:0F3E
 
 LUT_level_map_info:
-.dw addr_00F84                                                                      ; 00:0F4E
+.dw level_map_00_chunks                                                             ; 00:0F4E
 .db $00                                                                             ; 00:0F50
-
-PTR_level_map_01:
-.dw addr_00F93                                                                      ; 00:0F51
+.dw level_map_01_chunks                                                             ; 00:0F51
 .db $00                                                                             ; 00:0F53
-
-PTR_level_map_02:
-.dw addr_00FDE                                                                      ; 00:0F54
+.dw level_map_02_chunks                                                             ; 00:0F54
 .db $01                                                                             ; 00:0F56
-
-PTR_level_map_03:
-.dw addr_00FA2                                                                      ; 00:0F57
+.dw level_map_03_chunks                                                             ; 00:0F57
 .db $00                                                                             ; 00:0F59
-
-PTR_level_map_04:
-.dw addr_00FB1                                                                      ; 00:0F5A
+.dw level_map_04_chunks                                                             ; 00:0F5A
 .db $00                                                                             ; 00:0F5C
-
-PTR_level_map_05:
-.dw addr_0107E                                                                      ; 00:0F5D
+.dw level_map_05_chunks                                                             ; 00:0F5D
 .db $02                                                                             ; 00:0F5F
-
-PTR_level_map_06:
-.dw addr_00FC0                                                                      ; 00:0F60
+.dw level_map_06_chunks                                                             ; 00:0F60
 .db $00                                                                             ; 00:0F62
-
-PTR_level_map_07:
-.dw addr_00FCF                                                                      ; 00:0F63
+.dw level_map_07_chunks                                                             ; 00:0F63
 .db $00                                                                             ; 00:0F65
-
-PTR_level_map_08:
-.dw addr_01088                                                                      ; 00:0F66
+.dw level_map_08_chunks                                                             ; 00:0F66
 .db $03                                                                             ; 00:0F68
-
-PTR_level_map_09:
-.dw addr_0100B                                                                      ; 00:0F69
+.dw level_map_09_chunks                                                             ; 00:0F69
 .db $00                                                                             ; 00:0F6B
-
-PTR_level_map_0A:
-.dw addr_0101A                                                                      ; 00:0F6C
+.dw level_map_0A_chunks                                                             ; 00:0F6C
 .db $00                                                                             ; 00:0F6E
-
-PTR_level_map_0B:
-.dw addr_01092                                                                      ; 00:0F6F
+.dw level_map_0B_chunks                                                             ; 00:0F6F
 .db $00                                                                             ; 00:0F71
-
-PTR_level_map_0C:
-.dw addr_01029                                                                      ; 00:0F72
+.dw level_map_0C_chunks                                                             ; 00:0F72
 .db $00                                                                             ; 00:0F74
-
-PTR_level_map_0D:
-.dw addr_01038                                                                      ; 00:0F75
+.dw level_map_0D_chunks                                                             ; 00:0F75
 .db $00                                                                             ; 00:0F77
-
-PTR_level_map_0E:
-.dw addr_0109C                                                                      ; 00:0F78
+.dw level_map_0E_chunks                                                             ; 00:0F78
 .db $00                                                                             ; 00:0F7A
-
-PTR_level_map_0F:
-.dw addr_01047                                                                      ; 00:0F7B
+.dw level_map_0F_chunks                                                             ; 00:0F7B
 .db $00                                                                             ; 00:0F7D
-
-PTR_level_map_10:
-.dw addr_01056                                                                      ; 00:0F7E
+.dw level_map_10_chunks                                                             ; 00:0F7E
 .db $00                                                                             ; 00:0F80
-
-PTR_level_map_11:
-.dw addr_01056                                                                      ; 00:0F81
+.dw level_map_10_chunks                                                             ; 00:0F81
 .db $00                                                                             ; 00:0F83
 
-addr_00F84:
 level_map_00_chunks:
 .dw addr_010BD                                                                      ; 00:0F84
 .db $50, $68, $1E                                                                   ; 00:0F86
 .dw addr_010AB                                                                      ; 00:0F89
 .db $50, $68, $1E                                                                   ; 00:0F8B
-.dw addr_00F84                                                                      ; 00:0F8E
+.dw level_map_00_chunks                                                             ; 00:0F8E
 .db $00, $00, $00                                                                   ; 00:0F90
 
-addr_00F93:
 level_map_01_chunks:
 .dw addr_010CF                                                                      ; 00:0F93
 .db $50, $60, $1E                                                                   ; 00:0F95
 .dw addr_010AB                                                                      ; 00:0F98
 .db $50, $60, $1E                                                                   ; 00:0F9A
-.dw addr_00F93                                                                      ; 00:0F9D
+.dw level_map_01_chunks                                                             ; 00:0F9D
 .db $00, $00, $00                                                                   ; 00:0F9F
 
-addr_00FA2:
 level_map_03_chunks:
 .dw addr_010E1                                                                      ; 00:0FA2
 .db $60, $60, $1E                                                                   ; 00:0FA4
 .dw addr_010AB                                                                      ; 00:0FA7
 .db $60, $60, $1E                                                                   ; 00:0FA9
-.dw addr_00FA2                                                                      ; 00:0FAC
+.dw level_map_03_chunks                                                             ; 00:0FAC
 .db $00, $00, $00                                                                   ; 00:0FAE
 
-addr_00FB1:
 level_map_04_chunks:
 .dw addr_010F3                                                                      ; 00:0FB1
 .db $80, $50, $1E                                                                   ; 00:0FB3
 .dw addr_010AB                                                                      ; 00:0FB6
 .db $80, $50, $1E                                                                   ; 00:0FB8
-.dw addr_00FB1                                                                      ; 00:0FBB
+.dw level_map_04_chunks                                                             ; 00:0FBB
 .db $00, $00, $00                                                                   ; 00:0FBD
 
-addr_00FC0:
 level_map_06_chunks:
 .dw addr_01105                                                                      ; 00:0FC0
 .db $70, $48, $1E                                                                   ; 00:0FC2
 .dw addr_010AB                                                                      ; 00:0FC5
 .db $70, $48, $1E                                                                   ; 00:0FC7
-.dw addr_00FC0                                                                      ; 00:0FCA
+.dw level_map_06_chunks                                                             ; 00:0FCA
 .db $00, $00, $00                                                                   ; 00:0FCC
 
-addr_00FCF:
 level_map_07_chunks:
 .dw addr_01117                                                                      ; 00:0FCF
 .db $70, $38, $1E                                                                   ; 00:0FD1
 .dw addr_010AB                                                                      ; 00:0FD4
 .db $70, $38, $1E                                                                   ; 00:0FD6
-.dw addr_00FCF                                                                      ; 00:0FD9
+.dw level_map_07_chunks                                                             ; 00:0FD9
 .db $00, $00, $00                                                                   ; 00:0FDB
 
-addr_00FDE:
 level_map_02_chunks:
 .dw addr_01183                                                                      ; 00:0FDE
 .db $58, $58, $08                                                                   ; 00:0FE0
@@ -3587,55 +3546,49 @@ level_map_02_chunks:
 .db $58, $56, $08                                                                   ; 00:0FFE
 .dw addr_01183                                                                      ; 00:1001
 .db $58, $56, $08                                                                   ; 00:1003
-.dw addr_00FDE                                                                      ; 00:1006
+.dw level_map_02_chunks                                                             ; 00:1006
 .db $00, $00, $00                                                                   ; 00:1008
 
-addr_0100B:
 level_map_09_chunks:
 .dw addr_01195                                                                      ; 00:100B
 .db $58, $68, $1E                                                                   ; 00:100D
 .dw addr_010AB                                                                      ; 00:1010
 .db $58, $68, $1E                                                                   ; 00:1012
-.dw addr_0100B                                                                      ; 00:1015
+.dw level_map_09_chunks                                                             ; 00:1015
 .db $00, $00, $00                                                                   ; 00:1017
 
-addr_0101A:
 level_map_0A_chunks:
 .dw addr_011A7                                                                      ; 00:101A
 .db $68, $78, $1E                                                                   ; 00:101C
 .dw addr_010AB                                                                      ; 00:101F
 .db $68, $78, $1E                                                                   ; 00:1021
-.dw addr_0101A                                                                      ; 00:1024
+.dw level_map_0A_chunks                                                             ; 00:1024
 .db $00, $00, $00                                                                   ; 00:1026
 
-addr_01029:
 level_map_0C_chunks:
 .dw addr_011B9                                                                      ; 00:1029
 .db $70, $58, $1E                                                                   ; 00:102B
 .dw addr_010AB                                                                      ; 00:102E
 .db $70, $58, $1E                                                                   ; 00:1030
-.dw addr_01029                                                                      ; 00:1033
+.dw level_map_0C_chunks                                                             ; 00:1033
 .db $00, $00, $00                                                                   ; 00:1035
 
-addr_01038:
 level_map_0D_chunks:
 .dw addr_011CB                                                                      ; 00:1038
 .db $78, $48, $1E                                                                   ; 00:103A
 .dw addr_010AB                                                                      ; 00:103D
 .db $78, $48, $1E                                                                   ; 00:103F
-.dw addr_01038                                                                      ; 00:1042
+.dw level_map_0D_chunks                                                             ; 00:1042
 .db $00, $00, $00                                                                   ; 00:1044
 
-addr_01047:
 level_map_0F_chunks:
 .dw addr_011DD                                                                      ; 00:1047
 .db $68, $28, $1E                                                                   ; 00:1049
 .dw addr_010AB                                                                      ; 00:104C
 .db $68, $28, $1E                                                                   ; 00:104E
-.dw addr_01047                                                                      ; 00:1051
+.dw level_map_0F_chunks                                                             ; 00:1051
 .db $00, $00, $00                                                                   ; 00:1053
 
-addr_01056:
 level_map_10_chunks:
 .dw addr_011EF                                                                      ; 00:1056
 .db $80, $28, $1E                                                                   ; 00:1058
@@ -3651,37 +3604,33 @@ level_map_10_chunks:
 .db $80, $26, $08                                                                   ; 00:1071
 .dw addr_011EF                                                                      ; 00:1074
 .db $80, $26, $08                                                                   ; 00:1076
-.dw addr_01056                                                                      ; 00:1079
+.dw level_map_10_chunks                                                             ; 00:1079
 .db $00, $00, $00                                                                   ; 00:107B
 
-addr_0107E:
 level_map_05_chunks:
 .dw addr_01183                                                                      ; 00:107E
 .db $80, $48, $08                                                                   ; 00:1080
-.dw addr_0107E                                                                      ; 00:1083
+.dw level_map_05_chunks                                                             ; 00:1083
 .db $00, $00, $00                                                                   ; 00:1085
 
-addr_01088:
 level_map_08_chunks:
 .dw addr_01183                                                                      ; 00:1088
 .db $78, $30, $08                                                                   ; 00:108A
-.dw addr_01088                                                                      ; 00:108D
+.dw level_map_08_chunks                                                             ; 00:108D
 .db $00, $00, $00                                                                   ; 00:108F
 
-addr_01092:
 level_map_0B_chunks:
 .dw addr_01183                                                                      ; 00:1092
 .db $70, $60, $08                                                                   ; 00:1094
-.dw addr_01092                                                                      ; 00:1097
+.dw level_map_0B_chunks                                                             ; 00:1097
 .db $00, $00, $00                                                                   ; 00:1099
 
-addr_0109C:
 level_map_0E_chunks:
 .dw addr_01129                                                                      ; 00:109C
 .db $68, $40, $08                                                                   ; 00:109E
 .dw addr_0113B                                                                      ; 00:10A1
 .db $68, $40, $08                                                                   ; 00:10A3
-.dw addr_0109C                                                                      ; 00:10A6
+.dw level_map_0E_chunks                                                             ; 00:10A6
 .db $00, $00, $00                                                                   ; 00:10A8
 
 addr_010AB:
