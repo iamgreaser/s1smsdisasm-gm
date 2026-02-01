@@ -1811,6 +1811,7 @@ addr_006BD:
    call set_slot_1_2
    .ENDIF
    ei                                  ; 00:06D3 - FB
+   .IF 0
    ld     a, (var_D2D4)                ; 00:06D4 - 3A D4 D2
    add    a, a                         ; 00:06D7 - 87
    ld     c, a                         ; 00:06D8 - 4F
@@ -1821,6 +1822,9 @@ addr_006BD:
    inc    hl                           ; 00:06E0 - 23
    ld     h, (hl)                      ; 00:06E1 - 66
    ld     l, a                         ; 00:06E2 - 6F
+   .ELSE
+   call fetch_UNK_03A65
+   .ENDIF
    ld     (var_D210), hl               ; 00:06E3 - 22 10 D2
    bit    0, (iy+var_D202-IYBASE)      ; 00:06E6 - FD CB 02 46
    jp     z, addr_00772                ; 00:06EA - CA 72 07
@@ -2384,6 +2388,7 @@ addr_00987:
    ld     a, (hl)                      ; 00:098A - 7E
    exx                                 ; 00:098B - D9
    ld     e, a                         ; 00:098C - 5F
+   .IF 0
    ld     a, (var_D2D4)                ; 00:098D - 3A D4 D2
    add    a, a                         ; 00:0990 - 87
    ld     c, a                         ; 00:0991 - 4F
@@ -2394,6 +2399,9 @@ addr_00987:
    inc    hl                           ; 00:0999 - 23
    ld     h, (hl)                      ; 00:099A - 66
    ld     l, a                         ; 00:099B - 6F
+   .ELSE
+   call fetch_UNK_03A65
+   .ENDIF
    ld     d, $00                       ; 00:099C - 16 00
    add    hl, de                       ; 00:099E - 19
    ld     a, (hl)                      ; 00:099F - 7E
@@ -7905,6 +7913,7 @@ addr_0333F:
    call   addr_036F9                   ; 00:3349 - CD F9 36
    ld     e, (hl)                      ; 00:334C - 5E
    ld     d, $00                       ; 00:334D - 16 00
+   .IF 0
    ld     a, (var_D2D4)                ; 00:334F - 3A D4 D2
    add    a, a                         ; 00:3352 - 87
    ld     c, a                         ; 00:3353 - 4F
@@ -7915,6 +7924,9 @@ addr_0333F:
    inc    hl                           ; 00:335A - 23
    ld     h, (hl)                      ; 00:335B - 66
    ld     l, a                         ; 00:335C - 6F
+   .ELSE
+   call fetch_UNK_03A65
+   .ENDIF
    add    hl, de                       ; 00:335D - 19
    ld     a, (hl)                      ; 00:335E - 7E
    and    $3F                          ; 00:335F - E6 3F
@@ -8033,6 +8045,7 @@ addr_03417:
    call   addr_036F9                   ; 00:3421 - CD F9 36
    ld     e, (hl)                      ; 00:3424 - 5E
    ld     d, $00                       ; 00:3425 - 16 00
+   .IF 0
    ld     a, (var_D2D4)                ; 00:3427 - 3A D4 D2
    add    a, a                         ; 00:342A - 87
    ld     c, a                         ; 00:342B - 4F
@@ -8043,6 +8056,9 @@ addr_03417:
    inc    hl                           ; 00:3432 - 23
    ld     h, (hl)                      ; 00:3433 - 66
    ld     l, a                         ; 00:3434 - 6F
+   .ELSE
+   call fetch_UNK_03A65
+   .ENDIF
    add    hl, de                       ; 00:3435 - 19
    ld     a, (hl)                      ; 00:3436 - 7E
    and    $3F                          ; 00:3437 - E6 3F
@@ -9159,6 +9175,24 @@ tick_game_time:
 
 UNK_03A62:
 .db $01, $30, $00                                                                   ; 00:3A62
+
+.IF 0
+.ELSE
+;; This is called 6 times.
+fetch_UNK_03A65:
+   ld a, (var_D2D4)
+   add a, a
+   ld c, a
+   ld b, $00
+   ld hl, UNK_03A65
+   add hl, bc
+   ld a, (hl)
+   inc hl
+   ld h, (hl)
+   ld l, a
+   ret
+; SAVING: 52 bytes (incl. from other banks)
+.ENDIF
 
 UNK_03A65:
 .dw addr_03A75, addr_03B2D, addr_03BBD, addr_03C5D, addr_03D0D, addr_03DC8, addr_03EA8, addr_03F28  ; 00:3A65
@@ -15358,6 +15392,7 @@ addr_07F5A:
    call   addr_036F9                   ; 01:7F5D - CD F9 36
    ld     e, (hl)                      ; 01:7F60 - 5E
    ld     d, $00                       ; 01:7F61 - 16 00
+   .IF 0
    ld     a, (var_D2D4)                ; 01:7F63 - 3A D4 D2
    add    a, a                         ; 01:7F66 - 87
    ld     c, a                         ; 01:7F67 - 4F
@@ -15368,6 +15403,9 @@ addr_07F5A:
    inc    hl                           ; 01:7F6E - 23
    ld     h, (hl)                      ; 01:7F6F - 66
    ld     l, a                         ; 01:7F70 - 6F
+   .ELSE
+   call fetch_UNK_03A65
+   .ENDIF
    add    hl, de                       ; 01:7F71 - 19
    ld     a, (hl)                      ; 01:7F72 - 7E
    and    $3F                          ; 01:7F73 - E6 3F
@@ -17101,6 +17139,7 @@ addr_09100:
    call   addr_036F9                   ; 02:9106 - CD F9 36
    ld     e, (hl)                      ; 02:9109 - 5E
    ld     d, $00                       ; 02:910A - 16 00
+   .IF 0
    ld     a, (var_D2D4)                ; 02:910C - 3A D4 D2
    add    a, a                         ; 02:910F - 87
    ld     c, a                         ; 02:9110 - 4F
@@ -17111,6 +17150,9 @@ addr_09100:
    inc    hl                           ; 02:9117 - 23
    ld     h, (hl)                      ; 02:9118 - 66
    ld     l, a                         ; 02:9119 - 6F
+   .ELSE
+   call fetch_UNK_03A65
+   .ENDIF
    add    hl, de                       ; 02:911A - 19
    ld     a, (hl)                      ; 02:911B - 7E
    and    $3F                          ; 02:911C - E6 3F
