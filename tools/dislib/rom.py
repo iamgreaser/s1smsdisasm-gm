@@ -55,6 +55,8 @@ class Rom:
             ):
                 # Downsize for a split
                 self.addr_types[PhysAddress(phys_addr - 0x01)] = AT.DataByte
+            elif addr_type == AT.File and phys_addr in self.addr_types:
+                raise Exception(f"overlapping files at {phys_addr:05X}")
             self.addr_types[phys_addr] = addr_type
         else:
             other_type = self.addr_types[phys_addr]

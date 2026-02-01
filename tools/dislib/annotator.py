@@ -126,10 +126,10 @@ class Annotator:
         blob = self.rom.data[phys_addr : phys_addr + length]
         assert len(blob) == length
         assert phys_addr not in self.rom.binexports
+        print(f"bin ${phys_addr:05X} len ${length:05X} {length:6d} file {fname!r}")
         self.rom.binexports[phys_addr] = (length, fname)
         for offs in range(phys_addr, phys_addr + length, 1):
             self.rom.set_addr_type(PhysAddress(offs), AT.File)
-        print(f"bin ${phys_addr:05X} len ${length:05X} {length:6d} file {fname!r}")
         with open(fname, "wb") as outfp:
             outfp.write(blob)
 
