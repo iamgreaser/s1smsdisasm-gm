@@ -463,6 +463,9 @@ class TkApp:
             self.redraw()
 
     def redraw(self) -> None:
+        # Clear info boxes
+        self.screen.delete("info_boxes", "info_text")
+
         # Set up layout
         for cy in range(self.tm_height // 4):
             for cx in range(self.tm_width // 4):
@@ -478,6 +481,20 @@ class TkApp:
                         self.vram[0x3800 + (vidx * 2) + 0] = lo
                         self.vram[0x3800 + (vidx * 2) + 1] = hi
 
+                tf = (
+                    self.layout_tile_flags[mtidx]
+                    if mtidx < len(self.layout_tile_flags)
+                    else 0xFF
+                )
+                self.screen.create_text(
+                    ((cx * 32) + 2) * 2,
+                    ((cy * 32) + 2) * 2,
+                    text=f"{mtidx:02X}\n{tf:02X}",
+                    anchor="nw",
+                    fill="#FFFFFF",
+                    tags=["info_text"],
+                )
+
         # Set background
         palv = self.cram[0]
         c = 0
@@ -486,8 +503,6 @@ class TkApp:
         c |= (((palv >> 4) & 0x3) * 0x55) << 0
         self.screen.configure(background=f"#{c:06X}")
 
-        # Clear info boxes
-        self.screen.delete("info_boxes", "info_text")
         # Set up sprites
         self.vram_sprites_used = 0
         sonic_x = (((self.tm_width * 8) - 24) // 2) & ~0x1F
