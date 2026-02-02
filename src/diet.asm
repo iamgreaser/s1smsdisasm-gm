@@ -3423,6 +3423,26 @@ LUT_00E82:
 .dw addr_01183                                                                      ; 00:0E82
 .db $04, $00                                                                        ; 00:0E84
 
+.IF 0
+.ELSE
+calc_lives_output:
+   ; Used in 2 places.
+   ld a, (g_lives)
+   ld l, $40-1
+   -:
+      inc l
+      sub $0A
+      jr nc, -
+   add a, $4A
+   ld h, a
+   add hl, hl
+   ld (g_HUD_FFstr_buf), hl
+   ld a, $FF
+   ld (var_D2C0), a
+   ret
+   ; SAVING: 61 bytes
+.ENDIF
+
 addr_00E86:
    push   hl                           ; 00:0E86 - E5
    push   de                           ; 00:0E87 - D5
@@ -3432,6 +3452,7 @@ addr_00E86:
    res    0, (iy+var_D200-IYBASE)      ; 00:0E8D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0E91 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:0E94 - FD 36 0A 00
+   .IF 0
    ld     a, (g_lives)                 ; 00:0E98 - 3A 46 D2
    ld     l, a                         ; 00:0E9B - 6F
    ld     h, $00                       ; 00:0E9C - 26 00
@@ -3455,6 +3476,9 @@ addr_00E86:
    ld     (var_D2BF), a                ; 00:0EBD - 32 BF D2
    ld     a, $FF                       ; 00:0EC0 - 3E FF
    ld     (var_D2C0), a                ; 00:0EC2 - 32 C0 D2
+   .ELSE
+   call calc_lives_output
+   .ENDIF
    ld     b, $A7                       ; 00:0EC5 - 06 A7
    ld     c, $28                       ; 00:0EC7 - 0E 28
    ld     hl, var_D000                 ; 00:0EC9 - 21 00 D0
@@ -4889,6 +4913,7 @@ addr_01AB0:
    ret                                 ; 00:1AC9 - C9
 
 addr_01ACA:
+   .IF 0
    ld     a, (g_lives)                 ; 00:1ACA - 3A 46 D2
    ld     l, a                         ; 00:1ACD - 6F
    ld     h, $00                       ; 00:1ACE - 26 00
@@ -4912,6 +4937,9 @@ addr_01ACA:
    ld     (var_D2BF), a                ; 00:1AEF - 32 BF D2
    ld     a, $FF                       ; 00:1AF2 - 3E FF
    ld     (var_D2C0), a                ; 00:1AF4 - 32 C0 D2
+   .ELSE
+   call calc_lives_output
+   .ENDIF
    .IF 0
    ld     c, $38                       ; 00:1AF7 - 0E 38
    ld     b, $9F                       ; 00:1AF9 - 06 9F
