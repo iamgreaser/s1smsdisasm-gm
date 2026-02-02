@@ -120,6 +120,9 @@ class TkApp:
                 vram_addr=0x3680,
             )
 
+        elif file_path.suffix in {".objects"}:
+            self.load_object_defs(file_path=file_path)
+
         elif file_path.suffix in {".tilemap"}:
             self.load_tilemap(file_path=file_path)
 
@@ -254,6 +257,23 @@ class TkApp:
 
         logging.debug(f"Layout ended at $%(end_offs)04X", {"end_offs": out_idx})
 
+    def load_object_defs(self, *, file_path: pathlib.Path) -> None:
+        logging.info(
+            "Loading object defs from %(file_path)r", {"file_path": str(file_path)}
+        )
+
+        with file_path.open("rb") as infp:
+            count = infp.read(1)[0]
+            self.object_defs.clear()
+            for i in range(count - 1):
+                x, y, v = infp.read(3)
+                logging.debug(
+                    "object at %(x)02X,%(y)02X = %(v)02X", {"x": x, "y": y, "v": v}
+                )
+                self.object_defs.append((x, y, v))
+
+            assert infp.read() == b""
+
     def load_tilemap(self, *, file_path: pathlib.Path) -> None:
         logging.info(
             "Loading tilemap from %(file_path)r", {"file_path": str(file_path)}
@@ -324,8 +344,8 @@ class TkApp:
             (8, 16),
             (16, 16),
         ]
-        sonic_x = (((self.tm_width * 8) - 24) // 2) - 16
-        sonic_y = (((self.tm_height * 8) - 32) // 2) + 16
+        sonic_x = (((self.tm_width * 8) - 24) // 2) - 16 - 4
+        sonic_y = (((self.tm_height * 8) - 32) // 2) + 16 + 1
         for i, (dx, dy) in enumerate(sonic_layout):
             _, _, opt_t, _ = self.vram_sprites[self.vram_sprites_used]
             self.vram_sprites[self.vram_sprites_used] = (
