@@ -44,8 +44,12 @@ class OT(enum.Enum):
     monitor_life = 0x03
     monitor_shield = 0x04
 
+    chaos_emerald = 0x06
     signpost = 0x07
     badnik_crabmeat = 0x08
+
+    badnik_buzz_bomber = 0x0E
+    platform_horizontal = 0x0F
 
     zaps_player_to_the_right = (
         0x4B  # Not sure how this one works exactly, but it's used in GHZ2.
@@ -66,22 +70,35 @@ obj_sprite_maps: dict[
             [[0xB4, 0xB6, 0xB8], [0xBA, 0xBC, 0xBE]],
         ],
     ),
+    # MONITOR IMAGE: 05:5180.
     OT.monitor_rings.value: (
         (4, -7),
         [
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
         ],
     ),
+    # MONITOR IMAGE: 05:5280.
     OT.monitor_life.value: (
         (4, -7),
         [
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
         ],
     ),
+    # MONITOR IMAGE: 05:5300.
     OT.monitor_shield.value: (
         (4, -7),
         [
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
+    # MONITOR IMAGE: 05:5400.
+    OT.chaos_emerald.value: (
+        (0, 1),
+        [
+            # Placeholder saying "06" for now.
+            [[0x80, 0x8C]],
+            # What is actually used.
+            [[0x5C, 0x5E]],
         ],
     ),
     OT.signpost.value: (
@@ -107,12 +124,37 @@ obj_sprite_maps: dict[
             [[0x40, 0x02, 0x04], [0x46, 0x22, 0x4A]],
         ],
     ),
+    OT.badnik_buzz_bomber.value: (
+        (0, 1),
+        [
+            [[0xFE, 0x0A], [0x0C, 0x0E, 0x10], []],
+            [[0xFE], [0x0C, 0x0E, 0x2C], []],
+            [[0xFE, 0x0A], [0x12, 0x14, 0x16], [0x32, 0x34]],
+            [[0xFE], [0x12, 0x14, 0x16], [0x32, 0x34]],
+            [[0xFE, 0x0A], [0x12, 0x14, 0x16], [0x30, 0x34]],
+            [[0xFE], [0x12, 0x14, 0x16], [0x30, 0x34]],
+        ],
+    ),
+    OT.platform_horizontal.value: (
+        (0, 1),
+        [
+            # These seem to be based on the tile flags index.
+            # GHZ
+            [[0xFE], [0x18, 0x1A, 0x18, 0x1A], []],
+            # BRI
+            [[0xFE], [0x6C, 0x6E, 0x6C, 0x6E], []],
+            # Everything else
+            [[0xFE], [0x6C, 0x6E, 0x6E, 0x48], []],
+        ],
+    ),
+    # MONITOR IMAGE: 05:5480.
     OT.monitor_checkpoint.value: (
         (4, -7),
         [
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
         ],
     ),
+    # MONITOR IMAGE: 05:5500.
     OT.monitor_continue.value: (
         (4, -7),
         [
