@@ -40,9 +40,10 @@ layout_fname_extn_widths = {
 class OT(enum.Enum):
     player_sonic = 0x00
     monitor_rings = 0x01
-
+    monitor_speed_shoes = 0x02
     monitor_life = 0x03
     monitor_shield = 0x04
+    monitor_invincibility = 0x05
 
     chaos_emerald = 0x06
     signpost = 0x07
@@ -77,6 +78,13 @@ obj_sprite_maps: dict[
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
         ],
     ),
+    # MONITOR IMAGE: 05:5200.
+    OT.monitor_speed_shoes.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
     # MONITOR IMAGE: 05:5280.
     OT.monitor_life.value: (
         (4, -7),
@@ -86,6 +94,13 @@ obj_sprite_maps: dict[
     ),
     # MONITOR IMAGE: 05:5300.
     OT.monitor_shield.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
+    # MONITOR IMAGE: 05:5380.
+    OT.monitor_invincibility.value: (
         (4, -7),
         [
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
