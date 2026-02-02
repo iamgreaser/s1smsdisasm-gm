@@ -619,10 +619,10 @@ addr_001BA:
    jr     z, addr_001D6                ; 00:01BE - 28 16
    cp     $FF                          ; 00:01C0 - FE FF
    jr     nz, addr_001D6               ; 00:01C2 - 20 12
-   ld     hl, LUT_0024B                ; 00:01C4 - 21 4B 02
+   ld     hl, PAL2_lv_lab_under_water  ; 00:01C4 - 21 4B 02
    bit    4, (iy+var_D207-IYBASE)      ; 00:01C7 - FD CB 07 66
    jr     z, addr_001D0                ; 00:01CB - 28 03
-   ld     hl, LUT_0026B                ; 00:01CD - 21 6B 02
+   ld     hl, PAL2_lv_lab_3_under_water  ; 00:01CD - 21 6B 02
 
 addr_001D0:
    ld     a, $03                       ; 00:01D0 - 3E 03
@@ -641,7 +641,7 @@ addr_001D6:
    add    hl, de                       ; 00:01E3 - 19
    ld     a, $01                       ; 00:01E4 - 3E 01
    call   load_palettes_IRQ            ; 00:01E6 - CD 66 05
-   ld     hl, PAL2_0639E               ; 00:01E9 - 21 9E 63
+   ld     hl, PAL2_lv_lab_above_water  ; 00:01E9 - 21 9E 63
    ld     a, $02                       ; 00:01EC - 3E 02
    call   load_palettes_IRQ            ; 00:01EE - CD 66 05
    ret                                 ; 00:01F1 - C9
@@ -680,10 +680,10 @@ irq_line_state_1_load_water_palette:
    ld     a, $C0                       ; 00:021D - 3E C0
    out    ($BF), a                     ; 00:021F - D3 BF
    ld     b, $10                       ; 00:0221 - 06 10
-   ld     hl, LUT_0024B                ; 00:0223 - 21 4B 02
+   ld     hl, PAL2_lv_lab_under_water  ; 00:0223 - 21 4B 02
    bit    4, (iy+var_D207-IYBASE)      ; 00:0226 - FD CB 07 66
    jr     z, _f                        ; 00:022A - 28 03
-   ld     hl, LUT_0026B                ; 00:022C - 21 6B 02
+   ld     hl, PAL2_lv_lab_3_under_water  ; 00:022C - 21 6B 02
 
 __:
    ld     a, (hl)                      ; 00:022F - 7E
@@ -709,13 +709,11 @@ irq_exit:
    ;; Using RETI is unnecessary. RET should be fine.
    ret                                 ; 00:024A - C9
 
-LUT_0024B:
-.db $10, $14, $14, $18, $35, $34, $2C, $39, $21, $20, $1E, $09, $04, $1E, $10, $3F  ; 00:024B
-.db $00, $20, $35, $2E, $29, $3A, $00, $3F, $14, $29, $3A, $14, $3E, $3A, $19, $25  ; 00:025B
+PAL2_lv_lab_under_water:
+.INCBIN "src/data/lv_lab_under_water.pal3"
 
-LUT_0026B:
-.db $10, $14, $14, $18, $35, $34, $2C, $39, $21, $20, $1E, $09, $04, $1E, $10, $3F  ; 00:026B
-.db $10, $20, $35, $2E, $29, $3A, $00, $3F, $24, $3D, $1F, $17, $14, $3A, $19, $00  ; 00:027B
+PAL2_lv_lab_3_under_water:
+.INCBIN "src/data/lv_lab_3_under_water.pal3"
 
 reset_init:
    ;; Set up banking.
@@ -3869,7 +3867,7 @@ run_title_screen:
    ld     (g_vdp_scroll_x), a          ; 00:12C6 - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:12C9 - 32 52 D2
    ;; Load into both palettes
-   ld     hl, PAL3_013E1               ; 00:12CC - 21 E1 13
+   ld     hl, PAL3_title_screen        ; 00:12CC - 21 E1 13
    ld     a, $03                       ; 00:12CF - 3E 03
    call   signal_load_palettes         ; 00:12D1 - CD 33 03
    ;; TODO find what D200.b1 does --GM
@@ -4019,9 +4017,8 @@ addr_013CF:
 .db $06, $08, $FF, $FF, $FF, $FF, $26, $28, $FF, $FF, $FF, $FF, $46, $48, $FF, $FF  ; 00:13CF
 .db $FF, $FF                                                                        ; 00:13DF
 
-PAL3_013E1:
-.db $00, $10, $34, $38, $06, $1B, $2F, $3F, $3D, $3E, $01, $03, $0B, $0F, $00, $3F  ; 00:13E1
-.db $00, $10, $34, $38, $06, $1B, $2F, $3F, $3D, $3E, $01, $03, $0B, $0F, $00, $3F  ; 00:13F1
+PAL3_title_screen:
+.INCBIN "src/data/title_screen.pal3"
 
 addr_01401:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1401 - 3A 19 D2
@@ -4049,7 +4046,7 @@ addr_01401:
    xor    a                            ; 00:1435 - AF
    ld     (g_vdp_scroll_x), a          ; 00:1436 - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:1439 - 32 52 D2
-   ld     hl, PAL3_014FC               ; 00:143C - 21 FC 14
+   ld     hl, PAL3_game_over           ; 00:143C - 21 FC 14
    ld     a, $03                       ; 00:143F - 3E 03
    call   signal_load_palettes         ; 00:1441 - CD 33 03
    ei                                  ; 00:1444 - FB
@@ -4146,9 +4143,8 @@ LUT_014E6:
 LUT_014F1:
 .db $08, $0D, $77, $78, $79, $7A, $7B, $7C, $7D, $7E, $FF                           ; 00:14F1
 
-PAL3_014FC:
-.db $00, $01, $06, $0B, $04, $08, $0C, $3D, $1F, $39, $2A, $14, $14, $27, $00, $3F  ; 00:14FC
-.db $00, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $00, $3C, $00, $3F  ; 00:150C
+PAL3_game_over:
+.INCBIN "src/data/game_over.pal3"
 
 LUT_0151C:
 .db $01, $00                                                                        ; 00:151C
@@ -4266,7 +4262,7 @@ _handle_level_score_screen_bonus:
    xor    a                            ; 00:15FD - AF
    ld     (g_vdp_scroll_x), a          ; 00:15FE - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:1601 - 32 52 D2
-   ld     hl, PAL3_01B8D               ; 00:1604 - 21 8D 1B
+   ld     hl, PAL3_score_tally         ; 00:1604 - 21 8D 1B
    ld     a, $03                       ; 00:1607 - 3E 03
    call   signal_load_palettes         ; 00:1609 - CD 33 03
    ld     a, (g_level)                 ; 00:160C - 3A 3E D2
@@ -5041,9 +5037,8 @@ LUT_01B69:
 .db $08, $10, $00, $00, $08, $08, $08, $08, $08, $08, $08, $08, $00, $00, $00, $00  ; 00:1B79
 .db $00, $00, $00, $00                                                              ; 00:1B89
 
-PAL3_01B8D:
-.db $35, $01, $06, $0B, $04, $08, $0C, $3D, $1F, $39, $2A, $14, $25, $2B, $00, $3F  ; 00:1B8D
-.db $35, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $00, $00, $00  ; 00:1B9D
+PAL3_score_tally:
+.INCBIN "src/data/score_tally.pal3"
 
 update_demo_inputs:
    .IF 0
@@ -6515,7 +6510,7 @@ addr_0258B:
    xor    a                            ; 00:259A - AF
    ld     (g_vdp_scroll_x), a          ; 00:259B - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:259E - 32 52 D2
-   ld     hl, PAL3_02828               ; 00:25A1 - 21 28 28
+   ld     hl, PAL3_ending_tally        ; 00:25A1 - 21 28 28
    ld     a, $03                       ; 00:25A4 - 3E 03
    call   signal_load_palettes         ; 00:25A6 - CD 33 03
    ld     hl, ART_0C_0000              ; 00:25A9 - 21 00 00
@@ -6635,7 +6630,7 @@ addr_0262E:
    xor    a                            ; 00:2686 - AF
    ld     (g_FF_string_high_byte), a   ; 00:2687 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:268A - CD 01 05
-   ld     hl, PAL3_02828               ; 00:268D - 21 28 28
+   ld     hl, PAL3_ending_tally        ; 00:268D - 21 28 28
    call   addr_00AAE                   ; 00:2690 - CD AE 0A
 
 addr_02693:
@@ -6965,9 +6960,8 @@ addr_027E8:
 LUT_02825:
 .db $5C, $5E, $FF                                                                   ; 00:2825
 
-PAL3_02828:
-.db $35, $01, $06, $0B, $04, $08, $0C, $3D, $1F, $39, $2A, $14, $25, $2B, $00, $3F  ; 00:2828
-.db $35, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $00, $3C, $00, $3F  ; 00:2838
+PAL3_ending_tally:
+.INCBIN "src/data/ending_tally.pal3"
 
 .IF 0
 .ELSE
@@ -12561,7 +12555,7 @@ objfunc_07_signpost:
    ld     de, $2000                    ; 01:5F30 - 11 00 20
    ld     a, $09                       ; 01:5F33 - 3E 09
    call   load_art                     ; 01:5F35 - CD 05 04
-   ld     hl, PAL2_0626C               ; 01:5F38 - 21 6C 62
+   ld     hl, PAL2_signpost            ; 01:5F38 - 21 6C 62
    ld     a, $02                       ; 01:5F3B - 3E 02
    call   signal_load_palettes         ; 01:5F3D - CD 33 03
    set    0, (ix+17)                   ; 01:5F40 - DD CB 11 C6
@@ -12867,8 +12861,8 @@ UNK_061DC:
 .db $FF, $FF, $6E, $6A, $6C, $74, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF, $4E, $46  ; 01:624C
 .db $48, $54, $FF, $FF, $6E, $66, $68, $74, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF  ; 01:625C
 
-PAL2_0626C:
-.db $38, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $00, $00, $00, $00, $00  ; 01:626C
+PAL2_signpost:
+.INCBIN "src/data/signpost.pal2"
 
 LUT_base_palettes_UNCONFIRMED:
 .dw addr_0629E, addr_062EE, addr_0633E, addr_0638E, addr_063DE, addr_0643E, addr_0658E, addr_0655E  ; 01:627C
@@ -12907,8 +12901,8 @@ addr_0635E:
 addr_0638E:
 .db $00, $01, $06, $0B, $27, $14, $18, $29, $12, $10, $1E, $09, $04, $0F, $00, $3F  ; 01:638E
 
-PAL2_0639E:
-.db $00, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $27, $0B, $15  ; 01:639E
+PAL2_lv_lab_above_water:
+.INCBIN "src/data/lv_lab_above_water.pal2"
 
 addr_063AE:
 .db $00, $01, $06, $0B, $27, $14, $18, $29, $12, $10, $1E, $09, $04, $0F, $00, $3F  ; 01:63AE
@@ -13968,7 +13962,7 @@ objfunc_12_GHZ_boss:
    ld     de, $2000                    ; 01:7034 - 11 00 20
    ld     a, $09                       ; 01:7037 - 3E 09
    call   load_art                     ; 01:7039 - CD 05 04
-   ld     hl, PAL2_0731C               ; 01:703C - 21 1C 73
+   ld     hl, PAL2_boss                ; 01:703C - 21 1C 73
    ld     a, $02                       ; 01:703F - 3E 02
    call   signal_load_palettes         ; 01:7041 - CD 33 03
    ld     a, $0B                       ; 01:7044 - 3E 0B
@@ -14261,8 +14255,8 @@ UNK_0730A:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 01:730A
 .db $72, $FF                                                                        ; 01:731A
 
-PAL2_0731C:
-.db $38, $20, $35, $1B, $16, $2A, $00, $3F, $15, $3A, $0F, $03, $01, $02, $3E, $00  ; 01:731C
+PAL2_boss:
+.INCBIN "src/data/boss.pal2"
 
 objfunc_25_UNKNOWN:
    set    5, (ix+24)                   ; 01:732C - DD CB 18 EE
@@ -15643,7 +15637,7 @@ objfunc_2C_UNKNOWN:
    ld     de, $2000                    ; 02:8077 - 11 00 20
    ld     a, $09                       ; 02:807A - 3E 09
    call   load_art                     ; 02:807C - CD 05 04
-   ld     hl, PAL2_0731C               ; 02:807F - 21 1C 73
+   ld     hl, PAL2_boss                ; 02:807F - 21 1C 73
    ld     a, $02                       ; 02:8082 - 3E 02
    call   signal_load_palettes         ; 02:8084 - CD 33 03
    ld     a, $0B                       ; 02:8087 - 3E 0B
@@ -16061,7 +16055,7 @@ objfunc_48_UNKNOWN:
    ld     de, $2000                    ; 02:84BF - 11 00 20
    ld     a, $0C                       ; 02:84C2 - 3E 0C
    call   load_art                     ; 02:84C4 - CD 05 04
-   ld     hl, PAL2_0731C               ; 02:84C7 - 21 1C 73
+   ld     hl, PAL2_boss                ; 02:84C7 - 21 1C 73
    ld     a, $02                       ; 02:84CA - 3E 02
    call   signal_load_palettes         ; 02:84CC - CD 33 03
    xor    a                            ; 02:84CF - AF
@@ -17442,7 +17436,7 @@ objfunc_49_UNKNOWN:
    ld     de, $2000                    ; 02:9294 - 11 00 20
    ld     a, $0C                       ; 02:9297 - 3E 0C
    call   load_art                     ; 02:9299 - CD 05 04
-   ld     hl, PAL2_0731C               ; 02:929C - 21 1C 73
+   ld     hl, PAL2_boss                ; 02:929C - 21 1C 73
    ld     a, $02                       ; 02:929F - 3E 02
    call   signal_load_palettes         ; 02:92A1 - CD 33 03
    xor    a                            ; 02:92A4 - AF
@@ -19596,7 +19590,7 @@ objfunc_22_UNKNOWN:
    ld     de, $2000                    ; 02:A819 - 11 00 20
    ld     a, $0C                       ; 02:A81C - 3E 0C
    call   load_art                     ; 02:A81E - CD 05 04
-   ld     hl, PAL2_0731C               ; 02:A821 - 21 1C 73
+   ld     hl, PAL2_boss                ; 02:A821 - 21 1C 73
    ld     a, $02                       ; 02:A824 - 3E 02
    call   signal_load_palettes         ; 02:A826 - CD 33 03
    ld     a, $0B                       ; 02:A829 - 3E 0B
@@ -21881,7 +21875,7 @@ objfunc_53_UNKNOWN:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:BDFD - FD 36 03 FF
    bit    1, (ix+24)                   ; 02:BE01 - DD CB 18 4E
    jr     nz, addr_0BE26               ; 02:BE05 - 20 1F
-   ld     hl, PAL2_0731C               ; 02:BE07 - 21 1C 73
+   ld     hl, PAL2_boss                ; 02:BE07 - 21 1C 73
    ld     a, $02                       ; 02:BE0A - 3E 02
    call   signal_load_palettes         ; 02:BE0C - CD 33 03
    ld     a, $FF                       ; 02:BE0F - 3E FF
