@@ -3802,7 +3802,7 @@ addr_01269:
 addr_01278:
 .db $10, $13, $AE, $6E, $DE, $EB, $1F, $1E, $AE, $3E, $EB, $EB, $EB, $EB, $FF       ; 00:1278
 
-addr_01287:
+run_title_screen:
    ;; Display off (blanked)
    ld     a, (g_saved_vdp_reg_01)      ; 00:1287 - 3A 19 D2
    and    $BF                          ; 00:128A - E6 BF
@@ -3853,7 +3853,7 @@ addr_01287:
    ld     hl, UNK_01372                ; 00:12E4 - 21 72 13
    ld     (var_D210), hl               ; 00:12E7 - 22 10 D2
 
-addr_012EA:
+@mainloop:
    ;; Display on
    ld     a, (g_saved_vdp_reg_01)      ; 00:12EA - 3A 19 D2
    or     $40                          ; 00:12ED - F6 40
@@ -3864,18 +3864,18 @@ addr_012EA:
    ld     a, (var_D216)                ; 00:12F9 - 3A 16 D2
    inc    a                            ; 00:12FC - 3C
    cp     $64                          ; 00:12FD - FE 64
-   jr     c, addr_01302                ; 00:12FF - 38 01
+   jr     c, @skip_press_button_counter_wrap  ; 00:12FF - 38 01
    xor    a                            ; 00:1301 - AF
 
-addr_01302:
+@skip_press_button_counter_wrap:
    ld     (var_D216), a                ; 00:1302 - 32 16 D2
    ;; Show or hide "PRESS BUTTON" text, only showing if cycle <= 64
    ld     hl, LUT_01352                ; 00:1305 - 21 52 13
    cp     $40                          ; 00:1308 - FE 40
-   jr     c, addr_0130F                ; 00:130A - 38 03
+   jr     c, @skip_hide_press_button_text  ; 00:130A - 38 03
    ld     hl, LUT_01362                ; 00:130C - 21 62 13
 
-addr_0130F:
+@skip_hide_press_button_text:
    xor    a                            ; 00:130F - AF
    ld     (g_FF_string_high_byte), a   ; 00:1310 - 32 0E D2
    call   print_positioned_FF_string   ; 00:1313 - CD AF 05
@@ -3883,7 +3883,7 @@ addr_0130F:
    ld     a, (var_D20F)                ; 00:1316 - 3A 0F D2
    dec    a                            ; 00:1319 - 3D
    ld     (var_D20F), a                ; 00:131A - 32 0F D2
-   jr     nz, addr_01335               ; 00:131D - 20 16
+   jr     nz, @next_sonic_hand_animation_frame  ; 00:131D - 20 16
    ;; If the counter reached 0, load the next frame and counter
    ld     hl, (var_D210)               ; 00:131F - 2A 10 D2
    ld     e, (hl)                      ; 00:1322 - 5E
@@ -3894,13 +3894,13 @@ addr_0130F:
    inc    hl                           ; 00:1327 - 23
    and    a                            ; 00:1328 - A7
    ;; If the counter value is 0, move onto the demo!
-   jr     z, addr_01350                ; 00:1329 - 28 25
+   jr     z, @stop_music_and_return    ; 00:1329 - 28 25
    ;; Otherwise, store our values for animating Sonic's hand.
    ld     (var_D20F), a                ; 00:132B - 32 0F D2
    ld     (var_D210), hl               ; 00:132E - 22 10 D2
    ld     (var_D212), de               ; 00:1331 - ED 53 12 D2
 
-addr_01335:
+@next_sonic_hand_animation_frame:
    ld     hl, var_D000                 ; 00:1335 - 21 00 D0
    ld     (var_D23C), hl               ; 00:1338 - 22 3C D2
    ld     hl, $0080                    ; 00:133B - 21 80 00
@@ -3908,10 +3908,10 @@ addr_01335:
    ld     bc, (var_D212)               ; 00:1341 - ED 4B 12 D2
    call   addr_0350F                   ; 00:1345 - CD 0F 35
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:1348 - FD CB 03 6E
-   jp     nz, addr_012EA               ; 00:134C - C2 EA 12
+   jp     nz, @mainloop                ; 00:134C - C2 EA 12
    scf                                 ; 00:134F - 37
 
-addr_01350:
+@stop_music_and_return:
    ;; Stop the music and return
    rst    $20                          ; 00:1350 - E7
    ;; If we jumped here from above, AND A clears the carry flag.
@@ -5235,7 +5235,7 @@ _reset_01C49:
    res    0, (iy+var_D202-IYBASE)      ; 00:1C87 - FD CB 02 86
    res    1, (iy+var_D202-IYBASE)      ; 00:1C8B - FD CB 02 8E
    call   clear_sprite_table           ; 00:1C8F - CD E2 05
-   call   addr_01287                   ; 00:1C92 - CD 87 12
+   call   run_title_screen             ; 00:1C92 - CD 87 12
    res    1, (iy+var_D205-IYBASE)      ; 00:1C95 - FD CB 05 8E
    ;; If the carry flag is clear, we want to show the demo.
    ;; If it is set, then we want to actually play the game.
