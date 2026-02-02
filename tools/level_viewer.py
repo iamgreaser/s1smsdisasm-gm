@@ -7,6 +7,7 @@ import logging
 import pathlib
 import struct
 import sys
+import zlib
 
 import tkinter
 import tkinter.ttk
@@ -501,7 +502,22 @@ class TkApp:
             y = ty * 32
             if v in obj_sprite_maps:
                 (dx, dy), smaps = obj_sprite_maps[v]
-                self.maybe_draw_sprite(x + dx, y + dy, smaps[0])
+
+                sidx = 0
+                # Special cases
+                if v == OT.platform_horizontal.value:
+                    # This is grabbed from the tile flag index.
+                    if zlib.crc32(self.layout_tile_flags[:0xB8]) == 0x5B23CE2A:
+                        # GHZ (index $00)
+                        sidx = 0
+                    elif zlib.crc32(self.layout_tile_flags[:0x90]) == 0x753831C5:
+                        # BRI (index $01)
+                        sidx = 1
+                    else:
+                        # All other cases (probably just JUN)
+                        sidx = 2
+
+                self.maybe_draw_sprite(x + dx, y + dy, smaps[sidx])
             else:
                 self.screen.create_rectangle(
                     ((x + 16) - 9 - (self.cam_mtx * 32)) * 2,
