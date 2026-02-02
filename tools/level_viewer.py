@@ -428,6 +428,8 @@ class TkApp:
         c |= (((palv >> 4) & 0x3) * 0x55) << 0
         self.screen.configure(background=f"#{c:06X}")
 
+        # Clear info boxes
+        self.screen.delete("info_boxes", "info_text")
         # Set up sprites
         self.vram_sprites_used = 0
         sonic_x = (((self.tm_width * 8) - 24) // 2) & ~0x1F
@@ -438,11 +440,30 @@ class TkApp:
         self.maybe_draw_sprite(sonic_x + dx, sonic_y + dy, smaps[0])
 
         for v, tx, ty in self.object_defs:
+            x = tx * 32
+            y = ty * 32
             if v in obj_sprite_maps:
-                x = tx * 32
-                y = ty * 32
                 (dx, dy), smaps = obj_sprite_maps[v]
                 self.maybe_draw_sprite(x + dx, y + dy, smaps[0])
+            else:
+                self.screen.create_rectangle(
+                    ((x + 16) - 9 - (self.cam_mtx * 32)) * 2,
+                    ((y + 16) - 6 - (self.cam_mty * 32)) * 2,
+                    ((x + 16) + 9 - (self.cam_mtx * 32)) * 2,
+                    ((y + 16) + 6 - (self.cam_mty * 32)) * 2,
+                    fill="#000000",
+                    outline="#FFFFFF",
+                    width=1,
+                    tags=["info_boxes"],
+                )
+                self.screen.create_text(
+                    ((x + 16) - (self.cam_mtx * 32)) * 2,
+                    ((y + 16) - (self.cam_mty * 32)) * 2,
+                    text=f"{v:02X}",
+                    anchor="center",
+                    fill="#FFFFFF",
+                    tags=["info_text"],
+                )
 
         # Draw a 32x28 display
         for ty in range(self.tm_height):
@@ -510,6 +531,8 @@ class TkApp:
         # Correct ordering
         self.screen.tag_raise("tile_hi")
         self.screen.tag_lower("tile_lo")
+        self.screen.tag_raise("info_boxes")
+        self.screen.tag_raise("info_text")
 
     def maybe_draw_sprite(
         self, spr_x: int, spr_y: int, spr_data: Sequence[Sequence[int]]
