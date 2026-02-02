@@ -199,6 +199,7 @@ class TkApp:
         self.object_defs: list[tuple[int, int, int]] = []
 
         self.layout_tile_flags = bytearray(0x100)
+        self.layout_tile_specials = bytearray(0x100)
         self.layout_tilemap = bytearray(0x1000)
 
         self.cam_mtx = 0
@@ -273,6 +274,9 @@ class TkApp:
 
         elif file_path.suffix in {".tileflags"}:
             self.load_tile_flags(file_path=file_path)
+
+        elif file_path.suffix in {".tilespecials"}:
+            self.load_tile_specials(file_path=file_path)
 
         elif file_path.suffix in layout_fname_extn_widths:
             self.load_layout(
@@ -442,6 +446,14 @@ class TkApp:
         data = file_path.open("rb").read()
         self.layout_tile_flags[: len(data)] = data
 
+    def load_tile_specials(self, *, file_path: pathlib.Path) -> None:
+        logging.info(
+            "Loading tile specials from %(file_path)r", {"file_path": str(file_path)}
+        )
+
+        data = file_path.open("rb").read()
+        self.layout_tile_specials[: len(data)] = data
+
     def run(self) -> None:
         # Redraw everything
         self.redraw()
@@ -485,10 +497,15 @@ class TkApp:
                     if mtidx < len(self.layout_tile_flags)
                     else 0xFF
                 )
+                ts = (
+                    self.layout_tile_specials[mtidx]
+                    if mtidx < len(self.layout_tile_specials)
+                    else 0xFF
+                )
                 self.screen.create_text(
                     ((cx * 32) + 2) * 2,
                     ((cy * 32) + 2) * 2,
-                    text=f"{mtidx:02X} {tf:02X}\n{offs+0xC000:02X}",
+                    text=f"{mtidx:02X} {offs:03X}\n{tf:02X} {ts:02X}",
                     anchor="nw",
                     fill="#FFFFFF",
                     tags=["info_text"],
