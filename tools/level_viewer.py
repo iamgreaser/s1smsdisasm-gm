@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import enum
 import logging
 import pathlib
 import struct
@@ -36,6 +37,74 @@ layout_fname_extn_widths = {
 }
 
 
+class OT(enum.Enum):
+    player_sonic = 0x00
+    monitor_rings = 0x01
+
+    monitor_life = 0x03
+
+    signpost = 0x07
+    badnik_crabmeat = 0x08
+
+    monitor_continue = 0x52
+
+
+signpost_arts: Sequence[Sequence[Sequence[int]]] = []
+
+# ((dx, dy), tile[anim_idx][dy][dx])
+obj_sprite_maps: dict[
+    int, tuple[tuple[int, int], Sequence[Sequence[Sequence[int]]]]
+] = {
+    OT.player_sonic.value: (
+        (0, -15),
+        [
+            [[0xB4, 0xB6, 0xB8], [0xBA, 0xBC, 0xBE]],
+        ],
+    ),
+    OT.monitor_rings.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
+    OT.monitor_life.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
+    OT.signpost.value: (
+        (0, 1),
+        [
+            [[0x4E, 0x50, 0x52, 0x54], [0x6E, 0x70, 0x72, 0x74], [0xFE, 0x42, 0x44]],
+        ],
+    ),
+    # TODO: Transcribe these signpost art things --GM
+    # $08, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    # $FE, $12, $14, $FF, $FF, $FF, $FE, $32, $34, $FF, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    # $16, $18, $1A, $1C, $FF, $FF, $36, $38, $3A, $3C, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    # $56, $58, $5A, $5C, $FF, $FF, $76, $78, $7A, $7C, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    # $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    # $4E, $4A, $4C, $54, $FF, $FF, $6E, $6A, $6C, $74, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    # $4E, $46, $48, $54, $FF, $FF, $6E, $66, $68, $74, $FF, $FF, $FE, $42, $44, $FF, $FF, $FF
+    OT.badnik_crabmeat.value: (
+        (4, -14),
+        [
+            [[0x00, 0x02, 0x04], [0x20, 0x22, 0x24]],
+            [[0x00, 0x02, 0x44], [0x46, 0x22, 0x4A]],
+            [[0x40, 0x02, 0x44], [0x26, 0x22, 0x2A]],
+            [[0x40, 0x02, 0x04], [0x46, 0x22, 0x4A]],
+        ],
+    ),
+    OT.monitor_continue.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
+}
+
+
 class TkApp:
     tm_width = 32
     tm_height = 28
@@ -51,6 +120,7 @@ class TkApp:
         self.vram = bytearray(0x4000)
         self.cram = bytearray(0x20)
         self.layout = bytearray(0x1000)
+        # type, x, y
         self.object_defs: list[tuple[int, int, int]] = []
 
         self.layout_tile_flags = bytearray(0x100)
@@ -266,11 +336,11 @@ class TkApp:
             count = infp.read(1)[0]
             self.object_defs.clear()
             for i in range(count - 1):
-                x, y, v = infp.read(3)
+                v, x, y = infp.read(3)
                 logging.debug(
                     "object at %(x)02X,%(y)02X = %(v)02X", {"x": x, "y": y, "v": v}
                 )
-                self.object_defs.append((x, y, v))
+                self.object_defs.append((v, x, y))
 
             assert infp.read() == b""
 
@@ -336,25 +406,19 @@ class TkApp:
 
         # Set up sprites
         self.vram_sprites_used = 0
-        sonic_layout = [
-            (0, 0),
-            (8, 0),
-            (16, 0),
-            (0, 16),
-            (8, 16),
-            (16, 16),
-        ]
-        sonic_x = (((self.tm_width * 8) - 24) // 2) - 16 - 4
-        sonic_y = (((self.tm_height * 8) - 32) // 2) + 16 + 1
-        for i, (dx, dy) in enumerate(sonic_layout):
-            _, _, opt_t, _ = self.vram_sprites[self.vram_sprites_used]
-            self.vram_sprites[self.vram_sprites_used] = (
-                sonic_x + dx,
-                sonic_y + dy,
-                opt_t,
-                0xB4 + (i * 2),
-            )
-            self.vram_sprites_used += 1
+        sonic_x = (((self.tm_width * 8) - 24) // 2) & ~0x1F
+        sonic_y = (((self.tm_height * 8) - 32) // 2) & ~0x1F
+        sonic_x += self.cam_mtx * 32
+        sonic_y += self.cam_mty * 32
+        (dx, dy), smaps = obj_sprite_maps[OT.player_sonic.value]
+        self.maybe_draw_sprite(sonic_x + dx, sonic_y + dy, smaps[0])
+
+        for v, tx, ty in self.object_defs:
+            if v in obj_sprite_maps:
+                x = tx * 32
+                y = ty * 32
+                (dx, dy), smaps = obj_sprite_maps[v]
+                self.maybe_draw_sprite(x + dx, y + dy, smaps[0])
 
         # Draw a 32x28 display
         for ty in range(self.tm_height):
@@ -378,8 +442,9 @@ class TkApp:
                 self.screen.itemconfigure(tm_lbl, image=tm_img, tags=[priority])
 
         # Sprites
-        for si, (x, y, opt_t, tdata) in enumerate(
-            self.vram_sprites[0 : self.vram_sprites_used]
+        # Make sure we render these backwards!
+        for si, (x, y, opt_t, tdata) in reversed(
+            list(enumerate(self.vram_sprites[0 : self.vram_sprites_used]))
         ):
             if opt_t is not None:
                 tag0, tag1 = opt_t
@@ -400,9 +465,11 @@ class TkApp:
                 image=self.ensure_tile_img(((tdata & 0xFE) + 1) | 0x900),
                 state="normal",
             )
+            self.screen.tag_raise(tag0)
+            self.screen.tag_raise(tag1)
 
         # Remove excess
-        for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used : 0]:
+        for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used :]:
             if opt_t is not None:
                 tag0, tag1 = opt_t
                 self.screen.itemconfigure(
@@ -419,6 +486,28 @@ class TkApp:
         # Correct ordering
         self.screen.tag_raise("tile_hi")
         self.screen.tag_lower("tile_lo")
+
+    def maybe_draw_sprite(
+        self, spr_x: int, spr_y: int, spr_data: Sequence[Sequence[int]]
+    ) -> None:
+        for dy, row in enumerate(spr_data):
+            for dx, tile in enumerate(row):
+                if tile == 0xFE:
+                    continue
+
+                x = spr_x + (dx * 8) - (self.cam_mtx * 32)
+                y = spr_y + (dy * 16) - (self.cam_mty * 32)
+                if x >= 8 * self.tm_width:
+                    continue
+                if x <= -8:
+                    continue
+                if y >= 8 * self.tm_height:
+                    continue
+                if y <= -16:
+                    continue
+                _, _, opt_t, _ = self.vram_sprites[self.vram_sprites_used]
+                self.vram_sprites[self.vram_sprites_used] = (x, y, opt_t, tile)
+                self.vram_sprites_used += 1
 
     def ensure_tile_img(self, tdata: int) -> tkinter.PhotoImage:
         opt_tm_img = self.vram_tile_images[tdata]
