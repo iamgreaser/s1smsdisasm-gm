@@ -478,6 +478,12 @@ irq_start:
    call   poll_player_1_inputs         ; 00:00CE - CD A7 05
    bit    4, (iy+g_inputs_player_1-IYBASE)  ; 00:00D1 - FD CB 03 66
    call   z, addr_000F2                ; 00:00D5 - CC F2 00
+   .IF 0
+   .ELSE
+   ;; Mega Drive controller pad hack.
+   bit    6, (iy+g_inputs_player_1-IYBASE)
+   call   z, addr_000F2
+   .ENDIF
    call   random_A                     ; 00:00D8 - CD 25 06
    in     a, ($DD)                     ; 00:00DB - DB DD
    and    $10                          ; 00:00DD - E6 10
@@ -1500,10 +1506,40 @@ fill_vram_at_hl_for_bc_bytes_with_a:
    ret                                 ; 00:05A6 - C9
 
 poll_player_1_inputs:
+   .IF 0
    in     a, ($DC)                     ; 00:05A7 - DB DC
    or     $C0                          ; 00:05A9 - F6 C0
    ld     (iy+g_inputs_player_1-IYBASE), a  ; 00:05AB - FD 77 03
    ret                                 ; 00:05AE - C9
+   .ELSE
+   ;; HACK: Support the Mega Drive / Genesis control pad.
+   ;; TODO: Work out how to get ares to handle Start properly without triggering Pause --GM
+   ld a, $0D
+   out ($3F), a
+   in a, ($DC)
+   ;; Bit 5 = start
+   ;; Bit 4 = A
+   ;; Bit 3(R),2(L) = 0 otherwise no MD pad
+   bit 3, a
+   jr nz, @no_md_pad
+   bit 2, a
+   jr z, @has_md_pad
+   @no_md_pad:
+      ld a, $FF
+   @has_md_pad:
+   rlca
+   rlca
+   or $3F
+   ld c, a
+   ;; Normal operation
+   ld a, $2D
+   out ($3F), a
+   in a, ($DC)
+   or $C0
+   and c
+   ld (iy+g_inputs_player_1-IYBASE), a
+   ret
+   .ENDIF
 
 print_positioned_FF_string:
    ld     c, (hl)                      ; 00:05AF - 4E
