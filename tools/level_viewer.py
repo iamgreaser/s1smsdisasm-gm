@@ -470,9 +470,8 @@ class TkApp:
         for cy in range(self.tm_height // 4):
             for cx in range(self.tm_width // 4):
                 # Metatile index
-                mtidx = self.layout[
-                    ((cy + self.cam_mty) * self.level_width) + cx + self.cam_mtx
-                ]
+                offs = ((cy + self.cam_mty) * self.level_width) + cx + self.cam_mtx
+                mtidx = self.layout[offs]
                 hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
                 for ty in range(4):
                     for tx in range(4):
@@ -489,7 +488,7 @@ class TkApp:
                 self.screen.create_text(
                     ((cx * 32) + 2) * 2,
                     ((cy * 32) + 2) * 2,
-                    text=f"{mtidx:02X}\n{tf:02X}",
+                    text=f"{mtidx:02X} {tf:02X}\n{offs+0xC000:02X}",
                     anchor="nw",
                     fill="#FFFFFF",
                     tags=["info_text"],
