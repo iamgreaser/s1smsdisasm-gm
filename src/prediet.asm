@@ -24267,75 +24267,75 @@ ARTMAP_05_6C61:
 .INCBIN "src/data/credits_screen.artmap00"
 
 LVLAYOUT_05_2DEA:
-.INCBIN "src/data/lv_ghz_1_ending.layout"
+.INCBIN "src/data/lv_ghz_1_ending.layout8"
 
 LVLAYOUT_05_3628:
-.INCBIN "src/data/lv_ghz_2.layout"
+.INCBIN "src/data/lv_ghz_2.layout7"
 
 LVLAYOUT_05_3C89:
-.INCBIN "src/data/lv_ghz_3.layout"
+.INCBIN "src/data/lv_ghz_3.layout7"
 
 LVLAYOUT_05_3FB6:
-.INCBIN "src/data/lv_jun_1.layout" READ $0004A
+.INCBIN "src/data/lv_jun_1.layout8" READ $0004A
 .ENDS
 
 .SECTION "Bank06" SLOT 2 BANK $06 FORCE ORG $0000
-.INCBIN "src/data/lv_jun_1.layout" SKIP $0004A
+.INCBIN "src/data/lv_jun_1.layout8" SKIP $0004A
 
 LVLAYOUT_05_4A62:
-.INCBIN "src/data/lv_jun_2_special_2_6.layout"
+.INCBIN "src/data/lv_jun_2_special_2_6.layout4"
 
 LVLAYOUT_05_533D:
-.INCBIN "src/data/lv_scr_1.layout"
+.INCBIN "src/data/lv_scr_1.layout8"
 
 LVLAYOUT_05_59D7:
-.INCBIN "src/data/lv_scr_2_main.layout"
+.INCBIN "src/data/lv_scr_2_main.layout7"
 
 LVLAYOUT_05_62DB:
-.INCBIN "src/data/lv_scr_2_upper.layout"
+.INCBIN "src/data/lv_scr_2_upper.layout6"
 
 LVLAYOUT_05_6BD3:
-.INCBIN "src/data/lv_scr_2_lower.layout"
+.INCBIN "src/data/lv_scr_2_lower.layout5"
 
 LVLAYOUT_05_7282:
-.INCBIN "src/data/lv_scr_3.layout"
+.INCBIN "src/data/lv_scr_3.layout6"
 
 LVLAYOUT_05_7B34:
-.INCBIN "src/data/lv_sky_2.layout"
+.INCBIN "src/data/lv_sky_2.layout6"
 
 LVLAYOUT_05_7ED1:
-.INCBIN "src/data/lv_bri_1.layout" READ $0012F
+.INCBIN "src/data/lv_bri_1.layout8" READ $0012F
 .ENDS
 
 .SECTION "Bank07" SLOT 2 BANK $07 FORCE ORG $0000
-.INCBIN "src/data/lv_bri_1.layout" SKIP $0012F
+.INCBIN "src/data/lv_bri_1.layout8" SKIP $0012F
 
 LVLAYOUT_05_8565:
-.INCBIN "src/data/lv_lab_1.layout"
+.INCBIN "src/data/lv_lab_1.layout6"
 
 LVLAYOUT_05_8E27:
-.INCBIN "src/data/lv_lab_2.layout"
+.INCBIN "src/data/lv_lab_2.layout6"
 
 LVLAYOUT_05_9B3A:
-.INCBIN "src/data/lv_sky_1.layout"
+.INCBIN "src/data/lv_sky_1.layout7"
 
 LVLAYOUT_05_A2A8:
-.INCBIN "src/data/lv_bri_2.layout"
+.INCBIN "src/data/lv_bri_2.layout7"
 
 LVLAYOUT_05_A741:
-.INCBIN "src/data/lv_sky_3_end_sky_2.layout"
+.INCBIN "src/data/lv_sky_3_end_sky_2.layout6"
 
 LVLAYOUT_05_AC01:
-.INCBIN "src/data/lv_jun_3.layout"
+.INCBIN "src/data/lv_jun_3.layout6"
 
 LVLAYOUT_05_AFF6:
-.INCBIN "src/data/lv_lab_3.layout"
+.INCBIN "src/data/lv_lab_3.layout6"
 
 LVLAYOUT_05_B301:
-.INCBIN "src/data/lv_bri_3.layout"
+.INCBIN "src/data/lv_bri_3.layout7"
 
 LVLAYOUT_05_B441:
-.INCBIN "src/data/lv_special_1_3_4_5_7_8.layout"
+.INCBIN "src/data/lv_special_1_3_4_5_7_8.layout6"
 
 BANK07_JUNK_END_BBA1:
 .db $2E, $20, $28, $42, $41, $4E, $4B, $30, $2D, $34, $29, $A2, $53, $4F, $4E, $49  ; 07:BBA1
