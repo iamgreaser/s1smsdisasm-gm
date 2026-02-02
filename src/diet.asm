@@ -32,6 +32,9 @@
 ;; NOT COMPATIBLE WITH cht_no_speed_cap.
 .DEF cht_inverse_speed_cap 0
 
+;; Branding!
+.DEF show_diet_logo 1
+
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
 SLOT 1 START $4000 SIZE $4000
@@ -3898,6 +3901,15 @@ run_title_screen:
    ld     a, $00                       ; 00:12BD - 3E 00
    ld     (g_FF_string_high_byte), a   ; 00:12BF - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:12C2 - CD 01 05
+
+   .IF show_diet_logo
+   ;; Some branding so we know this is modified
+   ld hl, diet_edition_logo_art
+   ld de, $3000
+   ld a, :diet_edition_logo_art
+   call load_art
+   .ENDIF
+
    ;; Clear VDP scroll registers
    xor    a                            ; 00:12C5 - AF
    ld     (g_vdp_scroll_x), a          ; 00:12C6 - 32 51 D2
@@ -3974,6 +3986,12 @@ run_title_screen:
    ld     de, $0018                    ; 00:133E - 11 18 00
    ld     bc, (var_D212)               ; 00:1341 - ED 4B 12 D2
    call   addr_0350F                   ; 00:1345 - CD 0F 35
+   .IF show_diet_logo
+      ld hl, $0038
+      ld de, $003C
+      ld bc, diet_edition_logo_sprites
+      call addr_0350F
+   .ENDIF
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:1348 - FD CB 03 6E
    jp     nz, @mainloop                ; 00:134C - C2 EA 12
    scf                                 ; 00:134F - 37
@@ -3984,6 +4002,42 @@ run_title_screen:
    ;; If we jumped here from above, AND A clears the carry flag.
    ;; If we fell through from not so far above, SCF sets the carry flag.
    ret                                 ; 00:1351 - C9
+
+.IF show_diet_logo
+diet_edition_logo_sprites:
+   .db $80, $82, $84, $86, $FF, $FF
+   .db $88, $8A, $8C, $8E, $FF, $FF
+   .db $FF
+diet_edition_logo_art:
+   ;; Sorry if the compression is a bit crap here.
+   ;; It's basically 2 bits per pixel and I suspect regular LZ might work better.
+   ;; uncmp =   512 bytes, cmp =   398 bytes
+   .db $48, $59, $18, $00, $46, $00, $80, $00, $06, $04, $07, $0E, $61, $00, $03, $3D
+   .db $00, $C2, $00, $C3, $70, $F9, $73, $FC, $00, $00, $07, $00, $00, $00, $12, $12
+   .db $12, $00, $1A, $12, $00, $17, $29, $29, $28, $28, $28, $35, $00, $00, $12, $12
+   .db $00, $00, $12, $12, $12, $29, $39, $00, $00, $00, $00, $29, $28, $4E, $4E, $4E
+   .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01, $01, $01, $00, $03
+   .db $03, $03, $01, $02, $03, $03, $03, $84, $87, $87, $03, $FC, $FF, $FF, $6F, $90
+   .db $FF, $FF, $3F, $40, $7F, $7F, $3F, $4C, $73, $7F, $3F, $4F, $70, $7F, $3F, $48
+   .db $77, $7F, $7F, $84, $FB, $FF, $3F, $44, $7B, $7F, $00, $02, $02, $02, $00, $06
+   .db $06, $06, $04, $CA, $CE, $CE, $8E, $51, $DF, $DF, $CF, $30, $FF, $FF, $FF, $00
+   .db $FF, $FF, $FF, $80, $7F, $FF, $FF, $C4, $3B, $FF, $FF, $40, $BF, $FF, $FF, $24
+   .db $DB, $FF, $00, $20, $20, $20, $00, $60, $60, $60, $20, $5F, $7F, $7F, $7F, $80
+   .db $FF, $FF, $FF, $04, $FB, $FF, $FF, $06, $F9, $FF, $FF, $02, $FD, $FF, $FF, $03
+   .db $FC, $FF, $FF, $07, $F8, $FF, $FF, $65, $9A, $FF, $FF, $F1, $0E, $FF, $FF, $B1
+   .db $4E, $FF, $FF, $E1, $1E, $FF, $00, $E0, $E0, $E0, $C0, $22, $E2, $E2, $C0, $3E
+   .db $FE, $FE, $DC, $22, $FE, $FE, $FC, $02, $FE, $FE, $F8, $04, $FC, $FC, $F8, $E4
+   .db $1C, $FC, $F0, $AE, $5E, $FE, $F8, $64, $9C, $FC, $1F, $24, $3B, $3F, $0F, $14
+   .db $1B, $1F, $1F, $26, $39, $3F, $1F, $22, $3D, $3F, $3F, $42, $7D, $7F, $3F, $43
+   .db $7C, $7F, $07, $F9, $FE, $FF, $07, $09, $0E, $0F, $0F, $10, $1F, $1F, $1F, $20
+   .db $3F, $3F, $0F, $30, $3F, $3F, $00, $2F, $2F, $2F, $00, $08, $08, $08, $FF, $26
+   .db $D9, $FF, $FF, $12, $ED, $FF, $FF, $13, $EC, $FF, $FF, $16, $E9, $FF, $FF, $14
+   .db $EB, $FF, $FF, $1C, $E3, $FF, $FF, $70, $8F, $FF, $FF, $C0, $3F, $FF, $FE, $01
+   .db $FF, $FF, $0C, $F2, $FE, $FE, $00, $0C, $0C, $0C, $00, $04, $04, $04, $FF, $C3
+   .db $3C, $FF, $FF, $7E, $81, $FF, $FF, $20, $DF, $FF, $FF, $E0, $1F, $FF, $F8, $07
+   .db $FF, $FF, $38, $C4, $FC, $FC, $00, $38, $38, $38, $F0, $0C, $FC, $FC, $F0, $08
+   .db $F8, $F8, $60, $90, $F0, $F0, $00, $70, $70, $70, $00, $10, $10, $10
+.ENDIF
 
 LUT_01352:
 .db $09, $12, $E3, $E4, $E5, $E6, $E6, $F1, $F1, $E9, $EB, $E7, $E7, $EA, $EC, $FF  ; 00:1352
