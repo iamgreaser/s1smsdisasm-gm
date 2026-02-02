@@ -175,11 +175,11 @@ var_D29F dw   ; D29F
 var_D2A1 db   ; D2A1
 var_D2A2 db   ; D2A2
 var_D2A3 db   ; D2A3
-var_D2A4 db   ; D2A4
-var_D2A5 db   ; D2A5
-var_D2A6 db   ; D2A6
-.  dsb 1
-var_D2A8 dw   ; D2A8
+g_palette_cycle_tick_remain db   ; D2A4
+g_palette_cycle_tick_period db   ; D2A5
+g_palette_cycle_index db   ; D2A6
+g_palette_cycle_length db   ; D2A7
+g_palette_cycle_baseptr dw   ; D2A8
 g_rings_BCD db   ; D2AA
 var_D2AB db   ; D2AB
 var_D2AC db   ; D2AC
@@ -630,14 +630,14 @@ addr_001D0:
    ret                                 ; 00:01D5 - C9
 
 addr_001D6:
-   ld     a, (var_D2A6)                ; 00:01D6 - 3A A6 D2
+   ld     a, (g_palette_cycle_index)   ; 00:01D6 - 3A A6 D2
    add    a, a                         ; 00:01D9 - 87
    add    a, a                         ; 00:01DA - 87
    add    a, a                         ; 00:01DB - 87
    add    a, a                         ; 00:01DC - 87
    ld     e, a                         ; 00:01DD - 5F
    ld     d, $00                       ; 00:01DE - 16 00
-   ld     hl, (var_D2A8)               ; 00:01E0 - 2A A8 D2
+   ld     hl, (g_palette_cycle_baseptr)  ; 00:01E0 - 2A A8 D2
    add    hl, de                       ; 00:01E3 - 19
    ld     a, $01                       ; 00:01E4 - 3E 01
    call   load_palettes_IRQ            ; 00:01E6 - CD 66 05
@@ -5701,7 +5701,7 @@ addr_01F7B:
    pop    bc                           ; 00:1F7F - C1
 
 addr_01F80:
-   ld     hl, var_D2A4                 ; 00:1F80 - 21 A4 D2
+   ld     hl, g_palette_cycle_tick_remain  ; 00:1F80 - 21 A4 D2
    ld     a, (bc)                      ; 00:1F83 - 0A
    ld     (hl), a                      ; 00:1F84 - 77
    inc    hl                           ; 00:1F85 - 23
@@ -5718,7 +5718,7 @@ addr_01F80:
    inc    bc                           ; 00:1F91 - 03
    ld     a, (bc)                      ; 00:1F92 - 0A
    ld     h, a                         ; 00:1F93 - 67
-   ld     (var_D2A8), hl               ; 00:1F94 - 22 A8 D2
+   ld     (g_palette_cycle_baseptr), hl  ; 00:1F94 - 22 A8 D2
 
 addr_01F97:
    inc    de                           ; 00:1F97 - 13
@@ -5729,19 +5729,19 @@ LUT_01F9D:
 .db $02, $04                                                                        ; 00:1F9D
 
 LUT_01F9D_elem_1F9F:
-.dw addr_0645E                                                                      ; 00:1F9F
+.dw LVCYCPAL1_SKY_1A                                                                ; 00:1F9F
 
 LUT_01FA1:
 .db $02, $04                                                                        ; 00:1FA1
 
 LUT_01FA1_elem_1FA3:
-.dw addr_0649E                                                                      ; 00:1FA3
+.dw LVCYCPAL1_SKY_1B                                                                ; 00:1FA3
 
 LUT_01FA5:
 .db $02, $04                                                                        ; 00:1FA5
 
 LUT_01FA5_elem_1FA7:
-.dw addr_064DE                                                                      ; 00:1FA7
+.dw LVCYCPAL1_SKY_1C                                                                ; 00:1FA7
 
 update_signpost_timer:
    dec    a                            ; 00:1FA9 - 3D
@@ -6139,6 +6139,7 @@ addr_0223E:
    add    hl, bc                       ; 00:224F - 09
    ld     (var_D24F), hl               ; 00:2250 - 22 4F D2
    ex     de, hl                       ; 00:2253 - EB
+   ;; Load VRAM $0000 art from bank $0C
    ld     e, (hl)                      ; 00:2254 - 5E
    inc    hl                           ; 00:2255 - 23
    ld     d, (hl)                      ; 00:2256 - 56
@@ -6149,6 +6150,7 @@ addr_0223E:
    ld     a, $0C                       ; 00:225D - 3E 0C
    call   load_art                     ; 00:225F - CD 05 04
    pop    hl                           ; 00:2262 - E1
+   ;; Load VRAM $2000 art typically from bank $09
    ld     a, (hl)                      ; 00:2263 - 7E
    inc    hl                           ; 00:2264 - 23
    ld     e, (hl)                      ; 00:2265 - 5E
@@ -6160,12 +6162,13 @@ addr_0223E:
    ld     de, $2000                    ; 00:226B - 11 00 20
    call   load_art                     ; 00:226E - CD 05 04
    pop    hl                           ; 00:2271 - E1
+   ;; Load base pal3
    ld     a, (hl)                      ; 00:2272 - 7E
    push   hl                           ; 00:2273 - E5
    add    a, a                         ; 00:2274 - 87
    ld     e, a                         ; 00:2275 - 5F
    ld     d, $00                       ; 00:2276 - 16 00
-   ld     hl, LUT_base_palettes_UNCONFIRMED  ; 00:2278 - 21 7C 62
+   ld     hl, LUT_base_PAL3s           ; 00:2278 - 21 7C 62
    add    hl, de                       ; 00:227B - 19
    di                                  ; 00:227C - F3
    ld     a, $01                       ; 00:227D - 3E 01
@@ -6192,7 +6195,8 @@ addr_0223E:
    call   addr_00966                   ; 00:229E - CD 66 09
    pop    hl                           ; 00:22A1 - E1
    inc    hl                           ; 00:22A2 - 23
-   ld     de, var_D2A4                 ; 00:22A3 - 11 A4 D2
+   ;; Load palette cycle period and size
+   ld     de, g_palette_cycle_tick_remain  ; 00:22A3 - 11 A4 D2
    .IF 0
    ld     a, (hl)                      ; 00:22A6 - 7E
    ld     (de), a                      ; 00:22A7 - 12
@@ -6217,12 +6221,13 @@ addr_0223E:
    ldi
    ; SAVING: 2 bytes
    .ENDIF
+   ;; Load palette cycle index
    ld     a, (hl)                      ; 00:22B2 - 7E
    ex     de, hl                       ; 00:22B3 - EB
    add    a, a                         ; 00:22B4 - 87
    ld     c, a                         ; 00:22B5 - 4F
    ld     b, $00                       ; 00:22B6 - 06 00
-   ld     hl, LUT_palette_cycles_UNCONFIRMED  ; 00:22B8 - 21 8C 62
+   ld     hl, LUT_PAL1_cycles          ; 00:22B8 - 21 8C 62
    add    hl, bc                       ; 00:22BB - 09
    di                                  ; 00:22BC - F3
    ld     a, $01                       ; 00:22BD - 3E 01
@@ -6242,7 +6247,7 @@ addr_0223E:
    inc    hl                           ; 00:22CF - 23
    ld     h, (hl)                      ; 00:22D0 - 66
    ld     l, a                         ; 00:22D1 - 6F
-   ld     (var_D2A8), hl               ; 00:22D2 - 22 A8 D2
+   ld     (g_palette_cycle_baseptr), hl  ; 00:22D2 - 22 A8 D2
    ex     de, hl                       ; 00:22D5 - EB
    inc    hl                           ; 00:22D6 - 23
    ld     e, (hl)                      ; 00:22D7 - 5E
@@ -6434,22 +6439,22 @@ addr_023C7:
    ret                                 ; 00:23C8 - C9
 
 addr_023C9:
-   ld     a, (var_D2A4)                ; 00:23C9 - 3A A4 D2
+   ld     a, (g_palette_cycle_tick_remain)  ; 00:23C9 - 3A A4 D2
    dec    a                            ; 00:23CC - 3D
-   ld     (var_D2A4), a                ; 00:23CD - 32 A4 D2
+   ld     (g_palette_cycle_tick_remain), a  ; 00:23CD - 32 A4 D2
    ret    nz                           ; 00:23D0 - C0
-   ld     a, (var_D2A6)                ; 00:23D1 - 3A A6 D2
+   ld     a, (g_palette_cycle_index)   ; 00:23D1 - 3A A6 D2
    ld     l, a                         ; 00:23D4 - 6F
    ld     h, $00                       ; 00:23D5 - 26 00
    add    hl, hl                       ; 00:23D7 - 29
    add    hl, hl                       ; 00:23D8 - 29
    add    hl, hl                       ; 00:23D9 - 29
    add    hl, hl                       ; 00:23DA - 29
-   ld     de, (var_D2A8)               ; 00:23DB - ED 5B A8 D2
+   ld     de, (g_palette_cycle_baseptr)  ; 00:23DB - ED 5B A8 D2
    add    hl, de                       ; 00:23DF - 19
    ld     a, $01                       ; 00:23E0 - 3E 01
    call   signal_load_palettes         ; 00:23E2 - CD 33 03
-   ld     hl, (var_D2A6)               ; 00:23E5 - 2A A6 D2
+   ld     hl, (g_palette_cycle_index)  ; 00:23E5 - 2A A6 D2
    ld     a, l                         ; 00:23E8 - 7D
    inc    a                            ; 00:23E9 - 3C
    cp     h                            ; 00:23EA - BC
@@ -6458,9 +6463,9 @@ addr_023C9:
 
 addr_023EE:
    ld     l, a                         ; 00:23EE - 6F
-   ld     (var_D2A6), hl               ; 00:23EF - 22 A6 D2
-   ld     a, (var_D2A5)                ; 00:23F2 - 3A A5 D2
-   ld     (var_D2A4), a                ; 00:23F5 - 32 A4 D2
+   ld     (g_palette_cycle_index), hl  ; 00:23EF - 22 A6 D2
+   ld     a, (g_palette_cycle_tick_period)  ; 00:23F2 - 3A A5 D2
+   ld     (g_palette_cycle_tick_remain), a  ; 00:23F5 - 32 A4 D2
    ret                                 ; 00:23F8 - C9
 
 LUT_023F9:
@@ -12864,105 +12869,72 @@ UNK_061DC:
 PAL2_signpost:
 .INCBIN "src/data/signpost.pal2"
 
-LUT_base_palettes_UNCONFIRMED:
-.dw addr_0629E, addr_062EE, addr_0633E, addr_0638E, addr_063DE, addr_0643E, addr_0658E, addr_0655E  ; 01:627C
+LUT_base_PAL3s:
+.dw LVPAL3_GHZ, LVPAL3_BRI, LVPAL3_JUN, LVPAL3_LAB, LVPAL3_SCR, LVPAL3_SKY, LVPAL3_SKY_3, LVPAL3_special  ; 01:627C
 
-LUT_palette_cycles_UNCONFIRMED:
-.dw addr_062BE, addr_0630E, addr_0635E, addr_063AE, addr_063FE, addr_0645E, addr_065AE, addr_0657E  ; 01:628C
-.dw addr_0651E                                                                      ; 01:629C
+LUT_PAL1_cycles:
+.dw LVCYCPAL1_GHZ, LVCYCPAL1_BRI, LVCYCPAL1_JUN, LVCYCPAL1_LAB, LVCYCPAL1_SCR, LVCYCPAL1_SKY_1A, LVCYCPAL1_SKY_3, LVCYCPAL1_special  ; 01:628C
+.dw LVCYCPAL1_SKY_2                                                                 ; 01:629C
 
-addr_0629E:
-.db $38, $01, $06, $0B, $04, $08, $0C, $3D, $3B, $34, $3C, $3E, $3F, $0F, $00, $3F  ; 01:629E
-.db $38, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $00, $00, $00  ; 01:62AE
+LVPAL3_GHZ:
+.INCBIN "src/data/lv_ghz.pal3"
 
-addr_062BE:
-.db $38, $01, $06, $0B, $04, $08, $0C, $3D, $3B, $34, $3C, $3E, $3F, $0F, $00, $3F  ; 01:62BE
-.db $38, $01, $06, $0B, $04, $08, $0C, $3D, $3B, $34, $3F, $3C, $3E, $0F, $00, $3F  ; 01:62CE
-.db $38, $01, $06, $0B, $04, $08, $0C, $3D, $3B, $34, $3E, $3F, $3C, $0F, $00, $3F  ; 01:62DE
+LVCYCPAL1_GHZ:
+.INCBIN "src/data/lv_ghz.pal1c"
 
-addr_062EE:
-.db $38, $01, $06, $0B, $2A, $3A, $0C, $19, $3D, $24, $38, $3C, $3F, $1F, $00, $3F  ; 01:62EE
-.db $38, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $27, $0B, $00  ; 01:62FE
+LVPAL3_BRI:
+.INCBIN "src/data/lv_bri.pal3"
 
-addr_0630E:
-.db $38, $01, $06, $0B, $3A, $08, $0C, $19, $3C, $24, $38, $3C, $3F, $1F, $00, $3F  ; 01:630E
-.db $38, $01, $06, $0B, $3A, $08, $0C, $19, $3C, $24, $3F, $38, $3C, $1F, $00, $3F  ; 01:631E
-.db $38, $01, $06, $0B, $3A, $08, $0C, $19, $3C, $24, $3C, $3F, $38, $1F, $00, $3F  ; 01:632E
+LVCYCPAL1_BRI:
+.INCBIN "src/data/lv_bri.pal1c"
 
-addr_0633E:
-.db $04, $08, $0C, $06, $0B, $05, $25, $01, $03, $10, $34, $38, $3E, $1F, $00, $3F  ; 01:633E
-.db $04, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $27, $0B, $00  ; 01:634E
+LVPAL3_JUN:
+.INCBIN "src/data/lv_jun.pal3"
 
-addr_0635E:
-.db $04, $08, $0C, $06, $0B, $05, $26, $01, $03, $10, $34, $38, $3E, $0F, $00, $3F  ; 01:635E
-.db $04, $08, $0C, $06, $0B, $05, $26, $01, $03, $10, $3E, $34, $38, $0F, $00, $3F  ; 01:636E
-.db $04, $08, $0C, $06, $0B, $05, $26, $01, $03, $10, $38, $3E, $34, $0F, $00, $3F  ; 01:637E
+LVCYCPAL1_JUN:
+.INCBIN "src/data/lv_jun.pal1c"
 
-addr_0638E:
-.db $00, $01, $06, $0B, $27, $14, $18, $29, $12, $10, $1E, $09, $04, $0F, $00, $3F  ; 01:638E
+LVPAL3_LAB:
+.INCBIN "src/data/lv_lab.pal1"
 
 PAL2_lv_lab_above_water:
 .INCBIN "src/data/lv_lab_above_water.pal2"
 
-addr_063AE:
-.db $00, $01, $06, $0B, $27, $14, $18, $29, $12, $10, $1E, $09, $04, $0F, $00, $3F  ; 01:63AE
-.db $00, $01, $06, $0B, $27, $14, $18, $29, $12, $10, $09, $04, $1E, $0F, $00, $3F  ; 01:63BE
-.db $00, $01, $06, $0B, $27, $14, $18, $29, $12, $10, $04, $1E, $09, $0F, $00, $3F  ; 01:63CE
+LVCYCPAL1_LAB:
+.INCBIN "src/data/lv_lab.pal1c"
 
-addr_063DE:
-.db $00, $10, $15, $29, $3D, $01, $14, $02, $05, $0A, $0F, $3F, $07, $0F, $00, $3F  ; 01:63DE
-.db $00, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3D, $15, $0F, $27, $10, $29  ; 01:63EE
+LVPAL3_SCR:
+.INCBIN "src/data/lv_scr.pal3"
 
-addr_063FE:
-.db $00, $10, $15, $29, $3D, $01, $14, $02, $05, $0A, $0F, $3F, $07, $0F, $00, $3F  ; 01:63FE
-.db $00, $10, $15, $29, $3D, $01, $14, $02, $3F, $05, $0A, $0F, $07, $0F, $00, $3F  ; 01:640E
-.db $00, $10, $15, $29, $3D, $01, $14, $02, $0F, $3F, $05, $0A, $07, $0F, $00, $3F  ; 01:641E
-.db $00, $10, $15, $29, $3D, $01, $14, $02, $0A, $0F, $3F, $05, $07, $0F, $00, $3F  ; 01:642E
+LVCYCPAL1_SCR:
+.INCBIN "src/data/lv_scr.pal1c"
 
-addr_0643E:
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $3D, $39, $3D, $3F, $24, $00, $38  ; 01:643E
-.db $10, $20, $35, $1B, $16, $2A, $00, $3F, $01, $03, $3A, $06, $0F, $27, $15, $00  ; 01:644E
+LVPAL3_SKY:
+.INCBIN "src/data/lv_sky.pal3"
 
-addr_0645E:
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $3D, $39, $3D, $3F, $24, $00, $38  ; 01:645E
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $3F, $3D, $39, $3D, $24, $00, $38  ; 01:646E
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $3D, $3F, $3D, $39, $24, $00, $38  ; 01:647E
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $39, $3D, $3F, $3D, $24, $00, $38  ; 01:648E
+LVCYCPAL1_SKY_1A:
+.INCBIN "src/data/lv_sky_1a.pal1c"
 
-addr_0649E:
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $3D, $39, $3D, $3F, $24, $00, $38  ; 01:649E
-.db $10, $10, $20, $34, $30, $10, $11, $25, $10, $3F, $3D, $39, $3D, $24, $00, $38  ; 01:64AE
-.db $10, $10, $20, $34, $30, $10, $11, $25, $20, $3D, $3F, $3D, $39, $24, $00, $38  ; 01:64BE
-.db $10, $10, $20, $34, $30, $10, $11, $25, $2A, $39, $3D, $3F, $3D, $24, $00, $38  ; 01:64CE
+LVCYCPAL1_SKY_1B:
+.INCBIN "src/data/lv_sky_1b.pal1c"
 
-addr_064DE:
-.db $10, $10, $20, $34, $30, $10, $11, $25, $2F, $3D, $39, $3D, $3F, $24, $00, $38  ; 01:64DE
-.db $30, $14, $29, $2E, $3A, $01, $02, $17, $10, $3F, $3D, $39, $3D, $0F, $00, $3F  ; 01:64EE
-.db $10, $10, $20, $34, $30, $10, $11, $25, $3F, $3D, $3F, $3D, $39, $24, $00, $38  ; 01:64FE
-.db $30, $14, $29, $2E, $3A, $01, $02, $17, $10, $3F, $3D, $39, $3D, $0F, $00, $3F  ; 01:650E
+LVCYCPAL1_SKY_1C:
+.INCBIN "src/data/lv_sky_1c.pal1c"
 
-addr_0651E:
-.db $10, $14, $29, $2E, $3A, $01, $02, $17, $10, $3D, $39, $3D, $3F, $0F, $00, $3F  ; 01:651E
-.db $10, $14, $29, $2E, $3A, $01, $02, $17, $10, $3F, $3D, $39, $3D, $0F, $00, $3F  ; 01:652E
-.db $10, $14, $29, $2E, $3A, $01, $02, $17, $10, $3D, $3F, $3D, $39, $0F, $00, $3F  ; 01:653E
-.db $10, $14, $29, $2E, $3A, $01, $02, $17, $10, $39, $3D, $3F, $3D, $0F, $00, $3F  ; 01:654E
+LVCYCPAL1_SKY_2:
+.INCBIN "src/data/lv_sky_2.pal1c"
 
-addr_0655E:
-.db $10, $04, $3B, $1B, $19, $2D, $21, $32, $17, $13, $12, $27, $30, $1F, $00, $3F  ; 01:655E
-.db $10, $20, $35, $1B, $16, $2A, $00, $3F, $19, $13, $12, $27, $04, $1F, $21, $30  ; 01:656E
+LVPAL3_special:
+.INCBIN "src/data/lv_special.pal3"
 
-addr_0657E:
-.db $10, $04, $3B, $1B, $19, $2D, $11, $32, $17, $13, $12, $27, $30, $1F, $00, $3F  ; 01:657E
+LVCYCPAL1_special:
+.INCBIN "src/data/lv_special.pal1c"
 
-addr_0658E:
-.db $00, $14, $39, $3D, $28, $10, $20, $34, $0F, $07, $3C, $14, $39, $0F, $00, $3F  ; 01:658E
-.db $00, $20, $35, $1B, $16, $2A, $00, $3F, $15, $3A, $0F, $03, $01, $02, $3E, $00  ; 01:659E
+LVPAL3_SKY_3:
+.INCBIN "src/data/lv_sky_3.pal3"
 
-addr_065AE:
-.db $00, $14, $39, $3D, $28, $10, $20, $34, $0F, $07, $3C, $14, $39, $0F, $00, $3F  ; 01:65AE
-.db $00, $14, $39, $3D, $28, $10, $20, $34, $07, $0F, $28, $14, $39, $0F, $00, $3F  ; 01:65BE
-.db $00, $14, $39, $3D, $28, $10, $20, $34, $0F, $07, $14, $14, $39, $0F, $00, $3F  ; 01:65CE
-.db $00, $14, $39, $3D, $28, $10, $20, $34, $07, $0F, $00, $14, $39, $0F, $00, $3F  ; 01:65DE
+LVCYCPAL1_SKY_3:
+.INCBIN "src/data/lv_sky_3.pal1c"
 
 objfunc_08_badnik_crabmeat:
    ld     (ix+13), $10                 ; 01:65EE - DD 36 0D 10
