@@ -79,9 +79,20 @@ class TkApp:
         self.vram_tile_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
             None for i in range(512 * 8)
         ]
-        self.vram_tilemap_widgets: MutableSequence[Optional[tkinter.ttk.Label]] = [
-            None
-        ] * (self.tm_width * self.tm_height)
+        self.screen = tkinter.Canvas(
+            master=self.tk,
+            width=8 * 2 * self.tm_width,
+            height=8 * 2 * self.tm_height,
+        )
+        self.screen.grid()
+        self.vram_tilemap_items: MutableSequence[Optional[int]] = [None] * (
+            self.tm_width * self.tm_height
+        )
+        # (x, y, item1, item2)
+        self.vram_sprites: list[tuple[int, int, Optional[tuple[int, int]], int]] = [
+            (-8, -16, None, 0)
+        ] * 64
+        self.vram_sprites_used = 0
 
     def add_file(self, *, file_path: pathlib.Path) -> None:
         if False:
@@ -295,6 +306,36 @@ class TkApp:
                         self.vram[0x3800 + (vidx * 2) + 0] = lo
                         self.vram[0x3800 + (vidx * 2) + 1] = hi
 
+        # Set background
+        palv = self.cram[0]
+        c = 0
+        c |= (((palv >> 0) & 0x3) * 0x55) << 16
+        c |= (((palv >> 2) & 0x3) * 0x55) << 8
+        c |= (((palv >> 4) & 0x3) * 0x55) << 0
+        self.screen.configure(background=f"#{c:06X}")
+
+        # Set up sprites
+        self.vram_sprites_used = 0
+        sonic_layout = [
+            (0, 0),
+            (8, 0),
+            (16, 0),
+            (0, 16),
+            (8, 16),
+            (16, 16),
+        ]
+        sonic_x = (((self.tm_width * 8) - 24) // 2) - 16
+        sonic_y = (((self.tm_height * 8) - 32) // 2) + 16
+        for i, (dx, dy) in enumerate(sonic_layout):
+            _, _, opt_t, _ = self.vram_sprites[self.vram_sprites_used]
+            self.vram_sprites[self.vram_sprites_used] = (
+                sonic_x + dx,
+                sonic_y + dy,
+                opt_t,
+                0xB4 + (i * 2),
+            )
+            self.vram_sprites_used += 1
+
         # Draw a 32x28 display
         for ty in range(self.tm_height):
             for tx in range(self.tm_width):
@@ -302,54 +343,111 @@ class TkApp:
                 (tdata,) = struct.unpack(
                     "<H", self.vram[0x3800 + (tmi * 2) : 0x3800 + (tmi * 2) + 2]
                 )
+                priority = "tile_hi" if (tdata & 0x1000) != 0 else "tile_lo"
                 tdata &= 0xFFF
+                tm_img = self.ensure_tile_img(tdata)
 
-                if self.vram_tile_images[tdata] is None:
-                    tm_img = tkinter.PhotoImage(width=8 * 2, height=8 * 2)
-                    self.vram_tile_images[tdata] = tm_img
-
-                    # Draw image
-                    outdata: list[list[int]] = []
-                    toffs = (tdata & 0x1FF) * 4 * 8
-                    xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
-                    yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
-                    palsel = (tdata >> 11) & 0x1
-                    cram = self.cram[palsel * 16 : (palsel + 1) * 16]
-                    for y in range(8):
-                        outdata.append([])
-                        planes = self.vram[
-                            toffs + (4 * (yflip ^ y)) : toffs + (4 * ((yflip ^ y) + 1))
-                        ]
-                        for x in range(8):
-                            p = 0
-                            p |= ((planes[0] >> (xflip ^ x)) << 0) & (1 << 0)
-                            p |= ((planes[1] >> (xflip ^ x)) << 1) & (1 << 1)
-                            p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
-                            p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
-                            palv = cram[p]
-                            c = 0
-                            c |= (((palv >> 0) & 0x3) * 0x55) << 16
-                            c |= (((palv >> 2) & 0x3) * 0x55) << 8
-                            c |= (((palv >> 4) & 0x3) * 0x55) << 0
-                            outdata[-1].append(c)
-                            outdata[-1].append(c)
-                        outdata.append(outdata[-1])
-                    outstr = " ".join(
-                        "{" + " ".join(f"#{v:06X}" for v in row) + "}"
-                        for row in outdata
-                    )
-                    tm_img.put(outstr)
-                else:
-                    tm_img = self.vram_tile_images[tdata]
-
-                opt_tm_lbl = self.vram_tilemap_widgets[tmi]
+                opt_tm_lbl = self.vram_tilemap_items[tmi]
                 if opt_tm_lbl is None:
-                    tm_lbl = tkinter.ttk.Label(border=0)
-                    tm_lbl.grid(column=tx, row=ty)
-                    self.vram_tilemap_widgets[tmi] = tm_lbl
+                    tm_lbl = self.screen.create_image(
+                        8 * 2 * tx, 8 * 2 * ty, image=tm_img, anchor="nw"
+                    )
+                    self.vram_tilemap_items[tmi] = tm_lbl
                 else:
                     tm_lbl = opt_tm_lbl
-                tm_lbl.configure(image=tm_img)
+                self.screen.itemconfigure(tm_lbl, image=tm_img, tags=[priority])
+
+        # Sprites
+        for si, (x, y, opt_t, tdata) in enumerate(
+            self.vram_sprites[0 : self.vram_sprites_used]
+        ):
+            if opt_t is not None:
+                tag0, tag1 = opt_t
+                self.screen.moveto(tag0, x * 2, (y + (8 * 0)) * 2)
+                self.screen.moveto(tag1, x * 2, (y + (8 * 1)) * 2)
+            else:
+                tag0 = self.screen.create_image(x * 2, (y + (8 * 0)) * 2, anchor="nw")
+                tag1 = self.screen.create_image(x * 2, (y + (8 * 1)) * 2, anchor="nw")
+                self.vram_sprites[si] = (x, y, (tag0, tag1), tdata)
+
+            self.screen.itemconfigure(
+                tag0,
+                image=self.ensure_tile_img(((tdata & 0xFE) + 0) | 0x900),
+                state="normal",
+            )
+            self.screen.itemconfigure(
+                tag1,
+                image=self.ensure_tile_img(((tdata & 0xFE) + 1) | 0x900),
+                state="normal",
+            )
+
+        # Remove excess
+        for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used : 0]:
+            if opt_t is not None:
+                tag0, tag1 = opt_t
+                self.screen.itemconfigure(
+                    tag0,
+                    image=None,
+                    state="hidden",
+                )
+                self.screen.itemconfigure(
+                    tag1,
+                    image=None,
+                    state="hidden",
+                )
+
+        # Correct ordering
+        self.screen.tag_raise("tile_hi")
+        self.screen.tag_lower("tile_lo")
+
+    def ensure_tile_img(self, tdata: int) -> tkinter.PhotoImage:
+        opt_tm_img = self.vram_tile_images[tdata]
+        if opt_tm_img is None:
+            transparent_positions: list[tuple[int, int]] = []
+            tm_img = tkinter.PhotoImage(width=8 * 2, height=8 * 2)
+            self.vram_tile_images[tdata] = tm_img
+
+            # Draw image
+            outdata: list[list[str]] = []
+            toffs = (tdata & 0x1FF) * 4 * 8
+            xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
+            yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
+            palsel = (tdata >> 11) & 0x1
+            cram = self.cram[palsel * 16 : (palsel + 1) * 16]
+            for y in range(8):
+                outdata.append([])
+                planes = self.vram[
+                    toffs + (4 * (yflip ^ y)) : toffs + (4 * ((yflip ^ y) + 1))
+                ]
+                for x in range(8):
+                    p = 0
+                    p |= ((planes[0] >> (xflip ^ x)) << 0) & (1 << 0)
+                    p |= ((planes[1] >> (xflip ^ x)) << 1) & (1 << 1)
+                    p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
+                    p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
+                    if p == 0:
+                        outdata[-1].append("#000000")
+                        transparent_positions.append((x, y))
+                    else:
+                        palv = cram[p]
+                        c = 0
+                        c |= (((palv >> 0) & 0x3) * 0x55) << 16
+                        c |= (((palv >> 2) & 0x3) * 0x55) << 8
+                        c |= (((palv >> 4) & 0x3) * 0x55) << 0
+                        outdata[-1].append(f"#{c:06X}")
+                    outdata[-1].append(outdata[-1][-1])
+                outdata.append(outdata[-1])
+            outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
+            tm_img.put(outstr)
+            for x, y in transparent_positions:
+                for sy in range(y * 2, (y + 1) * 2, 1):
+                    for sx in range(x * 2, (x + 1) * 2, 1):
+                        tm_img.transparency_set(sx, sy, True)
+
+        else:
+            tm_img = opt_tm_img
+
+        return tm_img
 
 
 if __name__ == "__main__":
