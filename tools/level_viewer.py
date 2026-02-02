@@ -42,14 +42,19 @@ class OT(enum.Enum):
     monitor_rings = 0x01
 
     monitor_life = 0x03
+    monitor_shield = 0x04
 
     signpost = 0x07
     badnik_crabmeat = 0x08
 
+    zaps_player_to_the_right = (
+        0x4B  # Not sure how this one works exactly, but it's used in GHZ2.
+    )
+
+    flower_raiser = 0x50  # Not sure how this one works exactly, but it's used in GHZ.
+    monitor_checkpoint = 0x51
     monitor_continue = 0x52
 
-
-signpost_arts: Sequence[Sequence[Sequence[int]]] = []
 
 # ((dx, dy), tile[anim_idx][dy][dx])
 obj_sprite_maps: dict[
@@ -68,6 +73,12 @@ obj_sprite_maps: dict[
         ],
     ),
     OT.monitor_life.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
+        ],
+    ),
+    OT.monitor_shield.value: (
         (4, -7),
         [
             [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
@@ -94,6 +105,12 @@ obj_sprite_maps: dict[
             [[0x00, 0x02, 0x44], [0x46, 0x22, 0x4A]],
             [[0x40, 0x02, 0x44], [0x26, 0x22, 0x2A]],
             [[0x40, 0x02, 0x04], [0x46, 0x22, 0x4A]],
+        ],
+    ),
+    OT.monitor_checkpoint.value: (
+        (4, -7),
+        [
+            [[0x54, 0x56, 0x58], [0xAA, 0xAC, 0xAE]],
         ],
     ),
     OT.monitor_continue.value: (
@@ -337,9 +354,16 @@ class TkApp:
             self.object_defs.clear()
             for i in range(count - 1):
                 v, x, y = infp.read(3)
-                logging.debug(
-                    "object at %(x)02X,%(y)02X = %(v)02X", {"x": x, "y": y, "v": v}
-                )
+                if v not in obj_sprite_maps:
+                    logging.warning(
+                        "unhandled object %(v)02X at %(x)02X,%(y)02X",
+                        {"x": x, "y": y, "v": v},
+                    )
+                else:
+                    logging.debug(
+                        "object %(v)02X at %(x)02X,%(y)02X",
+                        {"x": x, "y": y, "v": v},
+                    )
                 self.object_defs.append((v, x, y))
 
             assert infp.read() == b""
