@@ -1647,6 +1647,7 @@ mul_hl_by_c_trashing_abcde_PURE:
    add    hl, de                       ; 00:060D - 19
    ret                                 ; 00:060E - C9
 
+.IF 0
 UNK_0060F_PURE_maybe_a_divide_function:
    xor    a                            ; 00:060F - AF
    ld     b, $10                       ; 00:0610 - 06 10
@@ -1666,6 +1667,9 @@ UNK_0060F_PURE_maybe_a_divide_function:
    djnz   -                            ; 00:0621 - 10 EF
    ex     de, hl                       ; 00:0623 - EB
    ret                                 ; 00:0624 - C9
+.ENDIF
+; Unused now!
+; SAVING: 22 bytes
 
 random_A:
    push   hl                           ; 00:0625 - E5
@@ -3479,8 +3483,13 @@ addr_00E86:
    .ELSE
    call calc_lives_output
    .ENDIF
+   .IF 0
    ld     b, $A7                       ; 00:0EC5 - 06 A7
    ld     c, $28                       ; 00:0EC7 - 0E 28
+   .ELSE
+   ld bc, $A728
+   ; SAVING: 1 byte
+   .ENDIF
    ld     hl, var_D000                 ; 00:0EC9 - 21 00 D0
    ld     de, g_HUD_FFstr_buf          ; 00:0ECC - 11 BE D2
    call   draw_sprite_text             ; 00:0ECF - CD CC 35
