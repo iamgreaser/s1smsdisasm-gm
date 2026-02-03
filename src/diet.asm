@@ -18855,6 +18855,7 @@ addr_09E7E:
    ld     (ix+5), l                    ; 02:9E8F - DD 75 05
    ld     (ix+6), h                    ; 02:9E92 - DD 74 06
    ld     a, (ix+17)                   ; 02:9E95 - DD 7E 11
+   .IF 0
    srl    a                            ; 02:9E98 - CB 3F
    srl    a                            ; 02:9E9A - CB 3F
    srl    a                            ; 02:9E9C - CB 3F
@@ -18867,6 +18868,16 @@ addr_09E7E:
    add    a, a                         ; 02:9EA6 - 87
    add    a, c                         ; 02:9EA7 - 81
    ld     c, a                         ; 02:9EA8 - 4F
+   .ELSE
+   and $30
+   ld c, a
+   rrca
+   rrca
+   rrca
+   add a, c
+   ld c, a
+   ; SAVING: 9 bytes
+   .ENDIF
    ld     b, $00                       ; 02:9EA9 - 06 00
    ex     de, hl                       ; 02:9EAB - EB
    add    hl, bc                       ; 02:9EAC - 09
