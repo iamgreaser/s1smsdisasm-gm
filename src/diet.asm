@@ -18912,6 +18912,7 @@ addr_09EC4:
 addr_09ED4:
    ld     (ix+13), $04                 ; 02:9ED4 - DD 36 0D 04
    ld     a, (ix+17)                   ; 02:9ED8 - DD 7E 11
+   .IF 0
    srl    a                            ; 02:9EDB - CB 3F
    srl    a                            ; 02:9EDD - CB 3F
    srl    a                            ; 02:9EDF - CB 3F
@@ -18924,6 +18925,11 @@ addr_09ED4:
    add    a, a                         ; 02:9EEA - 87
    add    a, a                         ; 02:9EEB - 87
    add    a, a                         ; 02:9EEC - 87
+   .ELSE
+   cpl
+   and $30
+   ; SAVING: 15 bytes
+   .ENDIF
    ld     (ix+14), a                   ; 02:9EED - DD 77 0E
    bit    0, (ix+24)                   ; 02:9EF0 - DD CB 18 46
    ret    nz                           ; 02:9EF4 - C0
