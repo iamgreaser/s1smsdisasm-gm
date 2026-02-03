@@ -128,6 +128,12 @@ class TkApp:
                 vram_addr=0x3680,
             )
 
+        elif file_path.suffix in {".ringart"}:
+            self.load_4bpp_art(
+                file_path=file_path,
+                vram_addr=0x1F80,
+            )
+
         elif file_path.suffix in {".objects"}:
             self.load_object_defs(file_path=file_path)
 
@@ -231,6 +237,19 @@ class TkApp:
             self.vram[vram_addr + (i * 4) : vram_addr + (i * 4) + 4] = data[
                 i * 3 : (i + 1) * 3
             ] + bytes([0])
+
+    def load_4bpp_art(self, *, file_path: pathlib.Path, vram_addr: int) -> None:
+        assert 0x0000 <= vram_addr <= 0x3FFF
+        logging.info(
+            "Loading uncompressed 4bpp ring art into VRAM $%(vram_addr)04X from %(file_path)r",
+            {"file_path": str(file_path), "vram_addr": vram_addr},
+        )
+        data = file_path.open("rb").read()
+        assert len(data) == 128
+        for i in range(128 // 4):
+            self.vram[vram_addr + (i * 4) : vram_addr + (i * 4) + 4] = data[
+                i * 4 : (i + 1) * 4
+            ] + bytes([])
 
     def load_layout(self, *, file_path: pathlib.Path, level_width: int) -> None:
         logging.info(
