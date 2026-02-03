@@ -32,6 +32,11 @@
 ;; NOT COMPATIBLE WITH cht_no_speed_cap.
 .DEF cht_inverse_speed_cap 0
 
+;; bool: Force Good Ending: Forces the good ending cutscene.
+;; If you want the bonus, you have to actually get all 6 Chaos Emeralds.
+;; This is mostly for testing purposes.
+.DEF cht_force_good_ending 0
+
 ;; Branding! WARNING: Heavy (consumes about 410 bytes or something) - make sure to rip this out when making your own mods!
 .DEF show_diet_logo 1
 
@@ -6644,9 +6649,11 @@ addr_0258B:
    ld     (g_committed_rompage_1), a   ; 00:25E0 - 32 35 D2
    ld     (rompage_1), a               ; 00:25DD - 32 FE FF
    .ENDIF
+   .IF !cht_force_good_ending
    ld     a, (var_D27F)                ; 00:25E3 - 3A 7F D2
    cp     $06                          ; 00:25E6 - FE 06
    jp     c, addr_02693                ; 00:25E8 - DA 93 26
+   .ENDIF
    ld     b, $3C                       ; 00:25EB - 06 3C
 
 addr_025ED:
@@ -10311,10 +10318,8 @@ addr_04C90:
    ld     h, a                         ; 01:4CAA - 67
    add    hl, bc                       ; 01:4CAB - 09
    ld     (var_D28F), hl               ; 01:4CAC - 22 8F D2
-   .IF !shrink_sonicuncart_interleave
    ld     hl, UNK_0591D                ; 01:4CAF - 21 1D 59
-   .ELSE
-   ld hl, UNK_0592B
+   .IF shrink_sonicuncart_interleave
    bit 0, c
    call nz, addr_0520F
    .ENDIF
@@ -11105,11 +11110,7 @@ addr_05206:
    ret                                 ; 01:520E - C9
 
 addr_0520F:
-   .IF !shrink_sonicuncart_interleave
    ld     hl, UNK_0592B                ; 01:520F - 21 2B 59
-   .ELSE
-   ld hl, UNK_0591D
-   .ENDIF
    ret                                 ; 01:5212 - C9
 
 addr_05213:
@@ -12061,19 +12062,19 @@ UNK_0591D:
 UNK_0592B:
 .db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $FF, $FF            ; 01:592B
 
-.IF shrink_sonicuncart_interleave
-UNK_05939:
-.db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $98, $9A, $FF, $FF
-.db $FF, $FF
-.ELSE
 UNK_05939:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $98, $9A, $FF, $FF  ; 01:5939
 .db $FF, $FF                                                                        ; 01:5949
-.ENDIF
 
+.IF shrink_sonicuncart_interleave
+UNK_0594B:
+.db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $FE, $9C, $9E, $FF
+.db $FF, $FF
+.ELSE
 UNK_0594B:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $FE, $9C, $9E, $FF  ; 01:594B
 .db $FF, $FF                                                                        ; 01:595B
+.ENDIF
 
 UNK_0595D:
 .db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 01:595D
@@ -12167,6 +12168,15 @@ addr_05AEA:
 .db $21, $21, $20, $20, $1F, $1F, $1E, $1E, $1D, $1D, $1C, $1C, $1B, $1B, $1A, $1A  ; 01:5AEA
 .db $19, $19, $19, $19, $FF, $12                                                    ; 01:5AFA
 
+.IF shrink_sonicuncart_interleave
+addr_05B00:
+.db $19+($27-$19), $FF, $00
+addr_05B03:
+.db $1A+($27-$19), $FF, $00
+addr_05B06:
+.db $1B+($27-$19), $FF, $00
+
+.ELSE
 addr_05B00:
 .db $19, $FF, $00                                                                   ; 01:5B00
 
@@ -12175,6 +12185,7 @@ addr_05B03:
 
 addr_05B06:
 .db $1B, $FF, $00                                                                   ; 01:5B06
+.ENDIF
 
 objfunc_01_monitor_rings:
    ld     (ix+13), $14                 ; 01:5B09 - DD 36 0D 14
@@ -15221,6 +15232,20 @@ addr_07BF8:
    ret                                 ; 01:7C16 - C9
 
 PTRTAB_UNK_07C17:
+.IF shrink_sonicuncart_interleave
+.dw addr_07C29
+.db $1C+($27-$19)
+.dw addr_07C31
+.db $1C+($27-$19)
+.dw addr_07C39
+.db $1C+($27-$19)
+.dw addr_07C29
+.db $1D+($27-$19)
+.dw addr_07C31
+.db $1D+($27-$19)
+.dw addr_07C39
+.db $1D+($27-$19)
+.ELSE
 .dw addr_07C29                                                                      ; 01:7C17
 .db $1C                                                                             ; 01:7C19
 .dw addr_07C31                                                                      ; 01:7C1A
@@ -15233,6 +15258,7 @@ PTRTAB_UNK_07C17:
 .db $1D                                                                             ; 01:7C25
 .dw addr_07C39                                                                      ; 01:7C26
 .db $1D                                                                             ; 01:7C28
+.ENDIF
 
 addr_07C29:
 .db $B4, $B6, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C29
@@ -22085,9 +22111,11 @@ addr_0BED7:
    ld     a, (ix+19)                   ; 02:BF00 - DD 7E 13
    cp     $0A                          ; 02:BF03 - FE 0A
    ret    c                            ; 02:BF05 - D8
+   .IF !cht_force_good_ending
    ld     a, (var_D27F)                ; 02:BF06 - 3A 7F D2
    cp     $06                          ; 02:BF09 - FE 06
    jr     c, addr_0BF12                ; 02:BF0B - 38 05
+   .ENDIF
    set    7, (iy+var_D208-IYBASE)      ; 02:BF0D - FD CB 08 FE
    ret                                 ; 02:BF11 - C9
 
@@ -24456,11 +24484,60 @@ SONICUNCART_R_JUNK_15F40:
 ;; FIXME: Both directions are not actually identical! --GM
 ;; e.g. Sonic rolling in a ball always has the shiny highlight on the right side.
 ;;
-.MACRO INTERLEAVED_SONIC_ART ARGS fname_r fname_l
-   ;; Use the left-facing art for now because rings are technically different here.
-   .FOPEN fname_l fp
+.MACRO INTERLEAVED_SONIC_ART_R ARGS fname
+   .FOPEN fname fp
    .REPEAT 2 INDEX ty
       .REPEAT 3 INDEX tx
+         .REPEAT 8 INDEX y
+            ;; Normal
+            .REPEAT 3
+               .FREAD fp v
+               .DB v
+            .ENDR
+            ;; Horizontally flipped
+            .REPEAT 3
+               .FREAD fp v
+               .REDEF v ((v>>4)&$0F)|((v&$0F)<<4)
+               .REDEF v ((v>>2)&$33)|((v&$33)<<2)
+               .REDEF v ((v>>1)&$55)|((v&$55)<<1)
+               .DB v
+            .ENDR
+         .ENDR
+      .ENDR
+   .ENDR
+   .UNDEF v
+.ENDM
+
+.MACRO INTERLEAVED_SONIC_ART_L ARGS fname
+   .FOPEN fname fp
+   .REPEAT 2 INDEX ty
+      .REPEAT 3 INDEX tx
+         .FSEEK fp (16*3)*((2-tx)+(ty*3)) START
+         .REPEAT 8 INDEX y
+            ;; Horizontally flipped
+            .REPEAT 3
+               .FREAD fp v
+               .REDEF v ((v>>4)&$0F)|((v&$0F)<<4)
+               .REDEF v ((v>>2)&$33)|((v&$33)<<2)
+               .REDEF v ((v>>1)&$55)|((v&$55)<<1)
+               .DB v
+            .ENDR
+            ;; Normal
+            .REPEAT 3
+               .FREAD fp v
+               .DB v
+            .ENDR
+         .ENDR
+      .ENDR
+   .ENDR
+   .UNDEF v
+.ENDM
+
+.MACRO INTERLEAVED_SONIC_ART_L_NOSWAP ARGS fname
+   .FOPEN fname fp
+   .REPEAT 2 INDEX ty
+      .REPEAT 3 INDEX tx
+         ;.FSEEK fp (16*3)*((2-tx)+(ty*3)) START
          .REPEAT 8 INDEX y
             ;; Horizontally flipped
             .REPEAT 3
@@ -24496,50 +24573,57 @@ sprite_hflip_table:
 
 .SECTION "Bank08_0100" SLOT 1 BANK $08 FORCE ORG $0100
 sonic_art:
-INTERLEAVED_SONIC_ART "src/data/sonic_00_r.sonicuncart", "src/data/sonic_00_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_01_r.sonicuncart", "src/data/sonic_01_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_02_r.sonicuncart", "src/data/sonic_02_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_03_r.sonicuncart", "src/data/sonic_03_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_04_r.sonicuncart", "src/data/sonic_04_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_05_r.sonicuncart", "src/data/sonic_05_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_06_r.sonicuncart", "src/data/sonic_06_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_07_r.sonicuncart", "src/data/sonic_07_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_08_r.sonicuncart", "src/data/sonic_08_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_09_r.sonicuncart", "src/data/sonic_09_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_0A_r.sonicuncart", "src/data/sonic_0A_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_0B_r.sonicuncart", "src/data/sonic_0B_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_0C_r.sonicuncart", "src/data/sonic_0C_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_0D_r.sonicuncart", "src/data/sonic_0D_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_0E_r.sonicuncart", "src/data/sonic_0E_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_0F_r.sonicuncart", "src/data/sonic_0F_l.sonicuncart"
-
-INTERLEAVED_SONIC_ART "src/data/sonic_10_r.sonicuncart", "src/data/sonic_10_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_11_r.sonicuncart", "src/data/sonic_11_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_12_r.sonicuncart", "src/data/sonic_12_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_13_r.sonicuncart", "src/data/sonic_13_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_14_r.sonicuncart", "src/data/sonic_14_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_15_r.sonicuncart", "src/data/sonic_15_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_16_r.sonicuncart", "src/data/sonic_16_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_17_r.sonicuncart", "src/data/sonic_17_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_18_r.sonicuncart", "src/data/sonic_18_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_19_r.sonicuncart", "src/data/sonic_19_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_1A_r.sonicuncart", "src/data/sonic_1A_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_1B_r.sonicuncart", "src/data/sonic_1B_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_1C_r.sonicuncart", "src/data/sonic_1C_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_1D_r.sonicuncart", "src/data/sonic_1D_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_1E_r.sonicuncart", "src/data/sonic_1E_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_1F_r.sonicuncart", "src/data/sonic_1F_l.sonicuncart"
-
-INTERLEAVED_SONIC_ART "src/data/sonic_20_r.sonicuncart", "src/data/sonic_20_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_21_r.sonicuncart", "src/data/sonic_21_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_22_r.sonicuncart", "src/data/sonic_22_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_23_r.sonicuncart", "src/data/sonic_23_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_24_r.sonicuncart", "src/data/sonic_24_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_25_r.sonicuncart", "src/data/sonic_25_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_26_r.sonicuncart", "src/data/sonic_26_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_27_r.sonicuncart", "src/data/sonic_27_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_28_r.sonicuncart", "src/data/sonic_28_l.sonicuncart"
-INTERLEAVED_SONIC_ART "src/data/sonic_29_r.sonicuncart", "src/data/sonic_29_l.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_00_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_01_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_02_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_03_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_04_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_05_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_06_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_07_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_08_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_09_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_0A_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_0B_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_0C_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_0D_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_0E_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_0F_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_10_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_11_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_12_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_13_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_14_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_15_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_16_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_17_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_18_r.sonicuncart"
+;; $19 animation
+INTERLEAVED_SONIC_ART_R "src/data/sonic_19_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_1A_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_1B_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_1C_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_1D_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_1E_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_1F_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_20_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_21_r.sonicuncart"
+;; $22 normal
+INTERLEAVED_SONIC_ART_R "src/data/sonic_22_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_23_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_24_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_25_r.sonicuncart"
+INTERLEAVED_SONIC_ART_R "src/data/sonic_26_r.sonicuncart"
+;; These 3 are unused
+;INTERLEAVED_SONIC_ART_R "src/data/sonic_27_r.sonicuncart"
+;INTERLEAVED_SONIC_ART_R "src/data/sonic_28_r.sonicuncart"
+;INTERLEAVED_SONIC_ART_R "src/data/sonic_29_r.sonicuncart"
+;; $27 remap of otherwise-$19-through-$1D-inclusive left flips
+INTERLEAVED_SONIC_ART_L "src/data/sonic_19_l.sonicuncart"
+INTERLEAVED_SONIC_ART_L "src/data/sonic_1A_l.sonicuncart"
+INTERLEAVED_SONIC_ART_L "src/data/sonic_1B_l.sonicuncart"
+INTERLEAVED_SONIC_ART_L_NOSWAP "src/data/sonic_1C_l.sonicuncart"
+INTERLEAVED_SONIC_ART_L_NOSWAP "src/data/sonic_1D_l.sonicuncart"
 .ENDS
 
 .ENDIF
