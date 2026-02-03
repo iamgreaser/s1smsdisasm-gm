@@ -6511,12 +6511,12 @@ RETPTR_032E2:
    bit    7, (ix+8)                    ; 00:332B - DD CB 08 7E
    jr     nz, addr_0333A               ; 00:332F - 20 09
    ld     c, (ix+13)                   ; 00:3331 - DD 4E 0D
-   ld     hl, UNK_0411E                ; 00:3334 - 21 1E 41
+   ld     hl, LUT_phys_tileflags_push_left  ; 00:3334 - 21 1E 41
    jp     addr_0333F                   ; 00:3337 - C3 3F 33
 
 addr_0333A:
    ld     c, $00                       ; 00:333A - 0E 00
-   ld     hl, UNK_04020                ; 00:333C - 21 20 40
+   ld     hl, LUT_phys_tileflags_push_right  ; 00:333C - 21 20 40
 
 addr_0333F:
    ld     (var_D210), bc               ; 00:333F - ED 43 10 D2
@@ -6633,14 +6633,14 @@ addr_033F6:
    ld     c, (ix+13)                   ; 00:33FF - DD 4E 0D
    srl    c                            ; 00:3402 - CB 39
    ld     e, (ix+14)                   ; 00:3404 - DD 5E 0E
-   ld     hl, LUT_448A                 ; 00:3407 - 21 8A 44
+   ld     hl, LUT_phys_tileflags_push_up  ; 00:3407 - 21 8A 44
    jp     addr_03417                   ; 00:340A - C3 17 34
 
 addr_0340D:
    ld     c, (ix+13)                   ; 00:340D - DD 4E 0D
    srl    c                            ; 00:3410 - CB 39
    ld     e, $00                       ; 00:3412 - 1E 00
-   ld     hl, LUT_41EC                 ; 00:3414 - 21 EC 41
+   ld     hl, LUT_phys_tileflags_push_down  ; 00:3414 - 21 EC 41
 
 addr_03417:
    ld     (var_D210), de               ; 00:3417 - ED 53 10 D2
@@ -7702,7 +7702,7 @@ LUT_3FF0:
 .db $03, $08, $03, $03, $03, $03, $03, $03, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:4000
 .db $00, $00, $00, $00, $00, $00, $00, $03, $03, $04, $04, $03, $03, $03, $03, $00  ; 01:4010
 
-UNK_04020:
+LUT_phys_tileflags_push_right:
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4020
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4030
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0409E, addr_0407E  ; 01:4040
@@ -7730,7 +7730,7 @@ addr_040FE:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C  ; 01:40FE
 .db $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:410E
 
-UNK_0411E:
+LUT_phys_tileflags_push_left:
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:411E
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:412E
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0417C, addr_0407E  ; 01:413E
@@ -7753,7 +7753,7 @@ addr_041CC:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $04, $04, $04, $04, $04, $04, $04, $04  ; 01:41CC
 .db $04, $04, $04, $04, $04, $04, $04, $04, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:41DC
 
-LUT_41EC:
+LUT_phys_tileflags_push_down:
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:41EC
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:41FC
 .dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0424A, addr_0407E  ; 01:420C
@@ -7833,7 +7833,7 @@ addr_0446A:
 .db $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17  ; 01:446A
 .db $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17  ; 01:447A
 
-LUT_448A:
+LUT_phys_tileflags_push_up:
 .dw addr_0407E, addr_044E8, addr_04508, addr_04528, addr_04548, addr_04568, addr_04588, addr_045A8  ; 01:448A
 .dw addr_045C8, addr_045E8, addr_04608, addr_04628, addr_04648, addr_04668, addr_04688, addr_046A8  ; 01:449A
 .dw addr_046C8, addr_046E8, addr_04708, addr_04728, addr_04748, addr_04768, addr_04788, addr_047A8  ; 01:44AA
