@@ -22,6 +22,13 @@ from edlib.gamedefs import (
     obj_sprite_maps,
 )
 
+from edlib.physdefs import (
+    push_left,
+    push_right,
+    push_up,
+    push_down,
+)
+
 
 def main() -> None:
     logging.basicConfig(
@@ -357,7 +364,7 @@ class TkApp:
 
     def redraw(self) -> None:
         # Clear info boxes
-        self.screen.delete("info_boxes", "info_text")
+        self.screen.delete("info_boxes", "info_text", "lines_physics")
 
         # Set up layout
         for cy in range(self.tm_height // 4):
@@ -373,24 +380,67 @@ class TkApp:
                         self.vram[0x3800 + (vidx * 2) + 0] = lo
                         self.vram[0x3800 + (vidx * 2) + 1] = hi
 
-                tf = (
-                    self.layout_tile_flags[mtidx]
-                    if mtidx < len(self.layout_tile_flags)
-                    else 0xFF
-                )
-                ts = (
-                    self.layout_tile_specials[mtidx]
-                    if mtidx < len(self.layout_tile_specials)
-                    else 0xFF
-                )
-                self.screen.create_text(
-                    ((cx * 32) + 2) * 2,
-                    ((cy * 32) + 2) * 2,
-                    text=f"{mtidx:02X} {offs:03X}\n{tf:02X} {ts:02X}",
-                    anchor="nw",
-                    fill="#FFFFFF",
-                    tags=["info_text"],
-                )
+                tf = self.layout_tile_flags[mtidx]
+                ts = self.layout_tile_specials[mtidx]
+
+                if True:
+                    self.screen.create_text(
+                        ((cx * 32) + 2) * 2,
+                        ((cy * 32) + 2) * 2,
+                        text=f"{mtidx:02X} {offs:03X}\n{tf:02X} {ts:02X}",
+                        anchor="nw",
+                        fill="#FFFFFF",
+                        tags=["info_text"],
+                    )
+
+                # Draw physics lines!
+                ptlist: list[tuple[int, int]] = []
+                orderlist = [
+                    (0, -1, push_up),
+                    (0, 1, push_down),
+                    (-1, 0, push_left),
+                    (1, 0, push_right),
+                ]
+                for dx, dy, basetable in orderlist:
+                    for i, vbase in enumerate(basetable[tf & 0x3F]):
+                        if vbase != 0x80:
+                            # Convert to signed
+                            vbase = (vbase ^ 0x80) - 0x80
+
+                            v = vbase
+                            x = (i * 2) + 1
+                            y = (v * 2) + 1
+                            if dx != 0:
+                                x, y = y, x
+                            ptlist.append(
+                                (
+                                    x + (cx * 8 * 4 * 2),
+                                    y + (cy * 8 * 4 * 2),
+                                )
+                            )
+
+                        if vbase == 0x80 or i == 0x1F:
+                            if len(ptlist) >= 1:
+                                ptlist.insert(
+                                    0,
+                                    (
+                                        ptlist[0][0] - (dx * 4 * 2),
+                                        ptlist[0][1] - (dy * 4 * 2),
+                                    ),
+                                )
+                                ptlist.append(
+                                    (
+                                        ptlist[-1][0] - (dx * 4 * 2),
+                                        ptlist[-1][1] - (dy * 4 * 2),
+                                    )
+                                )
+                                self.screen.create_line(
+                                    ptlist,
+                                    width=3,
+                                    fill="#FF00FF",
+                                    tags="lines_physics",
+                                )
+                            ptlist.clear()
 
         # Set background
         palv = self.cram[0]
@@ -516,6 +566,7 @@ class TkApp:
         # Correct ordering
         self.screen.tag_raise("tile_hi")
         self.screen.tag_lower("tile_lo")
+        self.screen.tag_raise("lines_physics")
         self.screen.tag_raise("info_boxes")
         self.screen.tag_raise("info_text")
 
