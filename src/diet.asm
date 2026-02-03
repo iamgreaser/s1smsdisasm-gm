@@ -15664,6 +15664,7 @@ addr_07FC1:
 .ENDIF
 .ENDS
 
+.IF 0
 .COMPUTESMSCHECKSUM
 .SECTION "Bank01_TMR_SEGA_presum" SLOT 1 BANK $01 FORCE ORG $3FF0
 .db $54, $4D, $52, $20, $53, $45, $47, $41, $59, $59, ; 01:7FF0
@@ -15674,6 +15675,21 @@ addr_07FC1:
 ; The real thing claims to be a 256 KB ROM.
 ; WLA-DX defaults to pretending to be a 32 KB ROM to speed up the boot a bit.
 .ENDS
+
+.ELSE
+;; Custom tag.
+.SMSTAG
+.SDSCTAG 0.0, "Diet Sonic 1", "Sonic The Hedgehog but with a lot more free space... and some bugfixes and optimisations.", "modified by GreaseMonkey"
+
+.SECTION "Bank01_TMR_SEGA_presum" SLOT 1 BANK $01 FORCE ORG $3FF8
+.db $59, $59 ; 01:7FF8
+.ENDS
+;; Checksum is at 7FFA, 2 bytes.
+.SECTION "Bank01_TMR_SEGA_postsum" SLOT 1 BANK $01 FORCE ORG $3FFC
+.db $76, $70, $00  ; 01:7FFC
+.ENDS
+
+.ENDIF
 
 .SECTION "Bank02" SLOT 2 BANK $02 FORCE ORG $0000
 .db $00, $00, $00                                                                   ; 02:8000
