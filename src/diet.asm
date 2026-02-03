@@ -32,8 +32,13 @@
 ;; NOT COMPATIBLE WITH cht_no_speed_cap.
 .DEF cht_inverse_speed_cap 0
 
-;; Branding!
+;; Branding! WARNING: Heavy (consumes about 410 bytes or something) - make sure to rip this out when making your own mods!
 .DEF show_diet_logo 1
+
+;; Halve the uncompressed Sonic art by flipping Sonic's art on the fly.
+;; WARNING: This introduces graphical glitches!
+;; (for example, the highlight on Sonic rolled up into a ball changes, which is unrealistic)
+.DEF shrink_sonicuncart_interleave 1
 
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
@@ -8917,6 +8922,7 @@ addr_037E0:
    ld     a, d                         ; 00:37F9 - 7A
    or     $40                          ; 00:37FA - F6 40
    out    ($BF), a                     ; 00:37FC - D3 BF
+   .IF !shrink_sonicuncart_interleave
    xor    a                            ; 00:37FE - AF
    ld     c, $BE                       ; 00:37FF - 0E BE
    ld     e, $18                       ; 00:3801 - 1E 18
@@ -8940,6 +8946,63 @@ addr_03803:
    out    ($BE), a                     ; 00:3821 - D3 BE
    dec    e                            ; 00:3823 - 1D
    jp     nz, addr_03803               ; 00:3824 - C2 03 38
+
+   .ELSE
+   ;;
+   ;; Interleave the sprites!
+   ;;
+   ld bc, 0|(($FF&(($18*(3*2+1)))-3)<<8)|$BE
+   ld d, >sprite_hflip_table
+   ;; Clear the low bit and jump to the second row in the loop if it was set
+   dec l
+   bit 0, l
+   jr z, @start_mirrored
+   inc l
+   ld b, $FF&($18*(3*2+1))
+   ;; We alternate: Normal, mirrored, normal, mirrored.
+   xor a
+   @each_4_rows:
+      outi
+      outi
+      outi
+      out ($BE), a
+
+   @start_mirrored:
+      .REPEAT 3
+      ld e, (hl)
+      ld a, (de)
+      inc hl
+      out ($BE), a
+      .ENDR
+      xor a
+      out ($BE), a
+
+      outi
+      outi
+      outi
+      out ($BE), a
+
+      .REPEAT 3
+      ld e, (hl)
+      ld a, (de)
+      inc hl
+      out ($BE), a
+      .ENDR
+      xor a
+      out ($BE), a
+
+      djnz @each_4_rows
+
+   bit 0, l
+   jr z, @skip_extra_row
+      outi
+      outi
+      outi
+      out ($BE), a
+   @skip_extra_row:
+
+   .ENDIF
+
    ld     hl, (var_D28F)               ; 00:3827 - 2A 8F D2
    ld     (var_D291), hl               ; 00:382A - 22 91 D2
    ret                                 ; 00:382D - C9
@@ -10211,12 +10274,20 @@ addr_04C72:
 
 addr_04C83:
    ld     d, a                         ; 01:4C83 - 57
+   .IF !shrink_sonicuncart_interleave
    ld     bc, $4000                    ; 01:4C84 - 01 00 40
    bit    1, (ix+24)                   ; 01:4C87 - DD CB 18 4E
    jr     z, addr_04C90                ; 01:4C8B - 28 03
    ld     bc, $7000                    ; 01:4C8D - 01 00 70
 
 addr_04C90:
+   .ELSE
+   ld bc, sonic_art
+   bit 1, (ix+24)
+   jr z, +
+      set 0, c
+   +:
+   .ENDIF
    bit    5, (iy+var_D206-IYBASE)      ; 01:4C90 - FD CB 06 6E
    call   nz, addr_05206               ; 01:4C94 - C4 06 52
    ld     a, (var_D302)                ; 01:4C97 - 3A 02 D3
@@ -10230,12 +10301,23 @@ addr_04C90:
    and    $E0                          ; 01:4CA3 - E6 E0
    ld     l, a                         ; 01:4CA5 - 6F
    ld     a, e                         ; 01:4CA6 - 7B
+   .IF 0
    and    $1F                          ; 01:4CA7 - E6 1F
+   .ELSE
+   xor l
+   ; SAVING: 1 byte
+   .ENDIF
    add    a, d                         ; 01:4CA9 - 82
    ld     h, a                         ; 01:4CAA - 67
    add    hl, bc                       ; 01:4CAB - 09
    ld     (var_D28F), hl               ; 01:4CAC - 22 8F D2
+   .IF !shrink_sonicuncart_interleave
    ld     hl, UNK_0591D                ; 01:4CAF - 21 1D 59
+   .ELSE
+   ld hl, UNK_0592B
+   bit 0, c
+   call nz, addr_0520F
+   .ENDIF
    bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
    call   nz, addr_0520F               ; 01:4CB6 - C4 0F 52
    ld     a, (var_D410)                ; 01:4CB9 - 3A 10 D4
@@ -10451,7 +10533,12 @@ addr_04DEF:
 
 addr_04E48:
    ld     d, a                         ; 01:4E48 - 57
+   .IF !shrink_sonicuncart_interleave
    ld     bc, $7000                    ; 01:4E49 - 01 00 70
+   .ELSE
+   ;set 0, c
+   ld bc, sonic_art+1
+   .ENDIF
    ret                                 ; 01:4E4C - C9
 
 addr_04E4D:
@@ -11018,7 +11105,11 @@ addr_05206:
    ret                                 ; 01:520E - C9
 
 addr_0520F:
+   .IF !shrink_sonicuncart_interleave
    ld     hl, UNK_0592B                ; 01:520F - 21 2B 59
+   .ELSE
+   ld hl, UNK_0591D
+   .ENDIF
    ret                                 ; 01:5212 - C9
 
 addr_05213:
@@ -24884,6 +24975,10 @@ BANK07_JUNK_END_BBA1:
 .ENDIF
 .ENDS
 
+.IF !shrink_sonicuncart_interleave
+;;
+;; Original data
+;;
 .SECTION "Bank08" SLOT 1 BANK $08 FORCE ORG $0000
 
 SONICUNCART_R_00_UNKNOWN:
@@ -25179,6 +25274,100 @@ SONICUNCART_R_JUNK_15F40:
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 09:9FE0
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 09:9FF0
 .ENDS
+.ENDIF
+
+.ELSE
+;;
+;; Use interleaved left/right rows of Sonic
+;; FIXME: Both directions are not actually identical! --GM
+;; e.g. Sonic rolling in a ball always has the shiny highlight on the right side.
+;;
+.MACRO INTERLEAVED_SONIC_ART ARGS fname_r fname_l
+   ;; Use the left-facing art for now because rings are technically different here.
+   .FOPEN fname_l fp
+   .REPEAT 2 INDEX ty
+      .REPEAT 3 INDEX tx
+         .REPEAT 8 INDEX y
+            ;; Horizontally flipped
+            .REPEAT 3
+               .FREAD fp v
+               .REDEF v ((v>>4)&$0F)|((v&$0F)<<4)
+               .REDEF v ((v>>2)&$33)|((v&$33)<<2)
+               .REDEF v ((v>>1)&$55)|((v&$55)<<1)
+               .DB v
+            .ENDR
+            ;; Normal
+            .REPEAT 3
+               .FREAD fp v
+               .DB v
+            .ENDR
+         .ENDR
+      .ENDR
+   .ENDR
+   .UNDEF v
+.ENDM
+
+;; Flip-table
+.SECTION "Bank08" SLOT 1 BANK $08 FORCE ORG $0000 ALIGN $0100
+sprite_hflip_table:
+   .REPEAT $100 INDEX i
+      .DEF v i
+      .REDEF v ((v>>4)&$0F)|((v&$0F)<<4)
+      .REDEF v ((v>>2)&$33)|((v&$33)<<2)
+      .REDEF v ((v>>1)&$55)|((v&$55)<<1)
+      .DB v
+      .UNDEF v
+   .ENDR
+.ENDS
+
+.SECTION "Bank08_0100" SLOT 1 BANK $08 FORCE ORG $0100
+sonic_art:
+INTERLEAVED_SONIC_ART "src/data/sonic_00_r.sonicuncart", "src/data/sonic_00_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_01_r.sonicuncart", "src/data/sonic_01_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_02_r.sonicuncart", "src/data/sonic_02_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_03_r.sonicuncart", "src/data/sonic_03_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_04_r.sonicuncart", "src/data/sonic_04_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_05_r.sonicuncart", "src/data/sonic_05_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_06_r.sonicuncart", "src/data/sonic_06_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_07_r.sonicuncart", "src/data/sonic_07_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_08_r.sonicuncart", "src/data/sonic_08_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_09_r.sonicuncart", "src/data/sonic_09_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_0A_r.sonicuncart", "src/data/sonic_0A_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_0B_r.sonicuncart", "src/data/sonic_0B_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_0C_r.sonicuncart", "src/data/sonic_0C_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_0D_r.sonicuncart", "src/data/sonic_0D_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_0E_r.sonicuncart", "src/data/sonic_0E_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_0F_r.sonicuncart", "src/data/sonic_0F_l.sonicuncart"
+
+INTERLEAVED_SONIC_ART "src/data/sonic_10_r.sonicuncart", "src/data/sonic_10_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_11_r.sonicuncart", "src/data/sonic_11_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_12_r.sonicuncart", "src/data/sonic_12_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_13_r.sonicuncart", "src/data/sonic_13_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_14_r.sonicuncart", "src/data/sonic_14_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_15_r.sonicuncart", "src/data/sonic_15_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_16_r.sonicuncart", "src/data/sonic_16_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_17_r.sonicuncart", "src/data/sonic_17_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_18_r.sonicuncart", "src/data/sonic_18_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_19_r.sonicuncart", "src/data/sonic_19_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_1A_r.sonicuncart", "src/data/sonic_1A_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_1B_r.sonicuncart", "src/data/sonic_1B_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_1C_r.sonicuncart", "src/data/sonic_1C_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_1D_r.sonicuncart", "src/data/sonic_1D_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_1E_r.sonicuncart", "src/data/sonic_1E_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_1F_r.sonicuncart", "src/data/sonic_1F_l.sonicuncart"
+
+INTERLEAVED_SONIC_ART "src/data/sonic_20_r.sonicuncart", "src/data/sonic_20_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_21_r.sonicuncart", "src/data/sonic_21_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_22_r.sonicuncart", "src/data/sonic_22_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_23_r.sonicuncart", "src/data/sonic_23_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_24_r.sonicuncart", "src/data/sonic_24_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_25_r.sonicuncart", "src/data/sonic_25_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_26_r.sonicuncart", "src/data/sonic_26_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_27_r.sonicuncart", "src/data/sonic_27_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_28_r.sonicuncart", "src/data/sonic_28_l.sonicuncart"
+INTERLEAVED_SONIC_ART "src/data/sonic_29_r.sonicuncart", "src/data/sonic_29_l.sonicuncart"
+.ENDS
+
 .ENDIF
 
 .SECTION "Bank09_2000" SLOT 0 BANK $09 FORCE ORG $2000
