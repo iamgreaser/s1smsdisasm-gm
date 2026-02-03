@@ -12061,9 +12061,15 @@ UNK_0591D:
 UNK_0592B:
 .db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $FF, $FF            ; 01:592B
 
+.IF shrink_sonicuncart_interleave
+UNK_05939:
+.db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $98, $9A, $FF, $FF
+.db $FF, $FF
+.ELSE
 UNK_05939:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $98, $9A, $FF, $FF  ; 01:5939
 .db $FF, $FF                                                                        ; 01:5949
+.ENDIF
 
 UNK_0594B:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $FE, $9C, $9E, $FF  ; 01:594B
