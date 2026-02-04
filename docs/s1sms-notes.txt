@@ -60,10 +60,20 @@ In-memory object structure:
    $07 = signpost?
    $1D = floor buttons in LAB1, SCRx?
 
-(IX+$07).t is X velocity.
-(IX+$0A).t is Y velocity.
+(IX+$01).t is X position in subpixels.
+(IX+$04).t is Y position in subpixels.
+(IX+$07).t is X velocity in subpixels.
+(IX+$0A).t is Y velocity in subpixels.
+(IX+$0D).b is X size in pixels.
+(IX+$0E).b is Y size in pixels.
+(IX+$0F).w is an optional pointer to a sprite string.
+   Basically, you get up to 3 rows of 6 bytes.
+   If an FF is reached on a row, we stop scanning.
+   If an FE is reached on a row, we don't actually add a sprite.
+   Otherwise, we attempt to add a VDP sprite to the sprite list with the given pattern.
+   If an FF is the first byte of a row, there are no more rows.
 
-(IX+$0F).w is a pointer to... something. TODO: Find out what! --GM
+   This is argument BC to 00:350F. Some objects call this function directly instead of using (IX+$0F).w.
 
 (IX+$11).b is...? Y-pos related? (at least for $1E button-triggered doors)
 

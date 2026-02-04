@@ -95,11 +95,12 @@ g_vdp_scroll_y db   ; D252
 .  dsb 4
 var_D257 db   ; D257
 var_D258 db   ; D258
-.  dsb 1
-var_D25A dw   ; D25A
-var_D25C db   ; D25C (split)
-var_D25D db   ; D25D
-var_D25E db   ; D25E
+g_level_scroll_x_sub db   ; D259
+g_level_scroll_x_pix_lo db   ; D25A
+g_level_scroll_x_pix_hi db   ; D25B
+g_level_scroll_y_sub db   ; D25C
+g_level_scroll_y_pix_lo db   ; D25D
+g_level_scroll_y_pix_hi db   ; D25E
 var_D25F dw   ; D25F
 var_D261 dw   ; D261
 var_D263 dw   ; D263
@@ -1306,7 +1307,7 @@ random_A:
 
 addr_0063E:
    ld     bc, (g_vdp_scroll_x)         ; 00:063E - ED 4B 51 D2
-   ld     hl, (var_D25A)               ; 00:0642 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:0642 - 2A 5A D2
    ld     de, (var_D26F)               ; 00:0645 - ED 5B 6F D2
    and    a                            ; 00:0649 - A7
    sbc    hl, de                       ; 00:064A - ED 52
@@ -1324,7 +1325,7 @@ addr_00658:
    set    6, (iy+var_D200-IYBASE)      ; 00:065B - FD CB 00 F6
 
 addr_0065F:
-   ld     hl, (var_D25D)               ; 00:065F - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:065F - 2A 5D D2
    ld     de, (var_D271)               ; 00:0662 - ED 5B 71 D2
    and    a                            ; 00:0666 - A7
    sbc    hl, de                       ; 00:0667 - ED 52
@@ -1353,7 +1354,7 @@ addr_00683:
 
 addr_00688:
    ld     (g_vdp_scroll_x), bc         ; 00:0688 - ED 43 51 D2
-   ld     hl, (var_D25A)               ; 00:068C - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:068C - 2A 5A D2
    sla    l                            ; 00:068F - CB 25
    rl     h                            ; 00:0691 - CB 14
    sla    l                            ; 00:0693 - CB 25
@@ -1361,7 +1362,7 @@ addr_00688:
    sla    l                            ; 00:0697 - CB 25
    rl     h                            ; 00:0699 - CB 14
    ld     c, h                         ; 00:069B - 4C
-   ld     hl, (var_D25D)               ; 00:069C - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:069C - 2A 5D D2
    sla    l                            ; 00:069F - CB 25
    rl     h                            ; 00:06A1 - CB 14
    sla    l                            ; 00:06A3 - CB 25
@@ -1370,9 +1371,9 @@ addr_00688:
    rl     h                            ; 00:06A9 - CB 14
    ld     b, h                         ; 00:06AB - 44
    ld     (var_D257), bc               ; 00:06AC - ED 43 57 D2
-   ld     hl, (var_D25A)               ; 00:06B0 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:06B0 - 2A 5A D2
    ld     (var_D26F), hl               ; 00:06B3 - 22 6F D2
-   ld     hl, (var_D25D)               ; 00:06B6 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:06B6 - 2A 5D D2
    ld     (var_D271), hl               ; 00:06B9 - 22 71 D2
    ret                                 ; 00:06BC - C9
 
@@ -4407,7 +4408,7 @@ addr_01EA4:
    ret                                 ; 00:1ED7 - C9
 
 addr_01ED8:
-   ld     hl, (var_D25A)               ; 00:1ED8 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:1ED8 - 2A 5A D2
    ld     (var_D273), hl               ; 00:1EDB - 22 73 D2
    ld     (var_D275), hl               ; 00:1EDE - 22 75 D2
    ret                                 ; 00:1EE1 - C9
@@ -4432,7 +4433,7 @@ addr_01EF2:
    ret                                 ; 00:1EFE - C9
 
 addr_01EFF:
-   ld     hl, (var_D25D)               ; 00:1EFF - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:1EFF - 2A 5D D2
    ld     (var_D279), hl               ; 00:1F02 - 22 79 D2
    ret                                 ; 00:1F05 - C9
 
@@ -4843,7 +4844,7 @@ addr_021CD:
    rr     e                            ; 00:21D9 - CB 1B
    and    $1F                          ; 00:21DB - E6 1F
    ld     d, a                         ; 00:21DD - 57
-   ld     (var_D25A), de               ; 00:21DE - ED 53 5A D2
+   ld     (g_level_scroll_x_pix_lo), de  ; 00:21DE - ED 53 5A D2
    ld     (var_D26F), de               ; 00:21E2 - ED 53 6F D2
    inc    hl                           ; 00:21E6 - 23
    ld     a, (hl)                      ; 00:21E7 - 7E
@@ -4862,7 +4863,7 @@ addr_021ED:
    rr     e                            ; 00:21F9 - CB 1B
    and    $1F                          ; 00:21FB - E6 1F
    ld     d, a                         ; 00:21FD - 57
-   ld     (var_D25D), de               ; 00:21FE - ED 53 5D D2
+   ld     (g_level_scroll_y_pix_lo), de  ; 00:21FE - ED 53 5D D2
    ld     (var_D271), de               ; 00:2202 - ED 53 71 D2
    pop    hl                           ; 00:2206 - E1
    inc    hl                           ; 00:2207 - 23
@@ -5992,7 +5993,7 @@ addr_02F66:
    ld     (var_D265), de               ; 00:2FBB - ED 53 65 D2
    ld     bc, (var_D25F)               ; 00:2FBF - ED 4B 5F D2
    ld     de, (sonic_x)                ; 00:2FC3 - ED 5B FE D3
-   ld     hl, (var_D25A)               ; 00:2FC7 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:2FC7 - 2A 5A D2
    add    hl, bc                       ; 00:2FCA - 09
    and    a                            ; 00:2FCB - A7
    sbc    hl, de                       ; 00:2FCC - ED 52
@@ -6016,16 +6017,16 @@ addr_02FDC:
 
 addr_02FEB:
    ex     de, hl                       ; 00:2FEB - EB
-   ld     hl, (var_D25A)               ; 00:2FEC - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:2FEC - 2A 5A D2
    and    a                            ; 00:2FEF - A7
    sbc    hl, de                       ; 00:2FF0 - ED 52
    jr     c, addr_03033                ; 00:2FF2 - 38 3F
-   ld     (var_D25A), hl               ; 00:2FF4 - 22 5A D2
+   ld     (g_level_scroll_x_pix_lo), hl  ; 00:2FF4 - 22 5A D2
    jp     addr_03033                   ; 00:2FF7 - C3 33 30
 
 addr_02FFA:
    ld     bc, (var_D261)               ; 00:2FFA - ED 4B 61 D2
-   ld     hl, (var_D25A)               ; 00:2FFE - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:2FFE - 2A 5A D2
    add    hl, bc                       ; 00:3001 - 09
    and    a                            ; 00:3002 - A7
    sbc    hl, de                       ; 00:3003 - ED 52
@@ -6055,34 +6056,34 @@ addr_0301A:
    ld     hl, $0001                    ; 00:3026 - 21 01 00
 
 addr_03029:
-   ld     de, (var_D25A)               ; 00:3029 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 00:3029 - ED 5B 5A D2
    add    hl, de                       ; 00:302D - 19
    jr     c, addr_03033                ; 00:302E - 38 03
-   ld     (var_D25A), hl               ; 00:3030 - 22 5A D2
+   ld     (g_level_scroll_x_pix_lo), hl  ; 00:3030 - 22 5A D2
 
 addr_03033:
-   ld     hl, (var_D25A)               ; 00:3033 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3033 - 2A 5A D2
    ld     de, (var_D273)               ; 00:3036 - ED 5B 73 D2
    and    a                            ; 00:303A - A7
    sbc    hl, de                       ; 00:303B - ED 52
    jr     nc, addr_03045               ; 00:303D - 30 06
-   ld     (var_D25A), de               ; 00:303F - ED 53 5A D2
+   ld     (g_level_scroll_x_pix_lo), de  ; 00:303F - ED 53 5A D2
    jr     addr_03055                   ; 00:3043 - 18 10
 
 addr_03045:
-   ld     hl, (var_D25A)               ; 00:3045 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3045 - 2A 5A D2
    ld     de, (var_D275)               ; 00:3048 - ED 5B 75 D2
    and    a                            ; 00:304C - A7
    sbc    hl, de                       ; 00:304D - ED 52
    jr     c, addr_03055                ; 00:304F - 38 04
-   ld     (var_D25A), de               ; 00:3051 - ED 53 5A D2
+   ld     (g_level_scroll_x_pix_lo), de  ; 00:3051 - ED 53 5A D2
 
 addr_03055:
    bit    6, (iy+var_D205-IYBASE)      ; 00:3055 - FD CB 05 76
    call   nz, addr_03164               ; 00:3059 - C4 64 31
    ld     bc, (var_D263)               ; 00:305C - ED 4B 63 D2
    ld     de, (sonic_y)                ; 00:3060 - ED 5B 01 D4
-   ld     hl, (var_D25D)               ; 00:3064 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3064 - 2A 5D D2
    bit    6, (iy+var_D205-IYBASE)      ; 00:3067 - FD CB 05 76
    call   nz, addr_031CF               ; 00:306B - C4 CF 31
    bit    7, (iy+var_D205-IYBASE)      ; 00:306E - FD CB 05 7E
@@ -6119,16 +6120,16 @@ addr_03097:
 
 addr_030AA:
    ex     de, hl                       ; 00:30AA - EB
-   ld     hl, (var_D25D)               ; 00:30AB - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30AB - 2A 5D D2
    and    a                            ; 00:30AE - A7
    sbc    hl, de                       ; 00:30AF - ED 52
    jr     c, addr_030F9                ; 00:30B1 - 38 46
-   ld     (var_D25D), hl               ; 00:30B3 - 22 5D D2
+   ld     (g_level_scroll_y_pix_lo), hl  ; 00:30B3 - 22 5D D2
    jp     addr_030F9                   ; 00:30B6 - C3 F9 30
 
 addr_030B9:
    ld     bc, (var_D265)               ; 00:30B9 - ED 4B 65 D2
-   ld     hl, (var_D25D)               ; 00:30BD - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30BD - 2A 5D D2
    add    hl, bc                       ; 00:30C0 - 09
    bit    7, (iy+var_D205-IYBASE)      ; 00:30C1 - FD CB 05 7E
    call   z, addr_031DB                ; 00:30C5 - CC DB 31
@@ -6160,26 +6161,26 @@ addr_030E5:
 addr_030E9:
    bit    4, (iy+var_D205-IYBASE)      ; 00:30E9 - FD CB 05 66
    jr     nz, addr_030F9               ; 00:30ED - 20 0A
-   ld     de, (var_D25D)               ; 00:30EF - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 00:30EF - ED 5B 5D D2
    add    hl, de                       ; 00:30F3 - 19
    jr     c, addr_030F9                ; 00:30F4 - 38 03
-   ld     (var_D25D), hl               ; 00:30F6 - 22 5D D2
+   ld     (g_level_scroll_y_pix_lo), hl  ; 00:30F6 - 22 5D D2
 
 addr_030F9:
-   ld     hl, (var_D25D)               ; 00:30F9 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30F9 - 2A 5D D2
    ld     de, (var_D277)               ; 00:30FC - ED 5B 77 D2
    and    a                            ; 00:3100 - A7
    sbc    hl, de                       ; 00:3101 - ED 52
    jr     nc, addr_03109               ; 00:3103 - 30 04
-   ld     (var_D25D), de               ; 00:3105 - ED 53 5D D2
+   ld     (g_level_scroll_y_pix_lo), de  ; 00:3105 - ED 53 5D D2
 
 addr_03109:
-   ld     hl, (var_D25D)               ; 00:3109 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3109 - 2A 5D D2
    ld     de, (var_D279)               ; 00:310C - ED 5B 79 D2
    and    a                            ; 00:3110 - A7
    sbc    hl, de                       ; 00:3111 - ED 52
    jr     c, addr_03119                ; 00:3113 - 38 04
-   ld     (var_D25D), de               ; 00:3115 - ED 53 5D D2
+   ld     (g_level_scroll_y_pix_lo), de  ; 00:3115 - ED 53 5D D2
 
 addr_03119:
    ret                                 ; 00:3119 - C9
@@ -6259,8 +6260,8 @@ addr_0317F:
    ld     (var_D29D), hl               ; 00:317F - 22 9D D2
    ld     c, l                         ; 00:3182 - 4D
    ld     b, h                         ; 00:3183 - 44
-   ld     hl, (var_D25C)               ; 00:3184 - 2A 5C D2
-   ld     a, (var_D25E)                ; 00:3187 - 3A 5E D2
+   ld     hl, (g_level_scroll_y_sub)   ; 00:3184 - 2A 5C D2
+   ld     a, (g_level_scroll_y_pix_hi)  ; 00:3187 - 3A 5E D2
    add    hl, bc                       ; 00:318A - 09
    ld     e, $00                       ; 00:318B - 1E 00
    bit    7, b                         ; 00:318D - CB 78
@@ -6269,8 +6270,8 @@ addr_0317F:
 
 addr_03193:
    adc    a, e                         ; 00:3193 - 8B
-   ld     (var_D25C), hl               ; 00:3194 - 22 5C D2
-   ld     (var_D25E), a                ; 00:3197 - 32 5E D2
+   ld     (g_level_scroll_y_sub), hl   ; 00:3194 - 22 5C D2
+   ld     (g_level_scroll_y_pix_hi), a  ; 00:3197 - 32 5E D2
    ld     hl, (var_D2A1)               ; 00:319A - 2A A1 D2
    ld     a, (var_D2A3)                ; 00:319D - 3A A3 D2
    add    hl, bc                       ; 00:31A0 - 09
@@ -6363,7 +6364,7 @@ update_some_objfunc_activation_statuses:
    ldi                                 ; 00:322A - ED A0
    ldi                                 ; 00:322C - ED A0
    ldi                                 ; 00:322E - ED A0
-   ld     hl, (var_D25A)               ; 00:3230 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3230 - 2A 5A D2
    xor    a                            ; 00:3233 - AF
    sbc    hl, bc                       ; 00:3234 - ED 42
    jr     nc, @skip_camera_left_clamp  ; 00:3236 - 30 03
@@ -6377,12 +6378,12 @@ update_some_objfunc_activation_statuses:
    sbc    hl, de                       ; 00:3241 - ED 52
    jp     nc, @disable_object          ; 00:3243 - D2 8A 32
    ld     hl, (g_FF_string_high_byte)  ; 00:3246 - 2A 0E D2
-   ld     bc, (var_D25A)               ; 00:3249 - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 00:3249 - ED 4B 5A D2
    add    hl, bc                       ; 00:324D - 09
    xor    a                            ; 00:324E - AF
    sbc    hl, de                       ; 00:324F - ED 52
    jp     c, @disable_object           ; 00:3251 - DA 8A 32
-   ld     hl, (var_D25D)               ; 00:3254 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3254 - 2A 5D D2
    ld     bc, (var_D210)               ; 00:3257 - ED 4B 10 D2
    sbc    hl, bc                       ; 00:325B - ED 42
    jr     nc, @skip_camera_top_clamp   ; 00:325D - 30 03
@@ -6396,7 +6397,7 @@ update_some_objfunc_activation_statuses:
    sbc    hl, de                       ; 00:3268 - ED 52
    jp     nc, @disable_object          ; 00:326A - D2 8A 32
    ld     hl, (var_D212)               ; 00:326D - 2A 12 D2
-   ld     bc, (var_D25D)               ; 00:3270 - ED 4B 5D D2
+   ld     bc, (g_level_scroll_y_pix_lo)  ; 00:3270 - ED 4B 5D D2
    add    hl, bc                       ; 00:3274 - 09
    xor    a                            ; 00:3275 - AF
    sbc    hl, de                       ; 00:3276 - ED 52
@@ -6766,13 +6767,13 @@ return_from_objfunc:
 @skip_vertical_and_all_clamping:
    ld     l, (ix+5)                    ; 00:34E6 - DD 6E 05
    ld     h, (ix+6)                    ; 00:34E9 - DD 66 06
-   ld     bc, (var_D25D)               ; 00:34EC - ED 4B 5D D2
+   ld     bc, (g_level_scroll_y_pix_lo)  ; 00:34EC - ED 4B 5D D2
    and    a                            ; 00:34F0 - A7
    sbc    hl, bc                       ; 00:34F1 - ED 42
    ex     de, hl                       ; 00:34F3 - EB
    ld     l, (ix+2)                    ; 00:34F4 - DD 6E 02
    ld     h, (ix+3)                    ; 00:34F7 - DD 66 03
-   ld     bc, (var_D25A)               ; 00:34FA - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 00:34FA - ED 4B 5A D2
    and    a                            ; 00:34FE - A7
    sbc    hl, bc                       ; 00:34FF - ED 42
    ld     c, (ix+15)                   ; 00:3501 - DD 4E 0F
@@ -6880,14 +6881,14 @@ UNK_03581:
    ld     hl, (var_D210)               ; 00:3581 - 2A 10 D2
    ld     bc, (var_D214)               ; 00:3584 - ED 4B 14 D2
    add    hl, bc                       ; 00:3588 - 09
-   ld     bc, (var_D25D)               ; 00:3589 - ED 4B 5D D2
+   ld     bc, (g_level_scroll_y_pix_lo)  ; 00:3589 - ED 4B 5D D2
    and    a                            ; 00:358D - A7
    sbc    hl, bc                       ; 00:358E - ED 42
    ex     de, hl                       ; 00:3590 - EB
    ld     hl, (g_FF_string_high_byte)  ; 00:3591 - 2A 0E D2
    ld     bc, (var_D212)               ; 00:3594 - ED 4B 12 D2
    add    hl, bc                       ; 00:3598 - 09
-   ld     bc, (var_D25A)               ; 00:3599 - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 00:3599 - ED 4B 5A D2
    and    a                            ; 00:359D - A7
    sbc    hl, bc                       ; 00:359E - ED 42
    ld     c, a                         ; 00:35A0 - 4F
@@ -7355,7 +7356,7 @@ addr_038B0:
    ld     a, l                         ; 00:38B3 - 7D
    and    $F8                          ; 00:38B4 - E6 F8
    ld     l, a                         ; 00:38B6 - 6F
-   ld     de, (var_D25A)               ; 00:38B7 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 00:38B7 - ED 5B 5A D2
    ld     a, e                         ; 00:38BB - 7B
    and    $F8                          ; 00:38BC - E6 F8
    ld     e, a                         ; 00:38BE - 5F
@@ -7386,7 +7387,7 @@ addr_038B0:
    ld     a, l                         ; 00:38E5 - 7D
    and    $F8                          ; 00:38E6 - E6 F8
    ld     l, a                         ; 00:38E8 - 6F
-   ld     de, (var_D25D)               ; 00:38E9 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 00:38E9 - ED 5B 5D D2
    ld     a, e                         ; 00:38ED - 7B
    and    $F8                          ; 00:38EE - E6 F8
    ld     e, a                         ; 00:38F0 - 5F
@@ -8634,7 +8635,7 @@ UNK_4DE6:
 addr_04DEF:
    ex     de, hl                       ; 01:4DEF - EB
    ld     hl, (sonic_y)                ; 01:4DF0 - 2A 01 D4
-   ld     bc, (var_D25D)               ; 01:4DF3 - ED 4B 5D D2
+   ld     bc, (g_level_scroll_y_pix_lo)  ; 01:4DF3 - ED 4B 5D D2
    and    a                            ; 01:4DF7 - A7
    sbc    hl, bc                       ; 01:4DF8 - ED 42
    ret    c                            ; 01:4DFA - D8
@@ -9002,14 +9003,14 @@ addr_0506C:
    rrca                                ; 01:506F - 0F
    ret    nc                           ; 01:5070 - D0
    ld     hl, (sonic_x)                ; 01:5071 - 2A FE D3
-   ld     de, (var_D25A)               ; 01:5074 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 01:5074 - ED 5B 5A D2
    and    a                            ; 01:5078 - A7
    sbc    hl, de                       ; 01:5079 - ED 52
    ld     a, l                         ; 01:507B - 7D
    add    a, $08                       ; 01:507C - C6 08
    ld     c, a                         ; 01:507E - 4F
    ld     hl, (sonic_y)                ; 01:507F - 2A 01 D4
-   ld     de, (var_D25D)               ; 01:5082 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 01:5082 - ED 5B 5D D2
    and    a                            ; 01:5086 - A7
    sbc    hl, de                       ; 01:5087 - ED 52
    ld     a, l                         ; 01:5089 - 7D
@@ -9267,12 +9268,12 @@ addr_0523C:
    push   hl                           ; 01:5243 - E5
    ld     hl, var_D000                 ; 01:5244 - 21 00 D0
    ld     (var_D23C), hl               ; 01:5247 - 22 3C D2
-   ld     de, (var_D25D)               ; 01:524A - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 01:524A - ED 5B 5D D2
    ld     hl, (var_D2E4)               ; 01:524E - 2A E4 D2
    and    a                            ; 01:5251 - A7
    sbc    hl, de                       ; 01:5252 - ED 52
    ex     de, hl                       ; 01:5254 - EB
-   ld     bc, (var_D25A)               ; 01:5255 - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 01:5255 - ED 4B 5A D2
    ld     hl, (var_D2E2)               ; 01:5259 - 2A E2 D2
    and    a                            ; 01:525C - A7
    sbc    hl, bc                       ; 01:525D - ED 42
@@ -9509,7 +9510,7 @@ addr_0543C:
    ld     a, (var_D287)                ; 01:5440 - 3A 87 D2
    cp     $60                          ; 01:5443 - FE 60
    jr     z, addr_054AA                ; 01:5445 - 28 63
-   ld     hl, (var_D25D)               ; 01:5447 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:5447 - 2A 5D D2
    ld     de, $00C0                    ; 01:544A - 11 C0 00
    add    hl, de                       ; 01:544D - 19
    ld     de, (sonic_y)                ; 01:544E - ED 5B 01 D4
@@ -10161,7 +10162,7 @@ addr_058D0:
    bit    7, (ix+24)                   ; 01:58D0 - DD CB 18 7E
    ret    z                            ; 01:58D4 - C8
    ld     hl, (sonic_y)                ; 01:58D5 - 2A 01 D4
-   ld     de, (var_D25D)               ; 01:58D8 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 01:58D8 - ED 5B 5D D2
    and    a                            ; 01:58DC - A7
    sbc    hl, de                       ; 01:58DD - ED 52
    ret    nc                           ; 01:58DF - D0
@@ -10795,7 +10796,7 @@ objfunc_07_signpost:
    set    0, (ix+17)                   ; 01:5F40 - DD CB 11 C6
 
 addr_05F44:
-   ld     hl, (var_D25A)               ; 01:5F44 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 01:5F44 - 2A 5A D2
    ld     (var_D273), hl               ; 01:5F47 - 22 73 D2
    ld     l, (ix+2)                    ; 01:5F4A - DD 6E 02
    ld     h, (ix+3)                    ; 01:5F4D - DD 66 03
@@ -11583,7 +11584,7 @@ addr_06A99:
 addr_06AA5:
    ld     (ix+15), l                   ; 01:6AA5 - DD 75 0F
    ld     (ix+16), h                   ; 01:6AA8 - DD 74 10
-   ld     hl, (var_D25D)               ; 01:6AAB - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:6AAB - 2A 5D D2
    ld     de, $00C0                    ; 01:6AAE - 11 C0 00
    add    hl, de                       ; 01:6AB1 - 19
    ld     e, (ix+5)                    ; 01:6AB2 - DD 5E 05
@@ -11645,7 +11646,7 @@ addr_06B26:
    ld     h, b                         ; 01:6B3A - 60
    ld     de, $FFF8                    ; 01:6B3B - 11 F8 FF
    add    hl, de                       ; 01:6B3E - 19
-   ld     de, (var_D25A)               ; 01:6B3F - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 01:6B3F - ED 5B 5A D2
    and    a                            ; 01:6B43 - A7
    sbc    hl, de                       ; 01:6B44 - ED 52
    jr     c, addr_06B6B                ; 01:6B46 - 38 23
@@ -11659,7 +11660,7 @@ addr_06B26:
    ld     h, b                         ; 01:6B55 - 60
    ld     de, $0010                    ; 01:6B56 - 11 10 00
    add    hl, de                       ; 01:6B59 - 19
-   ld     de, (var_D25D)               ; 01:6B5A - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 01:6B5A - ED 5B 5D D2
    and    a                            ; 01:6B5E - A7
    sbc    hl, de                       ; 01:6B5F - ED 52
    jr     c, addr_06B6B                ; 01:6B61 - 38 08
@@ -11695,7 +11696,7 @@ objfunc_0E_UNKNOWN:
    ld     (ix+7), a                    ; 01:6B94 - DD 77 07
    ld     (ix+8), a                    ; 01:6B97 - DD 77 08
    ld     (ix+9), a                    ; 01:6B9A - DD 77 09
-   ld     hl, (var_D25A)               ; 01:6B9D - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 01:6B9D - 2A 5A D2
    ld     bc, $0100                    ; 01:6BA0 - 01 00 01
    add    hl, bc                       ; 01:6BA3 - 09
    sbc    hl, de                       ; 01:6BA4 - ED 52
@@ -11741,7 +11742,7 @@ addr_06BEB:
    ld     h, (ix+3)                    ; 01:6BF1 - DD 66 03
    ld     de, $0030                    ; 01:6BF4 - 11 30 00
    add    hl, de                       ; 01:6BF7 - 19
-   ld     de, (var_D25A)               ; 01:6BF8 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 01:6BF8 - ED 5B 5A D2
    xor    a                            ; 01:6BFC - AF
    sbc    hl, de                       ; 01:6BFD - ED 52
    jr     nc, addr_06C18               ; 01:6BFF - 30 17
@@ -12282,7 +12283,7 @@ addr_0712C:
    ld     (ix+10), $60                 ; 01:712C - DD 36 0A 60
    ld     (ix+11), $00                 ; 01:7130 - DD 36 0B 00
    ld     (ix+12), $00                 ; 01:7134 - DD 36 0C 00
-   ld     hl, (var_D25D)               ; 01:7138 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:7138 - 2A 5D D2
    ld     de, $0074                    ; 01:713B - 11 74 00
    add    hl, de                       ; 01:713E - 19
    ld     e, (ix+5)                    ; 01:713F - DD 5E 05
@@ -12307,7 +12308,7 @@ addr_07165:
    ld     (ix+10), $60                 ; 01:7165 - DD 36 0A 60
    ld     (ix+11), $00                 ; 01:7169 - DD 36 0B 00
    ld     (ix+12), $00                 ; 01:716D - DD 36 0C 00
-   ld     hl, (var_D25D)               ; 01:7171 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:7171 - 2A 5D D2
    ld     de, $0074                    ; 01:7174 - 11 74 00
    add    hl, de                       ; 01:7177 - 19
    ld     e, (ix+5)                    ; 01:7178 - DD 5E 05
@@ -12348,7 +12349,7 @@ addr_071B7:
    ld     (ix+10), $00                 ; 01:71B7 - DD 36 0A 00
    ld     (ix+11), $FF                 ; 01:71BB - DD 36 0B FF
    ld     (ix+12), $FF                 ; 01:71BF - DD 36 0C FF
-   ld     hl, (var_D25D)               ; 01:71C3 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:71C3 - 2A 5D D2
    ld     de, $001A                    ; 01:71C6 - 11 1A 00
    add    hl, de                       ; 01:71C9 - 19
    ld     e, (ix+5)                    ; 01:71CA - DD 5E 05
@@ -12516,7 +12517,7 @@ addr_07368:
 addr_07396:
    ld     (ix+15), l                   ; 01:7396 - DD 75 0F
    ld     (ix+16), h                   ; 01:7399 - DD 74 10
-   ld     hl, (var_D25A)               ; 01:739C - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 01:739C - 2A 5A D2
    ld     (var_D273), hl               ; 01:739F - 22 73 D2
    ld     l, (ix+2)                    ; 01:73A2 - DD 6E 02
    ld     h, (ix+3)                    ; 01:73A5 - DD 66 03
@@ -12779,7 +12780,7 @@ addr_07612:
    ld     h, (ix+3)                    ; 01:7615 - DD 66 03
    ld     de, $0010                    ; 01:7618 - 11 10 00
    add    hl, de                       ; 01:761B - 19
-   ld     de, (var_D25A)               ; 01:761C - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 01:761C - ED 5B 5A D2
    and    a                            ; 01:7620 - A7
    sbc    hl, de                       ; 01:7621 - ED 52
    ret    nc                           ; 01:7623 - D0
@@ -13057,7 +13058,7 @@ addr_078C0:
    ld     (ix+16), UNK_07922>>8        ; 01:78DC - DD 36 10 79
    ld     l, (ix+2)                    ; 01:78E0 - DD 6E 02
    ld     h, (ix+3)                    ; 01:78E3 - DD 66 03
-   ld     de, (var_D25A)               ; 01:78E6 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 01:78E6 - ED 5B 5A D2
    inc    d                            ; 01:78EA - 14
    and    a                            ; 01:78EB - A7
    sbc    hl, de                       ; 01:78EC - ED 52
@@ -13311,7 +13312,7 @@ addr_07BC8:
    ld     (ix+12), a                   ; 01:7BDD - DD 77 0C
    ld     e, (ix+5)                    ; 01:7BE0 - DD 5E 05
    ld     d, (ix+6)                    ; 01:7BE3 - DD 56 06
-   ld     hl, (var_D25D)               ; 01:7BE6 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:7BE6 - 2A 5D D2
    inc    h                            ; 01:7BE9 - 24
    xor    a                            ; 01:7BEA - AF
    sbc    hl, de                       ; 01:7BEB - ED 52
@@ -13412,22 +13413,22 @@ addr_07C83:
 addr_07C8C:
    ld     (var_D27B), hl               ; 01:7C8C - 22 7B D2
    ld     (var_D27D), de               ; 01:7C8F - ED 53 7D D2
-   ld     hl, (var_D25A)               ; 01:7C93 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 01:7C93 - 2A 5A D2
    ld     (var_D273), hl               ; 01:7C96 - 22 73 D2
    ld     (var_D275), hl               ; 01:7C99 - 22 75 D2
-   ld     hl, (var_D25D)               ; 01:7C9C - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 01:7C9C - 2A 5D D2
    ld     (var_D277), hl               ; 01:7C9F - 22 77 D2
    ld     (var_D279), hl               ; 01:7CA2 - 22 79 D2
    ret                                 ; 01:7CA5 - C9
 
 addr_07CA6:
    ld     hl, (var_D27B)               ; 01:7CA6 - 2A 7B D2
-   ld     de, (var_D25A)               ; 01:7CA9 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 01:7CA9 - ED 5B 5A D2
    and    a                            ; 01:7CAD - A7
    sbc    hl, de                       ; 01:7CAE - ED 52
    ret    nz                           ; 01:7CB0 - C0
    ld     hl, (var_D27D)               ; 01:7CB1 - 2A 7D D2
-   ld     de, (var_D25D)               ; 01:7CB4 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 01:7CB4 - ED 5B 5D D2
    and    a                            ; 01:7CB8 - A7
    sbc    hl, de                       ; 01:7CB9 - ED 52
    ret    nz                           ; 01:7CBB - C0
@@ -13830,10 +13831,10 @@ objfunc_2C_UNKNOWN:
    rst    $18                          ; 02:8089 - DF
    xor    a                            ; 02:808A - AF
    ld     (var_D2EC), a                ; 02:808B - 32 EC D2
-   ld     hl, (var_D25A)               ; 02:808E - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:808E - 2A 5A D2
    ld     (var_D273), hl               ; 02:8091 - 22 73 D2
    ld     (var_D275), hl               ; 02:8094 - 22 75 D2
-   ld     hl, (var_D25D)               ; 02:8097 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8097 - 2A 5D D2
    ld     (var_D277), hl               ; 02:809A - 22 77 D2
    ld     (var_D279), hl               ; 02:809D - 22 79 D2
    ld     hl, $01F0                    ; 02:80A0 - 21 F0 01
@@ -14196,7 +14197,7 @@ addr_08446:
    ld     (ix+11), h                   ; 02:8449 - DD 74 0B
    ld     (ix+12), c                   ; 02:844C - DD 71 0C
    ld     (g_FF_string_high_byte), hl  ; 02:844F - 22 0E D2
-   ld     de, (var_D25D)               ; 02:8452 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 02:8452 - ED 5B 5D D2
    inc    d                            ; 02:8456 - 14
    ld     l, (ix+5)                    ; 02:8457 - DD 6E 05
    ld     h, (ix+6)                    ; 02:845A - DD 66 06
@@ -15003,13 +15004,13 @@ addr_08CBC:
    call   nc, addr_035FD               ; 02:8CDA - D4 FD 35
    ld     e, (ix+2)                    ; 02:8CDD - DD 5E 02
    ld     d, (ix+3)                    ; 02:8CE0 - DD 56 03
-   ld     hl, (var_D25A)               ; 02:8CE3 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8CE3 - 2A 5A D2
    ld     bc, $FFF0                    ; 02:8CE6 - 01 F0 FF
    add    hl, bc                       ; 02:8CE9 - 09
    and    a                            ; 02:8CEA - A7
    sbc    hl, de                       ; 02:8CEB - ED 52
    jr     nc, addr_08D1A               ; 02:8CED - 30 2B
-   ld     hl, (var_D25A)               ; 02:8CEF - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8CEF - 2A 5A D2
    ld     bc, $0110                    ; 02:8CF2 - 01 10 01
    add    hl, bc                       ; 02:8CF5 - 09
    and    a                            ; 02:8CF6 - A7
@@ -15017,13 +15018,13 @@ addr_08CBC:
    jr     c, addr_08D1A                ; 02:8CF9 - 38 1F
    ld     e, (ix+5)                    ; 02:8CFB - DD 5E 05
    ld     d, (ix+6)                    ; 02:8CFE - DD 56 06
-   ld     hl, (var_D25D)               ; 02:8D01 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8D01 - 2A 5D D2
    ld     bc, $FFF0                    ; 02:8D04 - 01 F0 FF
    add    hl, bc                       ; 02:8D07 - 09
    and    a                            ; 02:8D08 - A7
    sbc    hl, de                       ; 02:8D09 - ED 52
    jr     nc, addr_08D1A               ; 02:8D0B - 30 0D
-   ld     hl, (var_D25D)               ; 02:8D0D - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8D0D - 2A 5D D2
    ld     bc, $00D0                    ; 02:8D10 - 01 D0 00
    add    hl, bc                       ; 02:8D13 - 09
    and    a                            ; 02:8D14 - A7
@@ -15084,7 +15085,7 @@ addr_08D5E:
 
 addr_08D8A:
    ld     (var_D2DC), hl               ; 02:8D8A - 22 DC D2
-   ld     de, (var_D25D)               ; 02:8D8D - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 02:8D8D - ED 5B 5D D2
    and    a                            ; 02:8D91 - A7
    ld     a, $FF                       ; 02:8D92 - 3E FF
    sbc    hl, de                       ; 02:8D94 - ED 52
@@ -15110,9 +15111,9 @@ addr_08DAB:
    ld     l, a                         ; 02:8DB5 - 6F
    ld     h, $00                       ; 02:8DB6 - 26 00
    ld     (var_D214), hl               ; 02:8DB8 - 22 14 D2
-   ld     hl, (var_D25A)               ; 02:8DBB - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8DBB - 2A 5A D2
    ld     (g_FF_string_high_byte), hl  ; 02:8DBE - 22 0E D2
-   ld     hl, (var_D25D)               ; 02:8DC1 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8DC1 - 2A 5D D2
    ld     (var_D210), hl               ; 02:8DC4 - 22 10 D2
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:8DC7 - FD 7E 0A
    ld     hl, (var_D23C)               ; 02:8DCA - 2A 3C D2
@@ -15243,7 +15244,7 @@ addr_08EF8:
    ld     h, (ix+3)                    ; 02:8F07 - DD 66 03
    ld     (g_FF_string_high_byte), hl  ; 02:8F0A - 22 0E D2
    ex     de, hl                       ; 02:8F0D - EB
-   ld     hl, (var_D25A)               ; 02:8F0E - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8F0E - 2A 5A D2
    ld     bc, $0008                    ; 02:8F11 - 01 08 00
    xor    a                            ; 02:8F14 - AF
    sbc    hl, bc                       ; 02:8F15 - ED 42
@@ -15255,7 +15256,7 @@ addr_08F1B:
    and    a                            ; 02:8F1B - A7
    sbc    hl, de                       ; 02:8F1C - ED 52
    jr     nc, addr_08F56               ; 02:8F1E - 30 36
-   ld     hl, (var_D25A)               ; 02:8F20 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8F20 - 2A 5A D2
    ld     bc, $0100                    ; 02:8F23 - 01 00 01
    add    hl, bc                       ; 02:8F26 - 09
    and    a                            ; 02:8F27 - A7
@@ -15269,13 +15270,13 @@ addr_08F1B:
    and    a                            ; 02:8F39 - A7
    sbc    hl, de                       ; 02:8F3A - ED 52
    jr     nc, addr_08F56               ; 02:8F3C - 30 18
-   ld     hl, (var_D25D)               ; 02:8F3E - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8F3E - 2A 5D D2
    ld     bc, $FFF0                    ; 02:8F41 - 01 F0 FF
    add    hl, bc                       ; 02:8F44 - 09
    and    a                            ; 02:8F45 - A7
    sbc    hl, de                       ; 02:8F46 - ED 52
    jr     nc, addr_08F56               ; 02:8F48 - 30 0C
-   ld     hl, (var_D25D)               ; 02:8F4A - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8F4A - 2A 5D D2
    ld     bc, $00C0                    ; 02:8F4D - 01 C0 00
    add    hl, bc                       ; 02:8F50 - 09
    and    a                            ; 02:8F51 - A7
@@ -15477,26 +15478,26 @@ addr_09148:
 addr_09151:
    ld     e, (ix+2)                    ; 02:9151 - DD 5E 02
    ld     d, (ix+3)                    ; 02:9154 - DD 56 03
-   ld     hl, (var_D25A)               ; 02:9157 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:9157 - 2A 5A D2
    ld     bc, $FFE0                    ; 02:915A - 01 E0 FF
    add    hl, bc                       ; 02:915D - 09
    and    a                            ; 02:915E - A7
    sbc    hl, de                       ; 02:915F - ED 52
    jr     nc, addr_0918A               ; 02:9161 - 30 27
-   ld     hl, (var_D25A)               ; 02:9163 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:9163 - 2A 5A D2
    inc    h                            ; 02:9166 - 24
    and    a                            ; 02:9167 - A7
    sbc    hl, de                       ; 02:9168 - ED 52
    jr     c, addr_0918A                ; 02:916A - 38 1E
    ld     e, (ix+5)                    ; 02:916C - DD 5E 05
    ld     d, (ix+6)                    ; 02:916F - DD 56 06
-   ld     hl, (var_D25D)               ; 02:9172 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:9172 - 2A 5D D2
    ld     bc, $FFE0                    ; 02:9175 - 01 E0 FF
    add    hl, bc                       ; 02:9178 - 09
    and    a                            ; 02:9179 - A7
    sbc    hl, de                       ; 02:917A - ED 52
    jr     nc, addr_0918A               ; 02:917C - 30 0C
-   ld     hl, (var_D25D)               ; 02:917E - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:917E - 2A 5D D2
    ld     bc, $00E0                    ; 02:9181 - 01 E0 00
    add    hl, bc                       ; 02:9184 - 09
    and    a                            ; 02:9185 - A7
@@ -15898,7 +15899,7 @@ addr_09518:
    ld     b, (ix+3)                    ; 02:951B - DD 46 03
    ld     hl, $FFF0                    ; 02:951E - 21 F0 FF
    add    hl, bc                       ; 02:9521 - 09
-   ld     de, (var_D25A)               ; 02:9522 - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 02:9522 - ED 5B 5A D2
    and    a                            ; 02:9526 - A7
    sbc    hl, de                       ; 02:9527 - ED 52
    jr     c, addr_0954F                ; 02:9529 - 38 24
@@ -15912,7 +15913,7 @@ addr_09518:
    ld     b, (ix+6)                    ; 02:9536 - DD 46 06
    ld     hl, $FFF0                    ; 02:9539 - 21 F0 FF
    add    hl, bc                       ; 02:953C - 09
-   ld     de, (var_D25D)               ; 02:953D - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 02:953D - ED 5B 5D D2
    and    a                            ; 02:9541 - A7
    sbc    hl, de                       ; 02:9542 - ED 52
    jr     c, addr_0954F                ; 02:9544 - 38 09
@@ -16264,7 +16265,7 @@ addr_09812:
    ld     l, (ix+2)                    ; 02:9812 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9815 - DD 66 03
    ex     de, hl                       ; 02:9818 - EB
-   ld     hl, (var_D25A)               ; 02:9819 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:9819 - 2A 5A D2
    ld     bc, $0008                    ; 02:981C - 01 08 00
    xor    a                            ; 02:981F - AF
    sbc    hl, bc                       ; 02:9820 - ED 42
@@ -16276,7 +16277,7 @@ addr_09826:
    and    a                            ; 02:9826 - A7
    sbc    hl, de                       ; 02:9827 - ED 52
    jr     nc, addr_0985E               ; 02:9829 - 30 33
-   ld     hl, (var_D25A)               ; 02:982B - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:982B - 2A 5A D2
    ld     bc, $0100                    ; 02:982E - 01 00 01
    add    hl, bc                       ; 02:9831 - 09
    and    a                            ; 02:9832 - A7
@@ -16289,13 +16290,13 @@ addr_09826:
    and    a                            ; 02:9841 - A7
    sbc    hl, de                       ; 02:9842 - ED 52
    jr     nc, addr_0985E               ; 02:9844 - 30 18
-   ld     hl, (var_D25D)               ; 02:9846 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:9846 - 2A 5D D2
    ld     bc, $FFF0                    ; 02:9849 - 01 F0 FF
    add    hl, bc                       ; 02:984C - 09
    and    a                            ; 02:984D - A7
    sbc    hl, de                       ; 02:984E - ED 52
    jr     nc, addr_0985E               ; 02:9850 - 30 0C
-   ld     hl, (var_D25D)               ; 02:9852 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:9852 - 2A 5D D2
    ld     bc, $00C0                    ; 02:9855 - 01 C0 00
    add    hl, bc                       ; 02:9858 - 09
    and    a                            ; 02:9859 - A7
@@ -17765,7 +17766,7 @@ objfunc_22_UNKNOWN:
    ld     (var_D273), hl               ; 02:A7FE - 22 73 D2
    ld     hl, $0540                    ; 02:A801 - 21 40 05
    ld     (var_D275), hl               ; 02:A804 - 22 75 D2
-   ld     hl, (var_D25D)               ; 02:A807 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:A807 - 2A 5D D2
    ld     (var_D277), hl               ; 02:A80A - 22 77 D2
    ld     (var_D279), hl               ; 02:A80D - 22 79 D2
    ld     hl, $0220                    ; 02:A810 - 21 20 02
@@ -17784,7 +17785,7 @@ objfunc_22_UNKNOWN:
 addr_0A830:
    bit    1, (ix+24)                   ; 02:A830 - DD CB 18 4E
    jr     nz, addr_0A893               ; 02:A834 - 20 5D
-   ld     hl, (var_D25A)               ; 02:A836 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:A836 - 2A 5A D2
    ld     (var_D273), hl               ; 02:A839 - 22 73 D2
    ld     de, UNK_0BAF9                ; 02:A83C - 11 F9 BA
    ld     bc, UNK_0A9B7                ; 02:A83F - 01 B7 A9
@@ -17902,7 +17903,7 @@ addr_0A91D:
    ld     a, (ix+17)                   ; 02:A94C - DD 7E 11
    cp     $C0                          ; 02:A94F - FE C0
    jr     nz, addr_0A974               ; 02:A951 - 20 21
-   ld     hl, (var_D25A)               ; 02:A953 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:A953 - 2A 5A D2
    inc    h                            ; 02:A956 - 24
    ld     (sonic_x), hl                ; 02:A957 - 22 FE D3
    set    4, (ix+24)                   ; 02:A95A - DD CB 18 E6
@@ -17933,12 +17934,12 @@ addr_0A974:
    ld     hl, $02AF                    ; 02:A98D - 21 AF 02
    and    a                            ; 02:A990 - A7
    sbc    hl, de                       ; 02:A991 - ED 52
-   ld     bc, (var_D25D)               ; 02:A993 - ED 4B 5D D2
+   ld     bc, (g_level_scroll_y_pix_lo)  ; 02:A993 - ED 4B 5D D2
    and    a                            ; 02:A997 - A7
    sbc    hl, bc                       ; 02:A998 - ED 42
    ex     de, hl                       ; 02:A99A - EB
    ld     hl, $05A0                    ; 02:A99B - 21 A0 05
-   ld     bc, (var_D25A)               ; 02:A99E - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 02:A99E - ED 4B 5A D2
    and    a                            ; 02:A9A2 - A7
    sbc    hl, bc                       ; 02:A9A3 - ED 42
    ld     bc, UNK_0A9C0                ; 02:A9A5 - 01 C0 A9
@@ -17981,13 +17982,13 @@ objfunc_30_UNKNOWN:
    adc    a, c                         ; 02:A9F6 - 89
    ld     l, h                         ; 02:A9F7 - 6C
    ld     h, a                         ; 02:A9F8 - 67
-   ld     bc, (var_D25D)               ; 02:A9F9 - ED 4B 5D D2
+   ld     bc, (g_level_scroll_y_pix_lo)  ; 02:A9F9 - ED 4B 5D D2
    and    a                            ; 02:A9FD - A7
    sbc    hl, bc                       ; 02:A9FE - ED 42
    ex     de, hl                       ; 02:AA00 - EB
    ld     l, (ix+2)                    ; 02:AA01 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AA04 - DD 66 03
-   ld     bc, (var_D25A)               ; 02:AA07 - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 02:AA07 - ED 4B 5A D2
    and    a                            ; 02:AA0B - A7
    sbc    hl, bc                       ; 02:AA0C - ED 42
    ld     bc, UNK_0AA63                ; 02:AA0E - 01 63 AA
@@ -18001,7 +18002,7 @@ addr_0AA1C:
    pop    af                           ; 02:AA1D - F1
    ld     (var_D23C), hl               ; 02:AA1E - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:AA21 - FD 77 0A
-   ld     hl, (var_D25A)               ; 02:AA24 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:AA24 - 2A 5A D2
    ld     de, $FFE0                    ; 02:AA27 - 11 E0 FF
    add    hl, de                       ; 02:AA2A - 19
    ex     de, hl                       ; 02:AA2B - EB
@@ -18015,7 +18016,7 @@ addr_0AA1C:
    add    a, a                         ; 02:AA3C - 87
    ld     c, a                         ; 02:AA3D - 4F
    rl     b                            ; 02:AA3E - CB 10
-   ld     hl, (var_D25A)               ; 02:AA40 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:AA40 - 2A 5A D2
    ld     de, $01B4                    ; 02:AA43 - 11 B4 01
    add    hl, de                       ; 02:AA46 - 19
    add    hl, bc                       ; 02:AA47 - 09
@@ -18401,7 +18402,7 @@ objfunc_34_UNKNOWN:
    set    5, (ix+24)                   ; 02:AE35 - DD CB 18 EE
    ld     (ix+13), $0C                 ; 02:AE39 - DD 36 0D 0C
    ld     (ix+14), $0C                 ; 02:AE3D - DD 36 0E 0C
-   ld     hl, (var_D25A)               ; 02:AE41 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:AE41 - 2A 5A D2
    ld     de, $0110                    ; 02:AE44 - 11 10 01
    add    hl, de                       ; 02:AE47 - 19
    ld     e, (ix+2)                    ; 02:AE48 - DD 5E 02
@@ -18670,13 +18671,13 @@ objfunc_36_UNKNOWN:
    ld     h, (ix+3)                    ; 02:B117 - DD 66 03
    ld     (g_FF_string_high_byte), hl  ; 02:B11A - 22 0E D2
    ex     de, hl                       ; 02:B11D - EB
-   ld     hl, (var_D25A)               ; 02:B11E - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:B11E - 2A 5A D2
    ld     bc, $FFF0                    ; 02:B121 - 01 F0 FF
    add    hl, bc                       ; 02:B124 - 09
    and    a                            ; 02:B125 - A7
    sbc    hl, de                       ; 02:B126 - ED 52
    jr     nc, addr_0B167               ; 02:B128 - 30 3D
-   ld     hl, (var_D25A)               ; 02:B12A - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:B12A - 2A 5A D2
    ld     bc, $0110                    ; 02:B12D - 01 10 01
    add    hl, bc                       ; 02:B130 - 09
    and    a                            ; 02:B131 - A7
@@ -18686,13 +18687,13 @@ objfunc_36_UNKNOWN:
    ld     h, (ix+6)                    ; 02:B139 - DD 66 06
    ld     (var_D210), hl               ; 02:B13C - 22 10 D2
    ex     de, hl                       ; 02:B13F - EB
-   ld     hl, (var_D25D)               ; 02:B140 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:B140 - 2A 5D D2
    ld     bc, $FFF0                    ; 02:B143 - 01 F0 FF
    add    hl, bc                       ; 02:B146 - 09
    and    a                            ; 02:B147 - A7
    sbc    hl, de                       ; 02:B148 - ED 52
    jr     nc, addr_0B167               ; 02:B14A - 30 1B
-   ld     hl, (var_D25D)               ; 02:B14C - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:B14C - 2A 5D D2
    ld     bc, $00D0                    ; 02:B14F - 01 D0 00
    add    hl, bc                       ; 02:B152 - 09
    and    a                            ; 02:B153 - A7
@@ -18989,7 +18990,7 @@ addr_0B3B2:
    ld     b, (ix+6)                    ; 02:B420 - DD 46 06
    ld     hl, $0040                    ; 02:B423 - 21 40 00
    add    hl, bc                       ; 02:B426 - 09
-   ld     de, (var_D25D)               ; 02:B427 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 02:B427 - ED 5B 5D D2
    and    a                            ; 02:B42B - A7
    sbc    hl, de                       ; 02:B42C - ED 52
    jr     nc, addr_0B43C               ; 02:B42E - 30 0C
@@ -19947,13 +19948,13 @@ addr_0BCFC:
    jp     c, addr_0BDAD                ; 02:BD01 - DA AD BD
    ld     e, (ix+2)                    ; 02:BD04 - DD 5E 02
    ld     d, (ix+3)                    ; 02:BD07 - DD 56 03
-   ld     hl, (var_D25A)               ; 02:BD0A - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:BD0A - 2A 5A D2
    ld     bc, $FFF4                    ; 02:BD0D - 01 F4 FF
    add    hl, bc                       ; 02:BD10 - 09
    and    a                            ; 02:BD11 - A7
    sbc    hl, de                       ; 02:BD12 - ED 52
    jp     nc, addr_0BDBE               ; 02:BD14 - D2 BE BD
-   ld     hl, (var_D25A)               ; 02:BD17 - 2A 5A D2
+   ld     hl, (g_level_scroll_x_pix_lo)  ; 02:BD17 - 2A 5A D2
    inc    h                            ; 02:BD1A - 24
    and    a                            ; 02:BD1B - A7
    sbc    hl, de                       ; 02:BD1C - ED 52
@@ -19987,13 +19988,13 @@ addr_0BD4C:
    ld     (ix+9), a                    ; 02:BD54 - DD 77 09
    ld     e, (ix+5)                    ; 02:BD57 - DD 5E 05
    ld     d, (ix+6)                    ; 02:BD5A - DD 56 06
-   ld     hl, (var_D25D)               ; 02:BD5D - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:BD5D - 2A 5D D2
    ld     bc, $FFF4                    ; 02:BD60 - 01 F4 FF
    add    hl, bc                       ; 02:BD63 - 09
    and    a                            ; 02:BD64 - A7
    sbc    hl, de                       ; 02:BD65 - ED 52
    jr     nc, addr_0BDBE               ; 02:BD67 - 30 55
-   ld     hl, (var_D25D)               ; 02:BD69 - 2A 5D D2
+   ld     hl, (g_level_scroll_y_pix_lo)  ; 02:BD69 - 2A 5D D2
    ld     bc, $00C0                    ; 02:BD6C - 01 C0 00
    add    hl, de                       ; 02:BD6F - 19
    and    a                            ; 02:BD70 - A7
@@ -20104,7 +20105,7 @@ addr_0BE5C:
    ld     (ix+12), a                   ; 02:BE75 - DD 77 0C
    bit    6, (iy+var_D207-IYBASE)      ; 02:BE78 - FD CB 07 76
    jr     z, addr_0BE96                ; 02:BE7C - 28 18
-   ld     de, (var_D25A)               ; 02:BE7E - ED 5B 5A D2
+   ld     de, (g_level_scroll_x_pix_lo)  ; 02:BE7E - ED 5B 5A D2
    ld     hl, $0040                    ; 02:BE82 - 21 40 00
    add    hl, de                       ; 02:BE85 - 19
    ld     c, (ix+2)                    ; 02:BE86 - DD 4E 02
@@ -20113,7 +20114,7 @@ addr_0BE5C:
    sbc    hl, bc                       ; 02:BE8D - ED 42
    jr     nc, addr_0BE96               ; 02:BE8F - 30 05
    inc    de                           ; 02:BE91 - 13
-   ld     (var_D25A), de               ; 02:BE92 - ED 53 5A D2
+   ld     (g_level_scroll_x_pix_lo), de  ; 02:BE92 - ED 53 5A D2
 
 addr_0BE96:
    ld     (ix+15), UNK_0BF21&$FF       ; 02:BE96 - DD 36 0F 21
@@ -20230,13 +20231,13 @@ addr_0BF95:
    ld     (var_D23C), hl               ; 02:BFA9 - 22 3C D2
    ld     l, (ix+5)                    ; 02:BFAC - DD 6E 05
    ld     h, (ix+6)                    ; 02:BFAF - DD 66 06
-   ld     de, (var_D25D)               ; 02:BFB2 - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 02:BFB2 - ED 5B 5D D2
    and    a                            ; 02:BFB6 - A7
    sbc    hl, de                       ; 02:BFB7 - ED 52
    ex     de, hl                       ; 02:BFB9 - EB
    ld     l, (ix+2)                    ; 02:BFBA - DD 6E 02
    ld     h, (ix+3)                    ; 02:BFBD - DD 66 03
-   ld     bc, (var_D25A)               ; 02:BFC0 - ED 4B 5A D2
+   ld     bc, (g_level_scroll_x_pix_lo)  ; 02:BFC0 - ED 4B 5A D2
    and    a                            ; 02:BFC4 - A7
    sbc    hl, bc                       ; 02:BFC5 - ED 42
    ld     bc, UNK_0BFF1                ; 02:BFC7 - 01 F1 BF
@@ -20251,7 +20252,7 @@ addr_0BFD5:
    ld     h, (ix+6)                    ; 02:BFD8 - DD 66 06
    ld     de, $0020                    ; 02:BFDB - 11 20 00
    add    hl, de                       ; 02:BFDE - 19
-   ld     de, (var_D25D)               ; 02:BFDF - ED 5B 5D D2
+   ld     de, (g_level_scroll_y_pix_lo)  ; 02:BFDF - ED 5B 5D D2
    and    a                            ; 02:BFE3 - A7
    sbc    hl, de                       ; 02:BFE4 - ED 52
    ret    nc                           ; 02:BFE6 - D0
