@@ -96,7 +96,7 @@ g_sprite_count db   ; D20A
 var_D20B db   ; D20B (auto)
 var_D20C db   ; D20C (auto)
 var_D20D db   ; D20D (auto)
-g_FF_string_high_byte db   ; D20E
+var_D20E db   ; D20E
 var_D20F db   ; D20F
 var_D210 dw   ; D210
 var_D212 db   ; D212
@@ -1144,7 +1144,7 @@ load_art:
    ld     d, b                         ; 00:045A - 50
    pop    hl                           ; 00:045B - E1
    add    hl, bc                       ; 00:045C - 09
-   ld     (g_FF_string_high_byte), hl  ; 00:045D - 22 0E D2
+   ld     (var_D20E), hl               ; 00:045D - 22 0E D2
    ld     c, l                         ; 00:0460 - 4D
    ld     b, h                         ; 00:0461 - 44
    pop    hl                           ; 00:0462 - E1
@@ -1283,7 +1283,7 @@ load_art:
    ld     l, a                         ; 00:04BF - 6F
    add    hl, hl                       ; 00:04C0 - 29
    add    hl, hl                       ; 00:04C1 - 29
-   ld     de, (g_FF_string_high_byte)  ; 00:04C2 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 00:04C2 - ED 5B 0E D2
    add    hl, de                       ; 00:04C6 - 19
    ld     a, (hl)                      ; 00:04C7 - 7E
    out    ($BE), a                     ; 00:04C8 - D3 BE
@@ -1311,7 +1311,7 @@ load_art:
    ld l, a
    add hl, hl
    add hl, hl
-   ld de, (g_FF_string_high_byte)
+   ld de, (var_D20E)
    add hl, de
    ld a, (hl)
    out ($BE), a
@@ -1396,7 +1396,7 @@ unpack_art_tilemap_into_vram:
    jr     z, +++                       ; 00:0514 - 28 33
    out    ($BE), a                     ; 00:0516 - D3 BE
    ld     e, a                         ; 00:0518 - 5F
-   ld     a, (g_FF_string_high_byte)   ; 00:0519 - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:0519 - 3A 0E D2
    out    ($BE), a                     ; 00:051C - D3 BE
    inc    hl                           ; 00:051E - 23
    dec    bc                           ; 00:051F - 0B
@@ -1420,7 +1420,7 @@ unpack_art_tilemap_into_vram:
 -:
    out    ($BE), a                     ; 00:0534 - D3 BE
    push   af                           ; 00:0536 - F5
-   ld     a, (g_FF_string_high_byte)   ; 00:0537 - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:0537 - 3A 0E D2
    out    ($BE), a                     ; 00:053A - D3 BE
    pop    af                           ; 00:053C - F1
    dec    e                            ; 00:053D - 1D
@@ -1614,14 +1614,14 @@ print_positioned_FF_string:
    .IF 0
    push   af                           ; 00:05D7 - F5
    pop    af                           ; 00:05D8 - F1
-   ld     a, (g_FF_string_high_byte)   ; 00:05D9 - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:05D9 - 3A 0E D2
    out    ($BE), a                     ; 00:05DC - D3 BE
    inc    de                           ; 00:05DE - 13
    .ELSE
    ;; We don't have to be *that* cautious with our timings!
    ;; This repeated would be "every 30 cycles".
    inc de                          ; 05D7 1
-   ld a, (g_FF_string_high_byte)   ; 05D8 3
+   ld a, (var_D20E)                ; 05D8 3
    out ($BE), a                    ; 05DB 2
    .ENDIF
    ; 05DF -> 05DD - SAVING: 2 bytes
@@ -1948,7 +1948,7 @@ addr_00719:
    .ENDIF
    ld     c, a                         ; 00:0721 - 4F
    ld     b, $00                       ; 00:0722 - 06 00
-   ld     (g_FF_string_high_byte), bc  ; 00:0724 - ED 43 0E D2
+   ld     (var_D20E), bc               ; 00:0724 - ED 43 0E D2
    exx                                 ; 00:0728 - D9
    ld     de, var_D180                 ; 00:0729 - 11 80 D1
    exx                                 ; 00:072C - D9
@@ -1977,7 +1977,7 @@ addr_00733:
    rrca                                ; 00:0749 - 0F
    rrca                                ; 00:074A - 0F
    and    $10                          ; 00:074B - E6 10
-   ld     hl, (g_FF_string_high_byte)  ; 00:074D - 2A 0E D2
+   ld     hl, (var_D20E)               ; 00:074D - 2A 0E D2
    add    hl, bc                       ; 00:0750 - 09
    ld     bc, (var_D24F)               ; 00:0751 - ED 4B 4F D2
    add    hl, bc                       ; 00:0755 - 09
@@ -2037,7 +2037,7 @@ addr_00789:
    and    $FC                          ; 00:0793 - E6 FC
    ld     c, a                         ; 00:0795 - 4F
    ld     b, $00                       ; 00:0796 - 06 00
-   ld     (g_FF_string_high_byte), bc  ; 00:0798 - ED 43 0E D2
+   ld     (var_D20E), bc               ; 00:0798 - ED 43 0E D2
    exx                                 ; 00:079C - D9
    ld     de, var_D100                 ; 00:079D - 11 00 D1
    exx                                 ; 00:07A0 - D9
@@ -2065,7 +2065,7 @@ addr_007A3:
    rrca                                ; 00:07B9 - 0F
    rrca                                ; 00:07BA - 0F
    and    $10                          ; 00:07BB - E6 10
-   ld     hl, (g_FF_string_high_byte)  ; 00:07BD - 2A 0E D2
+   ld     hl, (var_D20E)               ; 00:07BD - 2A 0E D2
    add    hl, bc                       ; 00:07C0 - 09
    ld     bc, (var_D24F)               ; 00:07C1 - ED 4B 4F D2
    add    hl, bc                       ; 00:07C5 - 09
@@ -2300,7 +2300,7 @@ addr_00869:
    .ENDIF
    ld     a, e                         ; 00:089F - 7B
    and    $C0                          ; 00:08A0 - E6 C0
-   ld     (g_FF_string_high_byte), a   ; 00:08A2 - 32 0E D2
+   ld     (var_D20E), a                ; 00:08A2 - 32 0E D2
    ld     a, e                         ; 00:08A5 - 7B
    out    ($BF), a                     ; 00:08A6 - D3 BF
    and    $3F                          ; 00:08A8 - E6 3F
@@ -2326,7 +2326,7 @@ addr_008B2:
    ret                                 ; 00:08BF - C9
 
 addr_008C0:
-   ld     a, (g_FF_string_high_byte)   ; 00:08C0 - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:08C0 - 3A 0E D2
    out    ($BF), a                     ; 00:08C3 - D3 BF
    ld     a, d                         ; 00:08C5 - 7A
    out    ($BF), a                     ; 00:08C6 - D3 BF
@@ -3226,13 +3226,13 @@ addr_00C6C:
    ld     bc, $0178                    ; 00:0CB5 - 01 78 01
    ld     de, $3800                    ; 00:0CB8 - 11 00 38
    ld     a, $10                       ; 00:0CBB - 3E 10
-   ld     (g_FF_string_high_byte), a   ; 00:0CBD - 32 0E D2
+   ld     (var_D20E), a                ; 00:0CBD - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0CC0 - CD 01 05
    ld     hl, ARTMAP_05_63F6           ; 00:0CC3 - 21 F6 63
    ld     bc, $0145                    ; 00:0CC6 - 01 45 01
    ld     de, $3800                    ; 00:0CC9 - 11 00 38
    ld     a, $00                       ; 00:0CCC - 3E 00
-   ld     (g_FF_string_high_byte), a   ; 00:0CCE - 32 0E D2
+   ld     (var_D20E), a                ; 00:0CCE - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0CD1 - CD 01 05
    ld     hl, LUT_00F0E                ; 00:0CD4 - 21 0E 0F
    call   palette_fade_in_banks_01_02  ; 00:0CD7 - CD 50 0B
@@ -3266,13 +3266,13 @@ addr_00CDC:
    ld     bc, $0170                    ; 00:0D17 - 01 70 01
    ld     de, $3800                    ; 00:0D1A - 11 00 38
    ld     a, $10                       ; 00:0D1D - 3E 10
-   ld     (g_FF_string_high_byte), a   ; 00:0D1F - 32 0E D2
+   ld     (var_D20E), a                ; 00:0D1F - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0D22 - CD 01 05
    ld     hl, ARTMAP_05_66AB           ; 00:0D25 - 21 AB 66
    ld     bc, $0153                    ; 00:0D28 - 01 53 01
    ld     de, $3800                    ; 00:0D2B - 11 00 38
    ld     a, $00                       ; 00:0D2E - 3E 00
-   ld     (g_FF_string_high_byte), a   ; 00:0D30 - 32 0E D2
+   ld     (var_D20E), a                ; 00:0D30 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0D33 - CD 01 05
    ld     hl, LUT_00F2E                ; 00:0D36 - 21 2E 0F
    call   palette_fade_in_banks_01_02  ; 00:0D39 - CD 50 0B
@@ -3294,7 +3294,7 @@ addr_00D3F:
    ld     h, (hl)                      ; 00:0D4F - 66
    ld     l, a                         ; 00:0D50 - 6F
    ld     a, $10                       ; 00:0D51 - 3E 10
-   ld     (g_FF_string_high_byte), a   ; 00:0D53 - 32 0E D2
+   ld     (var_D20E), a                ; 00:0D53 - 32 0E D2
    call   print_positioned_FF_string   ; 00:0D56 - CD AF 05
    ld     a, (g_level)                 ; 00:0D59 - 3A 3E D2
    ld     c, a                         ; 00:0D5C - 4F
@@ -3326,15 +3326,15 @@ addr_00D3F:
 
 addr_00D80:
    ld     a, $01                       ; 00:0D80 - 3E 01
-   ld     (g_FF_string_high_byte), a   ; 00:0D82 - 32 0E D2
+   ld     (var_D20E), a                ; 00:0D82 - 32 0E D2
    ld     bc, $012C                    ; 00:0D85 - 01 2C 01
 
 addr_00D88:
    push   bc                           ; 00:0D88 - C5
    call   addr_00E86                   ; 00:0D89 - CD 86 0E
-   ld     a, (g_FF_string_high_byte)   ; 00:0D8C - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:0D8C - 3A 0E D2
    dec    a                            ; 00:0D8F - 3D
-   ld     (g_FF_string_high_byte), a   ; 00:0D90 - 32 0E D2
+   ld     (var_D20E), a                ; 00:0D90 - 32 0E D2
    jr     nz, addr_00DB7               ; 00:0D93 - 20 22
    ld     hl, (var_D210)               ; 00:0D95 - 2A 10 D2
 
@@ -3356,7 +3356,7 @@ addr_00D98:
    jp     addr_00D98                   ; 00:0DAA - C3 98 0D
 
 addr_00DAD:
-   ld     (g_FF_string_high_byte), a   ; 00:0DAD - 32 0E D2
+   ld     (var_D20E), a                ; 00:0DAD - 32 0E D2
    ld     (var_D210), hl               ; 00:0DB0 - 22 10 D2
    ld     (var_D212), de               ; 00:0DB3 - ED 53 12 D2
 
@@ -3383,7 +3383,7 @@ addr_00DB7:
 
 addr_00DD9:
    ld     hl, $0000                    ; 00:0DD9 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 00:0DDC - 22 0E D2
+   ld     (var_D20E), hl               ; 00:0DDC - 22 0E D2
    ld     hl, $00DC                    ; 00:0DDF - 21 DC 00
    ld     de, $003C                    ; 00:0DE2 - 11 3C 00
    ld     b, $00                       ; 00:0DE5 - 06 00
@@ -3400,7 +3400,7 @@ addr_00DE7:
    dec    hl                           ; 00:0DFA - 2B
    djnz   addr_00DE7                   ; 00:0DFB - 10 EA
    ld     hl, $0000                    ; 00:0DFD - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 00:0E00 - 22 0E D2
+   ld     (var_D20E), hl               ; 00:0E00 - 22 0E D2
    ld     hl, $FFD8                    ; 00:0E03 - 21 D8 FF
    ld     de, $0058                    ; 00:0E06 - 11 58 00
    ld     b, $80                       ; 00:0E09 - 06 80
@@ -3420,7 +3420,7 @@ addr_00E0B:
 
 addr_00E24:
    ld     hl, $0000                    ; 00:0E24 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 00:0E27 - 22 0E D2
+   ld     (var_D20E), hl               ; 00:0E27 - 22 0E D2
    ld     hl, $0080                    ; 00:0E2A - 21 80 00
    ld     de, $00C0                    ; 00:0E2D - 11 C0 00
    ld     b, $78                       ; 00:0E30 - 06 78
@@ -3440,7 +3440,7 @@ addr_00E32:
 
 addr_00E4B:
    ld     hl, $0000                    ; 00:0E4B - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 00:0E4E - 22 0E D2
+   ld     (var_D20E), hl               ; 00:0E4E - 22 0E D2
    ld     hl, $0078                    ; 00:0E51 - 21 78 00
    ld     de, $0000                    ; 00:0E54 - 11 00 00
    ld     b, $30                       ; 00:0E57 - 06 30
@@ -3502,7 +3502,7 @@ addr_00E86:
    push   hl                           ; 00:0E86 - E5
    push   de                           ; 00:0E87 - D5
    push   bc                           ; 00:0E88 - C5
-   ld     hl, (g_FF_string_high_byte)  ; 00:0E89 - 2A 0E D2
+   ld     hl, (var_D20E)               ; 00:0E89 - 2A 0E D2
    push   hl                           ; 00:0E8C - E5
    res    0, (iy+var_D200-IYBASE)      ; 00:0E8D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0E91 - CD 1C 03
@@ -3546,7 +3546,7 @@ addr_00E86:
    call   draw_sprite_text             ; 00:0ECF - CD CC 35
    ld     (var_D23C), hl               ; 00:0ED2 - 22 3C D2
    pop    hl                           ; 00:0ED5 - E1
-   ld     (g_FF_string_high_byte), hl  ; 00:0ED6 - 22 0E D2
+   ld     (var_D20E), hl               ; 00:0ED6 - 22 0E D2
    pop    bc                           ; 00:0ED9 - C1
    pop    de                           ; 00:0EDA - D1
    pop    hl                           ; 00:0EDB - E1
@@ -3567,14 +3567,14 @@ addr_00EDD:
    inc    hl                           ; 00:0EEB - 23
    ld     b, (hl)                      ; 00:0EEC - 46
    inc    hl                           ; 00:0EED - 23
-   ld     a, (g_FF_string_high_byte)   ; 00:0EEE - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:0EEE - 3A 0E D2
    cp     (hl)                         ; 00:0EF1 - BE
    jr     c, addr_00EFD                ; 00:0EF2 - 38 09
    inc    hl                           ; 00:0EF4 - 23
    ld     a, (hl)                      ; 00:0EF5 - 7E
    ld     (var_D20F), a                ; 00:0EF6 - 32 0F D2
    xor    a                            ; 00:0EF9 - AF
-   ld     (g_FF_string_high_byte), a   ; 00:0EFA - 32 0E D2
+   ld     (var_D20E), a                ; 00:0EFA - 32 0E D2
 
 addr_00EFD:
    pop    de                           ; 00:0EFD - D1
@@ -3582,9 +3582,9 @@ addr_00EFD:
    push   hl                           ; 00:0EFF - E5
    push   de                           ; 00:0F00 - D5
    call   draw_sprite_string           ; 00:0F01 - CD 0F 35
-   ld     a, (g_FF_string_high_byte)   ; 00:0F04 - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:0F04 - 3A 0E D2
    inc    a                            ; 00:0F07 - 3C
-   ld     (g_FF_string_high_byte), a   ; 00:0F08 - 32 0E D2
+   ld     (var_D20E), a                ; 00:0F08 - 32 0E D2
    pop    de                           ; 00:0F0B - D1
    pop    hl                           ; 00:0F0C - E1
    ret                                 ; 00:0F0D - C9
@@ -3913,7 +3913,7 @@ run_title_screen:
    ld     de, $3800                    ; 00:12B7 - 11 00 38
    ld     bc, $012E                    ; 00:12BA - 01 2E 01
    ld     a, $00                       ; 00:12BD - 3E 00
-   ld     (g_FF_string_high_byte), a   ; 00:12BF - 32 0E D2
+   ld     (var_D20E), a                ; 00:12BF - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:12C2 - CD 01 05
 
    .IF show_diet_logo
@@ -3970,7 +3970,7 @@ run_title_screen:
 
 @skip_hide_press_button_text:
    xor    a                            ; 00:130F - AF
-   ld     (g_FF_string_high_byte), a   ; 00:1310 - 32 0E D2
+   ld     (var_D20E), a                ; 00:1310 - 32 0E D2
    call   print_positioned_FF_string   ; 00:1313 - CD AF 05
    ;; Decrement the counter for Sonic's hand animation
    ld     a, (var_D20F)                ; 00:1316 - 3A 0F D2
@@ -4145,7 +4145,7 @@ addr_01401:
    ld     bc, $0032                    ; 00:1427 - 01 32 00
    ld     de, $3800                    ; 00:142A - 11 00 38
    ld     a, $00                       ; 00:142D - 3E 00
-   ld     (g_FF_string_high_byte), a   ; 00:142F - 32 0E D2
+   ld     (var_D20E), a                ; 00:142F - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:1432 - CD 01 05
    xor    a                            ; 00:1435 - AF
    ld     (g_vdp_scroll_x), a          ; 00:1436 - 32 51 D2
@@ -4318,7 +4318,7 @@ handle_level_score_screen:
 
 @artmap_not_bonus:
    xor    a                            ; 00:15AC - AF
-   ld     (g_FF_string_high_byte), a   ; 00:15AD - 32 0E D2
+   ld     (var_D20E), a                ; 00:15AD - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:15B0 - CD 01 05
    ld     hl, LUT_01711                ; 00:15B3 - 21 11 17
    ld     c, $10                       ; 00:15B6 - 0E 10
@@ -4504,7 +4504,7 @@ addr_016D9:
    ldir                                ; 00:16EF - ED B0
    pop    bc                           ; 00:16F1 - C1
    xor    a                            ; 00:16F2 - AF
-   ld     (g_FF_string_high_byte), a   ; 00:16F3 - 32 0E D2
+   ld     (var_D20E), a                ; 00:16F3 - 32 0E D2
 
 addr_016F6:
    push   bc                           ; 00:16F6 - C5
@@ -6736,7 +6736,7 @@ addr_0258B:
    ld     bc, $0179                    ; 00:25BF - 01 79 01
    ld     de, $3800                    ; 00:25C2 - 11 00 38
    xor    a                            ; 00:25C5 - AF
-   ld     (g_FF_string_high_byte), a   ; 00:25C6 - 32 0E D2
+   ld     (var_D20E), a                ; 00:25C6 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:25C9 - CD 01 05
    ld     a, (g_saved_vdp_reg_01)      ; 00:25CC - 3A 19 D2
    or     $40                          ; 00:25CF - F6 40
@@ -6839,7 +6839,7 @@ addr_0262E:
    ld     bc, $0145                    ; 00:2680 - 01 45 01
    ld     de, $3800                    ; 00:2683 - 11 00 38
    xor    a                            ; 00:2686 - AF
-   ld     (g_FF_string_high_byte), a   ; 00:2687 - 32 0E D2
+   ld     (var_D20E), a                ; 00:2687 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:268A - CD 01 05
    ld     hl, PAL3_ending_tally        ; 00:268D - 21 28 28
    call   addr_00AAE                   ; 00:2690 - CD AE 0A
@@ -6871,7 +6871,7 @@ addr_02693:
    ld     bc, $0189                    ; 00:26CC - 01 89 01
    ld     de, $3800                    ; 00:26CF - 11 00 38
    xor    a                            ; 00:26D2 - AF
-   ld     (g_FF_string_high_byte), a   ; 00:26D3 - 32 0E D2
+   ld     (var_D20E), a                ; 00:26D3 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:26D6 - CD 01 05
 
    .IF 0
@@ -6919,7 +6919,7 @@ addr_02693:
    ld     a, $0E                       ; 00:2708 - 3E 0E
    rst    $18                          ; 00:270A - DF
    xor    a                            ; 00:270B - AF
-   ld     (g_FF_string_high_byte), a   ; 00:270C - 32 0E D2
+   ld     (var_D20E), a                ; 00:270C - 32 0E D2
    ld     hl, UNK_2905                 ; 00:270F - 21 05 29
    call   addr_02795                   ; 00:2712 - CD 95 27
 
@@ -8064,7 +8064,7 @@ update_some_objfunc_activation_statuses:
    inc    hl                           ; 00:321E - 23
    ld     b, (hl)                      ; 00:321F - 46
    inc    hl                           ; 00:3220 - 23
-   ld     de, g_FF_string_high_byte    ; 00:3221 - 11 0E D2
+   ld     de, var_D20E                 ; 00:3221 - 11 0E D2
    ;; BUG: The left offset gets slightly shrunk due to it being decremented 6 times.
    ldi                                 ; 00:3224 - ED A0
    ldi                                 ; 00:3226 - ED A0
@@ -8085,7 +8085,7 @@ update_some_objfunc_activation_statuses:
    ld     d, (ix+3)                    ; 00:323E - DD 56 03
    sbc    hl, de                       ; 00:3241 - ED 52
    jp     nc, @disable_object          ; 00:3243 - D2 8A 32
-   ld     hl, (g_FF_string_high_byte)  ; 00:3246 - 2A 0E D2
+   ld     hl, (var_D20E)               ; 00:3246 - 2A 0E D2
    ld     bc, (g_level_scroll_x_pix_lo)  ; 00:3249 - ED 4B 5A D2
    add    hl, bc                       ; 00:324D - 09
    xor    a                            ; 00:324E - AF
@@ -8671,7 +8671,7 @@ draw_sprite:
    and    a                            ; 00:358D - A7
    sbc    hl, bc                       ; 00:358E - ED 42
    ex     de, hl                       ; 00:3590 - EB
-   ld     hl, (g_FF_string_high_byte)  ; 00:3591 - 2A 0E D2
+   ld     hl, (var_D20E)               ; 00:3591 - 2A 0E D2
    ld     bc, (var_D212)               ; 00:3594 - ED 4B 12 D2
    add    hl, bc                       ; 00:3598 - 09
    ld     bc, (g_level_scroll_x_pix_lo)  ; 00:3599 - ED 4B 5A D2
@@ -8838,7 +8838,7 @@ addr_036A7:
 
 addr_036BE:
    ld     (ix+0), $0A                  ; 00:36BE - DD 36 00 0A
-   ld     a, (g_FF_string_high_byte)   ; 00:36C2 - 3A 0E D2
+   ld     a, (var_D20E)                ; 00:36C2 - 3A 0E D2
    ld     e, a                         ; 00:36C5 - 5F
    ld     d, $00                       ; 00:36C6 - 16 00
    ld     l, (ix+2)                    ; 00:36C8 - DD 6E 02
@@ -9974,7 +9974,7 @@ objfunc_00_sonic:
    bit    4, (ix+24)                   ; 01:4928 - DD CB 18 66
    jp     z, addr_0494F                ; 01:492C - CA 4F 49
    ld     hl, UNK_4DDD                 ; 01:492F - 21 DD 4D
-   ld     de, g_FF_string_high_byte    ; 01:4932 - 11 0E D2
+   ld     de, var_D20E                 ; 01:4932 - 11 0E D2
    ld     bc, $0009                    ; 01:4935 - 01 09 00
    ldir                                ; 01:4938 - ED B0
    ld     hl, $0100                    ; 01:493A - 21 00 01
@@ -9994,7 +9994,7 @@ addr_0494F:
 
 addr_0495B:
    ld     hl, UNK_4DCB                 ; 01:495B - 21 CB 4D
-   ld     de, g_FF_string_high_byte    ; 01:495E - 11 0E D2
+   ld     de, var_D20E                 ; 01:495E - 11 0E D2
    ld     bc, $0009                    ; 01:4961 - 01 09 00
    ldir                                ; 01:4964 - ED B0
    ld     hl, $0300                    ; 01:4966 - 21 00 03
@@ -10011,7 +10011,7 @@ addr_04981:
    bit    7, (ix+24)                   ; 01:4981 - DD CB 18 7E
    jr     nz, addr_0495B               ; 01:4985 - 20 D4
    ld     hl, UNK_4DD4                 ; 01:4987 - 21 D4 4D
-   ld     de, g_FF_string_high_byte    ; 01:498A - 11 0E D2
+   ld     de, var_D20E                 ; 01:498A - 11 0E D2
    ld     bc, $0009                    ; 01:498D - 01 09 00
    ldir                                ; 01:4990 - ED B0
    ld     hl, $0C00                    ; 01:4992 - 21 00 0C
@@ -10026,7 +10026,7 @@ addr_04981:
 
 addr_049AD:
    ld     hl, UNK_4DE6                 ; 01:49AD - 21 E6 4D
-   ld     de, g_FF_string_high_byte    ; 01:49B0 - 11 0E D2
+   ld     de, var_D20E                 ; 01:49B0 - 11 0E D2
    ld     bc, $0009                    ; 01:49B3 - 01 09 00
    ldir                                ; 01:49B6 - ED B0
    ld     hl, $0600                    ; 01:49B8 - 21 00 06
@@ -10184,7 +10184,7 @@ addr_04A9A:
    pop    de                           ; 01:4ADD - D1
    pop    hl                           ; 01:4ADE - E1
    jr     c, addr_04B1B                ; 01:4ADF - 38 3A
-   ld     de, (g_FF_string_high_byte)  ; 01:4AE1 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 01:4AE1 - ED 5B 0E D2
    ld     a, e                         ; 01:4AE5 - 7B
    cpl                                 ; 01:4AE6 - 2F
    ld     e, a                         ; 01:4AE7 - 5F
@@ -10215,7 +10215,7 @@ addr_04AF7:
    pop    de                           ; 01:4B0D - D1
    pop    hl                           ; 01:4B0E - E1
    jr     c, addr_04B1B                ; 01:4B0F - 38 0A
-   ld     de, (g_FF_string_high_byte)  ; 01:4B11 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 01:4B11 - ED 5B 0E D2
    ld     a, (var_D216)                ; 01:4B15 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4B18 - DD 77 14
 
@@ -10707,7 +10707,7 @@ addr_04E51:
    dec    a                            ; 01:4E51 - 3D
    ld     (var_D321), a                ; 01:4E52 - 32 21 D3
    ld     hl, (var_D31D)               ; 01:4E55 - 2A 1D D3
-   ld     (g_FF_string_high_byte), hl  ; 01:4E58 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:4E58 - 22 0E D2
    ld     hl, (var_D31F)               ; 01:4E5B - 2A 1F D3
    ld     (var_D210), hl               ; 01:4E5E - 22 10 D2
    ld     hl, $0000                    ; 01:4E61 - 21 00 00
@@ -10734,7 +10734,7 @@ addr_04E88:
 
 addr_04E8D:
    ld     hl, (sonic_x)                ; 01:4E8D - 2A FE D3
-   ld     (g_FF_string_high_byte), hl  ; 01:4E90 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:4E90 - 22 0E D2
    ld     hl, (sonic_y)                ; 01:4E93 - 2A 01 D4
    ld     (var_D210), hl               ; 01:4E96 - 22 10 D2
    ld     hl, var_D2F3                 ; 01:4E99 - 21 F3 D2
@@ -10806,7 +10806,7 @@ addr_04F01:
    ;; Are we moving left?
    bit    7, b                         ; 01:4F05 - CB 78
    jr     nz, addr_04F31               ; 01:4F07 - 20 28
-   ld     de, (g_FF_string_high_byte)  ; 01:4F09 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 01:4F09 - ED 5B 0E D2
    ld     c, $00                       ; 01:4F0D - 0E 00
    ;; Start walking animation.
    ld     (ix+20), $01                 ; 01:4F0F - DD 36 14 01
@@ -10868,7 +10868,7 @@ addr_04F5C:
    jr     z, addr_04FA6                ; 01:4F66 - 28 3E
 
 addr_04F68:
-   ld     de, (g_FF_string_high_byte)  ; 01:4F68 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 01:4F68 - ED 5B 0E D2
    ld     a, e                         ; 01:4F6C - 7B
    cpl                                 ; 01:4F6D - 2F
    ld     e, a                         ; 01:4F6E - 5F
@@ -12383,7 +12383,7 @@ monitor_common_main:
    adc    a, (ix+9)                    ; 01:5B5F - DD 8E 09
    ld     l, h                         ; 01:5B62 - 6C
    ld     h, a                         ; 01:5B63 - 67
-   ld     (g_FF_string_high_byte), hl  ; 01:5B64 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:5B64 - 22 0E D2
    ld     l, (ix+4)                    ; 01:5B67 - DD 6E 04
    ld     h, (ix+5)                    ; 01:5B6A - DD 66 05
    ld     a, (ix+6)                    ; 01:5B6D - DD 7E 06
@@ -12683,7 +12683,7 @@ addr_05DCC:
 
 addr_05DEB:
    ld     hl, $0804                    ; 01:5DEB - 21 04 08
-   ld     (g_FF_string_high_byte), hl  ; 01:5DEE - 22 0E D2
+   ld     (var_D20E), hl               ; 01:5DEE - 22 0E D2
    ld     a, (var_D414)                ; 01:5DF1 - 3A 14 D4
    and    $01                          ; 01:5DF4 - E6 01
    jr     nz, addr_05E49               ; 01:5DF6 - 20 51
@@ -13342,7 +13342,7 @@ objfunc_08_badnik_crabmeat:
    ld     (var_D214), hl               ; 01:66B5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:66B8 - CD 56 39
    ld     hl, $0804                    ; 01:66BB - 21 04 08
-   ld     (g_FF_string_high_byte), hl  ; 01:66BE - 22 0E D2
+   ld     (var_D20E), hl               ; 01:66BE - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:66C1 - D4 E5 35
    ret                                 ; 01:66C4 - C9
 
@@ -13398,7 +13398,7 @@ objfunc_09_platform_swing:
    ld     (ix+14), $10                 ; 01:6786 - DD 36 0E 10
    ld     l, (ix+2)                    ; 01:678A - DD 6E 02
    ld     h, (ix+3)                    ; 01:678D - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 01:6790 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:6790 - 22 0E D2
    ld     hl, LUT_0682F                ; 01:6793 - 21 2F 68
    ld     e, (ix+17)                   ; 01:6796 - DD 5E 11
    ld     d, $00                       ; 01:6799 - 16 00
@@ -13417,10 +13417,10 @@ objfunc_09_platform_swing:
    add    hl, de                       ; 01:67AB - 19
    ld     (ix+2), l                    ; 01:67AC - DD 75 02
    ld     (ix+3), h                    ; 01:67AF - DD 74 03
-   ld     de, (g_FF_string_high_byte)  ; 01:67B2 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 01:67B2 - ED 5B 0E D2
    and    a                            ; 01:67B6 - A7
    sbc    hl, de                       ; 01:67B7 - ED 52
-   ld     (g_FF_string_high_byte), hl  ; 01:67B9 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:67B9 - 22 0E D2
    inc    bc                           ; 01:67BC - 03
    ld     d, $00                       ; 01:67BD - 16 00
    ld     a, (bc)                      ; 01:67BF - 0A
@@ -13443,7 +13443,7 @@ objfunc_09_platform_swing:
    call   check_collision_with_sonic   ; 01:67E0 - CD 56 39
    jr     c, @skip_sonic_collision     ; 01:67E3 - 38 14
    ld     hl, (sonic_x)                ; 01:67E5 - 2A FE D3
-   ld     de, (g_FF_string_high_byte)  ; 01:67E8 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 01:67E8 - ED 5B 0E D2
    add    hl, de                       ; 01:67EC - 19
    ld     (sonic_x), hl                ; 01:67ED - 22 FE D3
    ld     bc, $0010                    ; 01:67F0 - 01 10 00
@@ -13707,7 +13707,7 @@ objfunc_0D_UNKNOWN:
    ld     (ix+12), a                   ; 01:6AF1 - DD 77 0C
    ld     l, (ix+2)                    ; 01:6AF4 - DD 6E 02
    ld     h, (ix+3)                    ; 01:6AF7 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 01:6AFA - 22 0E D2
+   ld     (var_D20E), hl               ; 01:6AFA - 22 0E D2
    ld     l, (ix+5)                    ; 01:6AFD - DD 6E 05
    ld     h, (ix+6)                    ; 01:6B00 - DD 66 06
    ld     (var_D210), hl               ; 01:6B03 - 22 10 D2
@@ -13931,7 +13931,7 @@ addr_06CA1:
    ld     (var_D214), hl               ; 01:6CC7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6CCA - CD 56 39
    ld     hl, $1004                    ; 01:6CCD - 21 04 10
-   ld     (g_FF_string_high_byte), hl  ; 01:6CD0 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:6CD0 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:6CD3 - D4 E5 35
    ret                                 ; 01:6CD6 - C9
 
@@ -14105,7 +14105,7 @@ addr_06E49:
    ld     (var_D214), hl               ; 01:6E86 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6E89 - CD 56 39
    ld     hl, $0000                    ; 01:6E8C - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 01:6E8F - 22 0E D2
+   ld     (var_D20E), hl               ; 01:6E8F - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:6E92 - D4 E5 35
    ret                                 ; 01:6E95 - C9
 
@@ -14232,7 +14232,7 @@ addr_06FD4:
    ld     (var_D214), hl               ; 01:6FDD - 22 14 D2
    call   check_collision_with_sonic   ; 01:6FE0 - CD 56 39
    ld     hl, $0000                    ; 01:6FE3 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 01:6FE6 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:6FE6 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:6FE9 - D4 E5 35
    ret                                 ; 01:6FEC - C9
 
@@ -15201,7 +15201,7 @@ addr_079FA:
    and    $02                          ; 01:7A07 - E6 02
    ld     l, (ix+2)                    ; 01:7A09 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7A0C - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 01:7A0F - 22 0E D2
+   ld     (var_D20E), hl               ; 01:7A0F - 22 0E D2
    ld     l, (ix+5)                    ; 01:7A12 - DD 6E 05
    ld     h, (ix+6)                    ; 01:7A15 - DD 66 06
    ld     (var_D210), hl               ; 01:7A18 - 22 10 D2
@@ -15228,7 +15228,7 @@ addr_07A3A:
    and    $1F                          ; 01:7A42 - E6 1F
    ld     l, a                         ; 01:7A44 - 6F
    ld     h, $00                       ; 01:7A45 - 26 00
-   ld     (g_FF_string_high_byte), hl  ; 01:7A47 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:7A47 - 22 0E D2
    call   random_A                     ; 01:7A4A - CD 25 06
    and    $1F                          ; 01:7A4D - E6 1F
    ld     l, a                         ; 01:7A4F - 6F
@@ -15245,7 +15245,7 @@ addr_07A3A:
    xor    a                            ; 01:7A67 - AF
    ld     (ix+0), $0A                  ; 01:7A68 - DD 36 00 0A
    ld     (ix+1), a                    ; 01:7A6C - DD 77 01
-   ld     hl, (g_FF_string_high_byte)  ; 01:7A6F - 2A 0E D2
+   ld     hl, (var_D20E)               ; 01:7A6F - 2A 0E D2
    add    hl, de                       ; 01:7A72 - 19
    ld     (ix+2), l                    ; 01:7A73 - DD 75 02
    ld     (ix+3), h                    ; 01:7A76 - DD 74 03
@@ -15666,7 +15666,7 @@ addr_07DC9:
    ld     (var_D214), hl               ; 01:7DCC - 22 14 D2
    call   check_collision_with_sonic   ; 01:7DCF - CD 56 39
    ld     hl, $0000                    ; 01:7DD2 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 01:7DD5 - 22 0E D2
+   ld     (var_D20E), hl               ; 01:7DD5 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:7DD8 - D4 E5 35
    ret                                 ; 01:7DDB - C9
 
@@ -16221,7 +16221,7 @@ objfunc_2D_UNKNOWN:
    ld     (var_D214), hl               ; 02:8305 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8308 - CD 56 39
    ld     hl, $0404                    ; 02:830B - 21 04 04
-   ld     (g_FF_string_high_byte), hl  ; 02:830E - 22 0E D2
+   ld     (var_D20E), hl               ; 02:830E - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8311 - D4 E5 35
    ld     l, (ix+10)                   ; 02:8314 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8317 - DD 66 0B
@@ -16286,7 +16286,7 @@ objfunc_2E_UNKNOWN:
    ld     (ix+16), a                   ; 02:83D7 - DD 77 10
    ld     l, a                         ; 02:83DA - 6F
    ld     h, a                         ; 02:83DB - 67
-   ld     (g_FF_string_high_byte), hl  ; 02:83DC - 22 0E D2
+   ld     (var_D20E), hl               ; 02:83DC - 22 0E D2
    bit    1, (ix+24)                   ; 02:83DF - DD CB 18 4E
    jr     nz, addr_083F2               ; 02:83E3 - 20 0D
    call   random_A                     ; 02:83E5 - CD 25 06
@@ -16335,7 +16335,7 @@ addr_08446:
    ld     (ix+10), l                   ; 02:8446 - DD 75 0A
    ld     (ix+11), h                   ; 02:8449 - DD 74 0B
    ld     (ix+12), c                   ; 02:844C - DD 71 0C
-   ld     (g_FF_string_high_byte), hl  ; 02:844F - 22 0E D2
+   ld     (var_D20E), hl               ; 02:844F - 22 0E D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:8452 - ED 5B 5D D2
    inc    d                            ; 02:8456 - 14
    ld     l, (ix+5)                    ; 02:8457 - DD 6E 05
@@ -16354,7 +16354,7 @@ addr_08467:
    ld     a, (sonic_vel_y_hi)          ; 02:8471 - 3A 08 D4
    and    a                            ; 02:8474 - A7
    ret    m                            ; 02:8475 - F8
-   ld     de, (g_FF_string_high_byte)  ; 02:8476 - ED 5B 0E D2
+   ld     de, (var_D20E)               ; 02:8476 - ED 5B 0E D2
    ld     bc, $0010                    ; 02:847A - 01 10 00
    call   addr_07CC1                   ; 02:847D - CD C1 7C
    ret                                 ; 02:8480 - C9
@@ -16470,7 +16470,7 @@ addr_08565:
    ld     l, (ix+2)                    ; 02:856E - DD 6E 02
    ld     h, (ix+3)                    ; 02:8571 - DD 66 03
    add    hl, de                       ; 02:8574 - 19
-   ld     (g_FF_string_high_byte), hl  ; 02:8575 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8575 - 22 0E D2
    ld     l, (ix+5)                    ; 02:8578 - DD 6E 05
    ld     h, (ix+6)                    ; 02:857B - DD 66 06
    add    hl, bc                       ; 02:857E - 09
@@ -16530,7 +16530,7 @@ addr_085D1:
    pop    ix                           ; 02:85DA - DD E1
    xor    a                            ; 02:85DC - AF
    ld     (ix+0), $0D                  ; 02:85DD - DD 36 00 0D
-   ld     hl, (g_FF_string_high_byte)  ; 02:85E1 - 2A 0E D2
+   ld     hl, (var_D20E)               ; 02:85E1 - 2A 0E D2
    ld     (ix+1), a                    ; 02:85E4 - DD 77 01
    ld     (ix+2), l                    ; 02:85E7 - DD 75 02
    ld     (ix+3), h                    ; 02:85EA - DD 74 03
@@ -16669,7 +16669,7 @@ addr_08707:
 addr_0871B:
    ld     l, (ix+2)                    ; 02:871B - DD 6E 02
    ld     h, (ix+3)                    ; 02:871E - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:8721 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8721 - 22 0E D2
    ld     l, (ix+5)                    ; 02:8724 - DD 6E 05
    ld     h, (ix+6)                    ; 02:8727 - DD 66 06
    ld     (var_D210), hl               ; 02:872A - 22 10 D2
@@ -16810,7 +16810,7 @@ objfunc_3C_UNKNOWN:
    ld     (var_D214), hl               ; 02:8859 - 22 14 D2
    call   check_collision_with_sonic   ; 02:885C - CD 56 39
    ld     hl, $0008                    ; 02:885F - 21 08 00
-   ld     (g_FF_string_high_byte), hl  ; 02:8862 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8862 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8865 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8868 - 11 BE 88
    ld     bc, UNK_088B4                ; 02:886B - 01 B4 88
@@ -16827,7 +16827,7 @@ addr_08873:
    ld     (var_D214), hl               ; 02:888A - 22 14 D2
    call   check_collision_with_sonic   ; 02:888D - CD 56 39
    ld     hl, $0000                    ; 02:8890 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 02:8893 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8893 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8896 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8899 - 11 BE 88
    ld     bc, UNK_088B9                ; 02:889C - 01 B9 88
@@ -16959,7 +16959,7 @@ objfunc_3E_UNKNOWN:
 addr_08B14:
    ld     l, (ix+2)                    ; 02:8B14 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8B17 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:8B1A - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8B1A - 22 0E D2
    ld     l, (ix+5)                    ; 02:8B1D - DD 6E 05
    ld     h, (ix+6)                    ; 02:8B20 - DD 66 06
    ld     (var_D210), hl               ; 02:8B23 - 22 10 D2
@@ -17251,7 +17251,7 @@ addr_08DAB:
    ld     h, $00                       ; 02:8DB6 - 26 00
    ld     (var_D214), hl               ; 02:8DB8 - 22 14 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8DBB - 2A 5A D2
-   ld     (g_FF_string_high_byte), hl  ; 02:8DBE - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8DBE - 22 0E D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8DC1 - 2A 5D D2
    ld     (var_D210), hl               ; 02:8DC4 - 22 10 D2
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:8DC7 - FD 7E 0A
@@ -17321,7 +17321,7 @@ objfunc_41_UNKNOWN:
 addr_08E72:
    ld     l, (ix+2)                    ; 02:8E72 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8E75 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:8E78 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8E78 - 22 0E D2
    ld     l, (ix+5)                    ; 02:8E7B - DD 6E 05
    ld     h, (ix+6)                    ; 02:8E7E - DD 66 06
    ld     (var_D210), hl               ; 02:8E81 - 22 10 D2
@@ -17381,7 +17381,7 @@ addr_08EF8:
    ld     (ix+12), $FF                 ; 02:8F00 - DD 36 0C FF
    ld     l, (ix+2)                    ; 02:8F04 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8F07 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:8F0A - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8F0A - 22 0E D2
    ex     de, hl                       ; 02:8F0D - EB
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8F0E - 2A 5A D2
    ld     bc, $0008                    ; 02:8F11 - 01 08 00
@@ -17444,7 +17444,7 @@ objfunc_44_UNKNOWN:
    ld     (var_D214), hl               ; 02:8F78 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8F7B - CD 56 39
    ld     hl, $0800                    ; 02:8F7E - 21 00 08
-   ld     (g_FF_string_high_byte), hl  ; 02:8F81 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:8F81 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8F84 - D4 E5 35
    ld     l, (ix+10)                   ; 02:8F87 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8F8A - DD 66 0B
@@ -17849,7 +17849,7 @@ addr_09324:
    ld     h, (ix+3)                    ; 02:9343 - DD 66 03
    ld     de, $000F                    ; 02:9346 - 11 0F 00
    add    hl, de                       ; 02:9349 - 19
-   ld     (g_FF_string_high_byte), hl  ; 02:934A - 22 0E D2
+   ld     (var_D20E), hl               ; 02:934A - 22 0E D2
    ld     l, (ix+5)                    ; 02:934D - DD 6E 05
    ld     h, (ix+6)                    ; 02:9350 - DD 66 06
    ld     bc, $0022                    ; 02:9353 - 01 22 00
@@ -17868,7 +17868,7 @@ addr_09324:
    pop    ix                           ; 02:9372 - DD E1
    xor    a                            ; 02:9374 - AF
    ld     (ix+0), $2F                  ; 02:9375 - DD 36 00 2F
-   ld     hl, (g_FF_string_high_byte)  ; 02:9379 - 2A 0E D2
+   ld     hl, (var_D20E)               ; 02:9379 - 2A 0E D2
    ld     (ix+1), a                    ; 02:937C - DD 77 01
    ld     (ix+2), l                    ; 02:937F - DD 75 02
    ld     (ix+3), h                    ; 02:9382 - DD 74 03
@@ -17934,7 +17934,7 @@ addr_093F7:
    ret    z                            ; 02:940A - C8
    ld     l, (ix+2)                    ; 02:940B - DD 6E 02
    ld     h, (ix+3)                    ; 02:940E - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:9411 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:9411 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9414 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9417 - DD 66 06
    ld     (var_D210), hl               ; 02:941A - 22 10 D2
@@ -17952,7 +17952,7 @@ addr_09432:
    ld     h, (ix+3)                    ; 02:9435 - DD 66 03
    ld     de, $0004                    ; 02:9438 - 11 04 00
    add    hl, de                       ; 02:943B - 19
-   ld     (g_FF_string_high_byte), hl  ; 02:943C - 22 0E D2
+   ld     (var_D20E), hl               ; 02:943C - 22 0E D2
    ld     l, (ix+5)                    ; 02:943F - DD 6E 05
    ld     h, (ix+6)                    ; 02:9442 - DD 66 06
    ld     de, $FFFA                    ; 02:9445 - 11 FA FF
@@ -17968,7 +17968,7 @@ addr_09432:
    ld     h, (ix+3)                    ; 02:9460 - DD 66 03
    ld     de, $0020                    ; 02:9463 - 11 20 00
    add    hl, de                       ; 02:9466 - 19
-   ld     (g_FF_string_high_byte), hl  ; 02:9467 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:9467 - 22 0E D2
    ld     hl, $0100                    ; 02:946A - 21 00 01
    ld     (var_D212), hl               ; 02:946D - 22 12 D2
    ld     c, $04                       ; 02:9470 - 0E 04
@@ -18201,7 +18201,7 @@ addr_09607:
 
 addr_09634:
    add    hl, de                       ; 02:9634 - 19
-   ld     (g_FF_string_high_byte), hl  ; 02:9635 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:9635 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9638 - DD 6E 05
    ld     h, (ix+6)                    ; 02:963B - DD 66 06
    ld     (var_D210), hl               ; 02:963E - 22 10 D2
@@ -18215,7 +18215,7 @@ addr_09634:
    pop    ix                           ; 02:964E - DD E1
    xor    a                            ; 02:9650 - AF
    ld     (ix+0), $2A                  ; 02:9651 - DD 36 00 2A
-   ld     hl, (g_FF_string_high_byte)  ; 02:9655 - 2A 0E D2
+   ld     hl, (var_D20E)               ; 02:9655 - 2A 0E D2
    ld     (ix+1), a                    ; 02:9658 - DD 77 01
    ld     (ix+2), l                    ; 02:965B - DD 75 02
    ld     (ix+3), h                    ; 02:965E - DD 74 03
@@ -18247,7 +18247,7 @@ objfunc_2A_UNKNOWN:
    ld     (ix+16), a                   ; 02:96B0 - DD 77 10
    ld     l, (ix+2)                    ; 02:96B3 - DD 6E 02
    ld     h, (ix+3)                    ; 02:96B6 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:96B9 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:96B9 - 22 0E D2
    ld     l, (ix+5)                    ; 02:96BC - DD 6E 05
    ld     h, (ix+6)                    ; 02:96BF - DD 66 06
    ld     (var_D210), hl               ; 02:96C2 - 22 10 D2
@@ -18295,7 +18295,7 @@ objfunc_20_UNKNOWN:
    ld     (var_D23C), hl               ; 02:9719 - 22 3C D2
    ld     l, (ix+2)                    ; 02:971C - DD 6E 02
    ld     h, (ix+3)                    ; 02:971F - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:9722 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:9722 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9725 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9728 - DD 66 06
    ld     (var_D210), hl               ; 02:972B - 22 10 D2
@@ -18879,7 +18879,7 @@ objfunc_16_UNKNOWN:
 addr_09CC2:
    ld     l, (ix+2)                    ; 02:9CC2 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9CC5 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:9CC8 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:9CC8 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9CCB - DD 6E 05
    ld     h, (ix+6)                    ; 02:9CCE - DD 66 06
    ld     (var_D210), hl               ; 02:9CD1 - 22 10 D2
@@ -19382,7 +19382,7 @@ objfunc_1B_UNKNOWN:
    ld     (var_D214), hl               ; 02:A1B5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A1B8 - CD 56 39
    ld     hl, $0E00                    ; 02:A1BB - 21 00 0E
-   ld     (g_FF_string_high_byte), hl  ; 02:A1BE - 22 0E D2
+   ld     (var_D20E), hl               ; 02:A1BE - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:A1C1 - D4 E5 35
    ld     (ix+10), $00                 ; 02:A1C4 - DD 36 0A 00
    ld     (ix+11), $01                 ; 02:A1C8 - DD 36 0B 01
@@ -19775,7 +19775,7 @@ addr_0A5B0:
 addr_0A5B3:
    ld     l, (ix+2)                    ; 02:A5B3 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A5B6 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:A5B9 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:A5B9 - 22 0E D2
    ld     l, (ix+5)                    ; 02:A5BC - DD 6E 05
    ld     h, (ix+6)                    ; 02:A5BF - DD 66 06
    ld     (var_D210), hl               ; 02:A5C2 - 22 10 D2
@@ -19798,7 +19798,7 @@ addr_0A5B3:
    ld     (var_D214), hl               ; 02:A5EF - 22 14 D2
    call   check_collision_with_sonic   ; 02:A5F2 - CD 56 39
    ld     hl, $0000                    ; 02:A5F5 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 02:A5F8 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:A5F8 - 22 0E D2
    jr     c, addr_0A602                ; 02:A5FB - 38 05
    call   enemy_touched_sonic          ; 02:A5FD - CD E5 35
    jr     addr_0A65B                   ; 02:A600 - 18 59
@@ -19838,7 +19838,7 @@ addr_0A645:
    ld     (var_D214), hl               ; 02:A64C - 22 14 D2
    call   check_collision_with_sonic   ; 02:A64F - CD 56 39
    ld     hl, $0000                    ; 02:A652 - 21 00 00
-   ld     (g_FF_string_high_byte), hl  ; 02:A655 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:A655 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:A658 - D4 E5 35
 
 addr_0A65B:
@@ -20217,7 +20217,7 @@ objfunc_31_UNKNOWN:
 addr_0AAA0:
    ld     l, (ix+2)                    ; 02:AAA0 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AAA3 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:AAA6 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:AAA6 - 22 0E D2
    ld     l, (ix+5)                    ; 02:AAA9 - DD 6E 05
    ld     h, (ix+6)                    ; 02:AAAC - DD 66 06
    ld     (var_D210), hl               ; 02:AAAF - 22 10 D2
@@ -20637,11 +20637,11 @@ addr_0AEF9:
    ld     (var_D214), hl               ; 02:AF04 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AF07 - CD 56 39
    ld     hl, $1010                    ; 02:AF0A - 21 10 10
-   ld     (g_FF_string_high_byte), hl  ; 02:AF0D - 22 0E D2
+   ld     (var_D20E), hl               ; 02:AF0D - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:AF10 - D4 E5 35
    ld     l, (ix+2)                    ; 02:AF13 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AF16 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:AF19 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:AF19 - 22 0E D2
    ld     l, (ix+5)                    ; 02:AF1C - DD 6E 05
    ld     h, (ix+6)                    ; 02:AF1F - DD 66 06
    ld     (var_D210), hl               ; 02:AF22 - 22 10 D2
@@ -20829,7 +20829,7 @@ objfunc_36_UNKNOWN:
    call   nc, addr_035FD               ; 02:B111 - D4 FD 35
    ld     l, (ix+2)                    ; 02:B114 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B117 - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:B11A - 22 0E D2
+   ld     (var_D20E), hl               ; 02:B11A - 22 0E D2
    ex     de, hl                       ; 02:B11D - EB
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:B11E - 2A 5A D2
    ld     bc, $FFF0                    ; 02:B121 - 01 F0 FF
@@ -20884,7 +20884,7 @@ addr_0B182:
    ld     (ix+16), $00                 ; 02:B186 - DD 36 10 00
    ld     l, (ix+2)                    ; 02:B18A - DD 6E 02
    ld     h, (ix+3)                    ; 02:B18D - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:B190 - 22 0E D2
+   ld     (var_D20E), hl               ; 02:B190 - 22 0E D2
    ld     l, (ix+5)                    ; 02:B193 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B196 - DD 66 06
    ld     (var_D210), hl               ; 02:B199 - 22 10 D2
@@ -21051,7 +21051,7 @@ addr_0B2B7:
 addr_0B329:
    ld     l, (ix+2)                    ; 02:B329 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B32C - DD 66 03
-   ld     (g_FF_string_high_byte), hl  ; 02:B32F - 22 0E D2
+   ld     (var_D20E), hl               ; 02:B32F - 22 0E D2
    ld     l, (ix+5)                    ; 02:B332 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B335 - DD 66 06
    ld     (var_D210), hl               ; 02:B338 - 22 10 D2
@@ -21123,7 +21123,7 @@ addr_0B3B2:
    adc    a, $00                       ; 02:B3DB - CE 00
    ld     l, h                         ; 02:B3DD - 6C
    ld     h, a                         ; 02:B3DE - 67
-   ld     (g_FF_string_high_byte), hl  ; 02:B3DF - 22 0E D2
+   ld     (var_D20E), hl               ; 02:B3DF - 22 0E D2
    ld     l, (ix+5)                    ; 02:B3E2 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B3E5 - DD 66 06
    ld     (var_D210), hl               ; 02:B3E8 - 22 10 D2
@@ -21551,7 +21551,7 @@ addr_0B793:
    ld     hl, UNK_0BA3B                ; 02:B79C - 21 3B BA
 
 addr_0B79F:
-   ld     de, g_FF_string_high_byte    ; 02:B79F - 11 0E D2
+   ld     de, var_D20E                 ; 02:B79F - 11 0E D2
    ldi                                 ; 02:B7A2 - ED A0
    ldi                                 ; 02:B7A4 - ED A0
    ldi                                 ; 02:B7A6 - ED A0
@@ -21936,7 +21936,7 @@ objfunc_46_UNKNOWN:
 
 addr_0BBA7:
    ld     hl, $0390                    ; 02:BBA7 - 21 90 03
-   ld     (g_FF_string_high_byte), hl  ; 02:BBAA - 22 0E D2
+   ld     (var_D20E), hl               ; 02:BBAA - 22 0E D2
    ld     l, (ix+17)                   ; 02:BBAD - DD 6E 11
    ld     h, $00                       ; 02:BBB0 - 26 00
    ld     (var_D212), hl               ; 02:BBB2 - 22 12 D2
