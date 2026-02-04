@@ -7337,7 +7337,7 @@ LUT_02AD6:
 
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
-.dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_explosion, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
+.dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
@@ -13369,7 +13369,7 @@ SPRITEMAP_crabmeat_frames:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $40, $02, $04, $FF, $FF, $FF, $46, $22, $4A, $FF  ; 01:6729
 .db $FF, $FF, $FF                                                                   ; 01:6739
 
-objfunc_09_UNKNOWN:
+objfunc_09_platform_swing:
    set    5, (ix+24)                   ; 01:673C - DD CB 18 EE
    ld     hl, $0020                    ; 01:6740 - 21 20 00
    ld     (var_D267), hl               ; 01:6743 - 22 67 D2
@@ -13380,7 +13380,7 @@ objfunc_09_UNKNOWN:
    ld     hl, $0030                    ; 01:6752 - 21 30 00
    ld     (var_D26D), hl               ; 01:6755 - 22 6D D2
    bit    0, (ix+24)                   ; 01:6758 - DD CB 18 46
-   jr     nz, addr_06782               ; 01:675C - 20 24
+   jr     nz, @already_initialised     ; 01:675C - 20 24
    ld     l, (ix+2)                    ; 01:675E - DD 6E 02
    ld     h, (ix+3)                    ; 01:6761 - DD 66 03
    ld     (ix+18), l                   ; 01:6764 - DD 75 12
@@ -13393,7 +13393,7 @@ objfunc_09_UNKNOWN:
    set    0, (ix+24)                   ; 01:677A - DD CB 18 C6
    set    1, (ix+24)                   ; 01:677E - DD CB 18 CE
 
-addr_06782:
+@already_initialised:
    ld     (ix+13), $1A                 ; 01:6782 - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6786 - DD 36 0E 10
    ld     l, (ix+2)                    ; 01:678A - DD 6E 02
@@ -13407,10 +13407,10 @@ addr_06782:
    ld     b, h                         ; 01:679D - 44
    ld     a, (bc)                      ; 01:679E - 0A
    and    a                            ; 01:679F - A7
-   jp     p, addr_067A4                ; 01:67A0 - F2 A4 67
+   jp     p, @x_offset_was_positive    ; 01:67A0 - F2 A4 67
    dec    d                            ; 01:67A3 - 15
 
-addr_067A4:
+@x_offset_was_positive:
    ld     e, a                         ; 01:67A4 - 5F
    ld     l, (ix+18)                   ; 01:67A5 - DD 6E 12
    ld     h, (ix+19)                   ; 01:67A8 - DD 66 13
@@ -13425,10 +13425,10 @@ addr_067A4:
    ld     d, $00                       ; 01:67BD - 16 00
    ld     a, (bc)                      ; 01:67BF - 0A
    and    a                            ; 01:67C0 - A7
-   jp     p, addr_067C5                ; 01:67C1 - F2 C5 67
+   jp     p, @y_offset_was_positive    ; 01:67C1 - F2 C5 67
    dec    d                            ; 01:67C4 - 15
 
-addr_067C5:
+@y_offset_was_positive:
    ld     e, a                         ; 01:67C5 - 5F
    ld     l, (ix+20)                   ; 01:67C6 - DD 6E 14
    ld     h, (ix+21)                   ; 01:67C9 - DD 66 15
@@ -13437,11 +13437,11 @@ addr_067C5:
    ld     (ix+6), h                    ; 01:67D0 - DD 74 06
    ld     a, (sonic_vel_y_hi)          ; 01:67D3 - 3A 08 D4
    and    a                            ; 01:67D6 - A7
-   jp     m, addr_067F9                ; 01:67D7 - FA F9 67
+   jp     m, @skip_sonic_collision     ; 01:67D7 - FA F9 67
    ld     hl, $0806                    ; 01:67DA - 21 06 08
    ld     (var_D214), hl               ; 01:67DD - 22 14 D2
    call   check_collision_with_sonic   ; 01:67E0 - CD 56 39
-   jr     c, addr_067F9                ; 01:67E3 - 38 14
+   jr     c, @skip_sonic_collision     ; 01:67E3 - 38 14
    ld     hl, (sonic_x)                ; 01:67E5 - 2A FE D3
    ld     de, (g_FF_string_high_byte)  ; 01:67E8 - ED 5B 0E D2
    add    hl, de                       ; 01:67EC - 19
@@ -13450,18 +13450,18 @@ addr_067C5:
    ld     de, $0000                    ; 01:67F3 - 11 00 00
    call   addr_07CC1                   ; 01:67F6 - CD C1 7C
 
-addr_067F9:
-   ld     hl, UNK_06911                ; 01:67F9 - 21 11 69
+@skip_sonic_collision:
+   ld     hl, SPRITEMAP_platform_GHZ   ; 01:67F9 - 21 11 69
    ld     a, (var_D2D4)                ; 01:67FC - 3A D4 D2
    and    a                            ; 01:67FF - A7
-   jr     z, addr_06805                ; 01:6800 - 28 03
-   ld     hl, UNK_06923                ; 01:6802 - 21 23 69
+   jr     z, @was_not_GHZ_platform     ; 01:6800 - 28 03
+   ld     hl, SPRITEMAP_platform_JUN   ; 01:6802 - 21 23 69
 
-addr_06805:
+@was_not_GHZ_platform:
    ld     (ix+15), l                   ; 01:6805 - DD 75 0F
    ld     (ix+16), h                   ; 01:6808 - DD 74 10
    bit    1, (ix+24)                   ; 01:680B - DD CB 18 4E
-   jr     nz, addr_06821               ; 01:680F - 20 10
+   jr     nz, @is_decrementing_swing_index  ; 01:680F - 20 10
    ld     a, (ix+17)                   ; 01:6811 - DD 7E 11
    inc    a                            ; 01:6814 - 3C
    inc    a                            ; 01:6815 - 3C
@@ -13471,7 +13471,7 @@ addr_06805:
    set    1, (ix+24)                   ; 01:681C - DD CB 18 CE
    ret                                 ; 01:6820 - C9
 
-addr_06821:
+@is_decrementing_swing_index:
    ld     a, (ix+17)                   ; 01:6821 - DD 7E 11
    dec    a                            ; 01:6824 - 3D
    dec    a                            ; 01:6825 - 3D
@@ -13497,14 +13497,14 @@ LUT_0682F:
 .db $4C, $08, $4C, $07, $4D, $06, $4D, $05, $4D, $04, $4D, $03, $4D, $02, $4D, $01  ; 01:68FF
 .db $4D, $00                                                                        ; 01:690F
 
-UNK_06911:
+SPRITEMAP_platform_GHZ:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $18, $1A, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6911
 .db $FF, $FF                                                                        ; 01:6921
 
-UNK_06923:
+SPRITEMAP_platform_JUN:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6E, $48, $FF, $FF, $FF, $FF            ; 01:6923
 
-UNK_06931:
+SPRITEMAP_platform_BRI:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6C, $6E, $FF, $FF, $FF, $FF            ; 01:6931
 
 objfunc_0A_explosion:
@@ -13593,8 +13593,8 @@ objfunc_0B_UNKNOWN:
    set    5, (ix+24)                   ; 01:69E9 - DD CB 18 EE
    ld     (ix+13), $1A                 ; 01:69ED - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:69F1 - DD 36 0E 10
-   ld     (ix+15), UNK_06911&$FF       ; 01:69F5 - DD 36 0F 11
-   ld     (ix+16), UNK_06911>>8        ; 01:69F9 - DD 36 10 69
+   ld     (ix+15), SPRITEMAP_platform_GHZ&$FF  ; 01:69F5 - DD 36 0F 11
+   ld     (ix+16), SPRITEMAP_platform_GHZ>>8  ; 01:69F9 - DD 36 10 69
    ld     a, (sonic_vel_y_hi)          ; 01:69FD - 3A 08 D4
    and    a                            ; 01:6A00 - A7
    jp     m, addr_06A2E                ; 01:6A01 - FA 2E 6A
@@ -13667,11 +13667,11 @@ addr_06A6F:
    call   addr_07CC1                   ; 01:6A96 - CD C1 7C
 
 addr_06A99:
-   ld     hl, UNK_06911                ; 01:6A99 - 21 11 69
+   ld     hl, SPRITEMAP_platform_GHZ   ; 01:6A99 - 21 11 69
    ld     a, (var_D2D4)                ; 01:6A9C - 3A D4 D2
    and    a                            ; 01:6A9F - A7
    jr     z, addr_06AA5                ; 01:6AA0 - 28 03
-   ld     hl, UNK_06923                ; 01:6AA2 - 21 23 69
+   ld     hl, SPRITEMAP_platform_JUN   ; 01:6AA2 - 21 23 69
 
 addr_06AA5:
    ld     (ix+15), l                   ; 01:6AA5 - DD 75 0F
@@ -14024,14 +14024,14 @@ addr_06DDB:
    ld     (sonic_x), hl                ; 01:6DF0 - 22 FE D3
 
 addr_06DF3:
-   ld     hl, UNK_06911                ; 01:6DF3 - 21 11 69
+   ld     hl, SPRITEMAP_platform_GHZ   ; 01:6DF3 - 21 11 69
    ld     a, (var_D2D4)                ; 01:6DF6 - 3A D4 D2
    and    a                            ; 01:6DF9 - A7
    jr     z, addr_06E05                ; 01:6DFA - 28 09
-   ld     hl, UNK_06931                ; 01:6DFC - 21 31 69
+   ld     hl, SPRITEMAP_platform_BRI   ; 01:6DFC - 21 31 69
    dec    a                            ; 01:6DFF - 3D
    jr     z, addr_06E05                ; 01:6E00 - 28 03
-   ld     hl, UNK_06923                ; 01:6E02 - 21 23 69
+   ld     hl, SPRITEMAP_platform_JUN   ; 01:6E02 - 21 23 69
 
 addr_06E05:
    ld     (ix+15), l                   ; 01:6E05 - DD 75 0F
