@@ -13544,12 +13544,25 @@ objfunc_0A_explosion:
 
 @skip_sonic_bounce_off_top:
    xor    a                            ; 01:698D - AF
+   .IF 0
    ld     (ix+7), a                    ; 01:698E - DD 77 07
    ld     (ix+8), a                    ; 01:6991 - DD 77 08
    ld     (ix+9), a                    ; 01:6994 - DD 77 09
    ld     (ix+10), a                   ; 01:6997 - DD 77 0A
    ld     (ix+11), a                   ; 01:699A - DD 77 0B
    ld     (ix+12), a                   ; 01:699D - DD 77 0C
+   .ELSE
+   push ix
+   pop hl
+   ld de, 7
+   add hl, de
+   ld b, $06
+   -:
+      ld (hl), a
+      inc hl
+      djnz -
+   ; SAVING: 5 bytes
+   .ENDIF
    ld     de, SPRITEMAP_explosion_frames  ; 01:69A0 - 11 BE 69
    ld     bc, LUT_explosion_state_sequence  ; 01:69A3 - 01 B7 69
    call   do_framed_animation          ; 01:69A6 - CD 41 7C
