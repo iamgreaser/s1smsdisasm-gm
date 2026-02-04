@@ -257,11 +257,11 @@ var_D302 db   ; D302
 .  dsb 2
 g_level_lives_collected_mask db   ; D305
 .  dsb 5
-var_D30B db   ; D30B (auto)
+g_level_has_emerald_mask db   ; D30B
 .  dsb 5
 g_level_has_checkpoint_mask db   ; D311
 .  dsb 5
-var_D317 db   ; D317 (auto)
+g_level_button_toggled_on_mask db   ; D317
 .  dsb 5
 var_D31D dw   ; D31D
 var_D31F dw   ; D31F
@@ -12521,7 +12521,7 @@ objfunc_03_monitor_life:
 
 @level_kludge_LAB1_hidden_ring_monitor:
    set    2, (ix+24)                   ; 01:5C9C - DD CB 18 D6
-   ld     hl, var_D317                 ; 01:5CA0 - 21 17 D3
+   ld     hl, g_level_button_toggled_on_mask  ; 01:5CA0 - 21 17 D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5CA3 - CD 02 0C
    ld     a, (hl)                      ; 01:5CA6 - 7E
    ld     hl, $5180                    ; 01:5CA7 - 21 80 51
@@ -12771,7 +12771,7 @@ addr_05E8A:
    ret                                 ; 01:5EA1 - C9
 
 objfunc_06_chaos_emerald:
-   ld     hl, var_D30B                 ; 01:5EA2 - 21 0B D3
+   ld     hl, g_level_has_emerald_mask  ; 01:5EA2 - 21 0B D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5EA5 - CD 02 0C
    ld     a, (hl)                      ; 01:5EA8 - 7E
    and    c                            ; 01:5EA9 - A1
@@ -12786,7 +12786,7 @@ objfunc_06_chaos_emerald:
    ld     (var_D214), hl               ; 01:5EC1 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5EC4 - CD 56 39
    jr     c, addr_05EE3                ; 01:5EC7 - 38 1A
-   ld     hl, var_D30B                 ; 01:5EC9 - 21 0B D3
+   ld     hl, g_level_has_emerald_mask  ; 01:5EC9 - 21 0B D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5ECC - CD 02 0C
    ld     a, (hl)                      ; 01:5ECF - 7E
    or     c                            ; 01:5ED0 - B1
@@ -19568,7 +19568,7 @@ addr_0A443:
    bit    1, (ix+24)                   ; 02:A44C - DD CB 18 4E
    jr     nz, addr_0A47F               ; 02:A450 - 20 2D
    set    1, (ix+24)                   ; 02:A452 - DD CB 18 CE
-   ld     hl, var_D317                 ; 02:A456 - 21 17 D3
+   ld     hl, g_level_button_toggled_on_mask  ; 02:A456 - 21 17 D3
    call   calc_level_offset_HL_and_mask_C  ; 02:A459 - CD 02 0C
    ld     a, (hl)                      ; 02:A45C - 7E
    xor    c                            ; 02:A45D - A9
@@ -19633,7 +19633,7 @@ addr_0A4D1:
    ld     (sonic_vel_x_hi), a          ; 02:A4E2 - 32 05 D4
 
 addr_0A4E5:
-   ld     hl, var_D317                 ; 02:A4E5 - 21 17 D3
+   ld     hl, g_level_button_toggled_on_mask  ; 02:A4E5 - 21 17 D3
    call   calc_level_offset_HL_and_mask_C  ; 02:A4E8 - CD 02 0C
    bit    1, (ix+24)                   ; 02:A4EB - DD CB 18 4E
    jr     z, addr_0A4F7                ; 02:A4EF - 28 06
