@@ -8061,6 +8061,7 @@ update_some_objfunc_activation_statuses:
    ld     b, (hl)                      ; 00:321F - 46
    inc    hl                           ; 00:3220 - 23
    ld     de, g_FF_string_high_byte    ; 00:3221 - 11 0E D2
+   ;; BUG: The left offset gets slightly shrunk due to it being decremented 6 times.
    ldi                                 ; 00:3224 - ED A0
    ldi                                 ; 00:3226 - ED A0
    ldi                                 ; 00:3228 - ED A0
