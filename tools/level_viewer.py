@@ -617,27 +617,44 @@ class TkApp:
         yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
         palsel = (tdata >> 11) & 0x1
         cram = self.cram_palettes[palsel]
+        ra_remap = bytes(v * 4 for v in b"\x07\x05\x03\x01\x06\x04\x02\x00")
         for y in range(8):
-            outdata.append([])
             addr = toffs + (4 * (yflip ^ y))
-            planes = self.vram[addr : addr + 4]
-            for x in range(8):
-                p = 0
-                p |= ((planes[0] >> (xflip ^ x)) << 0) & (1 << 0)
-                p |= ((planes[1] >> (xflip ^ x)) << 1) & (1 << 1)
-                p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
-                p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
-                palv = cram[p]
-                outdata[-1] += [palv] * 2
+            (planes,) = struct.unpack("<I", self.vram[addr : addr + 4])
+
+            # Bit-swap
+            # DDDDDDDDCCCCCCCCBBBBBBBBAAAAAAAA
+            # 76543210765432107654321076543210
+            # ->->->-><-<-<-<-->->->-><-<-<-<- shift 7
+            planes = (
+                (planes & 0xAA55AA55)
+                | ((planes & 0x55005500) >> 7)
+                | ((planes << 7) & 0x55005500)
+            )
+            # DCDCDCDCDCDCDCDCBABABABABABABABA
+            # 77553311664422007755331166442200
+            # -->>-->>-->>-->><<--<<--<<--<<-- shift 14
+            planes = (
+                (planes & 0xCCCC3333)
+                | ((planes & 0x33330000) >> 14)
+                | ((planes << 14) & 0x33330000)
+            )
+            # DCBADCBADCBADCBADCBADCBADCBADCBA
+            # 77773333666622225555111144440000
+
+            outrow: list[str] = []
+            for x, shift in enumerate(ra_remap):
+                p = (planes >> shift) & 0xF
+                outrow += [cram[p]] * 2
                 if p == 0:
                     transparent_positions.append((x, y))
-            outdata.append(outdata[-1])
+            outdata += [outrow] * 2
         outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
         img.put(outstr, to=(px * 2, py * 2))
         for x, y in transparent_positions:
-            for sy in range(y * 2, (y + 1) * 2, 1):
-                for sx in range(x * 2, (x + 1) * 2, 1):
-                    img.transparency_set(sx + (px * 2), sy + (py * 2), True)
+            for sy in range((py + y) * 2, (py + (y + 1)) * 2, 1):
+                for sx in range((px + x) * 2, (px + (x + 1)) * 2, 1):
+                    img.transparency_set(sx, sy, True)
 
     def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
         assert len(data) == vram_len
