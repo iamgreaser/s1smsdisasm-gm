@@ -50,8 +50,8 @@ layout_fname_extn_widths = {
 
 
 class TkApp:
-    tm_width = 32
-    tm_height = 28
+    tm_width = 4 * 16
+    tm_height = 4 * 16
 
     def __init__(self) -> None:
         self.level_width = 0x40
@@ -61,7 +61,10 @@ class TkApp:
         self.tk = tkinter.Tk(className="level_viewer")
         self.tk.wm_title("Sonic 1 SMS Level Viewer")
 
-        self.vram = bytearray(0x4000)
+        self.vram = bytearray(0x3800)
+        self.vram_tilemap: MutableSequence[MutableSequence[int]] = [
+            [0x0000] * self.tm_width for y in range(self.tm_height)
+        ]
         self.cram = bytearray(0x20)
         self.layout = bytearray(0x1000)
         # type, x, y
@@ -72,19 +75,7 @@ class TkApp:
         self.layout_tilemap = bytearray(0x1000)
 
         self.cam_mtx = 0
-        self.cam_mty = 9
-
-        # TEST: Pre-set tileset to a cycle
-        for i in range(self.tm_width * self.tm_height):
-            v = i
-
-            # Skip over tilemap and sprite attribute table
-            if v >= (0x3800 >> 5):
-                v += 0x0800 >> 5
-
-            # v = (v + 0x200) & ~0x600  # force vflip
-            v = (v + 0x600) & ~0x600  # force second palette
-            self.set_vram(0x3800 + (i * 2), 2, struct.pack("<H", v))
+        self.cam_mty = 16 - (self.tm_height // 4)
 
         # One variant for each:
         # +1 = hflip
@@ -99,9 +90,9 @@ class TkApp:
             height=8 * 2 * self.tm_height,
         )
         self.screen.grid()
-        self.vram_tilemap_items: MutableSequence[Optional[int]] = [None] * (
-            self.tm_width * self.tm_height
-        )
+        self.vram_tilemap_items: MutableSequence[MutableSequence[Optional[int]]] = [
+            [None] * self.tm_width for y in range(self.tm_height)
+        ]
         # (x, y, item1, item2)
         self.vram_sprites: list[tuple[int, int, Optional[tuple[int, int]], int]] = [
             (-8, -16, None, 0)
@@ -372,9 +363,10 @@ class TkApp:
                 hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
                 for ty in range(4):
                     for tx in range(4):
-                        vidx = (cx * 4 + tx) + (self.tm_width * (cy * 4 + ty))
+                        vi_x = cx * 4 + tx
+                        vi_y = cy * 4 + ty
                         lo = self.layout_tilemap[tx + (4 * (ty + (4 * mtidx)))]
-                        self.set_vram(0x3800 + (vidx * 2), 2, bytes([lo, hi]))
+                        self.set_vram_tilemap_cell(vi_x, vi_y, lo | (hi << 8))
 
                 tf = self.layout_tile_flags[mtidx]
                 ts = self.layout_tile_specials[mtidx]
@@ -501,19 +493,17 @@ class TkApp:
         for ty in range(self.tm_height):
             for tx in range(self.tm_width):
                 tmi = tx + (self.tm_width * ty)
-                (tdata,) = struct.unpack(
-                    "<H", self.vram[0x3800 + (tmi * 2) : 0x3800 + (tmi * 2) + 2]
-                )
+                tdata = self.vram_tilemap[ty][tx]
                 priority = "tile_hi" if (tdata & 0x1000) != 0 else "tile_lo"
                 tdata &= 0xFFF
                 tm_img = self.ensure_tile_img(tdata)
 
-                opt_tm_lbl = self.vram_tilemap_items[tmi]
+                opt_tm_lbl = self.vram_tilemap_items[ty][tx]
                 if opt_tm_lbl is None:
                     tm_lbl = self.screen.create_image(
                         8 * 2 * tx, 8 * 2 * ty, image=tm_img, anchor="nw"
                     )
-                    self.vram_tilemap_items[tmi] = tm_lbl
+                    self.vram_tilemap_items[ty][tx] = tm_lbl
                 else:
                     tm_lbl = opt_tm_lbl
                 self.screen.itemconfigure(tm_lbl, image=tm_img, tags=[priority])
@@ -639,7 +629,12 @@ class TkApp:
 
     def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
         assert len(data) == vram_len
+        assert addr >= 0 and addr + vram_len <= len(self.vram)
         self.vram[addr : addr + vram_len] = data
+
+    def set_vram_tilemap_cell(self, x: int, y: int, v: int) -> None:
+        assert 0x0000 <= v <= 0xFFFF
+        self.vram_tilemap[y][x] = v
 
 
 if __name__ == "__main__":
