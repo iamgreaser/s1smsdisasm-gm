@@ -5754,10 +5754,10 @@ LUT_02AD6:
 .db $35, $3D, $1F, $39, $06, $1B, $01, $34, $2B, $10, $03, $14, $2A, $1F, $00, $3F  ; 00:2AD6
 .db $35, $3D, $1F, $39, $06, $1B, $01, $34, $2B, $10, $03, $14, $2A, $1F, $00, $3F  ; 00:2AE6
 
-LUT_object_functions_02AF6:
-.dw objfunc_00_UNKNOWN, objfunc_01_monitor_rings, objfunc_02_UNKNOWN, objfunc_03_monitor_life, objfunc_04_UNKNOWN, objfunc_05_UNKNOWN, objfunc_06_UNKNOWN, objfunc_07_signpost  ; 00:2AF6
-.dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_UNKNOWN, objfunc_0F_UNKNOWN  ; 00:2B06
-.dw objfunc_10_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+LUT_object_functions:
+.dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
+.dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
+.dw objfunc_10_badnik_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
 .dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
@@ -5765,7 +5765,7 @@ LUT_object_functions_02AF6:
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_UNKNOWN, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_UNKNOWN, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
-.dw objfunc_50_UNKNOWN, objfunc_51_UNKNOWN, objfunc_52_UNKNOWN, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_UNKNOWN  ; 00:2B96
+.dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_UNKNOWN  ; 00:2B96
 
 LUT_2BA2:
 .db $00, $01, $00, $02, $00, $01, $00, $02, $20, $00, $20, $01, $20, $00, $E0, $00  ; 00:2BA2
@@ -6469,17 +6469,17 @@ try_run_objfunc_DE:
    add    a, a                         ; 00:32D1 - 87
    ld     e, a                         ; 00:32D2 - 5F
    ld     d, $00                       ; 00:32D3 - 16 00
-   ld     hl, LUT_object_functions_02AF6  ; 00:32D5 - 21 F6 2A
+   ld     hl, LUT_object_functions     ; 00:32D5 - 21 F6 2A
    add    hl, de                       ; 00:32D8 - 19
    ld     a, (hl)                      ; 00:32D9 - 7E
    inc    hl                           ; 00:32DA - 23
    ld     h, (hl)                      ; 00:32DB - 66
    ld     l, a                         ; 00:32DC - 6F
-   ld     de, RETPTR_032E2             ; 00:32DD - 11 E2 32
+   ld     de, return_from_objfunc      ; 00:32DD - 11 E2 32
    push   de                           ; 00:32E0 - D5
    jp     (hl)                         ; 00:32E1 - E9
 
-RETPTR_032E2:
+return_from_objfunc:
    ld     e, (ix+7)                    ; 00:32E2 - DD 5E 07
    ld     d, (ix+8)                    ; 00:32E5 - DD 56 08
    ld     c, (ix+9)                    ; 00:32E8 - DD 4E 09
@@ -7965,7 +7965,7 @@ addr_048A8:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:48A8
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:48B8
 
-objfunc_00_UNKNOWN:
+objfunc_00_sonic:
    res    1, (iy+var_D208-IYBASE)      ; 01:48C8 - FD CB 08 8E
    bit    7, (ix+24)                   ; 01:48CC - DD CB 18 7E
    call   nz, addr_04E88               ; 01:48D0 - C4 88 4E
@@ -10376,7 +10376,7 @@ UNK_05BBF:
 UNK_05BCC:
 .db $54, $FE, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                 ; 01:5BCC
 
-objfunc_02_UNKNOWN:
+objfunc_02_monitor_speed_shoes:
    ld     (ix+13), $14                 ; 01:5BD9 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5BDD - DD 36 0E 18
    call   addr_05DA8                   ; 01:5BE1 - CD A8 5D
@@ -10497,7 +10497,7 @@ addr_05CCA:
    ld     (ix+0), $FF                  ; 01:5CD1 - DD 36 00 FF
    jr     addr_05C6D                   ; 01:5CD5 - 18 96
 
-objfunc_04_UNKNOWN:
+objfunc_04_monitor_shield:
    ld     (ix+13), $14                 ; 01:5CD7 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5CDB - DD 36 0E 18
    call   addr_05DA8                   ; 01:5CDF - CD A8 5D
@@ -10514,7 +10514,7 @@ addr_05CF9:
    ld     hl, $5300                    ; 01:5CF9 - 21 00 53
    jp     addr_05B34                   ; 01:5CFC - C3 34 5B
 
-objfunc_05_UNKNOWN:
+objfunc_05_monitor_invincibility:
    ld     (ix+13), $14                 ; 01:5CFF - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D03 - DD 36 0E 18
    call   addr_05DA8                   ; 01:5D07 - CD A8 5D
@@ -10535,7 +10535,7 @@ addr_05D29:
    ld     hl, $5380                    ; 01:5D29 - 21 80 53
    jp     addr_05B34                   ; 01:5D2C - C3 34 5B
 
-objfunc_51_UNKNOWN:
+objfunc_51_monitor_checkpoint:
    ld     (ix+13), $14                 ; 01:5D2F - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D33 - DD 36 0E 18
    call   addr_05DA8                   ; 01:5D37 - CD A8 5D
@@ -10579,7 +10579,7 @@ addr_05D7A:
    ld     hl, $5480                    ; 01:5D7A - 21 80 54
    jp     addr_05B34                   ; 01:5D7D - C3 34 5B
 
-objfunc_52_UNKNOWN:
+objfunc_52_monitor_continue:
    ld     (ix+13), $14                 ; 01:5D80 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D84 - DD 36 0E 18
    call   addr_05DA8                   ; 01:5D88 - CD A8 5D
@@ -10722,7 +10722,7 @@ addr_05E8A:
    scf                                 ; 01:5EA0 - 37
    ret                                 ; 01:5EA1 - C9
 
-objfunc_06_UNKNOWN:
+objfunc_06_chaos_emerald:
    ld     hl, var_D30B                 ; 01:5EA2 - 21 0B D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5EA5 - CD 02 0C
    ld     a, (hl)                      ; 01:5EA8 - 7E
@@ -11679,6 +11679,7 @@ UNK_06B70:
 UNK_06B72:
 .db $34, $36                                                                        ; 01:6B72
 
+objfunc_0E_badnik_buzz_bomber:
 objfunc_0E_UNKNOWN:
    set    5, (ix+24)                   ; 01:6B74 - DD CB 18 EE
    bit    0, (ix+24)                   ; 01:6B78 - DD CB 18 46
@@ -11865,7 +11866,7 @@ UNK_06CF9:
 .db $16, $FF, $FF, $FF, $30, $34, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF  ; 01:6D49
 .db $12, $14, $16, $FF, $FF, $FF, $30, $34, $FF, $FF, $FF, $FF                      ; 01:6D59
 
-objfunc_0F_UNKNOWN:
+objfunc_0F_platform_horizontal:
    set    5, (ix+24)                   ; 01:6D65 - DD CB 18 EE
    ld     a, (g_level)                 ; 01:6D69 - 3A 3E D2
    cp     $07                          ; 01:6D6C - FE 07
@@ -11944,6 +11945,7 @@ addr_06E05:
    ld     (ix+16), h                   ; 01:6E08 - DD 74 10
    ret                                 ; 01:6E0B - C9
 
+objfunc_10_badnik_motobug:
 objfunc_10_motobug:
    res    5, (ix+24)                   ; 01:6E0C - DD CB 18 AE
    ld     (ix+13), $0A                 ; 01:6E10 - DD 36 0D 0A
@@ -13202,7 +13204,7 @@ objfunc_4B_UNKNOWN:
    rst    $28                          ; 01:7AEB - EF
    ret                                 ; 01:7AEC - C9
 
-objfunc_50_UNKNOWN:
+objfunc_50_flower_raiser:
    set    5, (ix+24)                   ; 01:7AED - DD CB 18 EE
    bit    0, (ix+24)                   ; 01:7AF1 - DD CB 18 46
    jr     nz, addr_07B03               ; 01:7AF5 - 20 0C
