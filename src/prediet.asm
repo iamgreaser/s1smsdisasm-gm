@@ -76,9 +76,9 @@ var_D232 dw   ; D232
 g_committed_rompage_1 db   ; D235
 g_committed_rompage_2 db   ; D236
 .  dsb 1
-var_D238 db   ; D238
+g_level_width db   ; D238
 .  dsb 1
-var_D23A dw   ; D23A
+g_level_height dw   ; D23A
 var_D23C dw   ; D23C
 g_level db   ; D23E
 g_next_bonus_level db   ; D23F
@@ -1438,7 +1438,7 @@ addr_00719:
    exx                                 ; 00:0728 - D9
    ld     de, var_D180                 ; 00:0729 - 11 80 D1
    exx                                 ; 00:072C - D9
-   ld     de, (var_D238)               ; 00:072D - ED 5B 38 D2
+   ld     de, (g_level_width)          ; 00:072D - ED 5B 38 D2
    ld     b, $07                       ; 00:0731 - 06 07
 
 addr_00733:
@@ -1723,7 +1723,7 @@ addr_008D0:
    jp     addr_0083C                   ; 00:08D2 - C3 3C 08
 
 addr_008D5:
-   ld     a, (var_D238)                ; 00:08D5 - 3A 38 D2
+   ld     a, (g_level_width)           ; 00:08D5 - 3A 38 D2
    rlca                                ; 00:08D8 - 07
    jr     c, addr_008E7                ; 00:08D9 - 38 0C
    rlca                                ; 00:08DB - 07
@@ -1929,7 +1929,7 @@ addr_009B6:
    djnz   addr_00987                   ; 00:09FA - 10 8B
    pop    de                           ; 00:09FC - D1
    pop    hl                           ; 00:09FD - E1
-   ld     bc, (var_D238)               ; 00:09FE - ED 4B 38 D2
+   ld     bc, (g_level_width)          ; 00:09FE - ED 4B 38 D2
    add    hl, bc                       ; 00:0A02 - 09
    ex     de, hl                       ; 00:0A03 - EB
    ld     bc, $0100                    ; 00:0A04 - 01 00 01
@@ -4792,12 +4792,12 @@ addr_02172:
    inc    hl                           ; 00:2184 - 23
    ld     d, (hl)                      ; 00:2185 - 56
    inc    hl                           ; 00:2186 - 23
-   ld     (var_D238), de               ; 00:2187 - ED 53 38 D2
+   ld     (g_level_width), de          ; 00:2187 - ED 53 38 D2
    ld     e, (hl)                      ; 00:218B - 5E
    inc    hl                           ; 00:218C - 23
    ld     d, (hl)                      ; 00:218D - 56
    inc    hl                           ; 00:218E - 23
-   ld     (var_D23A), de               ; 00:218F - ED 53 3A D2
+   ld     (g_level_height), de         ; 00:218F - ED 53 3A D2
    ld     de, var_D273                 ; 00:2193 - 11 73 D2
    ld     bc, $0008                    ; 00:2196 - 01 08 00
    ldir                                ; 00:2199 - ED B0
@@ -7074,7 +7074,7 @@ addr_036BE:
    ret                                 ; 00:36F8 - C9
 
 get_level_tile_ptr_in_ram:
-   ld     a, (var_D238)                ; 00:36F9 - 3A 38 D2
+   ld     a, (g_level_width)           ; 00:36F9 - 3A 38 D2
    cp     $80                          ; 00:36FC - FE 80
    jr     z, @width_128                ; 00:36FE - 28 0F
    cp     $40                          ; 00:3700 - FE 40
