@@ -6947,7 +6947,7 @@ addr_035DD:
    ld     c, a                         ; 00:35E1 - 4F
    jp     draw_sprite_text             ; 00:35E2 - C3 CC 35
 
-UNK_035E5:
+enemy_touched_sonic:
    bit    0, (iy+var_D205-IYBASE)      ; 00:35E5 - FD CB 05 46
    ret    nz                           ; 00:35E9 - C0
    bit    0, (iy+var_D208-IYBASE)      ; 00:35EA - FD CB 08 46
@@ -11171,50 +11171,50 @@ objfunc_08_badnik_crabmeat:
    ld     e, (ix+18)                   ; 01:65F6 - DD 5E 12
    ld     d, $00                       ; 01:65F9 - 16 00
 
-addr_065FB:
-   ld     hl, UNK_066C5                ; 01:65FB - 21 C5 66
+@find_next_state:
+   ld     hl, LUT_crabmeat_state_sequence  ; 01:65FB - 21 C5 66
    add    hl, de                       ; 01:65FE - 19
    ld     (var_D214), hl               ; 01:65FF - 22 14 D2
    ld     a, (hl)                      ; 01:6602 - 7E
    and    a                            ; 01:6603 - A7
-   jr     nz, addr_0660D               ; 01:6604 - 20 07
+   jr     nz, @found_state             ; 01:6604 - 20 07
    ld     (ix+18), a                   ; 01:6606 - DD 77 12
    ld     e, a                         ; 01:6609 - 5F
-   jp     addr_065FB                   ; 01:660A - C3 FB 65
+   jp     @find_next_state             ; 01:660A - C3 FB 65
 
-addr_0660D:
+@found_state:
    dec    a                            ; 01:660D - 3D
-   jr     nz, addr_06618               ; 01:660E - 20 08
+   jr     nz, @not_state_01            ; 01:660E - 20 08
    ld     c, $00                       ; 01:6610 - 0E 00
    ld     h, c                         ; 01:6612 - 61
    ld     l, $28                       ; 01:6613 - 2E 28
-   jp     addr_0666F                   ; 01:6615 - C3 6F 66
+   jp     @update_vel_x_and_continue   ; 01:6615 - C3 6F 66
 
-addr_06618:
+@not_state_01:
    dec    a                            ; 01:6618 - 3D
-   jr     nz, addr_06623               ; 01:6619 - 20 08
+   jr     nz, @not_state_02            ; 01:6619 - 20 08
    ld     c, $FF                       ; 01:661B - 0E FF
    ld     hl, $FFD8                    ; 01:661D - 21 D8 FF
-   jp     addr_0666F                   ; 01:6620 - C3 6F 66
+   jp     @update_vel_x_and_continue   ; 01:6620 - C3 6F 66
 
-addr_06623:
+@not_state_02:
    dec    a                            ; 01:6623 - 3D
-   jr     nz, addr_0662D               ; 01:6624 - 20 07
+   jr     nz, @not_state_03            ; 01:6624 - 20 07
    ld     c, $00                       ; 01:6626 - 0E 00
    ld     l, c                         ; 01:6628 - 69
    ld     h, c                         ; 01:6629 - 61
-   jp     addr_0666F                   ; 01:662A - C3 6F 66
+   jp     @update_vel_x_and_continue   ; 01:662A - C3 6F 66
 
-addr_0662D:
+@not_state_03:
    ld     a, (ix+17)                   ; 01:662D - DD 7E 11
    cp     $20                          ; 01:6630 - FE 20
-   jp     nz, addr_06678               ; 01:6632 - C2 78 66
+   jp     nz, @continue                ; 01:6632 - C2 78 66
    ld     hl, $FFFF                    ; 01:6635 - 21 FF FF
    ld     (var_D212), hl               ; 01:6638 - 22 12 D2
    ld     hl, $FFFC                    ; 01:663B - 21 FC FF
    ld     (var_D214), hl               ; 01:663E - 22 14 D2
    call   spawn_object                 ; 01:6641 - CD 7B 7C
-   jp     c, addr_06678                ; 01:6644 - DA 78 66
+   jp     c, @continue                 ; 01:6644 - DA 78 66
    ld     de, $0000                    ; 01:6647 - 11 00 00
    ld     c, e                         ; 01:664A - 4B
    ld     b, d                         ; 01:664B - 42
@@ -11224,20 +11224,20 @@ addr_0662D:
    ld     hl, $FFFC                    ; 01:6655 - 21 FC FF
    ld     (var_D214), hl               ; 01:6658 - 22 14 D2
    call   spawn_object                 ; 01:665B - CD 7B 7C
-   jr     c, addr_06678                ; 01:665E - 38 18
+   jr     c, @continue                 ; 01:665E - 38 18
    ld     de, $000E                    ; 01:6660 - 11 0E 00
    ld     bc, $0000                    ; 01:6663 - 01 00 00
    call   UNK_0AC96                    ; 01:6666 - CD 96 AC
    ld     a, $0A                       ; 01:6669 - 3E 0A
    rst    $28                          ; 01:666B - EF
-   jp     addr_06678                   ; 01:666C - C3 78 66
+   jp     @continue                    ; 01:666C - C3 78 66
 
-addr_0666F:
+@update_vel_x_and_continue:
    ld     (ix+7), l                    ; 01:666F - DD 75 07
    ld     (ix+8), h                    ; 01:6672 - DD 74 08
    ld     (ix+9), c                    ; 01:6675 - DD 71 09
 
-addr_06678:
+@continue:
    ld     l, (ix+17)                   ; 01:6678 - DD 6E 11
    ld     h, (ix+18)                   ; 01:667B - DD 66 12
    ld     de, $0008                    ; 01:667E - 11 08 00
@@ -11257,38 +11257,38 @@ addr_06678:
    ld     a, (hl)                      ; 01:66A2 - 7E
    add    a, a                         ; 01:66A3 - 87
    ld     e, a                         ; 01:66A4 - 5F
-   ld     hl, UNK_066E0                ; 01:66A5 - 21 E0 66
+   ld     hl, LUT_crabmeat_state_anim_ptrs  ; 01:66A5 - 21 E0 66
    add    hl, de                       ; 01:66A8 - 19
    ld     c, (hl)                      ; 01:66A9 - 4E
    inc    hl                           ; 01:66AA - 23
    ld     b, (hl)                      ; 01:66AB - 46
-   ld     de, UNK_066F9                ; 01:66AC - 11 F9 66
+   ld     de, SPRITEMAP_crabmeat_frames  ; 01:66AC - 11 F9 66
    call   addr_07C41                   ; 01:66AF - CD 41 7C
    ld     hl, $0A04                    ; 01:66B2 - 21 04 0A
    ld     (var_D214), hl               ; 01:66B5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:66B8 - CD 56 39
    ld     hl, $0804                    ; 01:66BB - 21 04 08
    ld     (g_FF_string_high_byte), hl  ; 01:66BE - 22 0E D2
-   call   nc, UNK_035E5                ; 01:66C1 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 01:66C1 - D4 E5 35
    ret                                 ; 01:66C4 - C9
 
-UNK_066C5:
+LUT_crabmeat_state_sequence:
 .db $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $03, $03, $04, $02, $02, $02  ; 01:66C5
 .db $02, $02, $02, $02, $02, $02, $02, $03, $03, $04, $00                           ; 01:66D5
 
-UNK_066E0:
-.dw addr_066EA, addr_066EA, addr_066EA, addr_066F3, addr_066F6                      ; 01:66E0
+LUT_crabmeat_state_anim_ptrs:
+.dw crabmeat_anim_01_02_walking, crabmeat_anim_01_02_walking, crabmeat_anim_01_02_walking, crabmeat_anim_03_about_to_fire, crabmeat_anim_04_fired  ; 01:66E0
 
-addr_066EA:
+crabmeat_anim_01_02_walking:
 .db $00, $0C, $01, $0C, $02, $0C, $01, $0C, $FF                                     ; 01:66EA
 
-addr_066F3:
+crabmeat_anim_03_about_to_fire:
 .db $01, $01, $FF                                                                   ; 01:66F3
 
-addr_066F6:
+crabmeat_anim_04_fired:
 .db $03, $01, $FF                                                                   ; 01:66F6
 
-UNK_066F9:
+SPRITEMAP_crabmeat_frames:
 .db $00, $02, $04, $FF, $FF, $FF, $20, $22, $24, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:66F9
 .db $FF, $FF, $00, $02, $44, $FF, $FF, $FF, $46, $22, $4A, $FF, $FF, $FF, $FF, $FF  ; 01:6709
 .db $FF, $FF, $FF, $FF, $40, $02, $44, $FF, $FF, $FF, $26, $22, $2A, $FF, $FF, $FF  ; 01:6719
@@ -11840,7 +11840,7 @@ addr_06CA1:
    call   check_collision_with_sonic   ; 01:6CCA - CD 56 39
    ld     hl, $1004                    ; 01:6CCD - 21 04 10
    ld     (g_FF_string_high_byte), hl  ; 01:6CD0 - 22 0E D2
-   call   nc, UNK_035E5                ; 01:6CD3 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 01:6CD3 - D4 E5 35
    ret                                 ; 01:6CD6 - C9
 
 UNK_06CD7:
@@ -12014,7 +12014,7 @@ addr_06E49:
    call   check_collision_with_sonic   ; 01:6E89 - CD 56 39
    ld     hl, $0000                    ; 01:6E8C - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 01:6E8F - 22 0E D2
-   call   nc, UNK_035E5                ; 01:6E92 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 01:6E92 - D4 E5 35
    ret                                 ; 01:6E95 - C9
 
 UNK_06E96:
@@ -12141,7 +12141,7 @@ addr_06FD4:
    call   check_collision_with_sonic   ; 01:6FE0 - CD 56 39
    ld     hl, $0000                    ; 01:6FE3 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 01:6FE6 - 22 0E D2
-   call   nc, UNK_035E5                ; 01:6FE9 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 01:6FE9 - D4 E5 35
    ret                                 ; 01:6FEC - C9
 
 UNK_06FED:
@@ -13560,7 +13560,7 @@ addr_07DC9:
    call   check_collision_with_sonic   ; 01:7DCF - CD 56 39
    ld     hl, $0000                    ; 01:7DD2 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 01:7DD5 - 22 0E D2
-   call   nc, UNK_035E5                ; 01:7DD8 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 01:7DD8 - D4 E5 35
    ret                                 ; 01:7DDB - C9
 
 UNK_07DDC:
@@ -14083,7 +14083,7 @@ objfunc_2D_UNKNOWN:
    call   check_collision_with_sonic   ; 02:8308 - CD 56 39
    ld     hl, $0404                    ; 02:830B - 21 04 04
    ld     (g_FF_string_high_byte), hl  ; 02:830E - 22 0E D2
-   call   nc, UNK_035E5                ; 02:8311 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:8311 - D4 E5 35
    ld     l, (ix+10)                   ; 02:8314 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8317 - DD 66 0B
    ld     a, (ix+12)                   ; 02:831A - DD 7E 0C
@@ -14672,7 +14672,7 @@ objfunc_3C_UNKNOWN:
    call   check_collision_with_sonic   ; 02:885C - CD 56 39
    ld     hl, $0008                    ; 02:885F - 21 08 00
    ld     (g_FF_string_high_byte), hl  ; 02:8862 - 22 0E D2
-   call   nc, UNK_035E5                ; 02:8865 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:8865 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8868 - 11 BE 88
    ld     bc, UNK_088B4                ; 02:886B - 01 B4 88
    call   addr_07C41                   ; 02:886E - CD 41 7C
@@ -14689,7 +14689,7 @@ addr_08873:
    call   check_collision_with_sonic   ; 02:888D - CD 56 39
    ld     hl, $0000                    ; 02:8890 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 02:8893 - 22 0E D2
-   call   nc, UNK_035E5                ; 02:8896 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:8896 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8899 - 11 BE 88
    ld     bc, UNK_088B9                ; 02:889C - 01 B9 88
    call   addr_07C41                   ; 02:889F - CD 41 7C
@@ -15306,7 +15306,7 @@ objfunc_44_UNKNOWN:
    call   check_collision_with_sonic   ; 02:8F7B - CD 56 39
    ld     hl, $0800                    ; 02:8F7E - 21 00 08
    ld     (g_FF_string_high_byte), hl  ; 02:8F81 - 22 0E D2
-   call   nc, UNK_035E5                ; 02:8F84 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:8F84 - D4 E5 35
    ld     l, (ix+10)                   ; 02:8F87 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8F8A - DD 66 0B
    ld     a, (ix+12)                   ; 02:8F8D - DD 7E 0C
@@ -17223,7 +17223,7 @@ objfunc_1B_UNKNOWN:
    call   check_collision_with_sonic   ; 02:A1B8 - CD 56 39
    ld     hl, $0E00                    ; 02:A1BB - 21 00 0E
    ld     (g_FF_string_high_byte), hl  ; 02:A1BE - 22 0E D2
-   call   nc, UNK_035E5                ; 02:A1C1 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:A1C1 - D4 E5 35
    ld     (ix+10), $00                 ; 02:A1C4 - DD 36 0A 00
    ld     (ix+11), $01                 ; 02:A1C8 - DD 36 0B 01
    ld     (ix+12), $00                 ; 02:A1CC - DD 36 0C 00
@@ -17640,7 +17640,7 @@ addr_0A5B3:
    ld     hl, $0000                    ; 02:A5F5 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 02:A5F8 - 22 0E D2
    jr     c, addr_0A602                ; 02:A5FB - 38 05
-   call   UNK_035E5                    ; 02:A5FD - CD E5 35
+   call   enemy_touched_sonic          ; 02:A5FD - CD E5 35
    jr     addr_0A65B                   ; 02:A600 - 18 59
 
 addr_0A602:
@@ -17679,7 +17679,7 @@ addr_0A645:
    call   check_collision_with_sonic   ; 02:A64F - CD 56 39
    ld     hl, $0000                    ; 02:A652 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 02:A655 - 22 0E D2
-   call   nc, UNK_035E5                ; 02:A658 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:A658 - D4 E5 35
 
 addr_0A65B:
    ld     (ix+11), $01                 ; 02:A65B - DD 36 0B 01
@@ -18478,7 +18478,7 @@ addr_0AEF9:
    call   check_collision_with_sonic   ; 02:AF07 - CD 56 39
    ld     hl, $1010                    ; 02:AF0A - 21 10 10
    ld     (g_FF_string_high_byte), hl  ; 02:AF0D - 22 0E D2
-   call   nc, UNK_035E5                ; 02:AF10 - D4 E5 35
+   call   nc, enemy_touched_sonic      ; 02:AF10 - D4 E5 35
    ld     l, (ix+2)                    ; 02:AF13 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AF16 - DD 66 03
    ld     (g_FF_string_high_byte), hl  ; 02:AF19 - 22 0E D2
