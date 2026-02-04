@@ -8259,22 +8259,22 @@ return_from_objfunc:
    .ENDIF
 
    bit    5, (ix+24)                   ; 00:331C - DD CB 18 6E
-   jp     nz, addr_034E6               ; 00:3320 - C2 E6 34
+   jp     nz, @skip_vertical_and_all_clamping  ; 00:3320 - C2 E6 34
    ld     b, $00                       ; 00:3323 - 06 00
    ld     d, b                         ; 00:3325 - 50
    ld     e, (ix+14)                   ; 00:3326 - DD 5E 0E
    srl    e                            ; 00:3329 - CB 3B
    bit    7, (ix+8)                    ; 00:332B - DD CB 08 7E
-   jr     nz, addr_0333A               ; 00:332F - 20 09
+   jr     nz, @obj_is_moving_right_table  ; 00:332F - 20 09
    ld     c, (ix+13)                   ; 00:3331 - DD 4E 0D
    ld     hl, LUT_phys_tileflags_push_left  ; 00:3334 - 21 1E 41
-   jp     addr_0333F                   ; 00:3337 - C3 3F 33
+   jp     @obj_was_moving_left_table   ; 00:3337 - C3 3F 33
 
-addr_0333A:
+@obj_is_moving_right_table:
    ld     c, $00                       ; 00:333A - 0E 00
    ld     hl, LUT_phys_tileflags_push_right  ; 00:333C - 21 20 40
 
-addr_0333F:
+@obj_was_moving_left_table:
    ld     (var_D210), bc               ; 00:333F - ED 43 10 D2
    res    6, (ix+24)                   ; 00:3343 - DD CB 18 B6
    push   de                           ; 00:3347 - D5
@@ -8307,7 +8307,7 @@ addr_0333F:
    ;; Already masked above, flags not touched since then.
    ; SAVING: 2 bytes
    .ENDIF
-   jp     z, addr_033F6                ; 00:3368 - CA F6 33
+   jp     z, @skip_horizontal_clamping  ; 00:3368 - CA F6 33
    ld     a, (var_D214)                ; 00:336B - 3A 14 D2
    add    a, a                         ; 00:336E - 87
    ld     c, a                         ; 00:336F - 4F
@@ -8325,36 +8325,36 @@ addr_0333F:
    add    hl, de                       ; 00:337F - 19
    ld     a, (hl)                      ; 00:3380 - 7E
    cp     $80                          ; 00:3381 - FE 80
-   jp     z, addr_033F6                ; 00:3383 - CA F6 33
+   jp     z, @skip_horizontal_clamping  ; 00:3383 - CA F6 33
    ld     e, a                         ; 00:3386 - 5F
    and    a                            ; 00:3387 - A7
-   jp     p, addr_0338D                ; 00:3388 - F2 8D 33
+   jp     p, @horizontal_offset_was_positive  ; 00:3388 - F2 8D 33
    ld     d, $FF                       ; 00:338B - 16 FF
 
-addr_0338D:
+@horizontal_offset_was_positive:
    ld     l, (ix+2)                    ; 00:338D - DD 6E 02
    ld     h, (ix+3)                    ; 00:3390 - DD 66 03
    ld     bc, (var_D210)               ; 00:3393 - ED 4B 10 D2
    add    hl, bc                       ; 00:3397 - 09
    bit    7, (ix+9)                    ; 00:3398 - DD CB 09 7E
-   jr     nz, addr_033AB               ; 00:339C - 20 0D
+   jr     nz, @compare_left_movement_clamp  ; 00:339C - 20 0D
    and    a                            ; 00:339E - A7
-   jp     m, addr_033B5                ; 00:339F - FA B5 33
+   jp     m, @apply_horizontal_clamping  ; 00:339F - FA B5 33
    ld     a, l                         ; 00:33A2 - 7D
    and    $1F                          ; 00:33A3 - E6 1F
    cp     e                            ; 00:33A5 - BB
-   jr     nc, addr_033B5               ; 00:33A6 - 30 0D
-   jp     addr_033F6                   ; 00:33A8 - C3 F6 33
+   jr     nc, @apply_horizontal_clamping  ; 00:33A6 - 30 0D
+   jp     @skip_horizontal_clamping    ; 00:33A8 - C3 F6 33
 
-addr_033AB:
+@compare_left_movement_clamp:
    and    a                            ; 00:33AB - A7
-   jp     m, addr_033B5                ; 00:33AC - FA B5 33
+   jp     m, @apply_horizontal_clamping  ; 00:33AC - FA B5 33
    ld     a, l                         ; 00:33AF - 7D
    and    $1F                          ; 00:33B0 - E6 1F
    cp     e                            ; 00:33B2 - BB
-   jr     nc, addr_033F6               ; 00:33B3 - 30 41
+   jr     nc, @skip_horizontal_clamping  ; 00:33B3 - 30 41
 
-addr_033B5:
+@apply_horizontal_clamping:
    set    6, (ix+24)                   ; 00:33B5 - DD CB 18 F6
    ld     a, l                         ; 00:33B9 - 7D
    and    $E0                          ; 00:33BA - E6 E0
@@ -8376,11 +8376,11 @@ addr_033B5:
    ld     a, d                         ; 00:33DB - 7A
    ld     b, d                         ; 00:33DC - 42
    bit    7, c                         ; 00:33DD - CB 79
-   jr     z, addr_033E3                ; 00:33DF - 28 02
+   jr     z, @horizontal_vslide_factor_was_nonnegative  ; 00:33DF - 28 02
    dec    a                            ; 00:33E1 - 3D
    dec    b                            ; 00:33E2 - 05
 
-addr_033E3:
+@horizontal_vslide_factor_was_nonnegative:
    ld     l, (ix+10)                   ; 00:33E3 - DD 6E 0A
    ld     h, (ix+11)                   ; 00:33E6 - DD 66 0B
    add    hl, bc                       ; 00:33E9 - 09
@@ -8389,24 +8389,24 @@ addr_033E3:
    ld     (ix+11), h                   ; 00:33F0 - DD 74 0B
    ld     (ix+12), a                   ; 00:33F3 - DD 77 0C
 
-addr_033F6:
+@skip_horizontal_clamping:
    ld     b, $00                       ; 00:33F6 - 06 00
    ld     d, b                         ; 00:33F8 - 50
    bit    7, (ix+11)                   ; 00:33F9 - DD CB 0B 7E
-   jr     nz, addr_0340D               ; 00:33FD - 20 0E
+   jr     nz, @obj_is_moving_up_table  ; 00:33FD - 20 0E
    ld     c, (ix+13)                   ; 00:33FF - DD 4E 0D
    srl    c                            ; 00:3402 - CB 39
    ld     e, (ix+14)                   ; 00:3404 - DD 5E 0E
    ld     hl, LUT_phys_tileflags_push_up  ; 00:3407 - 21 8A 44
-   jp     addr_03417                   ; 00:340A - C3 17 34
+   jp     @obj_was_moving_down_table   ; 00:340A - C3 17 34
 
-addr_0340D:
+@obj_is_moving_up_table:
    ld     c, (ix+13)                   ; 00:340D - DD 4E 0D
    srl    c                            ; 00:3410 - CB 39
    ld     e, $00                       ; 00:3412 - 1E 00
    ld     hl, LUT_phys_tileflags_push_down  ; 00:3414 - 21 EC 41
 
-addr_03417:
+@obj_was_moving_down_table:
    ld     (var_D210), de               ; 00:3417 - ED 53 10 D2
    res    7, (ix+24)                   ; 00:341B - DD CB 18 BE
    push   bc                           ; 00:341F - C5
@@ -8439,7 +8439,7 @@ addr_03417:
    ;; Already masked above, flags not touched since then.
    ; SAVING: 2 bytes
    .ENDIF
-   jp     z, addr_034E6                ; 00:3440 - CA E6 34
+   jp     z, @skip_vertical_and_all_clamping  ; 00:3440 - CA E6 34
    ld     a, (var_D214)                ; 00:3443 - 3A 14 D2
    add    a, a                         ; 00:3446 - 87
    ld     e, a                         ; 00:3447 - 5F
@@ -8457,21 +8457,21 @@ addr_03417:
    add    hl, bc                       ; 00:3457 - 09
    ld     a, (hl)                      ; 00:3458 - 7E
    cp     $80                          ; 00:3459 - FE 80
-   jp     z, addr_034E6                ; 00:345B - CA E6 34
+   jp     z, @skip_vertical_and_all_clamping  ; 00:345B - CA E6 34
    ld     c, a                         ; 00:345E - 4F
    and    a                            ; 00:345F - A7
-   jp     p, addr_03465                ; 00:3460 - F2 65 34
+   jp     p, @vertical_offset_was_positive  ; 00:3460 - F2 65 34
    ld     b, $FF                       ; 00:3463 - 06 FF
 
-addr_03465:
+@vertical_offset_was_positive:
    ld     l, (ix+5)                    ; 00:3465 - DD 6E 05
    ld     h, (ix+6)                    ; 00:3468 - DD 66 06
    ld     de, (var_D210)               ; 00:346B - ED 5B 10 D2
    add    hl, de                       ; 00:346F - 19
    bit    7, (ix+12)                   ; 00:3470 - DD CB 0C 7E
-   jr     nz, addr_03493               ; 00:3474 - 20 1D
+   jr     nz, @compare_up_movement_clamp  ; 00:3474 - 20 1D
    and    a                            ; 00:3476 - A7
-   jp     m, addr_034A9                ; 00:3477 - FA A9 34
+   jp     m, @apply_vertical_clamping  ; 00:3477 - FA A9 34
    ld     a, l                         ; 00:347A - 7D
    and    $1F                          ; 00:347B - E6 1F
    exx                                 ; 00:347D - D9
@@ -8482,13 +8482,13 @@ addr_03465:
    add    a, (hl)                      ; 00:3487 - 86
    exx                                 ; 00:3488 - D9
    cp     c                            ; 00:3489 - B9
-   jr     c, addr_034E6                ; 00:348A - 38 5A
+   jr     c, @skip_vertical_and_all_clamping  ; 00:348A - 38 5A
    set    7, (ix+24)                   ; 00:348C - DD CB 18 FE
-   jp     addr_034A9                   ; 00:3490 - C3 A9 34
+   jp     @apply_vertical_clamping     ; 00:3490 - C3 A9 34
 
-addr_03493:
+@compare_up_movement_clamp:
    and    a                            ; 00:3493 - A7
-   jp     m, addr_034A9                ; 00:3494 - FA A9 34
+   jp     m, @apply_vertical_clamping  ; 00:3494 - FA A9 34
    ld     a, l                         ; 00:3497 - 7D
    and    $1F                          ; 00:3498 - E6 1F
    exx                                 ; 00:349A - D9
@@ -8499,9 +8499,9 @@ addr_03493:
    add    a, (hl)                      ; 00:34A4 - 86
    exx                                 ; 00:34A5 - D9
    cp     c                            ; 00:34A6 - B9
-   jr     nc, addr_034E6               ; 00:34A7 - 30 3D
+   jr     nc, @skip_vertical_and_all_clamping  ; 00:34A7 - 30 3D
 
-addr_034A9:
+@apply_vertical_clamping:
    ld     a, l                         ; 00:34A9 - 7D
    and    $E0                          ; 00:34AA - E6 E0
    ld     l, a                         ; 00:34AC - 6F
@@ -8522,11 +8522,11 @@ addr_034A9:
    ld     a, d                         ; 00:34CB - 7A
    ld     b, d                         ; 00:34CC - 42
    bit    7, c                         ; 00:34CD - CB 79
-   jr     z, addr_034D3                ; 00:34CF - 28 02
+   jr     z, @vertical_hslide_factor_was_nonnegative  ; 00:34CF - 28 02
    dec    a                            ; 00:34D1 - 3D
    dec    b                            ; 00:34D2 - 05
 
-addr_034D3:
+@vertical_hslide_factor_was_nonnegative:
    ld     l, (ix+7)                    ; 00:34D3 - DD 6E 07
    ld     h, (ix+8)                    ; 00:34D6 - DD 66 08
    add    hl, bc                       ; 00:34D9 - 09
@@ -8535,7 +8535,7 @@ addr_034D3:
    ld     (ix+8), h                    ; 00:34E0 - DD 74 08
    ld     (ix+9), a                    ; 00:34E3 - DD 77 09
 
-addr_034E6:
+@skip_vertical_and_all_clamping:
    ld     l, (ix+5)                    ; 00:34E6 - DD 6E 05
    ld     h, (ix+6)                    ; 00:34E9 - DD 66 06
    ld     bc, (var_D25D)               ; 00:34EC - ED 4B 5D D2
