@@ -5757,7 +5757,7 @@ LUT_02AD6:
 
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
-.dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_UNKNOWN, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
+.dw objfunc_08_badnik_crabmeat, objfunc_09_UNKNOWN, objfunc_0A_explosion, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
@@ -11263,7 +11263,7 @@ objfunc_08_badnik_crabmeat:
    inc    hl                           ; 01:66AA - 23
    ld     b, (hl)                      ; 01:66AB - 46
    ld     de, SPRITEMAP_crabmeat_frames  ; 01:66AC - 11 F9 66
-   call   addr_07C41                   ; 01:66AF - CD 41 7C
+   call   do_framed_animation          ; 01:66AF - CD 41 7C
    ld     hl, $0A04                    ; 01:66B2 - 21 04 0A
    ld     (var_D214), hl               ; 01:66B5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:66B8 - CD 56 39
@@ -11433,24 +11433,24 @@ UNK_06923:
 UNK_06931:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6C, $6E, $FF, $FF, $FF, $FF            ; 01:6931
 
-objfunc_0A_UNKNOWN:
+objfunc_0A_explosion:
    set    5, (ix+24)                   ; 01:693F - DD CB 18 EE
    ld     a, (ix+21)                   ; 01:6943 - DD 7E 15
    cp     $AA                          ; 01:6946 - FE AA
-   jr     z, addr_0698D                ; 01:6948 - 28 43
+   jr     z, @skip_sonic_bounce_off_top  ; 01:6948 - 28 43
    xor    a                            ; 01:694A - AF
    ld     (ix+17), a                   ; 01:694B - DD 77 11
    ld     (ix+21), $AA                 ; 01:694E - DD 36 15 AA
    ld     (ix+22), a                   ; 01:6952 - DD 77 16
    ld     (ix+23), a                   ; 01:6955 - DD 77 17
    bit    5, (iy+var_D200-IYBASE)      ; 01:6958 - FD CB 00 6E
-   jr     z, addr_0698D                ; 01:695C - 28 2F
+   jr     z, @skip_sonic_bounce_off_top  ; 01:695C - 28 2F
    ld     a, (g_level)                 ; 01:695E - 3A 3E D2
    cp     $12                          ; 01:6961 - FE 12
-   jr     z, addr_0698D                ; 01:6963 - 28 28
+   jr     z, @skip_sonic_bounce_off_top  ; 01:6963 - 28 28
    ld     a, (var_D414)                ; 01:6965 - 3A 14 D4
    rlca                                ; 01:6968 - 07
-   jr     c, addr_0698D                ; 01:6969 - 38 22
+   jr     c, @skip_sonic_bounce_off_top  ; 01:6969 - 38 22
    ld     a, (var_D2E8)                ; 01:696B - 3A E8 D2
    ld     de, (var_D2E6)               ; 01:696E - ED 5B E6 D2
    inc    de                           ; 01:6972 - 13
@@ -11464,14 +11464,14 @@ objfunc_0A_UNKNOWN:
    ld     h, a                         ; 01:697C - 67
    ld     a, (sonic_vel_y_hi)          ; 01:697D - 3A 08 D4
    and    a                            ; 01:6980 - A7
-   jp     m, addr_0698D                ; 01:6981 - FA 8D 69
+   jp     m, @skip_sonic_bounce_off_top  ; 01:6981 - FA 8D 69
    cpl                                 ; 01:6984 - 2F
    add    hl, de                       ; 01:6985 - 19
    adc    a, c                         ; 01:6986 - 89
    ld     (sonic_vel_y_sub), hl        ; 01:6987 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:698A - 32 08 D4
 
-addr_0698D:
+@skip_sonic_bounce_off_top:
    xor    a                            ; 01:698D - AF
    ld     (ix+7), a                    ; 01:698E - DD 77 07
    ld     (ix+8), a                    ; 01:6991 - DD 77 08
@@ -11479,9 +11479,9 @@ addr_0698D:
    ld     (ix+10), a                   ; 01:6997 - DD 77 0A
    ld     (ix+11), a                   ; 01:699A - DD 77 0B
    ld     (ix+12), a                   ; 01:699D - DD 77 0C
-   ld     de, UNK_069BE                ; 01:69A0 - 11 BE 69
-   ld     bc, UNK_069B7                ; 01:69A3 - 01 B7 69
-   call   addr_07C41                   ; 01:69A6 - CD 41 7C
+   ld     de, SPRITEMAP_explosion_frames  ; 01:69A0 - 11 BE 69
+   ld     bc, LUT_explosion_state_sequence  ; 01:69A3 - 01 B7 69
+   call   do_framed_animation          ; 01:69A6 - CD 41 7C
    inc    (ix+17)                      ; 01:69A9 - DD 34 11
    ld     a, (ix+17)                   ; 01:69AC - DD 7E 11
    cp     $18                          ; 01:69AF - FE 18
@@ -11489,10 +11489,10 @@ addr_0698D:
    ld     (ix+0), $FF                  ; 01:69B2 - DD 36 00 FF
    ret                                 ; 01:69B6 - C9
 
-UNK_069B7:
+LUT_explosion_state_sequence:
 .db $00, $08, $01, $08, $02, $08, $FF                                               ; 01:69B7
 
-UNK_069BE:
+SPRITEMAP_explosion_frames:
 .db $74, $76, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:69BE
 .db $FF, $FF, $78, $7A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:69CE
 .db $FF, $FF, $FF, $FF, $7C, $7E, $FF, $FF, $FF, $FF, $FF                           ; 01:69DE
@@ -11834,7 +11834,7 @@ addr_06CA1:
    inc    hl                           ; 01:6CBC - 23
    ld     b, (hl)                      ; 01:6CBD - 46
    ld     de, UNK_06CF9                ; 01:6CBE - 11 F9 6C
-   call   addr_07C41                   ; 01:6CC1 - CD 41 7C
+   call   do_framed_animation          ; 01:6CC1 - CD 41 7C
    ld     hl, $1000                    ; 01:6CC4 - 21 00 10
    ld     (var_D214), hl               ; 01:6CC7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6CCA - CD 56 39
@@ -12008,7 +12008,7 @@ addr_06E49:
    inc    hl                           ; 01:6E7B - 23
    ld     b, (hl)                      ; 01:6E7C - 46
    ld     de, UNK_06ECB                ; 01:6E7D - 11 CB 6E
-   call   addr_07C41                   ; 01:6E80 - CD 41 7C
+   call   do_framed_animation          ; 01:6E80 - CD 41 7C
    ld     hl, $0203                    ; 01:6E83 - 21 03 02
    ld     (var_D214), hl               ; 01:6E86 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6E89 - CD 56 39
@@ -12773,7 +12773,7 @@ addr_075EF:
 
 addr_0760C:
    ld     de, UNK_07638                ; 01:760C - 11 38 76
-   call   addr_07C41                   ; 01:760F - CD 41 7C
+   call   do_framed_animation          ; 01:760F - CD 41 7C
 
 addr_07612:
    ld     l, (ix+2)                    ; 01:7612 - DD 6E 02
@@ -13358,20 +13358,20 @@ addr_07C31:
 addr_07C39:
 .db $BC, $BE, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C39
 
-addr_07C41:
+do_framed_animation:
    ld     l, (ix+23)                   ; 01:7C41 - DD 6E 17
 
-addr_07C44:
+@find_next_state:
    ld     h, $00                       ; 01:7C44 - 26 00
    add    hl, bc                       ; 01:7C46 - 09
    ld     a, (hl)                      ; 01:7C47 - 7E
    cp     $FF                          ; 01:7C48 - FE FF
-   jr     nz, addr_07C54               ; 01:7C4A - 20 08
+   jr     nz, @found_state             ; 01:7C4A - 20 08
    ld     l, $00                       ; 01:7C4C - 2E 00
    ld     (ix+23), l                   ; 01:7C4E - DD 75 17
-   jp     addr_07C44                   ; 01:7C51 - C3 44 7C
+   jp     @find_next_state             ; 01:7C51 - C3 44 7C
 
-addr_07C54:
+@found_state:
    inc    hl                           ; 01:7C54 - 23
    push   hl                           ; 01:7C55 - E5
    ld     l, a                         ; 01:7C56 - 6F
@@ -13546,7 +13546,7 @@ addr_07D7B:
 addr_07DAF:
    ld     de, UNK_07DE1                ; 01:7DAF - 11 E1 7D
    ld     bc, UNK_07DDC                ; 01:7DB2 - 01 DC 7D
-   call   addr_07C41                   ; 01:7DB5 - CD 41 7C
+   call   do_framed_animation          ; 01:7DB5 - CD 41 7C
    ld     a, (ix+17)                   ; 01:7DB8 - DD 7E 11
    and    a                            ; 01:7DBB - A7
    jr     z, addr_07DC9                ; 01:7DBC - 28 0B
@@ -14032,7 +14032,7 @@ addr_0826B:
    jr     nc, addr_08291               ; 02:8285 - 30 0A
    ld     bc, UNK_082C1                ; 02:8287 - 01 C1 82
    ld     de, UNK_082CD                ; 02:828A - 11 CD 82
-   call   addr_07C41                   ; 02:828D - CD 41 7C
+   call   do_framed_animation          ; 02:828D - CD 41 7C
    ret                                 ; 02:8290 - C9
 
 addr_08291:
@@ -14051,7 +14051,7 @@ addr_082A0:
    ld     (ix+9), a                    ; 02:82A7 - DD 77 09
    ld     bc, UNK_082C6                ; 02:82AA - 01 C6 82
    ld     de, UNK_0A3BB                ; 02:82AD - 11 BB A3
-   call   addr_07C41                   ; 02:82B0 - CD 41 7C
+   call   do_framed_animation          ; 02:82B0 - CD 41 7C
    ld     a, (ix+18)                   ; 02:82B3 - DD 7E 12
    add    a, $12                       ; 02:82B6 - C6 12
    cp     (ix+17)                      ; 02:82B8 - DD BE 11
@@ -14101,7 +14101,7 @@ objfunc_2D_UNKNOWN:
    ld     (ix+9), $00                  ; 02:833B - DD 36 09 00
    ld     de, UNK_0837E                ; 02:833F - 11 7E 83
    ld     bc, UNK_08379                ; 02:8342 - 01 79 83
-   call   addr_07C41                   ; 02:8345 - CD 41 7C
+   call   do_framed_animation          ; 02:8345 - CD 41 7C
    jp     addr_08360                   ; 02:8348 - C3 60 83
 
 addr_0834B:
@@ -14110,7 +14110,7 @@ addr_0834B:
    ld     (ix+9), $FF                  ; 02:8353 - DD 36 09 FF
    ld     de, UNK_0837E                ; 02:8357 - 11 7E 83
    ld     bc, UNK_08374                ; 02:835A - 01 74 83
-   call   addr_07C41                   ; 02:835D - CD 41 7C
+   call   do_framed_animation          ; 02:835D - CD 41 7C
 
 addr_08360:
    ld     a, (g_global_tick_counter)   ; 02:8360 - 3A 23 D2
@@ -14675,7 +14675,7 @@ objfunc_3C_UNKNOWN:
    call   nc, enemy_touched_sonic      ; 02:8865 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8868 - 11 BE 88
    ld     bc, UNK_088B4                ; 02:886B - 01 B4 88
-   call   addr_07C41                   ; 02:886E - CD 41 7C
+   call   do_framed_animation          ; 02:886E - CD 41 7C
    jr     addr_088A2                   ; 02:8871 - 18 2F
 
 addr_08873:
@@ -14692,7 +14692,7 @@ addr_08873:
    call   nc, enemy_touched_sonic      ; 02:8896 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8899 - 11 BE 88
    ld     bc, UNK_088B9                ; 02:889C - 01 B9 88
-   call   addr_07C41                   ; 02:889F - CD 41 7C
+   call   do_framed_animation          ; 02:889F - CD 41 7C
 
 addr_088A2:
    ld     a, (g_global_tick_counter)   ; 02:88A2 - 3A 23 D2
@@ -15359,7 +15359,7 @@ addr_08FE6:
    ld     (ix+9), $FF                  ; 02:8FFD - DD 36 09 FF
    ld     de, UNK_09059                ; 02:9001 - 11 59 90
    ld     bc, UNK_0904A                ; 02:9004 - 01 4A 90
-   call   addr_07C41                   ; 02:9007 - CD 41 7C
+   call   do_framed_animation          ; 02:9007 - CD 41 7C
    set    1, (ix+24)                   ; 02:900A - DD CB 18 CE
    ret                                 ; 02:900E - C9
 
@@ -15369,7 +15369,7 @@ addr_0900F:
    ld     (ix+9), $00                  ; 02:9017 - DD 36 09 00
    ld     de, UNK_09059                ; 02:901B - 11 59 90
    ld     bc, UNK_09045                ; 02:901E - 01 45 90
-   call   addr_07C41                   ; 02:9021 - CD 41 7C
+   call   do_framed_animation          ; 02:9021 - CD 41 7C
    res    1, (ix+24)                   ; 02:9024 - DD CB 18 8E
    ret                                 ; 02:9028 - C9
 
@@ -15381,7 +15381,7 @@ addr_09029:
 
 addr_09035:
    ld     de, UNK_09059                ; 02:9035 - 11 59 90
-   call   addr_07C41                   ; 02:9038 - CD 41 7C
+   call   do_framed_animation          ; 02:9038 - CD 41 7C
    bit    7, (ix+24)                   ; 02:903B - DD CB 18 7E
    ret    z                            ; 02:903F - C8
    res    0, (ix+24)                   ; 02:9040 - DD CB 18 86
@@ -17179,7 +17179,7 @@ addr_0A12A:
    call   nc, addr_035FD               ; 02:A133 - D4 FD 35
    ld     de, UNK_0A173                ; 02:A136 - 11 73 A1
    ld     bc, UNK_0A167                ; 02:A139 - 01 67 A1
-   call   addr_07C41                   ; 02:A13C - CD 41 7C
+   call   do_framed_animation          ; 02:A13C - CD 41 7C
    jp     addr_0A159                   ; 02:A13F - C3 59 A1
 
 addr_0A142:
@@ -17193,7 +17193,7 @@ addr_0A142:
 addr_0A150:
    ld     de, UNK_0A173                ; 02:A150 - 11 73 A1
    ld     bc, UNK_0A16E                ; 02:A153 - 01 6E A1
-   call   addr_07C41                   ; 02:A156 - CD 41 7C
+   call   do_framed_animation          ; 02:A156 - CD 41 7C
 
 addr_0A159:
    inc    (ix+17)                      ; 02:A159 - DD 34 11
@@ -17250,7 +17250,7 @@ addr_0A1F7:
 
 addr_0A1FA:
    ld     de, UNK_0A2DA                ; 02:A1FA - 11 DA A2
-   call   addr_07C41                   ; 02:A1FD - CD 41 7C
+   call   do_framed_animation          ; 02:A1FD - CD 41 7C
    ld     a, (ix+17)                   ; 02:A200 - DD 7E 11
    cp     $ED                          ; 02:A203 - FE ED
    jp     nz, addr_0A2CE               ; 02:A205 - C2 CE A2
@@ -17298,7 +17298,7 @@ addr_0A26D:
 
 addr_0A270:
    ld     de, UNK_0A30B                ; 02:A270 - 11 0B A3
-   call   addr_07C41                   ; 02:A273 - CD 41 7C
+   call   do_framed_animation          ; 02:A273 - CD 41 7C
    ld     a, (ix+17)                   ; 02:A276 - DD 7E 11
    cp     $ED                          ; 02:A279 - FE ED
    jr     nz, addr_0A2CE               ; 02:A27B - 20 51
@@ -17383,7 +17383,7 @@ addr_0A366:
    jr     nc, addr_0A391               ; 02:A383 - 30 0C
    ld     bc, UNK_0A3B1                ; 02:A385 - 01 B1 A3
    ld     de, UNK_0A3BB                ; 02:A388 - 11 BB A3
-   call   addr_07C41                   ; 02:A38B - CD 41 7C
+   call   do_framed_animation          ; 02:A38B - CD 41 7C
    jp     addr_0A3A3                   ; 02:A38E - C3 A3 A3
 
 addr_0A391:
@@ -17395,7 +17395,7 @@ addr_0A391:
 addr_0A39A:
    ld     bc, UNK_0A3B4                ; 02:A39A - 01 B4 A3
    ld     de, UNK_0A3BB                ; 02:A39D - 11 BB A3
-   call   addr_07C41                   ; 02:A3A0 - CD 41 7C
+   call   do_framed_animation          ; 02:A3A0 - CD 41 7C
 
 addr_0A3A3:
    inc    (ix+17)                      ; 02:A3A3 - DD 34 11
@@ -17789,7 +17789,7 @@ addr_0A830:
    ld     (var_D273), hl               ; 02:A839 - 22 73 D2
    ld     de, UNK_0BAF9                ; 02:A83C - 11 F9 BA
    ld     bc, UNK_0A9B7                ; 02:A83F - 01 B7 A9
-   call   addr_07C41                   ; 02:A842 - CD 41 7C
+   call   do_framed_animation          ; 02:A842 - CD 41 7C
    ld     l, (ix+2)                    ; 02:A845 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A848 - DD 66 03
    ld     de, (sonic_x)                ; 02:A84B - ED 5B FE D3
@@ -18146,7 +18146,7 @@ addr_0AB5A:
    ld     (ix+9), $FF                  ; 02:AB69 - DD 36 09 FF
    ld     de, UNK_0AD0B                ; 02:AB6D - 11 0B AD
    ld     bc, UNK_0ACF1                ; 02:AB70 - 01 F1 AC
-   call   addr_07C41                   ; 02:AB73 - CD 41 7C
+   call   do_framed_animation          ; 02:AB73 - CD 41 7C
    jp     addr_0AC6A                   ; 02:AB76 - C3 6A AC
 
 addr_0AB79:
@@ -18160,7 +18160,7 @@ addr_0AB79:
    jr     nc, addr_0AB9D               ; 02:AB8F - 30 0C
    ld     de, UNK_0AD0B                ; 02:AB91 - 11 0B AD
    ld     bc, UNK_0AD01                ; 02:AB94 - 01 01 AD
-   call   addr_07C41                   ; 02:AB97 - CD 41 7C
+   call   do_framed_animation          ; 02:AB97 - CD 41 7C
    jp     addr_0AC6A                   ; 02:AB9A - C3 6A AC
 
 addr_0AB9D:
@@ -18219,7 +18219,7 @@ addr_0AC1E:
    ld     (ix+9), a                    ; 02:AC29 - DD 77 09
    ld     de, UNK_0AD0B                ; 02:AC2C - 11 0B AD
    ld     bc, UNK_0ACF6                ; 02:AC2F - 01 F6 AC
-   call   addr_07C41                   ; 02:AC32 - CD 41 7C
+   call   do_framed_animation          ; 02:AC32 - CD 41 7C
    jr     addr_0AC6A                   ; 02:AC35 - 18 33
 
 addr_0AC37:
@@ -18231,7 +18231,7 @@ addr_0AC37:
    ld     (ix+9), $00                  ; 02:AC46 - DD 36 09 00
    ld     de, UNK_0AD0B                ; 02:AC4A - 11 0B AD
    ld     bc, UNK_0ACF9                ; 02:AC4D - 01 F9 AC
-   call   addr_07C41                   ; 02:AC50 - CD 41 7C
+   call   do_framed_animation          ; 02:AC50 - CD 41 7C
    jr     addr_0AC6A                   ; 02:AC53 - 18 15
 
 addr_0AC55:
@@ -18240,7 +18240,7 @@ addr_0AC55:
    ld     (ix+9), $00                  ; 02:AC5D - DD 36 09 00
    ld     de, UNK_0AD0B                ; 02:AC61 - 11 0B AD
    ld     bc, UNK_0ACFE                ; 02:AC64 - 01 FE AC
-   call   addr_07C41                   ; 02:AC67 - CD 41 7C
+   call   do_framed_animation          ; 02:AC67 - CD 41 7C
 
 addr_0AC6A:
    ld     (ix+10), $80                 ; 02:AC6A - DD 36 0A 80
@@ -18378,7 +18378,7 @@ addr_0ADDD:
    jr     z, addr_0ADF3                ; 02:ADE1 - 28 10
    ld     de, UNK_0AE04                ; 02:ADE3 - 11 04 AE
    ld     bc, UNK_0ADFD                ; 02:ADE6 - 01 FD AD
-   call   addr_07C41                   ; 02:ADE9 - CD 41 7C
+   call   do_framed_animation          ; 02:ADE9 - CD 41 7C
    dec    (ix+18)                      ; 02:ADEC - DD 35 12
    inc    (ix+17)                      ; 02:ADEF - DD 34 11
    ret                                 ; 02:ADF2 - C9
@@ -19605,7 +19605,7 @@ addr_0B948:
    ld     (ix+12), c                   ; 02:B94E - DD 71 0C
    ld     bc, UNK_0BA28                ; 02:B951 - 01 28 BA
    ld     de, UNK_0BAF9                ; 02:B954 - 11 F9 BA
-   call   addr_07C41                   ; 02:B957 - CD 41 7C
+   call   do_framed_animation          ; 02:B957 - CD 41 7C
    ret                                 ; 02:B95A - C9
 
 addr_0B95B:
@@ -20035,7 +20035,7 @@ addr_0BDAD:
 addr_0BDB0:
    ld     bc, UNK_0BDC7                ; 02:BDB0 - 01 C7 BD
    ld     de, UNK_0BDCE                ; 02:BDB3 - 11 CE BD
-   call   addr_07C41                   ; 02:BDB6 - CD 41 7C
+   call   do_framed_animation          ; 02:BDB6 - CD 41 7C
    bit    4, (iy+var_D208-IYBASE)      ; 02:BDB9 - FD CB 08 66
    ret    nz                           ; 02:BDBD - C0
 

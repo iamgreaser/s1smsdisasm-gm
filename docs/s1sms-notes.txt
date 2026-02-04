@@ -89,6 +89,15 @@ In-memory object structure:
 
 For some things (incl. objfunc $12 GHZ boss), (IX+$14).w is a pointer to... something. TODO: Find out what! --GM
 
+(IX+$15).b is...?
+   For $0A explosions:
+      If this is not $AA, initialise this and set this to $AA.
+      This phase is responsible for making Sonic bounce up off things.
+
+When using 00:7C41 to manage animations:
+   (IX+$16).b denotes the current tick relative to the start of the given animation frame.
+   (IX+$17).b denotes the current animation frame.
+
 (IX+$18).b is a bit field:
    For everything:
       b5 = 1 if we are to ignore tile collisions.
