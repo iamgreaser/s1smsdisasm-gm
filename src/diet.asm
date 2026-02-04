@@ -12955,38 +12955,38 @@ addr_06019:
 addr_06030:
    ld     de, UNK_6157                 ; 01:6030 - 11 57 61
    bit    1, (ix+17)                   ; 01:6033 - DD CB 11 4E
-   jr     nz, _signpost_post_decide_loop  ; 01:6037 - 20 5D
+   jr     nz, @post_decide_loop        ; 01:6037 - 20 5D
    bit    2, (ix+17)                   ; 01:6039 - DD CB 11 56
-   jr     nz, _signpost_post_decide_loop  ; 01:603D - 20 57
+   jr     nz, @post_decide_loop        ; 01:603D - 20 57
    ld     de, UNK_6171                 ; 01:603F - 11 71 61
    bit    3, (ix+17)                   ; 01:6042 - DD CB 11 5E
-   jr     z, _signpost_post_decide_loop  ; 01:6046 - 28 4E
+   jr     z, @post_decide_loop         ; 01:6046 - 28 4E
    ld     a, (g_level)                 ; 01:6048 - 3A 3E D2
    cp     $0C                          ; 01:604B - FE 0C
-   jr     c, _signpost_decide_maybe_bonus  ; 01:604D - 38 0B
+   jr     c, @decide_maybe_bonus       ; 01:604D - 38 0B
    cp     $1C                          ; 01:604F - FE 1C
-   jr     c, _signpost_decide_not_bonus  ; 01:6051 - 38 13
+   jr     c, @decide_not_bonus         ; 01:6051 - 38 13
    ld     de, UNK_618E                 ; 01:6053 - 11 8E 61
    ld     c, $01                       ; 01:6056 - 0E 01
-   jr     _signpost_decide_C           ; 01:6058 - 18 38
+   jr     @decide_C                    ; 01:6058 - 18 38
 
 
-_signpost_decide_maybe_bonus:
+@decide_maybe_bonus:
    ld     de, UNK_61A8                 ; 01:605A - 11 A8 61
    ld     c, $04                       ; 01:605D - 0E 04
    ld     a, (g_rings_BCD)             ; 01:605F - 3A AA D2
    cp     $50                          ; 01:6062 - FE 50
-   jr     nc, _signpost_decide_C       ; 01:6064 - 30 2C
+   jr     nc, @decide_C                ; 01:6064 - 30 2C
 
-_signpost_decide_not_bonus:
+@decide_not_bonus:
    cp     $40                          ; 01:6066 - FE 40
-   jr     z, _signpost_decide_maybe_life  ; 01:6068 - 28 09
+   jr     z, @decide_maybe_life        ; 01:6068 - 28 09
    ld     de, UNK_61C2                 ; 01:606A - 11 C2 61
    ld     c, $03                       ; 01:606D - 0E 03
    and    $0F                          ; 01:606F - E6 0F
-   jr     z, _signpost_decide_C        ; 01:6071 - 28 1F
+   jr     z, @decide_C                 ; 01:6071 - 28 1F
 
-_signpost_decide_maybe_life:
+@decide_maybe_life:
    ld     a, (g_rings_BCD)             ; 01:6073 - 3A AA D2
    srl    a                            ; 01:6076 - CB 3F
    srl    a                            ; 01:6078 - CB 3F
@@ -12999,15 +12999,15 @@ _signpost_decide_maybe_life:
    ld     de, UNK_6174                 ; 01:6085 - 11 74 61
    ld     c, $02                       ; 01:6088 - 0E 02
    cp     b                            ; 01:608A - B8
-   jr     z, _signpost_decide_C        ; 01:608B - 28 05
+   jr     z, @decide_C                 ; 01:608B - 28 05
    ld     de, UNK_618E                 ; 01:608D - 11 8E 61
    ld     c, $01                       ; 01:6090 - 0E 01
 
-_signpost_decide_C:
+@decide_C:
    ld     a, c                         ; 01:6092 - 79
    ld     (g_current_signpost), a      ; 01:6093 - 32 88 D2
 
-_signpost_post_decide_loop:
+@post_decide_loop:
    ld     l, (ix+18)                   ; 01:6096 - DD 6E 12
    ld     h, $00                       ; 01:6099 - 26 00
    add    hl, de                       ; 01:609B - 19
@@ -13017,7 +13017,7 @@ _signpost_post_decide_loop:
    inc    hl                           ; 01:60A1 - 23
    ld     a, (hl)                      ; 01:60A2 - 7E
    ld     (ix+18), a                   ; 01:60A3 - DD 77 12
-   jp     _signpost_post_decide_loop   ; 01:60A6 - C3 96 60
+   jp     @post_decide_loop            ; 01:60A6 - C3 96 60
 
 +:
    ld     l, a                         ; 01:60A9 - 6F
