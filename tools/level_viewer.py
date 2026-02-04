@@ -50,8 +50,10 @@ layout_fname_extn_widths = {
 
 
 class TkApp:
-    tm_width = 4 * 16
-    tm_height = 4 * 16
+    mtm_width = 8
+    mtm_height = 7
+    # mtm_width = 16
+    # mtm_height = 16
 
     def __init__(self) -> None:
         self.level_width = 0x40
@@ -62,8 +64,8 @@ class TkApp:
         self.tk.wm_title("Sonic 1 SMS Level Viewer")
 
         self.vram = bytearray(0x3800)
-        self.vram_tilemap: MutableSequence[MutableSequence[int]] = [
-            [0x0000] * self.tm_width for y in range(self.tm_height)
+        self.vram_metatile_map: MutableSequence[MutableSequence[int]] = [
+            [0x0000] * self.mtm_width for y in range(self.mtm_height)
         ]
         self.cram = bytearray(0x20)
         self.layout = bytearray(0x1000)
@@ -75,26 +77,29 @@ class TkApp:
         self.layout_tilemap = bytearray(0x1000)
 
         self.cam_mtx = 0
-        self.cam_mty = 16 - (self.tm_height // 4)
+        self.cam_mty = 16 - self.mtm_height
 
         # One variant for each:
         # +1 = hflip
         # +2 = vflip
         # +4 = palette index
-        self.vram_tile_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
-            None for i in range(512 * 8)
+        self.vram_metatile_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
+            None for i in range(256)
         ]
         self.screen = tkinter.Canvas(
             master=self.tk,
-            width=8 * 2 * self.tm_width,
-            height=8 * 2 * self.tm_height,
+            width=32 * 2 * self.mtm_width,
+            height=32 * 2 * self.mtm_height,
         )
         self.screen.grid()
-        self.vram_tilemap_items: MutableSequence[MutableSequence[Optional[int]]] = [
-            [None] * self.tm_width for y in range(self.tm_height)
-        ]
+        self.vram_metatile_map_items: MutableSequence[
+            MutableSequence[Optional[int]]
+        ] = [[None] * self.mtm_width for y in range(self.mtm_height)]
         # (x, y, item1, item2)
-        self.vram_sprites: list[tuple[int, int, Optional[tuple[int, int]], int]] = [
+        self.vram_sprite_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
+            None
+        ] * 128
+        self.vram_sprites: list[tuple[int, int, Optional[int], int]] = [
             (-8, -16, None, 0)
         ] * 64
         self.vram_sprites_used = 0
@@ -345,8 +350,8 @@ class TkApp:
 
     def scroll_by(self, dx: int, dy: int) -> None:
         ox, oy = self.cam_mtx, self.cam_mty
-        self.cam_mtx = max(0, min(self.level_width - (self.tm_width // 4), ox + dx))
-        self.cam_mty = max(0, min(self.level_height - (self.tm_height // 4), oy + dy))
+        self.cam_mtx = max(0, min(self.level_width - self.mtm_width, ox + dx))
+        self.cam_mty = max(0, min(self.level_height - self.mtm_height, oy + dy))
         if (ox, oy) != (self.cam_mtx, self.cam_mty):
             self.redraw()
 
@@ -355,19 +360,12 @@ class TkApp:
         self.screen.delete("info_boxes", "info_text", "lines_physics")
 
         # Set up layout
-        for cy in range(self.tm_height // 4):
-            for cx in range(self.tm_width // 4):
+        for cy in range(self.mtm_height):
+            for cx in range(self.mtm_width):
                 # Metatile index
                 offs = ((cy + self.cam_mty) * self.level_width) + cx + self.cam_mtx
                 mtidx = self.layout[offs]
-                hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
-                for ty in range(4):
-                    for tx in range(4):
-                        vi_x = cx * 4 + tx
-                        vi_y = cy * 4 + ty
-                        lo = self.layout_tilemap[tx + (4 * (ty + (4 * mtidx)))]
-                        self.set_vram_tilemap_cell(vi_x, vi_y, lo | (hi << 8))
-
+                self.set_vram_metatile_map_cell(cx, cy, mtidx)
                 tf = self.layout_tile_flags[mtidx]
                 ts = self.layout_tile_specials[mtidx]
 
@@ -441,8 +439,8 @@ class TkApp:
 
         # Set up sprites
         self.vram_sprites_used = 0
-        sonic_x = (((self.tm_width * 8) - 24) // 2) & ~0x1F
-        sonic_y = (((self.tm_height * 8) - 32) // 2) & ~0x1F
+        sonic_x = (((self.mtm_width * 32) - 24) // 2) & ~0x1F
+        sonic_y = (((self.mtm_height * 32) - 32) // 2) & ~0x1F
         sonic_x += self.cam_mtx * 32
         sonic_y += self.cam_mty * 32
         (dx, dy), smaps = obj_sprite_maps[OT.player_sonic.value]
@@ -490,23 +488,22 @@ class TkApp:
                 )
 
         # Draw a 32x28 display
-        for ty in range(self.tm_height):
-            for tx in range(self.tm_width):
-                tmi = tx + (self.tm_width * ty)
-                tdata = self.vram_tilemap[ty][tx]
-                priority = "tile_hi" if (tdata & 0x1000) != 0 else "tile_lo"
-                tdata &= 0xFFF
-                tm_img = self.ensure_tile_img(tdata)
+        for mty in range(self.mtm_height):
+            for mtx in range(self.mtm_width):
+                mtidx = self.vram_metatile_map[mty][mtx]
+                hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
+                priority = "tile_hi" if (hi & 0x10) != 0 else "tile_lo"
+                mtm_img = self.ensure_metatile_img(mtidx)
 
-                opt_tm_lbl = self.vram_tilemap_items[ty][tx]
-                if opt_tm_lbl is None:
-                    tm_lbl = self.screen.create_image(
-                        8 * 2 * tx, 8 * 2 * ty, image=tm_img, anchor="nw"
+                opt_mtm_lbl = self.vram_metatile_map_items[mty][mtx]
+                if opt_mtm_lbl is None:
+                    mtm_lbl = self.screen.create_image(
+                        32 * 2 * mtx, 32 * 2 * mty, image=mtm_img, anchor="nw"
                     )
-                    self.vram_tilemap_items[ty][tx] = tm_lbl
+                    self.vram_metatile_map_items[mty][mtx] = mtm_lbl
                 else:
-                    tm_lbl = opt_tm_lbl
-                self.screen.itemconfigure(tm_lbl, image=tm_img, tags=[priority])
+                    mtm_lbl = opt_mtm_lbl
+                self.screen.itemconfigure(mtm_lbl, image=mtm_img, tags=[priority])
 
         # Sprites
         # Make sure we render these backwards!
@@ -514,38 +511,25 @@ class TkApp:
             list(enumerate(self.vram_sprites[0 : self.vram_sprites_used]))
         ):
             if opt_t is not None:
-                tag0, tag1 = opt_t
+                tag0 = opt_t
                 self.screen.moveto(tag0, x * 2, (y + (8 * 0)) * 2)
-                self.screen.moveto(tag1, x * 2, (y + (8 * 1)) * 2)
             else:
                 tag0 = self.screen.create_image(x * 2, (y + (8 * 0)) * 2, anchor="nw")
-                tag1 = self.screen.create_image(x * 2, (y + (8 * 1)) * 2, anchor="nw")
-                self.vram_sprites[si] = (x, y, (tag0, tag1), tdata)
+                self.vram_sprites[si] = (x, y, tag0, tdata)
 
             self.screen.itemconfigure(
                 tag0,
-                image=self.ensure_tile_img(((tdata & 0xFE) + 0) | 0x900),
-                state="normal",
-            )
-            self.screen.itemconfigure(
-                tag1,
-                image=self.ensure_tile_img(((tdata & 0xFE) + 1) | 0x900),
+                image=self.ensure_sprite_img(tdata >> 1),
                 state="normal",
             )
             self.screen.tag_raise(tag0)
-            self.screen.tag_raise(tag1)
 
         # Remove excess
         for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used :]:
             if opt_t is not None:
-                tag0, tag1 = opt_t
+                tag0 = opt_t
                 self.screen.itemconfigure(
                     tag0,
-                    image=None,
-                    state="hidden",
-                )
-                self.screen.itemconfigure(
-                    tag1,
                     image=None,
                     state="hidden",
                 )
@@ -567,11 +551,11 @@ class TkApp:
 
                 x = spr_x + (dx * 8) - (self.cam_mtx * 32)
                 y = spr_y + (dy * 16) - (self.cam_mty * 32)
-                if x >= 8 * self.tm_width:
+                if x >= 8 * (self.mtm_width * 4):
                     continue
                 if x <= -8:
                     continue
-                if y >= 8 * self.tm_height:
+                if y >= 8 * (self.mtm_height * 4):
                     continue
                 if y <= -16:
                     continue
@@ -579,62 +563,87 @@ class TkApp:
                 self.vram_sprites[self.vram_sprites_used] = (x, y, opt_t, tile)
                 self.vram_sprites_used += 1
 
-    def ensure_tile_img(self, tdata: int) -> tkinter.PhotoImage:
-        opt_tm_img = self.vram_tile_images[tdata]
-        if opt_tm_img is None:
-            transparent_positions: list[tuple[int, int]] = []
-            tm_img = tkinter.PhotoImage(width=8 * 2, height=8 * 2)
-            self.vram_tile_images[tdata] = tm_img
+    def ensure_metatile_img(self, mtidx: int) -> tkinter.PhotoImage:
+        opt_mtm_img = self.vram_metatile_images[mtidx]
+        if opt_mtm_img is None:
+            mtm_img = tkinter.PhotoImage(width=32 * 2, height=32 * 2)
+            self.vram_metatile_images[mtidx] = mtm_img
 
             # Draw image
-            outdata: list[list[str]] = []
-            toffs = (tdata & 0x1FF) * 4 * 8
-            xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
-            yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
-            palsel = (tdata >> 11) & 0x1
-            cram = self.cram[palsel * 16 : (palsel + 1) * 16]
-            for y in range(8):
-                outdata.append([])
-                addr = toffs + (4 * (yflip ^ y))
-                planes = self.vram[addr : addr + 4]
-                for x in range(8):
-                    p = 0
-                    p |= ((planes[0] >> (xflip ^ x)) << 0) & (1 << 0)
-                    p |= ((planes[1] >> (xflip ^ x)) << 1) & (1 << 1)
-                    p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
-                    p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
-                    if p == 0:
-                        outdata[-1].append("#000")
-                        transparent_positions.append((x, y))
-                    else:
-                        palv = cram[p]
-                        c = 0
-                        c |= (((palv >> 0) & 0x3) * 0x5) << 8
-                        c |= (((palv >> 2) & 0x3) * 0x5) << 4
-                        c |= (((palv >> 4) & 0x3) * 0x5) << 0
-                        outdata[-1].append(f"#{c:03X}")
-                    outdata[-1].append(outdata[-1][-1])
-                outdata.append(outdata[-1])
-            outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
-            tm_img.put(outstr)
-            for x, y in transparent_positions:
-                for sy in range(y * 2, (y + 1) * 2, 1):
-                    for sx in range(x * 2, (x + 1) * 2, 1):
-                        tm_img.transparency_set(sx, sy, True)
+            for ty in range(4):
+                for tx in range(4):
+                    tdata = self.layout_tilemap[tx + (4 * ty) + (16 * mtidx)] & 0x0FFF
+                    self.blit_tile_to_img(mtm_img, tx * 8, ty * 8, tdata)
 
         else:
-            tm_img = opt_tm_img
+            mtm_img = opt_mtm_img
 
-        return tm_img
+        return mtm_img
+
+    def ensure_sprite_img(self, sprite_idx: int) -> tkinter.PhotoImage:
+        opt_spr_img = self.vram_sprite_images[sprite_idx]
+        if opt_spr_img is None:
+            spr_img = tkinter.PhotoImage(width=8 * 2, height=16 * 2)
+            self.vram_sprite_images[sprite_idx] = spr_img
+
+            # Draw image
+            for ty in range(2):
+                # Set background + bank
+                tdata = (sprite_idx << 1) + 0x0900 + ty
+                self.blit_tile_to_img(spr_img, 0 * 8, ty * 8, tdata)
+
+        else:
+            spr_img = opt_spr_img
+
+        return spr_img
+
+    def blit_tile_to_img(
+        self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
+    ) -> None:
+        transparent_positions: list[tuple[int, int]] = []
+        outdata: list[list[str]] = []
+        toffs = (tdata & 0x1FF) * 4 * 8
+        xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
+        yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
+        palsel = (tdata >> 11) & 0x1
+        cram = self.cram[palsel * 16 : (palsel + 1) * 16]
+        for y in range(8):
+            outdata.append([])
+            addr = toffs + (4 * (yflip ^ y))
+            planes = self.vram[addr : addr + 4]
+            for x in range(8):
+                p = 0
+                p |= ((planes[0] >> (xflip ^ x)) << 0) & (1 << 0)
+                p |= ((planes[1] >> (xflip ^ x)) << 1) & (1 << 1)
+                p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
+                p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
+                if p == 0:
+                    outdata[-1].append("#000")
+                    transparent_positions.append((x, y))
+                else:
+                    palv = cram[p]
+                    c = 0
+                    c |= (((palv >> 0) & 0x3) * 0x5) << 8
+                    c |= (((palv >> 2) & 0x3) * 0x5) << 4
+                    c |= (((palv >> 4) & 0x3) * 0x5) << 0
+                    outdata[-1].append(f"#{c:03X}")
+                outdata[-1].append(outdata[-1][-1])
+            outdata.append(outdata[-1])
+        outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
+        img.put(outstr, to=(px * 2, py * 2))
+        for x, y in transparent_positions:
+            for sy in range(y * 2, (y + 1) * 2, 1):
+                for sx in range(x * 2, (x + 1) * 2, 1):
+                    img.transparency_set(sx + (px * 2), sy + (py * 2), True)
 
     def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
         assert len(data) == vram_len
         assert addr >= 0 and addr + vram_len <= len(self.vram)
         self.vram[addr : addr + vram_len] = data
 
-    def set_vram_tilemap_cell(self, x: int, y: int, v: int) -> None:
-        assert 0x0000 <= v <= 0xFFFF
-        self.vram_tilemap[y][x] = v
+    def set_vram_metatile_map_cell(self, x: int, y: int, v: int) -> None:
+        assert 0x00 <= v <= 0xFF
+        self.vram_metatile_map[y][x] = v
 
 
 if __name__ == "__main__":
