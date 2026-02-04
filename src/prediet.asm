@@ -10384,16 +10384,16 @@ objfunc_02_monitor_speed_shoes:
    ld     hl, $0003                    ; 01:5BE4 - 21 03 00
    ld     (var_D214), hl               ; 01:5BE7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5BEA - CD 56 39
-   jr     c, addr_05BFF                ; 01:5BED - 38 10
+   jr     c, @continue_into_common_main  ; 01:5BED - 38 10
    call   addr_05DEB                   ; 01:5BEF - CD EB 5D
-   jr     c, addr_05BFF                ; 01:5BF2 - 38 0B
+   jr     c, @continue_into_common_main  ; 01:5BF2 - 38 0B
    ld     a, $F0                       ; 01:5BF4 - 3E F0
    ld     (var_D411), a                ; 01:5BF6 - 32 11 D4
    ld     a, $02                       ; 01:5BF9 - 3E 02
    rst    $28                          ; 01:5BFB - EF
    jp     monitor_common_destroy_after_hit  ; 01:5BFC - C3 29 5B
 
-addr_05BFF:
+@continue_into_common_main:
    ld     hl, $5200                    ; 01:5BFF - 21 00 52
    jp     monitor_common_main          ; 01:5C02 - C3 34 5B
 
@@ -10405,17 +10405,17 @@ objfunc_03_monitor_life:
    call   calc_level_offset_HL_and_mask_C  ; 01:5C13 - CD 02 0C
    ld     a, (hl)                      ; 01:5C16 - 7E
    and    c                            ; 01:5C17 - A1
-   jr     z, addr_05C21                ; 01:5C18 - 28 07
+   jr     z, @life_not_consumed_yet    ; 01:5C18 - 28 07
    ld     (ix+0), $FF                  ; 01:5C1A - DD 36 00 FF
    jp     monitor_common_destroy_after_hit  ; 01:5C1E - C3 29 5B
 
-addr_05C21:
+@life_not_consumed_yet:
    ld     hl, $0003                    ; 01:5C21 - 21 03 00
    ld     (var_D214), hl               ; 01:5C24 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5C27 - CD 56 39
-   jr     c, addr_05C5A                ; 01:5C2A - 38 2E
+   jr     c, @check_level_specific_kludges  ; 01:5C2A - 38 2E
    call   addr_05DEB                   ; 01:5C2C - CD EB 5D
-   jr     c, addr_05C5A                ; 01:5C2F - 38 29
+   jr     c, @check_level_specific_kludges  ; 01:5C2F - 38 29
    bit    2, (ix+24)                   ; 01:5C31 - DD CB 18 56
    jp     nz, objfunc_01_monitor_rings@on_hit  ; 01:5C35 - C2 24 5B
    ld     hl, g_lives                  ; 01:5C38 - 21 46 D2
@@ -10437,42 +10437,42 @@ addr_05C21:
    inc    (hl)                         ; 01:5C58 - 34
    ret                                 ; 01:5C59 - C9
 
-addr_05C5A:
+@check_level_specific_kludges:
    ld     a, (g_level)                 ; 01:5C5A - 3A 3E D2
    cp     $04                          ; 01:5C5D - FE 04
-   jr     z, addr_05C73                ; 01:5C5F - 28 12
+   jr     z, @level_kludge_BRI2_bobbing  ; 01:5C5F - 28 12
    cp     $09                          ; 01:5C61 - FE 09
-   jr     z, addr_05C9C                ; 01:5C63 - 28 37
+   jr     z, @level_kludge_LAB1_hidden_ring_monitor  ; 01:5C63 - 28 37
    cp     $0C                          ; 01:5C65 - FE 0C
-   jr     z, addr_05CB8                ; 01:5C67 - 28 4F
+   jr     z, @level_kludge_SCR1_moving_on_conveyor  ; 01:5C67 - 28 4F
    cp     $11                          ; 01:5C69 - FE 11
-   jr     z, addr_05CCA                ; 01:5C6B - 28 5D
+   jr     z, @level_kludge_SKY3_hidden_unless_enough_collected  ; 01:5C6B - 28 5D
 
-addr_05C6D:
+@continue_into_common_main:
    ld     hl, $5280                    ; 01:5C6D - 21 80 52
    jp     monitor_common_main          ; 01:5C70 - C3 34 5B
 
-addr_05C73:
+@level_kludge_BRI2_bobbing:
    ld     c, $00                       ; 01:5C73 - 0E 00
    ld     de, $0040                    ; 01:5C75 - 11 40 00
    ld     a, (ix+19)                   ; 01:5C78 - DD 7E 13
    cp     $3C                          ; 01:5C7B - FE 3C
-   jr     c, addr_05C83                ; 01:5C7D - 38 04
+   jr     c, @BRI2_not_bobbing_upwards  ; 01:5C7D - 38 04
    dec    c                            ; 01:5C7F - 0D
    ld     de, $FFC0                    ; 01:5C80 - 11 C0 FF
 
-addr_05C83:
+@BRI2_not_bobbing_upwards:
    ld     (ix+10), e                   ; 01:5C83 - DD 73 0A
    ld     (ix+11), d                   ; 01:5C86 - DD 72 0B
    ld     (ix+12), c                   ; 01:5C89 - DD 71 0C
    inc    (ix+19)                      ; 01:5C8C - DD 34 13
    ld     a, (ix+19)                   ; 01:5C8F - DD 7E 13
    cp     $50                          ; 01:5C92 - FE 50
-   jr     c, addr_05C6D                ; 01:5C94 - 38 D7
+   jr     c, @continue_into_common_main  ; 01:5C94 - 38 D7
    ld     (ix+19), $28                 ; 01:5C96 - DD 36 13 28
-   jr     addr_05C6D                   ; 01:5C9A - 18 D1
+   jr     @continue_into_common_main   ; 01:5C9A - 18 D1
 
-addr_05C9C:
+@level_kludge_LAB1_hidden_ring_monitor:
    set    2, (ix+24)                   ; 01:5C9C - DD CB 18 D6
    ld     hl, var_D317                 ; 01:5CA0 - 21 17 D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5CA3 - CD 02 0C
@@ -10484,19 +10484,19 @@ addr_05C9C:
    ld     hl, $5280                    ; 01:5CB2 - 21 80 52
    jp     monitor_common_main          ; 01:5CB5 - C3 34 5B
 
-addr_05CB8:
+@level_kludge_SCR1_moving_on_conveyor:
    set    1, (ix+24)                   ; 01:5CB8 - DD CB 18 CE
    ld     (ix+7), $80                  ; 01:5CBC - DD 36 07 80
    ld     (ix+8), $00                  ; 01:5CC0 - DD 36 08 00
    ld     (ix+9), $00                  ; 01:5CC4 - DD 36 09 00
-   jr     addr_05C6D                   ; 01:5CC8 - 18 A3
+   jr     @continue_into_common_main   ; 01:5CC8 - 18 A3
 
-addr_05CCA:
+@level_kludge_SKY3_hidden_unless_enough_collected:
    ld     a, (g_level_lives_collected)  ; 01:5CCA - 3A 80 D2
    cp     $11                          ; 01:5CCD - FE 11
-   jr     nc, addr_05C6D               ; 01:5CCF - 30 9C
+   jr     nc, @continue_into_common_main  ; 01:5CCF - 30 9C
    ld     (ix+0), $FF                  ; 01:5CD1 - DD 36 00 FF
-   jr     addr_05C6D                   ; 01:5CD5 - 18 96
+   jr     @continue_into_common_main   ; 01:5CD5 - 18 96
 
 objfunc_04_monitor_shield:
    ld     (ix+13), $14                 ; 01:5CD7 - DD 36 0D 14
@@ -10505,13 +10505,13 @@ objfunc_04_monitor_shield:
    ld     hl, $0003                    ; 01:5CE2 - 21 03 00
    ld     (var_D214), hl               ; 01:5CE5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5CE8 - CD 56 39
-   jr     c, addr_05CF9                ; 01:5CEB - 38 0C
+   jr     c, @continue_into_common_main  ; 01:5CEB - 38 0C
    call   addr_05DEB                   ; 01:5CED - CD EB 5D
-   jr     c, addr_05CF9                ; 01:5CF0 - 38 07
+   jr     c, @continue_into_common_main  ; 01:5CF0 - 38 07
    set    5, (iy+var_D206-IYBASE)      ; 01:5CF2 - FD CB 06 EE
    jp     monitor_common_destroy_after_hit  ; 01:5CF6 - C3 29 5B
 
-addr_05CF9:
+@continue_into_common_main:
    ld     hl, $5300                    ; 01:5CF9 - 21 00 53
    jp     monitor_common_main          ; 01:5CFC - C3 34 5B
 
@@ -10522,9 +10522,9 @@ objfunc_05_monitor_invincibility:
    ld     hl, $0003                    ; 01:5D0A - 21 03 00
    ld     (var_D214), hl               ; 01:5D0D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D10 - CD 56 39
-   jr     c, addr_05D29                ; 01:5D13 - 38 14
+   jr     c, @continue_into_common_main  ; 01:5D13 - 38 14
    call   addr_05DEB                   ; 01:5D15 - CD EB 5D
-   jr     c, addr_05D29                ; 01:5D18 - 38 0F
+   jr     c, @continue_into_common_main  ; 01:5D18 - 38 0F
    set    0, (iy+var_D208-IYBASE)      ; 01:5D1A - FD CB 08 C6
    ld     a, $F0                       ; 01:5D1E - 3E F0
    ld     (var_D28D), a                ; 01:5D20 - 32 8D D2
@@ -10532,7 +10532,7 @@ objfunc_05_monitor_invincibility:
    rst    $18                          ; 01:5D25 - DF
    jp     monitor_common_destroy_after_hit  ; 01:5D26 - C3 29 5B
 
-addr_05D29:
+@continue_into_common_main:
    ld     hl, $5380                    ; 01:5D29 - 21 80 53
    jp     monitor_common_main          ; 01:5D2C - C3 34 5B
 
@@ -10543,9 +10543,9 @@ objfunc_51_monitor_checkpoint:
    ld     hl, $0003                    ; 01:5D3A - 21 03 00
    ld     (var_D214), hl               ; 01:5D3D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D40 - CD 56 39
-   jr     c, addr_05D7A                ; 01:5D43 - 38 35
+   jr     c, @continue_into_common_main  ; 01:5D43 - 38 35
    call   addr_05DEB                   ; 01:5D45 - CD EB 5D
-   jr     c, addr_05D7A                ; 01:5D48 - 38 30
+   jr     c, @continue_into_common_main  ; 01:5D48 - 38 30
    ld     hl, g_level_has_checkpoint_mask  ; 01:5D4A - 21 11 D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5D4D - CD 02 0C
    ld     a, (hl)                      ; 01:5D50 - 7E
@@ -10576,7 +10576,7 @@ objfunc_51_monitor_checkpoint:
    ld     (de), a                      ; 01:5D76 - 12
    jp     monitor_common_destroy_after_hit  ; 01:5D77 - C3 29 5B
 
-addr_05D7A:
+@continue_into_common_main:
    ld     hl, $5480                    ; 01:5D7A - 21 80 54
    jp     monitor_common_main          ; 01:5D7D - C3 34 5B
 
@@ -10587,13 +10587,13 @@ objfunc_52_monitor_continue:
    ld     hl, $0003                    ; 01:5D8B - 21 03 00
    ld     (var_D214), hl               ; 01:5D8E - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D91 - CD 56 39
-   jr     c, addr_05DA2                ; 01:5D94 - 38 0C
+   jr     c, @continue_into_common_main  ; 01:5D94 - 38 0C
    call   addr_05DEB                   ; 01:5D96 - CD EB 5D
-   jr     c, addr_05DA2                ; 01:5D99 - 38 07
+   jr     c, @continue_into_common_main  ; 01:5D99 - 38 07
    set    3, (iy+var_D209-IYBASE)      ; 01:5D9B - FD CB 09 DE
    jp     monitor_common_destroy_after_hit  ; 01:5D9F - C3 29 5B
 
-addr_05DA2:
+@continue_into_common_main:
    ld     hl, $5500                    ; 01:5DA2 - 21 00 55
    jp     monitor_common_main          ; 01:5DA5 - C3 34 5B
 
