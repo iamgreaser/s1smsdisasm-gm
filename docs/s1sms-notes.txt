@@ -90,6 +90,11 @@ In-memory object structure:
 For some things (incl. objfunc $12 GHZ boss), (IX+$14).w is a pointer to... something. TODO: Find out what! --GM
 
 (IX+$18).b is a bit field:
+   For everything:
+      b5 = 1 if we are to ignore tile collisions.
+      b6 = 1 if on our previous tick we did a horizontal tile collision.
+      b7 = 1 if on our previous tick we collided with the floor.
+
    For $03 life monitors:
       b2 = 1 if this is to behave like a ring monitor (for LAB1)
 

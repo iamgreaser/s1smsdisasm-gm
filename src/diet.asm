@@ -3126,7 +3126,7 @@ addr_00C18:
    ; At parity.
    ret                                 ; 00:0C1C - C9
 
-UNK_00C1D:
+write_partial_monitor_art:
    di                                  ; 00:0C1D - F3
    ld     a, $05                       ; 00:0C1E - 3E 05
    ld     (rompage_1), a               ; 00:0C20 - 32 FE FF
@@ -8660,7 +8660,7 @@ draw_sprite_string:
    jr     nz, @each_row                ; 00:357E - 20 9A
    ret                                 ; 00:3580 - C9
 
-UNK_03581:
+draw_sprite:
    ld     hl, (var_D210)               ; 00:3581 - 2A 10 D2
    ld     bc, (var_D214)               ; 00:3584 - ED 4B 14 D2
    add    hl, bc                       ; 00:3588 - 09
@@ -8680,20 +8680,20 @@ UNK_03581:
    ret    nz                           ; 00:35A3 - C0
    ld     a, d                         ; 00:35A4 - 7A
    cp     $FF                          ; 00:35A5 - FE FF
-   jr     nz, +                        ; 00:35A7 - 20 07
+   jr     nz, @consider_left_side_culling  ; 00:35A7 - 20 07
    ld     a, e                         ; 00:35A9 - 7B
    cp     $F0                          ; 00:35AA - FE F0
    ret    c                            ; 00:35AC - D8
-   jp     ++                           ; 00:35AD - C3 B6 35
+   jp     @draw_it                     ; 00:35AD - C3 B6 35
 
-+:
+@consider_left_side_culling:
    and    a                            ; 00:35B0 - A7
    ret    nz                           ; 00:35B1 - C0
    ld     a, e                         ; 00:35B2 - 7B
    cp     $C0                          ; 00:35B3 - FE C0
    ret    nc                           ; 00:35B5 - D0
 
-++:
+@draw_it:
    ld     h, c                         ; 00:35B6 - 61
    ld     bc, (var_D23C)               ; 00:35B7 - ED 4B 3C D2
    ld     a, l                         ; 00:35BB - 7D
@@ -10714,7 +10714,7 @@ addr_04E51:
    cp     $03                          ; 01:4E6D - FE 03
    jr     c, addr_04E82                ; 01:4E6F - 38 11
    ld     a, $B2                       ; 01:4E71 - 3E B2
-   call   UNK_03581                    ; 01:4E73 - CD 81 35
+   call   draw_sprite                  ; 01:4E73 - CD 81 35
    ld     hl, $0008                    ; 01:4E76 - 21 08 00
    ld     (var_D212), hl               ; 01:4E79 - 22 12 D2
    ld     hl, $0002                    ; 01:4E7C - 21 02 00
@@ -10722,7 +10722,7 @@ addr_04E51:
 
 addr_04E82:
    ld     a, $5A                       ; 01:4E82 - 3E 5A
-   call   UNK_03581                    ; 01:4E84 - CD 81 35
+   call   draw_sprite                  ; 01:4E84 - CD 81 35
    ret                                 ; 01:4E87 - C9
 
 addr_04E88:
@@ -10753,7 +10753,7 @@ addr_04EA6:
    ld     a, $96                       ; 01:4EB6 - 3E 96
 
 addr_04EB8:
-   call   UNK_03581                    ; 01:4EB8 - CD 81 35
+   call   draw_sprite                  ; 01:4EB8 - CD 81 35
    ld     a, (var_D223)                ; 01:4EBB - 3A 23 D2
    ld     c, a                         ; 01:4EBE - 4F
    and    $07                          ; 01:4EBF - E6 07
@@ -12344,33 +12344,33 @@ objfunc_01_monitor_rings:
    ld     hl, $0003                    ; 01:5B14 - 21 03 00
    ld     (var_D214), hl               ; 01:5B17 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5B1A - CD 56 39
-   jr     c, addr_05B31                ; 01:5B1D - 38 12
+   jr     c, monitor_common_set_art_and_go_to_main  ; 01:5B1D - 38 12
    call   addr_05DEB                   ; 01:5B1F - CD EB 5D
-   jr     c, addr_05B31                ; 01:5B22 - 38 0D
+   jr     c, monitor_common_set_art_and_go_to_main  ; 01:5B22 - 38 0D
 
-addr_05B24:
+objfunc_01_monitor_rings@on_hit:
    ld     a, $10                       ; 01:5B24 - 3E 10
    call   add_A_rings                  ; 01:5B26 - CD AC 39
 
-addr_05B29:
+monitor_common_destroy_after_hit:
    xor    a                            ; 01:5B29 - AF
    ld     (ix+15), a                   ; 01:5B2A - DD 77 0F
    ld     (ix+16), a                   ; 01:5B2D - DD 77 10
    ret                                 ; 01:5B30 - C9
 
-addr_05B31:
+monitor_common_set_art_and_go_to_main:
    ld     hl, $5180                    ; 01:5B31 - 21 80 51
 
-addr_05B34:
-   call   UNK_00C1D                    ; 01:5B34 - CD 1D 0C
-   ld     (ix+15), UNK_05BBF&$FF       ; 01:5B37 - DD 36 0F BF
-   ld     (ix+16), UNK_05BBF>>8        ; 01:5B3B - DD 36 10 5B
+monitor_common_main:
+   call   write_partial_monitor_art    ; 01:5B34 - CD 1D 0C
+   ld     (ix+15), SPRITEMAP_monitor_noise&$FF  ; 01:5B37 - DD 36 0F BF
+   ld     (ix+16), SPRITEMAP_monitor_noise>>8  ; 01:5B3B - DD 36 10 5B
    ld     a, (var_D223)                ; 01:5B3F - 3A 23 D2
    and    $07                          ; 01:5B42 - E6 07
    cp     $05                          ; 01:5B44 - FE 05
    ret    nc                           ; 01:5B46 - D0
-   ld     (ix+15), UNK_05BCC&$FF       ; 01:5B47 - DD 36 0F CC
-   ld     (ix+16), UNK_05BCC>>8        ; 01:5B4B - DD 36 10 5B
+   ld     (ix+15), SPRITEMAP_monitor_unnoisy_surrounds&$FF  ; 01:5B47 - DD 36 0F CC
+   ld     (ix+16), SPRITEMAP_monitor_unnoisy_surrounds>>8  ; 01:5B4B - DD 36 10 5B
    ld     l, (ix+1)                    ; 01:5B4F - DD 6E 01
    ld     h, (ix+2)                    ; 01:5B52 - DD 66 02
    ld     a, (ix+3)                    ; 01:5B55 - DD 7E 03
@@ -12385,13 +12385,13 @@ addr_05B34:
    ld     h, (ix+5)                    ; 01:5B6A - DD 66 05
    ld     a, (ix+6)                    ; 01:5B6D - DD 7E 06
    bit    7, (ix+24)                   ; 01:5B70 - DD CB 18 7E
-   jr     nz, addr_05B80               ; 01:5B74 - 20 0A
+   jr     nz, @skip_apply_gravity      ; 01:5B74 - 20 0A
    ld     e, (ix+10)                   ; 01:5B76 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:5B79 - DD 56 0B
    add    hl, de                       ; 01:5B7C - 19
    adc    a, (ix+12)                   ; 01:5B7D - DD 8E 0C
 
-addr_05B80:
+@skip_apply_gravity:
    ld     l, h                         ; 01:5B80 - 6C
    ld     h, a                         ; 01:5B81 - 67
    ld     (var_D210), hl               ; 01:5B82 - 22 10 D2
@@ -12400,11 +12400,11 @@ addr_05B80:
    ld     hl, $0000                    ; 01:5B8B - 21 00 00
    ld     (var_D214), hl               ; 01:5B8E - 22 14 D2
    ld     a, $5C                       ; 01:5B91 - 3E 5C
-   call   UNK_03581                    ; 01:5B93 - CD 81 35
+   call   draw_sprite                  ; 01:5B93 - CD 81 35
    ld     hl, $000C                    ; 01:5B96 - 21 0C 00
    ld     (var_D212), hl               ; 01:5B99 - 22 12 D2
    ld     a, $5E                       ; 01:5B9C - 3E 5E
-   call   UNK_03581                    ; 01:5B9E - CD 81 35
+   call   draw_sprite                  ; 01:5B9E - CD 81 35
    bit    1, (ix+24)                   ; 01:5BA1 - DD CB 18 4E
    ret    z                            ; 01:5BA5 - C8
    ld     l, (ix+10)                   ; 01:5BA6 - DD 6E 0A
@@ -12418,10 +12418,10 @@ addr_05B80:
    ld     (ix+12), a                   ; 01:5BBB - DD 77 0C
    ret                                 ; 01:5BBE - C9
 
-UNK_05BBF:
+SPRITEMAP_monitor_noise:
 .db $54, $56, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                 ; 01:5BBF
 
-UNK_05BCC:
+SPRITEMAP_monitor_unnoisy_surrounds:
 .db $54, $FE, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                 ; 01:5BCC
 
 objfunc_02_monitor_speed_shoes:
@@ -12438,11 +12438,11 @@ objfunc_02_monitor_speed_shoes:
    ld     (var_D411), a                ; 01:5BF6 - 32 11 D4
    ld     a, $02                       ; 01:5BF9 - 3E 02
    rst    $28                          ; 01:5BFB - EF
-   jp     addr_05B29                   ; 01:5BFC - C3 29 5B
+   jp     monitor_common_destroy_after_hit  ; 01:5BFC - C3 29 5B
 
 addr_05BFF:
    ld     hl, $5200                    ; 01:5BFF - 21 00 52
-   jp     addr_05B34                   ; 01:5C02 - C3 34 5B
+   jp     monitor_common_main          ; 01:5C02 - C3 34 5B
 
 objfunc_03_monitor_life:
    ld     (ix+13), $14                 ; 01:5C05 - DD 36 0D 14
@@ -12454,7 +12454,7 @@ objfunc_03_monitor_life:
    and    c                            ; 01:5C17 - A1
    jr     z, addr_05C21                ; 01:5C18 - 28 07
    ld     (ix+0), $FF                  ; 01:5C1A - DD 36 00 FF
-   jp     addr_05B29                   ; 01:5C1E - C3 29 5B
+   jp     monitor_common_destroy_after_hit  ; 01:5C1E - C3 29 5B
 
 addr_05C21:
    ld     hl, $0003                    ; 01:5C21 - 21 03 00
@@ -12464,7 +12464,7 @@ addr_05C21:
    call   addr_05DEB                   ; 01:5C2C - CD EB 5D
    jr     c, addr_05C5A                ; 01:5C2F - 38 29
    bit    2, (ix+24)                   ; 01:5C31 - DD CB 18 56
-   jp     nz, addr_05B24               ; 01:5C35 - C2 24 5B
+   jp     nz, objfunc_01_monitor_rings@on_hit  ; 01:5C35 - C2 24 5B
    ld     hl, g_lives                  ; 01:5C38 - 21 46 D2
    inc    (hl)                         ; 01:5C3B - 34
    ld     hl, g_level_lives_collected_mask  ; 01:5C3C - 21 05 D3
@@ -12497,7 +12497,7 @@ addr_05C5A:
 
 addr_05C6D:
    ld     hl, $5280                    ; 01:5C6D - 21 80 52
-   jp     addr_05B34                   ; 01:5C70 - C3 34 5B
+   jp     monitor_common_main          ; 01:5C70 - C3 34 5B
 
 addr_05C73:
    ld     c, $00                       ; 01:5C73 - 0E 00
@@ -12526,10 +12526,10 @@ addr_05C9C:
    ld     a, (hl)                      ; 01:5CA6 - 7E
    ld     hl, $5180                    ; 01:5CA7 - 21 80 51
    and    c                            ; 01:5CAA - A1
-   jp     z, addr_05B34                ; 01:5CAB - CA 34 5B
+   jp     z, monitor_common_main       ; 01:5CAB - CA 34 5B
    res    2, (ix+24)                   ; 01:5CAE - DD CB 18 96
    ld     hl, $5280                    ; 01:5CB2 - 21 80 52
-   jp     addr_05B34                   ; 01:5CB5 - C3 34 5B
+   jp     monitor_common_main          ; 01:5CB5 - C3 34 5B
 
 addr_05CB8:
    set    1, (ix+24)                   ; 01:5CB8 - DD CB 18 CE
@@ -12556,11 +12556,11 @@ objfunc_04_monitor_shield:
    call   addr_05DEB                   ; 01:5CED - CD EB 5D
    jr     c, addr_05CF9                ; 01:5CF0 - 38 07
    set    5, (iy+var_D206-IYBASE)      ; 01:5CF2 - FD CB 06 EE
-   jp     addr_05B29                   ; 01:5CF6 - C3 29 5B
+   jp     monitor_common_destroy_after_hit  ; 01:5CF6 - C3 29 5B
 
 addr_05CF9:
    ld     hl, $5300                    ; 01:5CF9 - 21 00 53
-   jp     addr_05B34                   ; 01:5CFC - C3 34 5B
+   jp     monitor_common_main          ; 01:5CFC - C3 34 5B
 
 objfunc_05_monitor_invincibility:
    ld     (ix+13), $14                 ; 01:5CFF - DD 36 0D 14
@@ -12577,11 +12577,11 @@ objfunc_05_monitor_invincibility:
    ld     (var_D28D), a                ; 01:5D20 - 32 8D D2
    ld     a, $08                       ; 01:5D23 - 3E 08
    rst    $18                          ; 01:5D25 - DF
-   jp     addr_05B29                   ; 01:5D26 - C3 29 5B
+   jp     monitor_common_destroy_after_hit  ; 01:5D26 - C3 29 5B
 
 addr_05D29:
    ld     hl, $5380                    ; 01:5D29 - 21 80 53
-   jp     addr_05B34                   ; 01:5D2C - C3 34 5B
+   jp     monitor_common_main          ; 01:5D2C - C3 34 5B
 
 objfunc_51_monitor_checkpoint:
    ld     (ix+13), $14                 ; 01:5D2F - DD 36 0D 14
@@ -12621,11 +12621,11 @@ objfunc_51_monitor_checkpoint:
    ld     a, h                         ; 01:5D74 - 7C
    dec    a                            ; 01:5D75 - 3D
    ld     (de), a                      ; 01:5D76 - 12
-   jp     addr_05B29                   ; 01:5D77 - C3 29 5B
+   jp     monitor_common_destroy_after_hit  ; 01:5D77 - C3 29 5B
 
 addr_05D7A:
    ld     hl, $5480                    ; 01:5D7A - 21 80 54
-   jp     addr_05B34                   ; 01:5D7D - C3 34 5B
+   jp     monitor_common_main          ; 01:5D7D - C3 34 5B
 
 objfunc_52_monitor_continue:
    ld     (ix+13), $14                 ; 01:5D80 - DD 36 0D 14
@@ -12638,11 +12638,11 @@ objfunc_52_monitor_continue:
    call   addr_05DEB                   ; 01:5D96 - CD EB 5D
    jr     c, addr_05DA2                ; 01:5D99 - 38 07
    set    3, (iy+var_D209-IYBASE)      ; 01:5D9B - FD CB 09 DE
-   jp     addr_05B29                   ; 01:5D9F - C3 29 5B
+   jp     monitor_common_destroy_after_hit  ; 01:5D9F - C3 29 5B
 
 addr_05DA2:
    ld     hl, $5500                    ; 01:5DA2 - 21 00 55
-   jp     addr_05B34                   ; 01:5DA5 - C3 34 5B
+   jp     monitor_common_main          ; 01:5DA5 - C3 34 5B
 
 addr_05DA8:
    bit    0, (ix+24)                   ; 01:5DA8 - DD CB 18 46
@@ -12820,7 +12820,7 @@ addr_05EF1:
    ld     (ix+11), h                   ; 01:5F03 - DD 74 0B
    ld     (ix+12), a                   ; 01:5F06 - DD 77 0C
    ld     hl, $5400                    ; 01:5F09 - 21 00 54
-   call   UNK_00C1D                    ; 01:5F0C - CD 1D 0C
+   call   write_partial_monitor_art    ; 01:5F0C - CD 1D 0C
    ret                                 ; 01:5F0F - C9
 
 UNK_05F10:
@@ -13686,7 +13686,7 @@ addr_06B26:
    ld     d, $00                       ; 01:6B2C - 16 00
    add    hl, de                       ; 01:6B2E - 19
    ld     a, (hl)                      ; 01:6B2F - 7E
-   call   UNK_03581                    ; 01:6B30 - CD 81 35
+   call   draw_sprite                  ; 01:6B30 - CD 81 35
    ld     c, (ix+2)                    ; 01:6B33 - DD 4E 02
    ld     b, (ix+3)                    ; 01:6B36 - DD 46 03
    ld     l, c                         ; 01:6B39 - 69
@@ -15172,7 +15172,7 @@ addr_07A2E:
    ld     (var_D212), hl               ; 01:7A2E - 22 12 D2
    ld     (var_D214), de               ; 01:7A31 - ED 53 14 D2
    add    a, c                         ; 01:7A35 - 81
-   call   UNK_03581                    ; 01:7A36 - CD 81 35
+   call   draw_sprite                  ; 01:7A36 - CD 81 35
    ret                                 ; 01:7A39 - C9
 
 addr_07A3A:
@@ -16739,7 +16739,7 @@ addr_0881A:
    and    a                            ; 02:881B - A7
    ret    m                            ; 02:881C - F8
    push   hl                           ; 02:881D - E5
-   call   UNK_03581                    ; 02:881E - CD 81 35
+   call   draw_sprite                  ; 02:881E - CD 81 35
    ld     hl, (var_D212)               ; 02:8821 - 2A 12 D2
    ld     de, $0008                    ; 02:8824 - 11 08 00
    add    hl, de                       ; 02:8827 - 19
@@ -16982,7 +16982,7 @@ addr_08B7F:
    push   hl                           ; 02:8B88 - E5
    ld     d, $00                       ; 02:8B89 - 16 00
    ld     (var_D214), de               ; 02:8B8B - ED 53 14 D2
-   call   UNK_03581                    ; 02:8B8F - CD 81 35
+   call   draw_sprite                  ; 02:8B8F - CD 81 35
    pop    hl                           ; 02:8B92 - E1
 
 addr_08B93:
@@ -17237,13 +17237,13 @@ addr_08DE5:
    ld     h, $00                       ; 02:8DF0 - 26 00
    ld     (var_D212), hl               ; 02:8DF2 - 22 12 D2
    ld     a, $00                       ; 02:8DF5 - 3E 00
-   call   UNK_03581                    ; 02:8DF7 - CD 81 35
+   call   draw_sprite                  ; 02:8DF7 - CD 81 35
    ld     hl, (var_D212)               ; 02:8DFA - 2A 12 D2
    ld     de, $0008                    ; 02:8DFD - 11 08 00
    add    hl, de                       ; 02:8E00 - 19
    ld     (var_D212), hl               ; 02:8E01 - 22 12 D2
    ld     a, $02                       ; 02:8E04 - 3E 02
-   call   UNK_03581                    ; 02:8E06 - CD 81 35
+   call   draw_sprite                  ; 02:8E06 - CD 81 35
    pop    hl                           ; 02:8E09 - E1
    pop    bc                           ; 02:8E0A - C1
    djnz   addr_08DE5                   ; 02:8E0B - 10 D8
@@ -17292,7 +17292,7 @@ addr_08E72:
    ld     e, (hl)                      ; 02:8E95 - 5E
    ld     (var_D214), de               ; 02:8E96 - ED 53 14 D2
    ld     a, $0C                       ; 02:8E9A - 3E 0C
-   call   UNK_03581                    ; 02:8E9C - CD 81 35
+   call   draw_sprite                  ; 02:8E9C - CD 81 35
    inc    (ix+18)                      ; 02:8E9F - DD 34 12
    ld     a, (var_D223)                ; 02:8EA2 - 3A 23 D2
    and    $07                          ; 02:8EA5 - E6 07
@@ -17385,7 +17385,7 @@ addr_08F5A:
    ld     (var_D212), hl               ; 02:8F5D - 22 12 D2
    ld     (var_D214), hl               ; 02:8F60 - 22 14 D2
    ld     a, $0C                       ; 02:8F63 - 3E 0C
-   call   UNK_03581                    ; 02:8F65 - CD 81 35
+   call   draw_sprite                  ; 02:8F65 - CD 81 35
    inc    (ix+17)                      ; 02:8F68 - DD 34 11
    ret                                 ; 02:8F6B - C9
 
@@ -17899,7 +17899,7 @@ addr_093F7:
    ld     (var_D214), hl               ; 02:9426 - 22 14 D2
    ld     a, (var_D223)                ; 02:9429 - 3A 23 D2
    and    $02                          ; 02:942C - E6 02
-   call   UNK_03581                    ; 02:942E - CD 81 35
+   call   draw_sprite                  ; 02:942E - CD 81 35
    ret                                 ; 02:9431 - C9
 
 addr_09432:
@@ -18215,7 +18215,7 @@ objfunc_2A_UNKNOWN:
    ld     hl, UNK_096F5                ; 02:96D2 - 21 F5 96
    add    hl, de                       ; 02:96D5 - 19
    ld     a, (hl)                      ; 02:96D6 - 7E
-   call   UNK_03581                    ; 02:96D7 - CD 81 35
+   call   draw_sprite                  ; 02:96D7 - CD 81 35
    inc    (ix+17)                      ; 02:96DA - DD 34 11
    ld     a, (ix+17)                   ; 02:96DD - DD 7E 11
    cp     $0C                          ; 02:96E0 - FE 0C
@@ -18269,7 +18269,7 @@ objfunc_20_UNKNOWN:
 
 addr_0974B:
    ld     a, $40                       ; 02:974B - 3E 40
-   call   UNK_03581                    ; 02:974D - CD 81 35
+   call   draw_sprite                  ; 02:974D - CD 81 35
    ld     hl, (var_D212)               ; 02:9750 - 2A 12 D2
    ld     de, $0008                    ; 02:9753 - 11 08 00
    add    hl, de                       ; 02:9756 - 19
@@ -18277,7 +18277,7 @@ addr_0974B:
    ld     a, $42                       ; 02:975A - 3E 42
 
 addr_0975C:
-   call   UNK_03581                    ; 02:975C - CD 81 35
+   call   draw_sprite                  ; 02:975C - CD 81 35
    ld     a, (var_D2DE)                ; 02:975F - 3A DE D2
    add    a, $06                       ; 02:9762 - C6 06
    ld     (var_D2DE), a                ; 02:9764 - 32 DE D2
@@ -18882,7 +18882,7 @@ addr_09D11:
    ld     d, $00                       ; 02:9D16 - 16 00
    push   hl                           ; 02:9D18 - E5
    ld     (var_D214), de               ; 02:9D19 - ED 53 14 D2
-   call   UNK_03581                    ; 02:9D1D - CD 81 35
+   call   draw_sprite                  ; 02:9D1D - CD 81 35
    pop    hl                           ; 02:9D20 - E1
    pop    bc                           ; 02:9D21 - C1
    djnz   addr_09D11                   ; 02:9D22 - 10 ED
@@ -19824,7 +19824,7 @@ addr_0A688:
    ld     l, (ix+19)                   ; 02:A690 - DD 6E 13
    ld     h, (ix+20)                   ; 02:A693 - DD 66 14
    ld     (var_D214), hl               ; 02:A696 - 22 14 D2
-   call   UNK_03581                    ; 02:A699 - CD 81 35
+   call   draw_sprite                  ; 02:A699 - CD 81 35
    pop    hl                           ; 02:A69C - E1
    ld     de, $0016                    ; 02:A69D - 11 16 00
    add    hl, de                       ; 02:A6A0 - 19
@@ -19837,7 +19837,7 @@ addr_0A6A2:
    ld     (var_D212), de               ; 02:A6A6 - ED 53 12 D2
    ld     hl, $0000                    ; 02:A6AA - 21 00 00
    ld     (var_D214), hl               ; 02:A6AD - 22 14 D2
-   call   UNK_03581                    ; 02:A6B0 - CD 81 35
+   call   draw_sprite                  ; 02:A6B0 - CD 81 35
    pop    hl                           ; 02:A6B3 - E1
    ld     de, $0016                    ; 02:A6B4 - 11 16 00
    add    hl, de                       ; 02:A6B7 - 19
@@ -20201,7 +20201,7 @@ addr_0AAC0:
    and    a                            ; 02:AAD1 - A7
    jp     m, addr_0AADA                ; 02:AAD2 - FA DA AA
    push   de                           ; 02:AAD5 - D5
-   call   UNK_03581                    ; 02:AAD6 - CD 81 35
+   call   draw_sprite                  ; 02:AAD6 - CD 81 35
    pop    de                           ; 02:AAD9 - D1
 
 addr_0AADA:
@@ -20624,7 +20624,7 @@ addr_0AF2E:
    ld     e, (hl)                      ; 02:AF45 - 5E
    ld     (var_D214), de               ; 02:AF46 - ED 53 14 D2
    ld     a, $24                       ; 02:AF4A - 3E 24
-   call   UNK_03581                    ; 02:AF4C - CD 81 35
+   call   draw_sprite                  ; 02:AF4C - CD 81 35
    pop    hl                           ; 02:AF4F - E1
    ld     a, (hl)                      ; 02:AF50 - 7E
    inc    a                            ; 02:AF51 - 3C
@@ -20818,7 +20818,7 @@ objfunc_36_UNKNOWN:
    ld     (var_D212), hl               ; 02:B15B - 22 12 D2
    ld     (var_D214), hl               ; 02:B15E - 22 14 D2
    ld     a, $24                       ; 02:B161 - 3E 24
-   call   UNK_03581                    ; 02:B163 - CD 81 35
+   call   draw_sprite                  ; 02:B163 - CD 81 35
    ret                                 ; 02:B166 - C9
 
 addr_0B167:
@@ -20879,7 +20879,7 @@ addr_0B1C3:
    cp     $FF                          ; 02:B1CB - FE FF
    jr     z, addr_0B1D4                ; 02:B1CD - 28 05
    push   hl                           ; 02:B1CF - E5
-   call   UNK_03581                    ; 02:B1D0 - CD 81 35
+   call   draw_sprite                  ; 02:B1D0 - CD 81 35
    pop    hl                           ; 02:B1D3 - E1
 
 addr_0B1D4:
@@ -21029,7 +21029,7 @@ addr_0B34C:
    cp     $FF                          ; 02:B357 - FE FF
    jr     z, addr_0B360                ; 02:B359 - 28 05
    push   hl                           ; 02:B35B - E5
-   call   UNK_03581                    ; 02:B35C - CD 81 35
+   call   draw_sprite                  ; 02:B35C - CD 81 35
    pop    hl                           ; 02:B35F - E1
 
 addr_0B360:
@@ -21087,11 +21087,11 @@ addr_0B3B2:
    ld     hl, $FFF0                    ; 02:B3F1 - 21 F0 FF
    ld     (var_D214), hl               ; 02:B3F4 - 22 14 D2
    ld     a, $16                       ; 02:B3F7 - 3E 16
-   call   UNK_03581                    ; 02:B3F9 - CD 81 35
+   call   draw_sprite                  ; 02:B3F9 - CD 81 35
    ld     hl, $0008                    ; 02:B3FC - 21 08 00
    ld     (var_D212), hl               ; 02:B3FF - 22 12 D2
    ld     a, $18                       ; 02:B402 - 3E 18
-   call   UNK_03581                    ; 02:B404 - CD 81 35
+   call   draw_sprite                  ; 02:B404 - CD 81 35
    ld     l, (ix+2)                    ; 02:B407 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B40A - DD 66 03
    ld     de, $0580                    ; 02:B40D - 11 80 05
@@ -21518,14 +21518,14 @@ addr_0B79F:
    ld     a, (hl)                      ; 02:B7B2 - 7E
    inc    hl                           ; 02:B7B3 - 23
    push   hl                           ; 02:B7B4 - E5
-   call   UNK_03581                    ; 02:B7B5 - CD 81 35
+   call   draw_sprite                  ; 02:B7B5 - CD 81 35
    ld     hl, (var_D212)               ; 02:B7B8 - 2A 12 D2
    ld     de, $0008                    ; 02:B7BB - 11 08 00
    add    hl, de                       ; 02:B7BE - 19
    ld     (var_D212), hl               ; 02:B7BF - 22 12 D2
    pop    hl                           ; 02:B7C2 - E1
    ld     a, (hl)                      ; 02:B7C3 - 7E
-   call   UNK_03581                    ; 02:B7C4 - CD 81 35
+   call   draw_sprite                  ; 02:B7C4 - CD 81 35
    ld     a, (var_D2EC)                ; 02:B7C7 - 3A EC D2
    cp     $0C                          ; 02:B7CA - FE 0C
    ret    c                            ; 02:B7CC - D8
@@ -22026,7 +22026,7 @@ addr_0BCA5:
    ld     a, (hl)                      ; 02:BCA9 - 7E
    inc    hl                           ; 02:BCAA - 23
    push   hl                           ; 02:BCAB - E5
-   call   UNK_03581                    ; 02:BCAC - CD 81 35
+   call   draw_sprite                  ; 02:BCAC - CD 81 35
    pop    hl                           ; 02:BCAF - E1
    ld     a, (hl)                      ; 02:BCB0 - 7E
    inc    hl                           ; 02:BCB1 - 23
@@ -22036,7 +22036,7 @@ addr_0BCA5:
    ld     de, $0008                    ; 02:BCB7 - 11 08 00
    add    hl, de                       ; 02:BCBA - 19
    ld     (var_D212), hl               ; 02:BCBB - 22 12 D2
-   call   UNK_03581                    ; 02:BCBE - CD 81 35
+   call   draw_sprite                  ; 02:BCBE - CD 81 35
    pop    hl                           ; 02:BCC1 - E1
    ld     (var_D212), hl               ; 02:BCC2 - 22 12 D2
    pop    hl                           ; 02:BCC5 - E1
@@ -22309,7 +22309,7 @@ UNK_0BF33:
 objfunc_54_UNKNOWN:
    set    5, (ix+24)                   ; 02:BF4C - DD CB 18 EE
    ld     hl, $5400                    ; 02:BF50 - 21 00 54
-   call   UNK_00C1D                    ; 02:BF53 - CD 1D 0C
+   call   write_partial_monitor_art    ; 02:BF53 - CD 1D 0C
    bit    0, (ix+24)                   ; 02:BF56 - DD CB 18 46
    jr     nz, addr_0BF7E               ; 02:BF5A - 20 22
    xor    a                            ; 02:BF5C - AF
