@@ -84,8 +84,7 @@ class TkApp:
 
             # v = (v + 0x200) & ~0x600  # force vflip
             v = (v + 0x600) & ~0x600  # force second palette
-            self.vram[0x3800 + (i * 2) + 0] = v & 0xFF
-            self.vram[0x3800 + (i * 2) + 1] = v >> 8
+            self.set_vram(0x3800 + (i * 2), 2, struct.pack("<H", v))
 
         # One variant for each:
         # +1 = hflip
@@ -202,7 +201,7 @@ class TkApp:
                         use_ri = ((use_ri - 0xF0) << 8) + offsets[oi]
                         oi += 1
                     use_ri *= 4
-                self.vram[vi : vi + 4] = rows[use_ri : use_ri + 4]
+                self.set_vram(vi, 4, rows[use_ri : use_ri + 4])
                 vi += 4
 
         assert oi == len(offsets), "extra junk after offsets"
@@ -241,9 +240,8 @@ class TkApp:
         data = file_path.open("rb").read()
         assert len(data) == 288
         for i in range(288 // 3):
-            self.vram[vram_addr + (i * 4) : vram_addr + (i * 4) + 4] = data[
-                i * 3 : (i + 1) * 3
-            ] + bytes([0])
+            blob = data[i * 3 : (i + 1) * 3] + bytes([0])
+            self.set_vram(vram_addr + (i * 4), 4, blob)
 
     def load_4bpp_art(self, *, file_path: pathlib.Path, vram_addr: int) -> None:
         assert 0x0000 <= vram_addr <= 0x3FFF
@@ -254,9 +252,8 @@ class TkApp:
         data = file_path.open("rb").read()
         assert len(data) == 128
         for i in range(128 // 4):
-            self.vram[vram_addr + (i * 4) : vram_addr + (i * 4) + 4] = data[
-                i * 4 : (i + 1) * 4
-            ] + bytes([])
+            blob = data[i * 4 : (i + 1) * 4]
+            self.set_vram(vram_addr + (i * 4), 4, blob)
 
     def load_layout(self, *, file_path: pathlib.Path, level_width: int) -> None:
         logging.info(
@@ -377,13 +374,12 @@ class TkApp:
                     for tx in range(4):
                         vidx = (cx * 4 + tx) + (self.tm_width * (cy * 4 + ty))
                         lo = self.layout_tilemap[tx + (4 * (ty + (4 * mtidx)))]
-                        self.vram[0x3800 + (vidx * 2) + 0] = lo
-                        self.vram[0x3800 + (vidx * 2) + 1] = hi
+                        self.set_vram(0x3800 + (vidx * 2), 2, bytes([lo, hi]))
 
                 tf = self.layout_tile_flags[mtidx]
                 ts = self.layout_tile_specials[mtidx]
 
-                if True:
+                if False:
                     self.screen.create_text(
                         ((cx * 32) + 2) * 2,
                         ((cy * 32) + 2) * 2,
@@ -393,54 +389,55 @@ class TkApp:
                         tags=["info_text"],
                     )
 
-                # Draw physics lines!
-                ptlist: list[tuple[int, int]] = []
-                orderlist = [
-                    (0, -1, push_up),
-                    (0, 1, push_down),
-                    (-1, 0, push_left),
-                    (1, 0, push_right),
-                ]
-                for dx, dy, basetable in orderlist:
-                    for i, vbase in enumerate(basetable[tf & 0x3F]):
-                        if vbase != 0x80:
-                            # Convert to signed
-                            vbase = (vbase ^ 0x80) - 0x80
+                if False:
+                    # Draw physics lines!
+                    ptlist: list[tuple[int, int]] = []
+                    orderlist = [
+                        (0, -1, push_up),
+                        (0, 1, push_down),
+                        (-1, 0, push_left),
+                        (1, 0, push_right),
+                    ]
+                    for dx, dy, basetable in orderlist:
+                        for i, vbase in enumerate(basetable[tf & 0x3F]):
+                            if vbase != 0x80:
+                                # Convert to signed
+                                vbase = (vbase ^ 0x80) - 0x80
 
-                            v = vbase
-                            x = (i * 2) + 1
-                            y = (v * 2) + 1
-                            if dx != 0:
-                                x, y = y, x
-                            ptlist.append(
-                                (
-                                    x + (cx * 8 * 4 * 2),
-                                    y + (cy * 8 * 4 * 2),
-                                )
-                            )
-
-                        if vbase == 0x80 or i == 0x1F:
-                            if len(ptlist) >= 1:
-                                ptlist.insert(
-                                    0,
-                                    (
-                                        ptlist[0][0] - (dx * 4 * 2),
-                                        ptlist[0][1] - (dy * 4 * 2),
-                                    ),
-                                )
+                                v = vbase
+                                x = (i * 2) + 1
+                                y = (v * 2) + 1
+                                if dx != 0:
+                                    x, y = y, x
                                 ptlist.append(
                                     (
-                                        ptlist[-1][0] - (dx * 4 * 2),
-                                        ptlist[-1][1] - (dy * 4 * 2),
+                                        x + (cx * 8 * 4 * 2),
+                                        y + (cy * 8 * 4 * 2),
                                     )
                                 )
-                                self.screen.create_line(
-                                    ptlist,
-                                    width=3,
-                                    fill="#FF00FF",
-                                    tags="lines_physics",
-                                )
-                            ptlist.clear()
+
+                            if vbase == 0x80 or i == 0x1F:
+                                if len(ptlist) >= 1:
+                                    ptlist.insert(
+                                        0,
+                                        (
+                                            ptlist[0][0] - (dx * 4 * 2),
+                                            ptlist[0][1] - (dy * 4 * 2),
+                                        ),
+                                    )
+                                    ptlist.append(
+                                        (
+                                            ptlist[-1][0] - (dx * 4 * 2),
+                                            ptlist[-1][1] - (dy * 4 * 2),
+                                        )
+                                    )
+                                    self.screen.create_line(
+                                        ptlist,
+                                        width=3,
+                                        fill="#FF00FF",
+                                        tags="lines_physics",
+                                    )
+                                ptlist.clear()
 
         # Set background
         palv = self.cram[0]
@@ -608,9 +605,8 @@ class TkApp:
             cram = self.cram[palsel * 16 : (palsel + 1) * 16]
             for y in range(8):
                 outdata.append([])
-                planes = self.vram[
-                    toffs + (4 * (yflip ^ y)) : toffs + (4 * ((yflip ^ y) + 1))
-                ]
+                addr = toffs + (4 * (yflip ^ y))
+                planes = self.vram[addr : addr + 4]
                 for x in range(8):
                     p = 0
                     p |= ((planes[0] >> (xflip ^ x)) << 0) & (1 << 0)
@@ -618,15 +614,15 @@ class TkApp:
                     p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
                     p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
                     if p == 0:
-                        outdata[-1].append("#000000")
+                        outdata[-1].append("#000")
                         transparent_positions.append((x, y))
                     else:
                         palv = cram[p]
                         c = 0
-                        c |= (((palv >> 0) & 0x3) * 0x55) << 16
-                        c |= (((palv >> 2) & 0x3) * 0x55) << 8
-                        c |= (((palv >> 4) & 0x3) * 0x55) << 0
-                        outdata[-1].append(f"#{c:06X}")
+                        c |= (((palv >> 0) & 0x3) * 0x5) << 8
+                        c |= (((palv >> 2) & 0x3) * 0x5) << 4
+                        c |= (((palv >> 4) & 0x3) * 0x5) << 0
+                        outdata[-1].append(f"#{c:03X}")
                     outdata[-1].append(outdata[-1][-1])
                 outdata.append(outdata[-1])
             outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
@@ -640,6 +636,10 @@ class TkApp:
             tm_img = opt_tm_img
 
         return tm_img
+
+    def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
+        assert len(data) == vram_len
+        self.vram[addr : addr + vram_len] = data
 
 
 if __name__ == "__main__":
