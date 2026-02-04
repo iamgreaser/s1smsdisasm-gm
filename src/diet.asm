@@ -6372,6 +6372,7 @@ addr_0223E:
    call   load_object_list             ; 00:22E8 - CD 2B 23
    pop    hl                           ; 00:22EB - E1
    ld     c, (hl)                      ; 00:22EC - 4E
+   .IF 0
    ld     a, (iy+var_D205-IYBASE)      ; 00:22ED - FD 7E 05
    and    $02                          ; 00:22F0 - E6 02
    or     c                            ; 00:22F2 - B1
@@ -6386,6 +6387,18 @@ addr_0223E:
    ld     a, (hl)                      ; 00:2301 - 7E
    ld     (iy+var_D208-IYBASE), a      ; 00:2302 - FD 77 08
    inc    hl                           ; 00:2305 - 23
+   .ELSE
+   ld de, var_D205
+   ld a, (de)
+   and $02
+   or c
+   ld (de), a
+   inc hl
+   inc de
+   ld bc, $0003
+   ldir
+   ; SAVING: 10 bytes
+   .ENDIF
    ld     a, (var_D2D2)                ; 00:2306 - 3A D2 D2
    cp     (hl)                         ; 00:2309 - BE
    jr     z, addr_02315                ; 00:230A - 28 09
@@ -6396,6 +6409,8 @@ addr_0223E:
    rst    $18                          ; 00:2314 - DF
 
 addr_02315:
+   .IF 0
+   ;; Original code
    ld     b, $20                       ; 00:2315 - 06 20
    ld     hl, g_object_ptrs            ; 00:2317 - 21 7C D3
    xor    a                            ; 00:231A - AF
@@ -6406,6 +6421,16 @@ addr_0231B:
    ld     (hl), a                      ; 00:231D - 77
    inc    hl                           ; 00:231E - 23
    djnz   addr_0231B                   ; 00:231F - 10 FA
+   .ELSE
+   ;; New code
+   ld b, $40
+   ld hl, g_object_ptrs
+   xor a
+   -:
+      ld (hl), a
+      inc hl
+      djnz -
+   .ENDIF
    bit    5, (iy+var_D20C-IYBASE)      ; 00:2321 - FD CB 0C 6E
    ret    z                            ; 00:2325 - C8
    set    5, (iy+var_D206-IYBASE)      ; 00:2326 - FD CB 06 EE
@@ -6414,7 +6439,12 @@ addr_0231B:
 load_object_list:
    push   hl                           ; 00:232B - E5
    ld     ix, object_list              ; 00:232C - DD 21 FC D3
+   .IF 0
    ld     de, $001A                    ; 00:2330 - 11 1A 00
+   .ELSE
+   ;; That only gets used in load_object_from_level_spec.
+   ;; See the new version of that for the overall saving.
+   .ENDIF
    ld     c, $00                       ; 00:2333 - 0E 00
    ld     hl, (var_D216)               ; 00:2335 - 2A 16 D2
    ld     a, $00                       ; 00:2338 - 3E 00
@@ -6467,6 +6497,8 @@ load_object_list:
    ret                                 ; 00:235D - C9
 
 load_object_from_level_spec:
+   .IF 0
+   ;; Original code
    ld     (ix+0), a                    ; 00:235E - DD 77 00
    ld     a, (hl)                      ; 00:2361 - 7E
    exx                                 ; 00:2362 - D9
@@ -6507,6 +6539,48 @@ load_object_from_level_spec:
    djnz   -                            ; 00:2395 - 10 FC
    exx                                 ; 00:2397 - D9
    inc    hl                           ; 00:2398 - 23
+
+   .ELSE
+   ;; New code
+   push ix
+   pop de
+   ld (de), a
+   inc de
+
+   push bc
+      ld b, $02
+      -:
+         ;; Coord Position Low
+         xor a
+         ld (de), a
+         inc de
+         ld a, (hl)
+         inc hl
+         rrca
+         rrca
+         rrca
+         ld c, a
+         and $E0
+         ;; Coord Position Mid
+         ld (de), a
+         inc de
+         xor c
+         ;; Coord Position High
+         ld (de), a
+         inc de
+         djnz -
+
+      ld b, $13
+      xor a
+      -:
+         ld (de), a
+         inc de
+         djnz -
+   pop bc
+   ld de, $001A
+   ; SAVING: 25 bytes
+   .ENDIF
+
    add    ix, de                       ; 00:2399 - DD 19
    ret                                 ; 00:239B - C9
 
@@ -6543,6 +6617,7 @@ addr_023C7:
    ret                                 ; 00:23C8 - C9
 
 addr_023C9:
+   .IF 0
    ld     a, (g_palette_cycle_tick_remain)  ; 00:23C9 - 3A A4 D2
    dec    a                            ; 00:23CC - 3D
    ld     (g_palette_cycle_tick_remain), a  ; 00:23CD - 32 A4 D2
@@ -6556,6 +6631,27 @@ addr_023C9:
    add    hl, hl                       ; 00:23DA - 29
    ld     de, (g_palette_cycle_baseptr)  ; 00:23DB - ED 5B A8 D2
    add    hl, de                       ; 00:23DF - 19
+   .ELSE
+   ;; Using DEC (HL) this way is 3 cycles slower but also 3 bytes cheaper
+   ld hl, g_palette_cycle_tick_remain
+   dec (hl)
+   ret nz
+   ;; And we make up for the speed hit here, at the cost of 2 bytes
+   ;; (this saves 20 cycles?)
+   ld a, (g_palette_cycle_index)
+   rlca
+   rlca
+   rlca
+   rlca
+   ld e, a
+   and $0F
+   ld d, a
+   xor e
+   ld e, a
+   ld hl, (g_palette_cycle_baseptr)
+   add hl, de
+   ; SAVING: 1 byte
+   .ENDIF
    ld     a, $01                       ; 00:23E0 - 3E 01
    call   signal_load_palettes         ; 00:23E2 - CD 33 03
    ld     hl, (g_palette_cycle_index)  ; 00:23E5 - 2A A6 D2
@@ -8088,6 +8184,7 @@ try_run_objfunc_DE:
    jp     (hl)                         ; 00:32E1 - E9
 
 RETPTR_032E2:
+   .IF 0
    ld     e, (ix+7)                    ; 00:32E2 - DD 5E 07
    ld     d, (ix+8)                    ; 00:32E5 - DD 56 08
    ld     c, (ix+9)                    ; 00:32E8 - DD 4E 09
@@ -8110,6 +8207,57 @@ RETPTR_032E2:
    ld     (ix+4), l                    ; 00:3313 - DD 75 04
    ld     (ix+5), h                    ; 00:3316 - DD 74 05
    ld     (ix+6), a                    ; 00:3319 - DD 77 06
+
+   .ELSE
+   ;;  1  2  3   X
+   ;;  4  5  6   Y
+   ;;  7  8  9  vX
+   ;; 10 11 12  vY
+
+   ;; Read velocity first, then read/write position
+   ;; Do it once per coordinate
+   push ix
+   pop hl
+   ;; Point to high byte of Y velocity
+   ld de, 12
+   add hl, de
+   ld b, $02
+   jp +
+   -:
+      .REPEAT 3
+         inc hl
+      .ENDR
+      ;; don't care / + 9 - next velocity high byte!
+   +:
+      ;; + 9 / +12 - velocity high byte
+      ld d, (hl)
+      dec hl
+      ld e, (hl)
+      dec hl
+      ld a, (hl)
+      ;; + 7 / +10 - velocity low byte
+      ;; This is cheaper in terms of size and speed than pushing and popping bc
+      .REPEAT 6
+         dec hl
+      .ENDR
+      ;; + 1 / + 4 - low byte!
+      add a, (hl)
+      ld (hl), a
+      inc hl
+      ld a, (hl)
+      adc a, e
+      ld (hl), a
+      inc hl
+      ld a, (hl)
+      adc a, d
+      ld (hl), a
+      ;; don't care / +6 - high byte
+      djnz -
+
+   ; SAVING: 20 bytes
+   ; Also saves a lot of cycles - IX/IY access is expensive!
+   .ENDIF
+
    bit    5, (ix+24)                   ; 00:331C - DD CB 18 6E
    jp     nz, addr_034E6               ; 00:3320 - C2 E6 34
    ld     b, $00                       ; 00:3323 - 06 00
