@@ -246,8 +246,8 @@ sonic_vel_x_hi db   ; D405
 sonic_vel_y_sub db   ; D406
 sonic_vel_y db   ; D407
 sonic_vel_y_hi db   ; D408
-var_D409 db   ; D409
-var_D40A db   ; D40A
+sonic_size_x db   ; D409
+sonic_size_y db   ; D40A
 var_D40B dw   ; D40B
 var_D40D dw   ; D40D
 var_D40F db   ; D40F
@@ -7464,7 +7464,7 @@ addr_0392F:
    djnz   addr_0392F                   ; 00:3953 - 10 DA
    ret                                 ; 00:3955 - C9
 
-UNK_03956:
+check_collision_with_sonic:
    bit    0, (iy+var_D205-IYBASE)      ; 00:3956 - FD CB 05 46
    scf                                 ; 00:395A - 37
    ret    nz                           ; 00:395B - C0
@@ -7483,7 +7483,7 @@ UNK_03956:
    ld     c, a                         ; 00:3979 - 4F
    add    hl, bc                       ; 00:397A - 09
    ex     de, hl                       ; 00:397B - EB
-   ld     a, (var_D409)                ; 00:397C - 3A 09 D4
+   ld     a, (sonic_size_x)            ; 00:397C - 3A 09 D4
    ld     c, a                         ; 00:397F - 4F
    add    hl, bc                       ; 00:3980 - 09
    xor    a                            ; 00:3981 - AF
@@ -7503,7 +7503,7 @@ UNK_03956:
    ld     c, a                         ; 00:39A0 - 4F
    add    hl, bc                       ; 00:39A1 - 09
    ex     de, hl                       ; 00:39A2 - EB
-   ld     a, (var_D40A)                ; 00:39A3 - 3A 0A D4
+   ld     a, (sonic_size_y)            ; 00:39A3 - 3A 0A D4
    ld     c, a                         ; 00:39A6 - 4F
    add    hl, bc                       ; 00:39A7 - 09
    xor    a                            ; 00:39A8 - AF
@@ -10296,7 +10296,7 @@ objfunc_01_monitor_rings:
    call   addr_05DA8                   ; 01:5B11 - CD A8 5D
    ld     hl, $0003                    ; 01:5B14 - 21 03 00
    ld     (var_D214), hl               ; 01:5B17 - 22 14 D2
-   call   UNK_03956                    ; 01:5B1A - CD 56 39
+   call   check_collision_with_sonic   ; 01:5B1A - CD 56 39
    jr     c, addr_05B31                ; 01:5B1D - 38 12
    call   addr_05DEB                   ; 01:5B1F - CD EB 5D
    jr     c, addr_05B31                ; 01:5B22 - 38 0D
@@ -10383,7 +10383,7 @@ objfunc_02_monitor_speed_shoes:
    call   addr_05DA8                   ; 01:5BE1 - CD A8 5D
    ld     hl, $0003                    ; 01:5BE4 - 21 03 00
    ld     (var_D214), hl               ; 01:5BE7 - 22 14 D2
-   call   UNK_03956                    ; 01:5BEA - CD 56 39
+   call   check_collision_with_sonic   ; 01:5BEA - CD 56 39
    jr     c, addr_05BFF                ; 01:5BED - 38 10
    call   addr_05DEB                   ; 01:5BEF - CD EB 5D
    jr     c, addr_05BFF                ; 01:5BF2 - 38 0B
@@ -10412,7 +10412,7 @@ objfunc_03_monitor_life:
 addr_05C21:
    ld     hl, $0003                    ; 01:5C21 - 21 03 00
    ld     (var_D214), hl               ; 01:5C24 - 22 14 D2
-   call   UNK_03956                    ; 01:5C27 - CD 56 39
+   call   check_collision_with_sonic   ; 01:5C27 - CD 56 39
    jr     c, addr_05C5A                ; 01:5C2A - 38 2E
    call   addr_05DEB                   ; 01:5C2C - CD EB 5D
    jr     c, addr_05C5A                ; 01:5C2F - 38 29
@@ -10504,7 +10504,7 @@ objfunc_04_monitor_shield:
    call   addr_05DA8                   ; 01:5CDF - CD A8 5D
    ld     hl, $0003                    ; 01:5CE2 - 21 03 00
    ld     (var_D214), hl               ; 01:5CE5 - 22 14 D2
-   call   UNK_03956                    ; 01:5CE8 - CD 56 39
+   call   check_collision_with_sonic   ; 01:5CE8 - CD 56 39
    jr     c, addr_05CF9                ; 01:5CEB - 38 0C
    call   addr_05DEB                   ; 01:5CED - CD EB 5D
    jr     c, addr_05CF9                ; 01:5CF0 - 38 07
@@ -10521,7 +10521,7 @@ objfunc_05_monitor_invincibility:
    call   addr_05DA8                   ; 01:5D07 - CD A8 5D
    ld     hl, $0003                    ; 01:5D0A - 21 03 00
    ld     (var_D214), hl               ; 01:5D0D - 22 14 D2
-   call   UNK_03956                    ; 01:5D10 - CD 56 39
+   call   check_collision_with_sonic   ; 01:5D10 - CD 56 39
    jr     c, addr_05D29                ; 01:5D13 - 38 14
    call   addr_05DEB                   ; 01:5D15 - CD EB 5D
    jr     c, addr_05D29                ; 01:5D18 - 38 0F
@@ -10542,7 +10542,7 @@ objfunc_51_monitor_checkpoint:
    call   addr_05DA8                   ; 01:5D37 - CD A8 5D
    ld     hl, $0003                    ; 01:5D3A - 21 03 00
    ld     (var_D214), hl               ; 01:5D3D - 22 14 D2
-   call   UNK_03956                    ; 01:5D40 - CD 56 39
+   call   check_collision_with_sonic   ; 01:5D40 - CD 56 39
    jr     c, addr_05D7A                ; 01:5D43 - 38 35
    call   addr_05DEB                   ; 01:5D45 - CD EB 5D
    jr     c, addr_05D7A                ; 01:5D48 - 38 30
@@ -10586,7 +10586,7 @@ objfunc_52_monitor_continue:
    call   addr_05DA8                   ; 01:5D88 - CD A8 5D
    ld     hl, $0003                    ; 01:5D8B - 21 03 00
    ld     (var_D214), hl               ; 01:5D8E - 22 14 D2
-   call   UNK_03956                    ; 01:5D91 - CD 56 39
+   call   check_collision_with_sonic   ; 01:5D91 - CD 56 39
    jr     c, addr_05DA2                ; 01:5D94 - 38 0C
    call   addr_05DEB                   ; 01:5D96 - CD EB 5D
    jr     c, addr_05DA2                ; 01:5D99 - 38 07
@@ -10655,7 +10655,7 @@ addr_05DEB:
    jr     nz, addr_05E42               ; 01:5E19 - 20 27
    ld     l, (ix+5)                    ; 01:5E1B - DD 6E 05
    ld     h, (ix+6)                    ; 01:5E1E - DD 66 06
-   ld     a, (var_D40A)                ; 01:5E21 - 3A 0A D4
+   ld     a, (sonic_size_y)            ; 01:5E21 - 3A 0A D4
    ld     c, a                         ; 01:5E24 - 4F
    xor    a                            ; 01:5E25 - AF
    ld     b, a                         ; 01:5E26 - 47
@@ -10737,7 +10737,7 @@ objfunc_06_chaos_emerald:
    ld     (ix+16), a                   ; 01:5EBB - DD 77 10
    ld     hl, $0202                    ; 01:5EBE - 21 02 02
    ld     (var_D214), hl               ; 01:5EC1 - 22 14 D2
-   call   UNK_03956                    ; 01:5EC4 - CD 56 39
+   call   check_collision_with_sonic   ; 01:5EC4 - CD 56 39
    jr     c, addr_05EE3                ; 01:5EC7 - 38 1A
    ld     hl, var_D30B                 ; 01:5EC9 - 21 0B D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5ECC - CD 02 0C
@@ -10783,7 +10783,7 @@ objfunc_07_signpost:
    ld     (ix+13), $18                 ; 01:5F17 - DD 36 0D 18
    ld     (ix+14), $30                 ; 01:5F1B - DD 36 0E 30
    bit    0, (ix+17)                   ; 01:5F1F - DD CB 11 46
-   jr     nz, addr_05F44               ; 01:5F23 - 20 1F
+   jr     nz, @art_already_loaded      ; 01:5F23 - 20 1F
    res    7, (iy+var_D206-IYBASE)      ; 01:5F25 - FD CB 06 BE
    res    3, (iy+var_D205-IYBASE)      ; 01:5F29 - FD CB 05 9E
    ld     hl, ART_09_4294              ; 01:5F2D - 21 94 42
@@ -10795,7 +10795,7 @@ objfunc_07_signpost:
    call   signal_load_palettes         ; 01:5F3D - CD 33 03
    set    0, (ix+17)                   ; 01:5F40 - DD CB 11 C6
 
-addr_05F44:
+@art_already_loaded:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:5F44 - 2A 5A D2
    ld     (var_D273), hl               ; 01:5F47 - 22 73 D2
    ld     l, (ix+2)                    ; 01:5F4A - DD 6E 02
@@ -10811,18 +10811,18 @@ addr_05F44:
    ld     a, (var_D414)                ; 01:5F66 - 3A 14 D4
    and    $80                          ; 01:5F69 - E6 80
    ld     (ix+19), a                   ; 01:5F6B - DD 77 13
-   jr     z, addr_05FA4                ; 01:5F6E - 28 34
+   jr     z, @dont_bounce              ; 01:5F6E - 28 34
    cp     c                            ; 01:5F70 - B9
-   jr     z, addr_05FA4                ; 01:5F71 - 28 31
+   jr     z, @dont_bounce              ; 01:5F71 - 28 31
    bit    7, (ix+24)                   ; 01:5F73 - DD CB 18 7E
-   jr     z, addr_05FA4                ; 01:5F77 - 28 2B
+   jr     z, @dont_bounce              ; 01:5F77 - 28 2B
    ld     e, (ix+2)                    ; 01:5F79 - DD 5E 02
    ld     d, (ix+3)                    ; 01:5F7C - DD 56 03
    ld     hl, (sonic_x)                ; 01:5F7F - 2A FE D3
    and    a                            ; 01:5F82 - A7
    sbc    hl, de                       ; 01:5F83 - ED 52
    bit    7, h                         ; 01:5F85 - CB 7C
-   jr     z, addr_05F90                ; 01:5F87 - 28 07
+   jr     z, @x_dist_to_sonic_was_nonnegative  ; 01:5F87 - 28 07
    ld     a, l                         ; 01:5F89 - 7D
    cpl                                 ; 01:5F8A - 2F
    ld     l, a                         ; 01:5F8B - 6F
@@ -10831,16 +10831,16 @@ addr_05F44:
    ld     h, a                         ; 01:5F8E - 67
    inc    hl                           ; 01:5F8F - 23
 
-addr_05F90:
+@x_dist_to_sonic_was_nonnegative:
    ld     de, $0064                    ; 01:5F90 - 11 64 00
    and    a                            ; 01:5F93 - A7
    sbc    hl, de                       ; 01:5F94 - ED 52
-   jr     nc, addr_05FA4               ; 01:5F96 - 30 0C
+   jr     nc, @dont_bounce             ; 01:5F96 - 30 0C
    ld     (ix+10), $00                 ; 01:5F98 - DD 36 0A 00
    ld     (ix+11), $FE                 ; 01:5F9C - DD 36 0B FE
    ld     (ix+12), $FF                 ; 01:5FA0 - DD 36 0C FF
 
-addr_05FA4:
+@dont_bounce:
    ld     l, (ix+10)                   ; 01:5FA4 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:5FA7 - DD 66 0B
    ld     a, (ix+12)                   ; 01:5FAA - DD 7E 0C
@@ -10851,11 +10851,11 @@ addr_05FA4:
    ld     (ix+11), h                   ; 01:5FB6 - DD 74 0B
    ld     (ix+12), a                   ; 01:5FB9 - DD 77 0C
    bit    3, (ix+17)                   ; 01:5FBC - DD CB 11 5E
-   jr     nz, addr_06030               ; 01:5FC0 - 20 6E
+   jr     nz, @decide                  ; 01:5FC0 - 20 6E
    bit    2, (ix+17)                   ; 01:5FC2 - DD CB 11 56
-   jr     z, addr_05FE8                ; 01:5FC6 - 28 20
+   jr     z, @check_sonic_touching     ; 01:5FC6 - 28 20
    bit    7, (ix+24)                   ; 01:5FC8 - DD CB 18 7E
-   jr     z, addr_06030                ; 01:5FCC - 28 62
+   jr     z, @decide                   ; 01:5FCC - 28 62
    ld     a, $09                       ; 01:5FCE - 3E 09
    rst    $18                          ; 01:5FD0 - DF
    ld     a, $0C                       ; 01:5FD1 - 3E 0C
@@ -10865,20 +10865,20 @@ addr_05FA4:
    ld     a, $A0                       ; 01:5FDC - 3E A0
    ld     (g_signpost_tickdown_counter), a  ; 01:5FDE - 32 89 D2
    set    1, (iy+var_D206-IYBASE)      ; 01:5FE1 - FD CB 06 CE
-   jp     addr_06030                   ; 01:5FE5 - C3 30 60
+   jp     @decide                      ; 01:5FE5 - C3 30 60
 
-addr_05FE8:
+@check_sonic_touching:
    ld     hl, $0A0A                    ; 01:5FE8 - 21 0A 0A
    ld     (var_D214), hl               ; 01:5FEB - 22 14 D2
-   call   UNK_03956                    ; 01:5FEE - CD 56 39
-   jr     c, addr_06030                ; 01:5FF1 - 38 3D
+   call   check_collision_with_sonic   ; 01:5FEE - CD 56 39
+   jr     c, @decide                   ; 01:5FF1 - 38 3D
    bit    7, (ix+12)                   ; 01:5FF3 - DD CB 0C 7E
-   jr     nz, addr_06030               ; 01:5FF7 - 20 37
+   jr     nz, @decide                  ; 01:5FF7 - 20 37
    bit    1, (ix+17)                   ; 01:5FF9 - DD CB 11 4E
-   jr     nz, addr_06030               ; 01:5FFD - 20 31
+   jr     nz, @decide                  ; 01:5FFD - 20 31
    ld     de, (sonic_vel_x_sub)        ; 01:5FFF - ED 5B 03 D4
    bit    7, d                         ; 01:6003 - CB 7A
-   jr     z, addr_0600E                ; 01:6005 - 28 07
+   jr     z, @sonic_x_vel_was_nonnegative  ; 01:6005 - 28 07
    ld     a, e                         ; 01:6007 - 7B
    cpl                                 ; 01:6008 - 2F
    ld     e, a                         ; 01:6009 - 5F
@@ -10887,14 +10887,14 @@ addr_05FE8:
    ld     d, a                         ; 01:600C - 57
    inc    de                           ; 01:600D - 13
 
-addr_0600E:
+@sonic_x_vel_was_nonnegative:
    ld     hl, $0300                    ; 01:600E - 21 00 03
    and    a                            ; 01:6011 - A7
    sbc    hl, de                       ; 01:6012 - ED 52
-   jr     nc, addr_06019               ; 01:6014 - 30 03
+   jr     nc, @dont_clamp_y_vel_on_hit  ; 01:6014 - 30 03
    ld     de, $0300                    ; 01:6016 - 11 00 03
 
-addr_06019:
+@dont_clamp_y_vel_on_hit:
    ex     de, hl                       ; 01:6019 - EB
    add    hl, hl                       ; 01:601A - 29
    ld     (ix+20), l                   ; 01:601B - DD 75 14
@@ -10905,38 +10905,38 @@ addr_06019:
    ld     a, $0B                       ; 01:602D - 3E 0B
    rst    $28                          ; 01:602F - EF
 
-addr_06030:
-   ld     de, UNK_6157                 ; 01:6030 - 11 57 61
+@decide:
+   ld     de, signpost_anim_spinning   ; 01:6030 - 11 57 61
    bit    1, (ix+17)                   ; 01:6033 - DD CB 11 4E
-   jr     nz, @post_decide_loop        ; 01:6037 - 20 5D
+   jr     nz, @update_signpost_animation  ; 01:6037 - 20 5D
    bit    2, (ix+17)                   ; 01:6039 - DD CB 11 56
-   jr     nz, @post_decide_loop        ; 01:603D - 20 57
-   ld     de, UNK_6171                 ; 01:603F - 11 71 61
+   jr     nz, @update_signpost_animation  ; 01:603D - 20 57
+   ld     de, signpost_anim_unspun_static  ; 01:603F - 11 71 61
    bit    3, (ix+17)                   ; 01:6042 - DD CB 11 5E
-   jr     z, @post_decide_loop         ; 01:6046 - 28 4E
+   jr     z, @update_signpost_animation  ; 01:6046 - 28 4E
    ld     a, (g_level)                 ; 01:6048 - 3A 3E D2
    cp     $0C                          ; 01:604B - FE 0C
    jr     c, @decide_maybe_bonus       ; 01:604D - 38 0B
    cp     $1C                          ; 01:604F - FE 1C
    jr     c, @decide_not_bonus         ; 01:6051 - 38 13
-   ld     de, UNK_618E                 ; 01:6053 - 11 8E 61
+   ld     de, signpost_anim_got_nothing  ; 01:6053 - 11 8E 61
    ld     c, $01                       ; 01:6056 - 0E 01
-   jr     @decide_C                    ; 01:6058 - 18 38
+   jr     @show_signpost_in_C          ; 01:6058 - 18 38
 
 @decide_maybe_bonus:
-   ld     de, UNK_61A8                 ; 01:605A - 11 A8 61
+   ld     de, signpost_anim_got_special_stage  ; 01:605A - 11 A8 61
    ld     c, $04                       ; 01:605D - 0E 04
    ld     a, (g_rings_BCD)             ; 01:605F - 3A AA D2
    cp     $50                          ; 01:6062 - FE 50
-   jr     nc, @decide_C                ; 01:6064 - 30 2C
+   jr     nc, @show_signpost_in_C      ; 01:6064 - 30 2C
 
 @decide_not_bonus:
    cp     $40                          ; 01:6066 - FE 40
    jr     z, @decide_maybe_life        ; 01:6068 - 28 09
-   ld     de, UNK_61C2                 ; 01:606A - 11 C2 61
+   ld     de, signpost_anim_got_rings  ; 01:606A - 11 C2 61
    ld     c, $03                       ; 01:606D - 0E 03
    and    $0F                          ; 01:606F - E6 0F
-   jr     z, @decide_C                 ; 01:6071 - 28 1F
+   jr     z, @show_signpost_in_C       ; 01:6071 - 28 1F
 
 @decide_maybe_life:
    ld     a, (g_rings_BCD)             ; 01:6073 - 3A AA D2
@@ -10948,30 +10948,30 @@ addr_06030:
    ld     a, (g_level)                 ; 01:607F - 3A 3E D2
    and    $03                          ; 01:6082 - E6 03
    inc    a                            ; 01:6084 - 3C
-   ld     de, UNK_6174                 ; 01:6085 - 11 74 61
+   ld     de, signpost_anim_got_life   ; 01:6085 - 11 74 61
    ld     c, $02                       ; 01:6088 - 0E 02
    cp     b                            ; 01:608A - B8
-   jr     z, @decide_C                 ; 01:608B - 28 05
-   ld     de, UNK_618E                 ; 01:608D - 11 8E 61
+   jr     z, @show_signpost_in_C       ; 01:608B - 28 05
+   ld     de, signpost_anim_got_nothing  ; 01:608D - 11 8E 61
    ld     c, $01                       ; 01:6090 - 0E 01
 
-@decide_C:
+@show_signpost_in_C:
    ld     a, c                         ; 01:6092 - 79
    ld     (g_current_signpost), a      ; 01:6093 - 32 88 D2
 
-@post_decide_loop:
+@update_signpost_animation:
    ld     l, (ix+18)                   ; 01:6096 - DD 6E 12
    ld     h, $00                       ; 01:6099 - 26 00
    add    hl, de                       ; 01:609B - 19
    ld     a, (hl)                      ; 01:609C - 7E
    cp     $FF                          ; 01:609D - FE FF
-   jr     nz, +                        ; 01:609F - 20 08
+   jr     nz, @animation_chosen        ; 01:609F - 20 08
    inc    hl                           ; 01:60A1 - 23
    ld     a, (hl)                      ; 01:60A2 - 7E
    ld     (ix+18), a                   ; 01:60A3 - DD 77 12
-   jp     @post_decide_loop            ; 01:60A6 - C3 96 60
+   jp     @update_signpost_animation   ; 01:60A6 - C3 96 60
 
-+:
+@animation_chosen:
    ld     l, a                         ; 01:60A9 - 6F
    ld     h, $00                       ; 01:60AA - 26 00
    add    hl, hl                       ; 01:60AC - 29
@@ -10981,16 +10981,16 @@ addr_06030:
    add    hl, hl                       ; 01:60B0 - 29
    add    hl, hl                       ; 01:60B1 - 29
    add    hl, de                       ; 01:60B2 - 19
-   ld     de, UNK_061DC                ; 01:60B3 - 11 DC 61
+   ld     de, SPRITEMAP_signpost       ; 01:60B3 - 11 DC 61
    add    hl, de                       ; 01:60B6 - 19
    ld     (ix+15), l                   ; 01:60B7 - DD 75 0F
    ld     (ix+16), h                   ; 01:60BA - DD 74 10
    bit    1, (ix+17)                   ; 01:60BD - DD CB 11 4E
-   jr     nz, addr_060C7               ; 01:60C1 - 20 04
+   jr     nz, @spinning_stopping       ; 01:60C1 - 20 04
    inc    (ix+18)                      ; 01:60C3 - DD 34 12
    ret                                 ; 01:60C6 - C9
 
-addr_060C7:
+@spinning_stopping:
    ld     a, (ix+20)                   ; 01:60C7 - DD 7E 14
    add    a, (ix+22)                   ; 01:60CA - DD 86 16
    ld     (ix+22), a                   ; 01:60CD - DD 77 16
@@ -11001,21 +11001,21 @@ addr_060C7:
    pop    af                           ; 01:60DA - F1
    adc    a, (ix+18)                   ; 01:60DB - DD 8E 12
    cp     $18                          ; 01:60DE - FE 18
-   jr     c, addr_060E3                ; 01:60E0 - 38 01
+   jr     c, @animation_index_not_wrapped  ; 01:60E0 - 38 01
    xor    a                            ; 01:60E2 - AF
 
-addr_060E3:
+@animation_index_not_wrapped:
    ld     (ix+18), a                   ; 01:60E3 - DD 77 12
    ld     e, (ix+10)                   ; 01:60E6 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:60E9 - DD 56 0B
    ld     a, (ix+12)                   ; 01:60EC - DD 7E 0C
    and    a                            ; 01:60EF - A7
-   jp     p, addr_060F9                ; 01:60F0 - F2 F9 60
+   jp     p, @y_vel_was_positive       ; 01:60F0 - F2 F9 60
    ld     hl, $FC00                    ; 01:60F3 - 21 00 FC
    sbc    hl, de                       ; 01:60F6 - ED 52
    ret    nc                           ; 01:60F8 - D0
 
-addr_060F9:
+@y_vel_was_positive:
    ex     de, hl                       ; 01:60F9 - EB
    ld     e, (ix+20)                   ; 01:60FA - DD 5E 14
    ld     d, (ix+21)                   ; 01:60FD - DD 56 15
@@ -11042,7 +11042,7 @@ addr_060F9:
    xor    a                            ; 01:612A - AF
    ld     de, $0008                    ; 01:612B - 11 08 00
    sbc    hl, de                       ; 01:612E - ED 52
-   jr     c, addr_06141                ; 01:6130 - 38 0F
+   jr     c, @clamp_y_against_top      ; 01:6130 - 38 0F
    ld     l, c                         ; 01:6132 - 69
    ld     h, b                         ; 01:6133 - 60
    ld     de, $0010                    ; 01:6134 - 11 10 00
@@ -11052,7 +11052,7 @@ addr_060F9:
    ld     (ix+21), h                   ; 01:613D - DD 74 15
    ret    nc                           ; 01:6140 - D0
 
-addr_06141:
+@clamp_y_against_top:
    ld     (ix+10), a                   ; 01:6141 - DD 77 0A
    ld     (ix+11), a                   ; 01:6144 - DD 77 0B
    ld     (ix+12), a                   ; 01:6147 - DD 77 0C
@@ -11061,30 +11061,30 @@ addr_06141:
    ld     (ix+18), $00                 ; 01:6152 - DD 36 12 00
    ret                                 ; 01:6156 - C9
 
-UNK_6157:
+signpost_anim_spinning:
 .db $00, $00, $00, $00, $00, $00, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02  ; 01:6157
 .db $02, $02, $04, $04, $04, $04, $04, $04, $FF, $00                                ; 01:6167
 
-UNK_6171:
+signpost_anim_unspun_static:
 .db $00, $FF, $00                                                                   ; 01:6171
 
-UNK_6174:
+signpost_anim_got_life:
 .db $00, $00, $00, $00, $00, $00, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02  ; 01:6174
 .db $02, $02, $01, $01, $01, $01, $01, $01, $FF, $12                                ; 01:6184
 
-UNK_618E:
+signpost_anim_got_nothing:
 .db $00, $00, $00, $00, $00, $00, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02  ; 01:618E
 .db $02, $02, $05, $05, $05, $05, $05, $05, $FF, $12                                ; 01:619E
 
-UNK_61A8:
+signpost_anim_got_special_stage:
 .db $00, $00, $00, $00, $00, $00, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02  ; 01:61A8
 .db $02, $02, $06, $06, $06, $06, $06, $06, $FF, $12                                ; 01:61B8
 
-UNK_61C2:
+signpost_anim_got_rings:
 .db $00, $00, $00, $00, $00, $00, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02  ; 01:61C2
 .db $02, $02, $07, $07, $07, $07, $07, $07, $FF, $12                                ; 01:61D2
 
-UNK_061DC:
+SPRITEMAP_signpost:
 .db $4E, $50, $52, $54, $FF, $FF, $6E, $70, $72, $74, $FF, $FF, $FE, $42, $44, $FF  ; 01:61DC
 .db $FF, $FF, $08, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $42  ; 01:61EC
 .db $44, $FF, $FF, $FF, $FE, $12, $14, $FF, $FF, $FF, $FE, $32, $34, $FF, $FF, $FF  ; 01:61FC
@@ -11266,7 +11266,7 @@ addr_06678:
    call   addr_07C41                   ; 01:66AF - CD 41 7C
    ld     hl, $0A04                    ; 01:66B2 - 21 04 0A
    ld     (var_D214), hl               ; 01:66B5 - 22 14 D2
-   call   UNK_03956                    ; 01:66B8 - CD 56 39
+   call   check_collision_with_sonic   ; 01:66B8 - CD 56 39
    ld     hl, $0804                    ; 01:66BB - 21 04 08
    ld     (g_FF_string_high_byte), hl  ; 01:66BE - 22 0E D2
    call   nc, UNK_035E5                ; 01:66C1 - D4 E5 35
@@ -11366,7 +11366,7 @@ addr_067C5:
    jp     m, addr_067F9                ; 01:67D7 - FA F9 67
    ld     hl, $0806                    ; 01:67DA - 21 06 08
    ld     (var_D214), hl               ; 01:67DD - 22 14 D2
-   call   UNK_03956                    ; 01:67E0 - CD 56 39
+   call   check_collision_with_sonic   ; 01:67E0 - CD 56 39
    jr     c, addr_067F9                ; 01:67E3 - 38 14
    ld     hl, (sonic_x)                ; 01:67E5 - 2A FE D3
    ld     de, (g_FF_string_high_byte)  ; 01:67E8 - ED 5B 0E D2
@@ -11508,7 +11508,7 @@ objfunc_0B_UNKNOWN:
    jp     m, addr_06A2E                ; 01:6A01 - FA 2E 6A
    ld     hl, $0806                    ; 01:6A04 - 21 06 08
    ld     (var_D214), hl               ; 01:6A07 - 22 14 D2
-   call   UNK_03956                    ; 01:6A0A - CD 56 39
+   call   check_collision_with_sonic   ; 01:6A0A - CD 56 39
    jr     c, addr_06A2E                ; 01:6A0D - 38 1F
    ld     de, $0000                    ; 01:6A0F - 11 00 00
    ld     a, (ix+5)                    ; 01:6A12 - DD 7E 05
@@ -11566,7 +11566,7 @@ addr_06A6F:
    jp     m, addr_06A99                ; 01:6A7B - FA 99 6A
    ld     hl, $0806                    ; 01:6A7E - 21 06 08
    ld     (var_D214), hl               ; 01:6A81 - 22 14 D2
-   call   UNK_03956                    ; 01:6A84 - CD 56 39
+   call   check_collision_with_sonic   ; 01:6A84 - CD 56 39
    jr     c, addr_06A99                ; 01:6A87 - 38 10
    ld     (ix+22), $01                 ; 01:6A89 - DD 36 16 01
    ld     bc, $0010                    ; 01:6A8D - 01 10 00
@@ -11601,7 +11601,7 @@ objfunc_0D_UNKNOWN:
    ld     (ix+14), $02                 ; 01:6AC9 - DD 36 0E 02
    ld     hl, $0303                    ; 01:6ACD - 21 03 03
    ld     (var_D214), hl               ; 01:6AD0 - 22 14 D2
-   call   UNK_03956                    ; 01:6AD3 - CD 56 39
+   call   check_collision_with_sonic   ; 01:6AD3 - CD 56 39
    call   nc, addr_035FD               ; 01:6AD6 - D4 FD 35
    ld     l, (ix+10)                   ; 01:6AD9 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:6ADC - DD 66 0B
@@ -11837,7 +11837,7 @@ addr_06CA1:
    call   addr_07C41                   ; 01:6CC1 - CD 41 7C
    ld     hl, $1000                    ; 01:6CC4 - 21 00 10
    ld     (var_D214), hl               ; 01:6CC7 - 22 14 D2
-   call   UNK_03956                    ; 01:6CCA - CD 56 39
+   call   check_collision_with_sonic   ; 01:6CCA - CD 56 39
    ld     hl, $1004                    ; 01:6CCD - 21 04 10
    ld     (g_FF_string_high_byte), hl  ; 01:6CD0 - 22 0E D2
    call   nc, UNK_035E5                ; 01:6CD3 - D4 E5 35
@@ -11890,7 +11890,7 @@ addr_06D88:
    jp     m, addr_06DB1                ; 01:6D96 - FA B1 6D
    ld     hl, $0806                    ; 01:6D99 - 21 06 08
    ld     (var_D214), hl               ; 01:6D9C - 22 14 D2
-   call   UNK_03956                    ; 01:6D9F - CD 56 39
+   call   check_collision_with_sonic   ; 01:6D9F - CD 56 39
    ld     c, $00                       ; 01:6DA2 - 0E 00
    jr     c, addr_06DB1                ; 01:6DA4 - 38 0B
    ld     bc, $0010                    ; 01:6DA6 - 01 10 00
@@ -12011,7 +12011,7 @@ addr_06E49:
    call   addr_07C41                   ; 01:6E80 - CD 41 7C
    ld     hl, $0203                    ; 01:6E83 - 21 03 02
    ld     (var_D214), hl               ; 01:6E86 - 22 14 D2
-   call   UNK_03956                    ; 01:6E89 - CD 56 39
+   call   check_collision_with_sonic   ; 01:6E89 - CD 56 39
    ld     hl, $0000                    ; 01:6E8C - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 01:6E8F - 22 0E D2
    call   nc, UNK_035E5                ; 01:6E92 - D4 E5 35
@@ -12138,7 +12138,7 @@ addr_06FD4:
    ld     (ix+16), b                   ; 01:6FD7 - DD 70 10
    ld     hl, $0202                    ; 01:6FDA - 21 02 02
    ld     (var_D214), hl               ; 01:6FDD - 22 14 D2
-   call   UNK_03956                    ; 01:6FE0 - CD 56 39
+   call   check_collision_with_sonic   ; 01:6FE0 - CD 56 39
    ld     hl, $0000                    ; 01:6FE3 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 01:6FE6 - 22 0E D2
    call   nc, UNK_035E5                ; 01:6FE9 - D4 E5 35
@@ -12526,7 +12526,7 @@ addr_07396:
    ld     (var_D275), hl               ; 01:73AC - 22 75 D2
    ld     hl, $0002                    ; 01:73AF - 21 02 00
    ld     (var_D214), hl               ; 01:73B2 - 22 14 D2
-   call   UNK_03956                    ; 01:73B5 - CD 56 39
+   call   check_collision_with_sonic   ; 01:73B5 - CD 56 39
    jp     c, addr_0745B                ; 01:73B8 - DA 5B 74
    ld     a, (sonic_vel_y_hi)          ; 01:73BB - 3A 08 D4
    and    a                            ; 01:73BE - A7
@@ -12922,7 +12922,7 @@ addr_077BE:
    jp     nz, addr_07821               ; 01:77C9 - C2 21 78
    ld     hl, $0C08                    ; 01:77CC - 21 08 0C
    ld     (var_D214), hl               ; 01:77CF - 22 14 D2
-   call   UNK_03956                    ; 01:77D2 - CD 56 39
+   call   check_collision_with_sonic   ; 01:77D2 - CD 56 39
    ret    c                            ; 01:77D5 - D8
    bit    0, (iy+var_D205-IYBASE)      ; 01:77D6 - FD CB 05 46
    ret    nz                           ; 01:77DA - C0
@@ -13182,7 +13182,7 @@ objfunc_4B_UNKNOWN:
    ld     (ix+14), $40                 ; 01:7AAF - DD 36 0E 40
    ld     hl, $0000                    ; 01:7AB3 - 21 00 00
    ld     (var_D214), hl               ; 01:7AB6 - 22 14 D2
-   call   UNK_03956                    ; 01:7AB9 - CD 56 39
+   call   check_collision_with_sonic   ; 01:7AB9 - CD 56 39
    ret    c                            ; 01:7ABC - D8
    bit    6, (iy+var_D206-IYBASE)      ; 01:7ABD - FD CB 06 76
    ret    nz                           ; 01:7AC1 - C0
@@ -13451,7 +13451,7 @@ addr_07CD2:
    ld     l, h                         ; 01:7CD6 - 6C
    ld     h, a                         ; 01:7CD7 - 67
    add    hl, bc                       ; 01:7CD8 - 09
-   ld     a, (var_D40A)                ; 01:7CD9 - 3A 0A D4
+   ld     a, (sonic_size_y)            ; 01:7CD9 - 3A 0A D4
    ld     c, a                         ; 01:7CDC - 4F
    xor    a                            ; 01:7CDD - AF
    ld     b, a                         ; 01:7CDE - 47
@@ -13557,7 +13557,7 @@ addr_07DAF:
 addr_07DC9:
    ld     hl, $0204                    ; 01:7DC9 - 21 04 02
    ld     (var_D214), hl               ; 01:7DCC - 22 14 D2
-   call   UNK_03956                    ; 01:7DCF - CD 56 39
+   call   check_collision_with_sonic   ; 01:7DCF - CD 56 39
    ld     hl, $0000                    ; 01:7DD2 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 01:7DD5 - 22 0E D2
    call   nc, UNK_035E5                ; 01:7DD8 - D4 E5 35
@@ -13602,7 +13602,7 @@ addr_07E3C:
    jp     m, addr_07E65                ; 01:7E4B - FA 65 7E
    ld     hl, $0806                    ; 01:7E4E - 21 06 08
    ld     (var_D214), hl               ; 01:7E51 - 22 14 D2
-   call   UNK_03956                    ; 01:7E54 - CD 56 39
+   call   check_collision_with_sonic   ; 01:7E54 - CD 56 39
    jr     c, addr_07E65                ; 01:7E57 - 38 0C
    ld     bc, $0010                    ; 01:7E59 - 01 10 00
    ld     e, (ix+10)                   ; 01:7E5C - DD 5E 0A
@@ -13685,7 +13685,7 @@ addr_07F2A:
    jp     m, UNK_08003                 ; 01:7F2E - FA 03 80
    ld     hl, $0806                    ; 01:7F31 - 21 06 08
    ld     (var_D214), hl               ; 01:7F34 - 22 14 D2
-   call   UNK_03956                    ; 01:7F37 - CD 56 39
+   call   check_collision_with_sonic   ; 01:7F37 - CD 56 39
    jp     c, UNK_08003                 ; 01:7F3A - DA 03 80
    ld     bc, $0010                    ; 01:7F3D - 01 10 00
    ld     e, (ix+10)                   ; 01:7F40 - DD 5E 0A
@@ -13988,7 +13988,7 @@ objfunc_2B_UNKNOWN:
    ld     (ix+14), $10                 ; 02:8220 - DD 36 0E 10
    ld     hl, $0202                    ; 02:8224 - 21 02 02
    ld     (var_D214), hl               ; 02:8227 - 22 14 D2
-   call   UNK_03956                    ; 02:822A - CD 56 39
+   call   check_collision_with_sonic   ; 02:822A - CD 56 39
    call   nc, addr_035FD               ; 02:822D - D4 FD 35
    ld     l, (ix+7)                    ; 02:8230 - DD 6E 07
    ld     h, (ix+8)                    ; 02:8233 - DD 66 08
@@ -14074,13 +14074,13 @@ objfunc_2D_UNKNOWN:
    ld     (ix+14), $0F                 ; 02:82EA - DD 36 0E 0F
    ld     hl, $0408                    ; 02:82EE - 21 08 04
    ld     (var_D214), hl               ; 02:82F1 - 22 14 D2
-   call   UNK_03956                    ; 02:82F4 - CD 56 39
+   call   check_collision_with_sonic   ; 02:82F4 - CD 56 39
    call   nc, addr_035FD               ; 02:82F7 - D4 FD 35
    ld     (ix+13), $14                 ; 02:82FA - DD 36 0D 14
    ld     (ix+14), $20                 ; 02:82FE - DD 36 0E 20
    ld     hl, $1006                    ; 02:8302 - 21 06 10
    ld     (var_D214), hl               ; 02:8305 - 22 14 D2
-   call   UNK_03956                    ; 02:8308 - CD 56 39
+   call   check_collision_with_sonic   ; 02:8308 - CD 56 39
    ld     hl, $0404                    ; 02:830B - 21 04 04
    ld     (g_FF_string_high_byte), hl  ; 02:830E - 22 0E D2
    call   nc, UNK_035E5                ; 02:8311 - D4 E5 35
@@ -14210,7 +14210,7 @@ addr_08446:
 addr_08467:
    ld     hl, $0402                    ; 02:8467 - 21 02 04
    ld     (var_D214), hl               ; 02:846A - 22 14 D2
-   call   UNK_03956                    ; 02:846D - CD 56 39
+   call   check_collision_with_sonic   ; 02:846D - CD 56 39
    ret    c                            ; 02:8470 - D8
    ld     a, (sonic_vel_y_hi)          ; 02:8471 - 3A 08 D4
    and    a                            ; 02:8474 - A7
@@ -14571,7 +14571,7 @@ addr_0871B:
    ld     a, c                         ; 02:8789 - 79
    add    a, $04                       ; 02:878A - C6 04
    ld     (var_D215), a                ; 02:878C - 32 15 D2
-   call   UNK_03956                    ; 02:878F - CD 56 39
+   call   check_collision_with_sonic   ; 02:878F - CD 56 39
    jr     nc, addr_087BC               ; 02:8792 - 30 28
    ld     a, (sonic_vel_y_hi)          ; 02:8794 - 3A 08 D4
    and    a                            ; 02:8797 - A7
@@ -14587,7 +14587,7 @@ addr_0871B:
    sub    (ix+17)                      ; 02:87AE - DD 96 11
    add    a, $04                       ; 02:87B1 - C6 04
    ld     (var_D215), a                ; 02:87B3 - 32 15 D2
-   call   UNK_03956                    ; 02:87B6 - CD 56 39
+   call   check_collision_with_sonic   ; 02:87B6 - CD 56 39
    jr     nc, addr_087ED               ; 02:87B9 - 30 32
    ret                                 ; 02:87BB - C9
 
@@ -14631,7 +14631,7 @@ addr_087F9:
    sub    $04                          ; 02:8806 - D6 04
    ld     c, a                         ; 02:8808 - 4F
    add    hl, bc                       ; 02:8809 - 09
-   ld     a, (var_D40A)                ; 02:880A - 3A 0A D4
+   ld     a, (sonic_size_y)            ; 02:880A - 3A 0A D4
    ld     c, a                         ; 02:880D - 4F
    xor    a                            ; 02:880E - AF
    sbc    hl, bc                       ; 02:880F - ED 42
@@ -14669,7 +14669,7 @@ objfunc_3C_UNKNOWN:
    ld     (ix+14), $0C                 ; 02:8852 - DD 36 0E 0C
    ld     hl, $0A02                    ; 02:8856 - 21 02 0A
    ld     (var_D214), hl               ; 02:8859 - 22 14 D2
-   call   UNK_03956                    ; 02:885C - CD 56 39
+   call   check_collision_with_sonic   ; 02:885C - CD 56 39
    ld     hl, $0008                    ; 02:885F - 21 08 00
    ld     (g_FF_string_high_byte), hl  ; 02:8862 - 22 0E D2
    call   nc, UNK_035E5                ; 02:8865 - D4 E5 35
@@ -14686,7 +14686,7 @@ addr_08873:
    ld     (ix+14), $0C                 ; 02:8883 - DD 36 0E 0C
    ld     hl, $0202                    ; 02:8887 - 21 02 02
    ld     (var_D214), hl               ; 02:888A - 22 14 D2
-   call   UNK_03956                    ; 02:888D - CD 56 39
+   call   check_collision_with_sonic   ; 02:888D - CD 56 39
    ld     hl, $0000                    ; 02:8890 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 02:8893 - 22 0E D2
    call   nc, UNK_035E5                ; 02:8896 - D4 E5 35
@@ -14769,7 +14769,7 @@ addr_0894B:
    ld     (ix+6), h                    ; 02:8962 - DD 74 06
    ld     hl, $0204                    ; 02:8965 - 21 04 02
    ld     (var_D214), hl               ; 02:8968 - 22 14 D2
-   call   UNK_03956                    ; 02:896B - CD 56 39
+   call   check_collision_with_sonic   ; 02:896B - CD 56 39
    call   nc, addr_035FD               ; 02:896E - D4 FD 35
    ld     (ix+15), UNK_08987&$FF       ; 02:8971 - DD 36 0F 87
    ld     (ix+16), UNK_08987>>8        ; 02:8975 - DD 36 10 89
@@ -14903,7 +14903,7 @@ addr_08B93:
    ld     a, (hl)                      ; 02:8BA4 - 7E
    ld     (ix+13), $01                 ; 02:8BA5 - DD 36 0D 01
    ld     (ix+14), a                   ; 02:8BA9 - DD 77 0E
-   call   UNK_03956                    ; 02:8BAC - CD 56 39
+   call   check_collision_with_sonic   ; 02:8BAC - CD 56 39
    call   nc, addr_035FD               ; 02:8BAF - D4 FD 35
    ld     a, (var_D223)                ; 02:8BB2 - 3A 23 D2
    cp     $80                          ; 02:8BB5 - FE 80
@@ -15000,7 +15000,7 @@ addr_08CBC:
    jr     nz, addr_08D1A               ; 02:8CCF - 20 49
    ld     hl, $0402                    ; 02:8CD1 - 21 02 04
    ld     (var_D214), hl               ; 02:8CD4 - 22 14 D2
-   call   UNK_03956                    ; 02:8CD7 - CD 56 39
+   call   check_collision_with_sonic   ; 02:8CD7 - CD 56 39
    call   nc, addr_035FD               ; 02:8CDA - D4 FD 35
    ld     e, (ix+2)                    ; 02:8CDD - DD 5E 02
    ld     d, (ix+3)                    ; 02:8CE0 - DD 56 03
@@ -15303,7 +15303,7 @@ objfunc_44_UNKNOWN:
    ld     (ix+14), $20                 ; 02:8F71 - DD 36 0E 20
    ld     hl, $0202                    ; 02:8F75 - 21 02 02
    ld     (var_D214), hl               ; 02:8F78 - 22 14 D2
-   call   UNK_03956                    ; 02:8F7B - CD 56 39
+   call   check_collision_with_sonic   ; 02:8F7B - CD 56 39
    ld     hl, $0800                    ; 02:8F7E - 21 00 08
    ld     (g_FF_string_high_byte), hl  ; 02:8F81 - 22 0E D2
    call   nc, UNK_035E5                ; 02:8F84 - D4 E5 35
@@ -15525,7 +15525,7 @@ addr_0918A:
 addr_091B7:
    ld     hl, $0E02                    ; 02:91B7 - 21 02 0E
    ld     (var_D214), hl               ; 02:91BA - 22 14 D2
-   call   UNK_03956                    ; 02:91BD - CD 56 39
+   call   check_collision_with_sonic   ; 02:91BD - CD 56 39
    ret    c                            ; 02:91C0 - D8
    set    0, (ix+24)                   ; 02:91C1 - DD CB 18 C6
    ld     a, (sonic_vel_y)             ; 02:91C5 - 3A 07 D4
@@ -15853,7 +15853,7 @@ objfunc_2F_UNKNOWN:
    ld     (ix+14), $0A                 ; 02:94AD - DD 36 0E 0A
    ld     hl, $0404                    ; 02:94B1 - 21 04 04
    ld     (var_D214), hl               ; 02:94B4 - 22 14 D2
-   call   UNK_03956                    ; 02:94B7 - CD 56 39
+   call   check_collision_with_sonic   ; 02:94B7 - CD 56 39
    call   nc, addr_035FD               ; 02:94BA - D4 FD 35
    bit    1, (ix+24)                   ; 02:94BD - DD CB 18 4E
    jr     nz, addr_094E2               ; 02:94C1 - 20 1F
@@ -16208,7 +16208,7 @@ addr_09767:
 addr_09797:
    ld     hl, $0206                    ; 02:9797 - 21 06 02
    ld     (var_D214), hl               ; 02:979A - 22 14 D2
-   call   UNK_03956                    ; 02:979D - CD 56 39
+   call   check_collision_with_sonic   ; 02:979D - CD 56 39
    jr     c, addr_097E3                ; 02:97A0 - 38 41
    ld     bc, (sonic_y)                ; 02:97A2 - ED 4B 01 D4
    ld     e, (ix+5)                    ; 02:97A6 - DD 5E 05
@@ -16338,7 +16338,7 @@ addr_09894:
    ld     (var_D214), hl               ; 02:989E - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98A1 - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:98A5 - DD 36 0E 16
-   call   UNK_03956                    ; 02:98A9 - CD 56 39
+   call   check_collision_with_sonic   ; 02:98A9 - CD 56 39
    ret    c                            ; 02:98AC - D8
    ld     bc, UNK_0999E                ; 02:98AD - 01 9E 99
    call   addr_09AAF                   ; 02:98B0 - CD AF 9A
@@ -16365,7 +16365,7 @@ addr_098D3:
    ld     (var_D214), hl               ; 02:98E3 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98E6 - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:98EA - DD 36 0E 16
-   call   UNK_03956                    ; 02:98EE - CD 56 39
+   call   check_collision_with_sonic   ; 02:98EE - CD 56 39
    ret    c                            ; 02:98F1 - D8
    ld     bc, UNK_099BE                ; 02:98F2 - 01 BE 99
    call   addr_09AAF                   ; 02:98F5 - CD AF 9A
@@ -16419,7 +16419,7 @@ addr_0995E:
    ld     (var_D214), hl               ; 02:9969 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:996C - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:9970 - DD 36 0E 16
-   call   UNK_03956                    ; 02:9974 - CD 56 39
+   call   check_collision_with_sonic   ; 02:9974 - CD 56 39
    ret    c                            ; 02:9977 - D8
    ld     bc, UNK_099DE                ; 02:9978 - 01 DE 99
    call   addr_09AAF                   ; 02:997B - CD AF 9A
@@ -16548,7 +16548,7 @@ addr_09B2C:
    jr     nz, addr_09B6A               ; 02:9B33 - 20 35
    ld     hl, $0602                    ; 02:9B35 - 21 02 06
    ld     (var_D214), hl               ; 02:9B38 - 22 14 D2
-   call   UNK_03956                    ; 02:9B3B - CD 56 39
+   call   check_collision_with_sonic   ; 02:9B3B - CD 56 39
    ret    c                            ; 02:9B3E - D8
    ld     a, (var_D2E8)                ; 02:9B3F - 3A E8 D2
    ld     de, (var_D2E6)               ; 02:9B42 - ED 5B E6 D2
@@ -16587,7 +16587,7 @@ objfunc_13_UNKNOWN:
    ld     (ix+14), $60                 ; 02:9B7D - DD 36 0E 60
    ld     hl, $0000                    ; 02:9B81 - 21 00 00
    ld     (var_D214), hl               ; 02:9B84 - 22 14 D2
-   call   UNK_03956                    ; 02:9B87 - CD 56 39
+   call   check_collision_with_sonic   ; 02:9B87 - CD 56 39
    jr     c, addr_09BD1                ; 02:9B8A - 38 45
    ld     l, (ix+2)                    ; 02:9B8C - DD 6E 02
    ld     h, (ix+3)                    ; 02:9B8F - DD 66 03
@@ -16669,7 +16669,7 @@ addr_09C19:
    jr     nc, addr_09C34               ; 02:9C26 - 30 0C
    ld     hl, $0400                    ; 02:9C28 - 21 00 04
    ld     (var_D214), hl               ; 02:9C2B - 22 14 D2
-   call   UNK_03956                    ; 02:9C2E - CD 56 39
+   call   check_collision_with_sonic   ; 02:9C2E - CD 56 39
    call   nc, addr_035FD               ; 02:9C31 - D4 FD 35
 
 addr_09C34:
@@ -16793,7 +16793,7 @@ addr_09D11:
    jr     z, addr_09D36                ; 02:9D28 - 28 0C
    ld     hl, $0202                    ; 02:9D2A - 21 02 02
    ld     (var_D214), hl               ; 02:9D2D - 22 14 D2
-   call   UNK_03956                    ; 02:9D30 - CD 56 39
+   call   check_collision_with_sonic   ; 02:9D30 - CD 56 39
    call   nc, addr_035FD               ; 02:9D33 - D4 FD 35
 
 addr_09D36:
@@ -16839,7 +16839,7 @@ objfunc_17_UNKNOWN:
    jr     nc, addr_09E33               ; 02:9E06 - 30 2B
    ld     hl, $0005                    ; 02:9E08 - 21 05 00
    ld     (var_D214), hl               ; 02:9E0B - 22 14 D2
-   call   UNK_03956                    ; 02:9E0E - CD 56 39
+   call   check_collision_with_sonic   ; 02:9E0E - CD 56 39
    jr     c, addr_09E33                ; 02:9E11 - 38 20
    ld     de, $0005                    ; 02:9E13 - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:9E16 - 3A 05 D4
@@ -17006,7 +17006,7 @@ objfunc_18_UNKNOWN:
    jr     nc, addr_09F9C               ; 02:9F6E - 30 2C
    ld     hl, $0005                    ; 02:9F70 - 21 05 00
    ld     (var_D214), hl               ; 02:9F73 - 22 14 D2
-   call   UNK_03956                    ; 02:9F76 - CD 56 39
+   call   check_collision_with_sonic   ; 02:9F76 - CD 56 39
    jr     c, addr_09F9C                ; 02:9F79 - 38 21
    ld     de, $0005                    ; 02:9F7B - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:9F7E - 3A 05 D4
@@ -17079,7 +17079,7 @@ objfunc_19_UNKNOWN:
    jr     nc, addr_0A05F               ; 02:A031 - 30 2C
    ld     hl, $0005                    ; 02:A033 - 21 05 00
    ld     (var_D214), hl               ; 02:A036 - 22 14 D2
-   call   UNK_03956                    ; 02:A039 - CD 56 39
+   call   check_collision_with_sonic   ; 02:A039 - CD 56 39
    jr     c, addr_0A05F                ; 02:A03C - 38 21
    ld     de, $0005                    ; 02:A03E - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:A041 - 3A 05 D4
@@ -17175,7 +17175,7 @@ addr_0A11E:
 addr_0A12A:
    ld     hl, $0000                    ; 02:A12A - 21 00 00
    ld     (var_D214), hl               ; 02:A12D - 22 14 D2
-   call   UNK_03956                    ; 02:A130 - CD 56 39
+   call   check_collision_with_sonic   ; 02:A130 - CD 56 39
    call   nc, addr_035FD               ; 02:A133 - D4 FD 35
    ld     de, UNK_0A173                ; 02:A136 - 11 73 A1
    ld     bc, UNK_0A167                ; 02:A139 - 01 67 A1
@@ -17220,7 +17220,7 @@ objfunc_1B_UNKNOWN:
    ld     (ix+14), $20                 ; 02:A1AE - DD 36 0E 20
    ld     hl, $0803                    ; 02:A1B2 - 21 03 08
    ld     (var_D214), hl               ; 02:A1B5 - 22 14 D2
-   call   UNK_03956                    ; 02:A1B8 - CD 56 39
+   call   check_collision_with_sonic   ; 02:A1B8 - CD 56 39
    ld     hl, $0E00                    ; 02:A1BB - 21 00 0E
    ld     (g_FF_string_high_byte), hl  ; 02:A1BE - 22 0E D2
    call   nc, UNK_035E5                ; 02:A1C1 - D4 E5 35
@@ -17360,7 +17360,7 @@ objfunc_1C_UNKNOWN:
    ld     (ix+14), $0F                 ; 02:A344 - DD 36 0E 0F
    ld     hl, $0101                    ; 02:A348 - 21 01 01
    ld     (var_D214), hl               ; 02:A34B - 22 14 D2
-   call   UNK_03956                    ; 02:A34E - CD 56 39
+   call   check_collision_with_sonic   ; 02:A34E - CD 56 39
    call   nc, addr_035FD               ; 02:A351 - D4 FD 35
    bit    7, (ix+24)                   ; 02:A354 - DD CB 18 7E
    jr     z, addr_0A366                ; 02:A358 - 28 0C
@@ -17433,7 +17433,7 @@ objfunc_1D_floorbutton:
 addr_0A41A:
    ld     hl, $0001                    ; 02:A41A - 21 01 00
    ld     (var_D214), hl               ; 02:A41D - 22 14 D2
-   call   UNK_03956                    ; 02:A420 - CD 56 39
+   call   check_collision_with_sonic   ; 02:A420 - CD 56 39
    jr     c, addr_0A464                ; 02:A423 - 38 3F
    ld     a, (sonic_vel_y_hi)          ; 02:A425 - 3A 08 D4
    and    a                            ; 02:A428 - A7
@@ -17499,7 +17499,7 @@ objfunc_1E_door_from_button:
    jr     nc, addr_0A4E5               ; 02:A4B7 - 30 2C
    ld     hl, $0005                    ; 02:A4B9 - 21 05 00
    ld     (var_D214), hl               ; 02:A4BC - 22 14 D2
-   call   UNK_03956                    ; 02:A4BF - CD 56 39
+   call   check_collision_with_sonic   ; 02:A4BF - CD 56 39
    jr     c, addr_0A4E5                ; 02:A4C2 - 38 21
    ld     de, $0005                    ; 02:A4C4 - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:A4C7 - 3A 05 D4
@@ -17636,7 +17636,7 @@ addr_0A5B3:
    ld     (ix+13), $06                 ; 02:A5E8 - DD 36 0D 06
    ld     hl, $0802                    ; 02:A5EC - 21 02 08
    ld     (var_D214), hl               ; 02:A5EF - 22 14 D2
-   call   UNK_03956                    ; 02:A5F2 - CD 56 39
+   call   check_collision_with_sonic   ; 02:A5F2 - CD 56 39
    ld     hl, $0000                    ; 02:A5F5 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 02:A5F8 - 22 0E D2
    jr     c, addr_0A602                ; 02:A5FB - 38 05
@@ -17647,7 +17647,7 @@ addr_0A602:
    ld     (ix+13), $16                 ; 02:A602 - DD 36 0D 16
    ld     hl, $0806                    ; 02:A606 - 21 06 08
    ld     (var_D214), hl               ; 02:A609 - 22 14 D2
-   call   UNK_03956                    ; 02:A60C - CD 56 39
+   call   check_collision_with_sonic   ; 02:A60C - CD 56 39
    call   nc, addr_035FD               ; 02:A60F - D4 FD 35
    jr     addr_0A65B                   ; 02:A612 - 18 47
 
@@ -17667,7 +17667,7 @@ addr_0A614:
    ld     (ix+13), $10                 ; 02:A631 - DD 36 0D 10
    ld     hl, $0401                    ; 02:A635 - 21 01 04
    ld     (var_D214), hl               ; 02:A638 - 22 14 D2
-   call   UNK_03956                    ; 02:A63B - CD 56 39
+   call   check_collision_with_sonic   ; 02:A63B - CD 56 39
    jr     c, addr_0A645                ; 02:A63E - 38 05
    call   addr_035FD                   ; 02:A640 - CD FD 35
    jr     addr_0A65B                   ; 02:A643 - 18 16
@@ -17676,7 +17676,7 @@ addr_0A645:
    ld     (ix+13), $16                 ; 02:A645 - DD 36 0D 16
    ld     hl, $0410                    ; 02:A649 - 21 10 04
    ld     (var_D214), hl               ; 02:A64C - 22 14 D2
-   call   UNK_03956                    ; 02:A64F - CD 56 39
+   call   check_collision_with_sonic   ; 02:A64F - CD 56 39
    ld     hl, $0000                    ; 02:A652 - 21 00 00
    ld     (g_FF_string_high_byte), hl  ; 02:A655 - 22 0E D2
    call   nc, UNK_035E5                ; 02:A658 - D4 E5 35
@@ -18094,7 +18094,7 @@ addr_0AADA:
    djnz   addr_0AAC0                   ; 02:AADB - 10 E3
    ld     hl, $0202                    ; 02:AADD - 21 02 02
    ld     (var_D214), hl               ; 02:AAE0 - 22 14 D2
-   call   UNK_03956                    ; 02:AAE3 - CD 56 39
+   call   check_collision_with_sonic   ; 02:AAE3 - CD 56 39
    call   nc, addr_035FD               ; 02:AAE6 - D4 FD 35
    ld     (ix+15), $00                 ; 02:AAE9 - DD 36 0F 00
    ld     (ix+16), $00                 ; 02:AAED - DD 36 10 00
@@ -18250,7 +18250,7 @@ addr_0AC6A:
 addr_0AC76:
    ld     hl, $0202                    ; 02:AC76 - 21 02 02
    ld     (var_D214), hl               ; 02:AC79 - 22 14 D2
-   call   UNK_03956                    ; 02:AC7C - CD 56 39
+   call   check_collision_with_sonic   ; 02:AC7C - CD 56 39
    call   nc, addr_035FD               ; 02:AC7F - D4 FD 35
    ld     a, (var_D223)                ; 02:AC82 - 3A 23 D2
    and    $3F                          ; 02:AC85 - E6 3F
@@ -18415,7 +18415,7 @@ objfunc_34_UNKNOWN:
 addr_0AE57:
    ld     hl, $0202                    ; 02:AE57 - 21 02 02
    ld     (var_D214), hl               ; 02:AE5A - 22 14 D2
-   call   UNK_03956                    ; 02:AE5D - CD 56 39
+   call   check_collision_with_sonic   ; 02:AE5D - CD 56 39
    call   nc, addr_035FD               ; 02:AE60 - D4 FD 35
    xor    a                            ; 02:AE63 - AF
    ld     (ix+7), $80                  ; 02:AE64 - DD 36 07 80
@@ -18475,7 +18475,7 @@ addr_0AEF9:
    ld     (ix+14), $1C                 ; 02:AEFD - DD 36 0E 1C
    ld     hl, $1212                    ; 02:AF01 - 21 12 12
    ld     (var_D214), hl               ; 02:AF04 - 22 14 D2
-   call   UNK_03956                    ; 02:AF07 - CD 56 39
+   call   check_collision_with_sonic   ; 02:AF07 - CD 56 39
    ld     hl, $1010                    ; 02:AF0A - 21 10 10
    ld     (g_FF_string_high_byte), hl  ; 02:AF0D - 22 0E D2
    call   nc, UNK_035E5                ; 02:AF10 - D4 E5 35
@@ -18524,7 +18524,7 @@ addr_0AF2E:
    ld     (var_D215), a                ; 02:AF5F - 32 15 D2
    add    a, $04                       ; 02:AF62 - C6 04
    ld     (ix+14), a                   ; 02:AF64 - DD 77 0E
-   call   UNK_03956                    ; 02:AF67 - CD 56 39
+   call   check_collision_with_sonic   ; 02:AF67 - CD 56 39
    call   nc, addr_035FD               ; 02:AF6A - D4 FD 35
 
 addr_0AF6D:
@@ -18665,7 +18665,7 @@ objfunc_36_UNKNOWN:
    ld     (ix+14), $0A                 ; 02:B104 - DD 36 0E 0A
    ld     hl, $0602                    ; 02:B108 - 21 02 06
    ld     (var_D214), hl               ; 02:B10B - 22 14 D2
-   call   UNK_03956                    ; 02:B10E - CD 56 39
+   call   check_collision_with_sonic   ; 02:B10E - CD 56 39
    call   nc, addr_035FD               ; 02:B111 - D4 FD 35
    ld     l, (ix+2)                    ; 02:B114 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B117 - DD 66 03
@@ -18863,7 +18863,7 @@ addr_0B2B7:
    ld     (ix+14), $10                 ; 02:B2DE - DD 36 0E 10
    ld     hl, $0A02                    ; 02:B2E2 - 21 02 0A
    ld     (var_D214), hl               ; 02:B2E5 - 22 14 D2
-   call   UNK_03956                    ; 02:B2E8 - CD 56 39
+   call   check_collision_with_sonic   ; 02:B2E8 - CD 56 39
    jr     c, addr_0B329                ; 02:B2EB - 38 3C
    ld     hl, $0030                    ; 02:B2ED - 21 30 00
    ld     (var_D26B), hl               ; 02:B2F0 - 22 6B D2
@@ -18953,7 +18953,7 @@ addr_0B3B2:
    ld     (ix+16), UNK_0B45B>>8        ; 02:B3BE - DD 36 10 B4
    ld     hl, $0202                    ; 02:B3C2 - 21 02 02
    ld     (var_D214), hl               ; 02:B3C5 - 22 14 D2
-   call   UNK_03956                    ; 02:B3C8 - CD 56 39
+   call   check_collision_with_sonic   ; 02:B3C8 - CD 56 39
    call   nc, addr_035FD               ; 02:B3CB - D4 FD 35
    ld     l, (ix+1)                    ; 02:B3CE - DD 6E 01
    ld     h, (ix+2)                    ; 02:B3D1 - DD 66 02
@@ -19173,7 +19173,7 @@ addr_0B591:
    ld     (ix+14), $1C                 ; 02:B59A - DD 36 0E 1C
    ld     hl, $0802                    ; 02:B59E - 21 02 08
    ld     (var_D214), hl               ; 02:B5A1 - 22 14 D2
-   call   UNK_03956                    ; 02:B5A4 - CD 56 39
+   call   check_collision_with_sonic   ; 02:B5A4 - CD 56 39
    ret    c                            ; 02:B5A7 - D8
    ld     e, (ix+10)                   ; 02:B5A8 - DD 5E 0A
    ld     d, (ix+11)                   ; 02:B5AB - DD 56 0B
@@ -19936,7 +19936,7 @@ objfunc_47_UNKNOWN:
    set    5, (iy+var_D208-IYBASE)      ; 02:BCE3 - FD CB 08 EE
    ld     hl, $0202                    ; 02:BCE7 - 21 02 02
    ld     (var_D214), hl               ; 02:BCEA - 22 14 D2
-   call   UNK_03956                    ; 02:BCED - CD 56 39
+   call   check_collision_with_sonic   ; 02:BCED - CD 56 39
    jr     c, addr_0BCFC                ; 02:BCF0 - 38 0A
    bit    0, (iy+var_D205-IYBASE)      ; 02:BCF2 - FD CB 05 46
    call   z, addr_035FD                ; 02:BCF6 - CC FD 35
@@ -20123,7 +20123,7 @@ addr_0BE96:
    jr     nz, addr_0BED7               ; 02:BEA2 - 20 33
    ld     hl, $1008                    ; 02:BEA4 - 21 08 10
    ld     (var_D214), hl               ; 02:BEA7 - 22 14 D2
-   call   UNK_03956                    ; 02:BEAA - CD 56 39
+   call   check_collision_with_sonic   ; 02:BEAA - CD 56 39
    jr     c, addr_0BED7                ; 02:BEAD - 38 28
    ld     de, $0001                    ; 02:BEAF - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 02:BEB2 - 2A 06 D4

@@ -76,6 +76,9 @@ In-memory object structure:
    This is argument BC to 00:350F. Some objects call this function directly instead of using (IX+$0F).w.
 
 (IX+$11).b is...? Y-pos related? (at least for $1E button-triggered doors)
+   For $07 signposts:
+      b0 = 1 if we've loaded the signpost art.
+         It defaults to 0, and we load it as soon as we come into view.
 
 (IX+$13).b is...?
    For $03 life monitors:
