@@ -32,6 +32,9 @@
 ;; NOT COMPATIBLE WITH cht_no_speed_cap.
 .DEF cht_inverse_speed_cap 0
 
+;; bool: Double Bounce: Doubles your velocity when bouncing off enemies and monitors and stuff.
+.DEF cht_double_bounce 0
+
 ;; bool: Force Good Ending: Forces the good ending cutscene.
 ;; If you want the bonus, you have to actually get all 6 Chaos Emeralds.
 ;; This is mostly for testing purposes.
@@ -13539,6 +13542,11 @@ objfunc_0A_explosion:
    cpl                                 ; 01:6984 - 2F
    add    hl, de                       ; 01:6985 - 19
    adc    a, c                         ; 01:6986 - 89
+   .IF cht_double_bounce
+      and a
+      adc hl, hl
+      adc a, a
+   .ENDIF
    ld     (sonic_vel_y_sub), hl        ; 01:6987 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:698A - 32 08 D4
 
