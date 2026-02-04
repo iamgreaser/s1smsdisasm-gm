@@ -62,7 +62,7 @@ var_D216 db   ; D216
 g_saved_vdp_reg_00 db   ; D218
 g_saved_vdp_reg_01 db   ; D219
 .  dsb 9
-var_D223 db   ; D223
+g_global_tick_counter db   ; D223
 .  dsb 1
 var_D225 dw   ; D225
 var_D227 dw   ; D227
@@ -117,7 +117,7 @@ var_D277 dw   ; D277
 var_D279 dw   ; D279
 var_D27B dw   ; D27B
 var_D27D dw   ; D27D
-var_D27F db   ; D27F
+g_chaos_emeralds_collected db   ; D27F
 g_level_lives_collected db   ; D280
 var_D281 db   ; D281
 var_D282 db   ; D282
@@ -2278,7 +2278,7 @@ write_partial_monitor_art:
    di                                  ; 00:0C1D - F3
    ld     a, $05                       ; 00:0C1E - 3E 05
    ld     (rompage_1), a               ; 00:0C20 - 32 FE FF
-   ld     a, (var_D223)                ; 00:0C23 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:0C23 - 3A 23 D2
    and    $0F                          ; 00:0C26 - E6 0F
    add    a, a                         ; 00:0C28 - 87
    add    a, a                         ; 00:0C29 - 87
@@ -3342,7 +3342,7 @@ handle_level_score_screen:
    call   unpack_art_tilemap_into_vram  ; 00:15B0 - CD 01 05
    ld     hl, LUT_01711                ; 00:15B3 - 21 11 17
    ld     c, $10                       ; 00:15B6 - 0E 10
-   ld     a, (var_D27F)                ; 00:15B8 - 3A 7F D2
+   ld     a, (g_chaos_emeralds_collected)  ; 00:15B8 - 3A 7F D2
    and    a                            ; 00:15BB - A7
    call   nz, addr_016D9               ; 00:15BC - C4 D9 16
    ld     a, (g_level)                 ; 00:15BF - 3A 3E D2
@@ -3562,7 +3562,7 @@ _handle_level_score_screen_13:
    ld     a, $FF                       ; 00:172F - 3E FF
    ld     (var_D2FD), a                ; 00:1731 - 32 FD D2
    ld     c, $00                       ; 00:1734 - 0E 00
-   ld     a, (var_D27F)                ; 00:1736 - 3A 7F D2
+   ld     a, (g_chaos_emeralds_collected)  ; 00:1736 - 3A 7F D2
    cp     $06                          ; 00:1739 - FE 06
    jr     c, addr_0173F                ; 00:173B - 38 02
    ld     c, $05                       ; 00:173D - 0E 05
@@ -3645,11 +3645,11 @@ addr_0177B:
 addr_017BF:
    ld     bc, $003C                    ; 00:17BF - 01 3C 00
    call   addr_01860                   ; 00:17C2 - CD 60 18
-   ld     a, (var_D27F)                ; 00:17C5 - 3A 7F D2
+   ld     a, (g_chaos_emeralds_collected)  ; 00:17C5 - 3A 7F D2
    and    a                            ; 00:17C8 - A7
    jr     z, addr_017DD                ; 00:17C9 - 28 12
    dec    a                            ; 00:17CB - 3D
-   ld     (var_D27F), a                ; 00:17CC - 32 7F D2
+   ld     (g_chaos_emeralds_collected), a  ; 00:17CC - 32 7F D2
    ld     de, $0000                    ; 00:17CF - 11 00 00
    ld     c, $02                       ; 00:17D2 - 0E 02
    call   addr_039D8                   ; 00:17D4 - CD D8 39
@@ -3744,7 +3744,7 @@ addr_01860:
    ld     a, (var_D216)                ; 00:188B - 3A 16 D2
    and    a                            ; 00:188E - A7
    jr     nz, addr_018C5               ; 00:188F - 20 34
-   ld     hl, var_D27F                 ; 00:1891 - 21 7F D2
+   ld     hl, g_chaos_emeralds_collected  ; 00:1891 - 21 7F D2
    ld     de, g_HUD_FFstr_buf          ; 00:1894 - 11 BE D2
    ld     b, $01                       ; 00:1897 - 06 01
    call   addr_01B13                   ; 00:1899 - CD 13 1B
@@ -4104,7 +4104,7 @@ update_demo_inputs:
    add    hl, de                       ; 00:1BB3 - 19
    ld     a, (hl)                      ; 00:1BB4 - 7E
    ld     (iy+g_inputs_player_1-IYBASE), a  ; 00:1BB5 - FD 77 03
-   ld     a, (var_D223)                ; 00:1BB8 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:1BB8 - 3A 23 D2
    and    $1F                          ; 00:1BBB - E6 1F
    ret    nz                           ; 00:1BBD - C0
    ld     hl, (g_demo_next_input_relptr)  ; 00:1BBE - 2A B5 D2
@@ -4136,9 +4136,9 @@ addr_01C4E:
    ld     (g_next_bonus_level), a      ; 00:1C5A - 32 3F D2
    xor    a                            ; 00:1C5D - AF
    ld     (g_level), a                 ; 00:1C5E - 32 3E D2
-   ld     (var_D223), a                ; 00:1C61 - 32 23 D2
+   ld     (g_global_tick_counter), a   ; 00:1C61 - 32 23 D2
    ld     (iy+var_D20D-IYBASE), a      ; 00:1C64 - FD 77 0D
-   ld     hl, var_D27F                 ; 00:1C67 - 21 7F D2
+   ld     hl, g_chaos_emeralds_collected  ; 00:1C67 - 21 7F D2
    ld     b, $08                       ; 00:1C6A - 06 08
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C6C - CD E8 1C
    ld     hl, var_D200                 ; 00:1C6F - 21 00 D2
@@ -4242,9 +4242,9 @@ addr_01D42:
    res    0, (iy+var_D200-IYBASE)      ; 00:1D43 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1D47 - CD 1C 03
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 00:1D4A - FD 36 03 FF
-   ld     hl, (var_D223)               ; 00:1D4E - 2A 23 D2
+   ld     hl, (g_global_tick_counter)  ; 00:1D4E - 2A 23 D2
    inc    hl                           ; 00:1D51 - 23
-   ld     (var_D223), hl               ; 00:1D52 - 22 23 D2
+   ld     (g_global_tick_counter), hl  ; 00:1D52 - 22 23 D2
    ld     a, $0B                       ; 00:1D55 - 3E 0B
    ld     (rompage_1), a               ; 00:1D57 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1D5A - 32 35 D2
@@ -4287,7 +4287,7 @@ addr_01DAE:
    call   nz, addr_03879               ; 00:1DC1 - C4 79 38
    bit    3, (iy+var_D206-IYBASE)      ; 00:1DC4 - FD CB 06 5E
    call   nz, tick_game_time           ; 00:1DC8 - C4 03 3A
-   ld     a, (var_D223)                ; 00:1DCB - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:1DCB - 3A 23 D2
    and    $01                          ; 00:1DCE - E6 01
    jr     nz, addr_01DDB               ; 00:1DD0 - 20 09
    ld     a, (g_signpost_tickdown_counter)  ; 00:1DD2 - 3A 89 D2
@@ -4317,9 +4317,9 @@ addr_01DF0:
    call   update_demo_inputs           ; 00:1E04 - CD AD 1B
 
 addr_01E07:
-   ld     hl, (var_D223)               ; 00:1E07 - 2A 23 D2
+   ld     hl, (g_global_tick_counter)  ; 00:1E07 - 2A 23 D2
    inc    hl                           ; 00:1E0A - 23
-   ld     (var_D223), hl               ; 00:1E0B - 22 23 D2
+   ld     (g_global_tick_counter), hl  ; 00:1E0B - 22 23 D2
    bit    3, (iy+var_D205-IYBASE)      ; 00:1E0E - FD CB 05 5E
    call   nz, addr_01EE2               ; 00:1E12 - C4 E2 1E
    bit    4, (iy+var_D205-IYBASE)      ; 00:1E15 - FD CB 05 66
@@ -4414,7 +4414,7 @@ addr_01ED8:
    ret                                 ; 00:1EE1 - C9
 
 addr_01EE2:
-   ld     a, (var_D223)                ; 00:1EE2 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:1EE2 - 3A 23 D2
    rrca                                ; 00:1EE5 - 0F
    ret    nc                           ; 00:1EE6 - D0
    ld     hl, (var_D273)               ; 00:1EE7 - 2A 73 D2
@@ -4424,7 +4424,7 @@ addr_01EE2:
    ret                                 ; 00:1EF1 - C9
 
 addr_01EF2:
-   ld     a, (var_D223)                ; 00:1EF2 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:1EF2 - 3A 23 D2
    rrca                                ; 00:1EF5 - 0F
    ret    nc                           ; 00:1EF6 - D0
    ld     hl, (var_D279)               ; 00:1EF7 - 2A 79 D2
@@ -5259,7 +5259,7 @@ addr_0258B:
    ld     a, $01                       ; 00:25DB - 3E 01
    ld     (rompage_1), a               ; 00:25DD - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:25E0 - 32 35 D2
-   ld     a, (var_D27F)                ; 00:25E3 - 3A 7F D2
+   ld     a, (g_chaos_emeralds_collected)  ; 00:25E3 - 3A 7F D2
    cp     $06                          ; 00:25E6 - FE 06
    jp     c, addr_02693                ; 00:25E8 - DA 93 26
    ld     b, $3C                       ; 00:25EB - 06 3C
@@ -6319,7 +6319,7 @@ addr_031DB:
    ret                                 ; 00:31E5 - C9
 
 update_some_objfunc_activation_statuses:
-   ld     a, (var_D223)                ; 00:31E6 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:31E6 - 3A 23 D2
    and    $07                          ; 00:31E9 - E6 07
    ld     c, a                         ; 00:31EB - 4F
    ld     hl, $0068                    ; 00:31EC - 21 68 00
@@ -6327,7 +6327,7 @@ update_some_objfunc_activation_statuses:
    ld     de, object_list              ; 00:31F2 - 11 FC D3
    add    hl, de                       ; 00:31F5 - 19
    ex     de, hl                       ; 00:31F6 - EB
-   ld     a, (var_D223)                ; 00:31F7 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 00:31F7 - 3A 23 D2
    and    $07                          ; 00:31FA - E6 07
    add    a, a                         ; 00:31FC - 87
    add    a, a                         ; 00:31FD - 87
@@ -8065,7 +8065,7 @@ addr_049AD:
    ld     hl, (var_DC0C)               ; 01:49CA - 2A 0C DC
    inc    hl                           ; 01:49CD - 23
    ld     (var_DC0A), hl               ; 01:49CE - 22 0A DC
-   ld     a, (var_D223)                ; 01:49D1 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:49D1 - 3A 23 D2
    and    $03                          ; 01:49D4 - E6 03
    call   z, addr_04FEC                ; 01:49D6 - CC EC 4F
 
@@ -8728,7 +8728,7 @@ addr_04E8D:
    ld     hl, (sonic_y)                ; 01:4E93 - 2A 01 D4
    ld     (var_D210), hl               ; 01:4E96 - 22 10 D2
    ld     hl, var_D2F3                 ; 01:4E99 - 21 F3 D2
-   ld     a, (var_D223)                ; 01:4E9C - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:4E9C - 3A 23 D2
    rrca                                ; 01:4E9F - 0F
    rrca                                ; 01:4EA0 - 0F
    jr     nc, addr_04EA6               ; 01:4EA1 - 30 03
@@ -8747,7 +8747,7 @@ addr_04EA6:
 
 addr_04EB8:
    call   draw_sprite                  ; 01:4EB8 - CD 81 35
-   ld     a, (var_D223)                ; 01:4EBB - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:4EBB - 3A 23 D2
    ld     c, a                         ; 01:4EBE - 4F
    and    $07                          ; 01:4EBF - E6 07
    ret    nz                           ; 01:4EC1 - C0
@@ -8939,7 +8939,7 @@ addr_04FF0:
    ret                                 ; 01:4FF4 - C9
 
 addr_04FF5:
-   ld     a, (var_D223)                ; 01:4FF5 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:4FF5 - 3A 23 D2
    and    $03                          ; 01:4FF8 - E6 03
    ret    nz                           ; 01:4FFA - C0
    ld     hl, var_D28D                 ; 01:4FFB - 21 8D D2
@@ -8992,14 +8992,14 @@ addr_05051:
    ld     d, $00                       ; 01:505D - 16 00
    ld     hl, UNK_05097                ; 01:505F - 21 97 50
    add    hl, de                       ; 01:5062 - 19
-   ld     a, (var_D223)                ; 01:5063 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:5063 - 3A 23 D2
    and    (hl)                         ; 01:5066 - A6
    jr     nz, addr_0506C               ; 01:5067 - 20 03
    ld     a, $1A                       ; 01:5069 - 3E 1A
    rst    $28                          ; 01:506B - EF
 
 addr_0506C:
-   ld     a, (var_D223)                ; 01:506C - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:506C - 3A 23 D2
    rrca                                ; 01:506F - 0F
    ret    nc                           ; 01:5070 - D0
    ld     hl, (sonic_x)                ; 01:5071 - 2A FE D3
@@ -9224,7 +9224,7 @@ addr_051F3:
    ret                                 ; 01:5205 - C9
 
 addr_05206:
-   ld     a, (var_D223)                ; 01:5206 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:5206 - 3A 23 D2
    and    $01                          ; 01:5209 - E6 01
    ret    nz                           ; 01:520B - C0
    ld     d, $18                       ; 01:520C - 16 18
@@ -9248,7 +9248,7 @@ addr_0521F:
 addr_05224:
    bit    4, (ix+24)                   ; 01:5224 - DD CB 18 66
    ret    z                            ; 01:5228 - C8
-   ld     a, (var_D223)                ; 01:5229 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:5229 - 3A 23 D2
    and    a                            ; 01:522C - A7
    call   z, UNK_091EB                 ; 01:522D - CC EB 91
    ret                                 ; 01:5230 - C9
@@ -10318,7 +10318,7 @@ monitor_common_main:
    call   write_partial_monitor_art    ; 01:5B34 - CD 1D 0C
    ld     (ix+15), SPRITEMAP_monitor_noise&$FF  ; 01:5B37 - DD 36 0F BF
    ld     (ix+16), SPRITEMAP_monitor_noise>>8  ; 01:5B3B - DD 36 10 5B
-   ld     a, (var_D223)                ; 01:5B3F - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:5B3F - 3A 23 D2
    and    $07                          ; 01:5B42 - E6 07
    cp     $05                          ; 01:5B44 - FE 05
    ret    nc                           ; 01:5B46 - D0
@@ -10728,7 +10728,7 @@ objfunc_06_chaos_emerald:
    call   calc_level_offset_HL_and_mask_C  ; 01:5EA5 - CD 02 0C
    ld     a, (hl)                      ; 01:5EA8 - 7E
    and    c                            ; 01:5EA9 - A1
-   jr     nz, addr_05EDE               ; 01:5EAA - 20 32
+   jr     nz, @destroy_already_collected  ; 01:5EAA - 20 32
    ld     (ix+13), $0C                 ; 01:5EAC - DD 36 0D 0C
    ld     (ix+14), $11                 ; 01:5EB0 - DD 36 0E 11
    call   addr_05DA8                   ; 01:5EB4 - CD A8 5D
@@ -10738,31 +10738,31 @@ objfunc_06_chaos_emerald:
    ld     hl, $0202                    ; 01:5EBE - 21 02 02
    ld     (var_D214), hl               ; 01:5EC1 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5EC4 - CD 56 39
-   jr     c, addr_05EE3                ; 01:5EC7 - 38 1A
+   jr     c, @dont_collect_yet         ; 01:5EC7 - 38 1A
    ld     hl, g_level_has_emerald_mask  ; 01:5EC9 - 21 0B D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5ECC - CD 02 0C
    ld     a, (hl)                      ; 01:5ECF - 7E
    or     c                            ; 01:5ED0 - B1
    ld     (hl), a                      ; 01:5ED1 - 77
-   ld     hl, var_D27F                 ; 01:5ED2 - 21 7F D2
+   ld     hl, g_chaos_emeralds_collected  ; 01:5ED2 - 21 7F D2
    inc    (hl)                         ; 01:5ED5 - 34
    ld     a, $FE                       ; 01:5ED6 - 3E FE
    ld     (var_D28B), a                ; 01:5ED8 - 32 8B D2
    ld     a, $14                       ; 01:5EDB - 3E 14
    rst    $18                          ; 01:5EDD - DF
 
-addr_05EDE:
+@destroy_already_collected:
    ld     (ix+0), $FF                  ; 01:5EDE - DD 36 00 FF
    ret                                 ; 01:5EE2 - C9
 
-addr_05EE3:
-   ld     a, (var_D223)                ; 01:5EE3 - 3A 23 D2
+@dont_collect_yet:
+   ld     a, (g_global_tick_counter)   ; 01:5EE3 - 3A 23 D2
    rrca                                ; 01:5EE6 - 0F
-   jr     c, addr_05EF1                ; 01:5EE7 - 38 08
+   jr     c, @skip_draw_sprite         ; 01:5EE7 - 38 08
    ld     (ix+15), SPRITEMAP_monitor_image&$FF  ; 01:5EE9 - DD 36 0F 10
    ld     (ix+16), SPRITEMAP_monitor_image>>8  ; 01:5EED - DD 36 10 5F
 
-addr_05EF1:
+@skip_draw_sprite:
    ld     l, (ix+10)                   ; 01:5EF1 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:5EF4 - DD 66 0B
    ld     a, (ix+12)                   ; 01:5EF7 - DD 7E 0C
@@ -11633,7 +11633,7 @@ objfunc_0D_UNKNOWN:
    ld     hl, UNK_06B70                ; 01:6B23 - 21 70 6B
 
 addr_06B26:
-   ld     a, (var_D223)                ; 01:6B26 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:6B26 - 3A 23 D2
    and    $01                          ; 01:6B29 - E6 01
    ld     e, a                         ; 01:6B2B - 5F
    ld     d, $00                       ; 01:6B2C - 16 00
@@ -12053,7 +12053,7 @@ objfunc_11_UNKNOWN:
    jr     nz, addr_06F42               ; 01:6F1C - 20 24
 
 addr_06F1E:
-   ld     a, (var_D223)                ; 01:6F1E - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:6F1E - 3A 23 D2
    and    $01                          ; 01:6F21 - E6 01
    jr     z, addr_06F2A                ; 01:6F23 - 28 05
    ld     bc, $0000                    ; 01:6F25 - 01 00 00
@@ -12482,7 +12482,7 @@ addr_0734A:
    ld     hl, UNK_0757C                ; 01:735B - 21 7C 75
 
 addr_0735E:
-   ld     a, (var_D223)                ; 01:735E - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:735E - 3A 23 D2
    rrca                                ; 01:7361 - 0F
    jr     nc, addr_07368               ; 01:7362 - 30 04
    ld     de, $000C                    ; 01:7364 - 11 0C 00
@@ -12509,7 +12509,7 @@ addr_07368:
    add    hl, bc                       ; 01:7385 - 09
    ld     (var_D2AD), hl               ; 01:7386 - 22 AD D2
    ld     hl, UNK_0752E                ; 01:7389 - 21 2E 75
-   ld     a, (var_D223)                ; 01:738C - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:738C - 3A 23 D2
    and    $10                          ; 01:738F - E6 10
    jr     z, addr_07396                ; 01:7391 - 28 03
    ld     hl, UNK_07552                ; 01:7393 - 21 52 75
@@ -12638,7 +12638,7 @@ addr_0748D:
    ld     (ix+15), a                   ; 01:748E - DD 77 0F
    ld     (ix+16), a                   ; 01:7491 - DD 77 10
    res    5, (iy+var_D200-IYBASE)      ; 01:7494 - FD CB 00 AE
-   ld     a, (var_D223)                ; 01:7498 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:7498 - 3A 23 D2
    and    $0F                          ; 01:749B - E6 0F
    ret    nz                           ; 01:749D - C0
    call   random_A                     ; 01:749E - CD 25 06
@@ -13103,7 +13103,7 @@ addr_079FA:
    ld     a, (ix+7)                    ; 01:79FA - DD 7E 07
    or     (ix+8)                       ; 01:79FD - DD B6 08
    ret    z                            ; 01:7A00 - C8
-   ld     a, (var_D223)                ; 01:7A01 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:7A01 - 3A 23 D2
    bit    0, a                         ; 01:7A04 - CB 47
    ret    nz                           ; 01:7A06 - C0
    and    $02                          ; 01:7A07 - E6 02
@@ -13220,7 +13220,7 @@ addr_07B03:
    ld     (var_D2AB), hl               ; 01:7B0C - 22 AB D2
    ld     l, (ix+5)                    ; 01:7B0F - DD 6E 05
    ld     h, (ix+6)                    ; 01:7B12 - DD 66 06
-   ld     a, (var_D223)                ; 01:7B15 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:7B15 - 3A 23 D2
    rrca                                ; 01:7B18 - 0F
    jr     nc, addr_07B20               ; 01:7B19 - 30 05
    ld     de, $0010                    ; 01:7B1B - 11 10 00
@@ -13250,7 +13250,7 @@ addr_07B20:
    pop    hl                           ; 01:7B3F - E1
    inc    hl                           ; 01:7B40 - 23
    inc    hl                           ; 01:7B41 - 23
-   ld     a, (var_D223)                ; 01:7B42 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:7B42 - 3A 23 D2
    rrca                                ; 01:7B45 - 0F
    ret    c                            ; 01:7B46 - D8
    dec    (ix+17)                      ; 01:7B47 - DD 35 11
@@ -13275,7 +13275,7 @@ UNK_07B85:
 objfunc_55_UNKNOWN:
    set    5, (ix+24)                   ; 01:7B95 - DD CB 18 EE
    set    0, (iy+var_D209-IYBASE)      ; 01:7B99 - FD CB 09 C6
-   ld     a, (var_D223)                ; 01:7B9D - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:7B9D - 3A 23 D2
    and    $01                          ; 01:7BA0 - E6 01
    jp     z, addr_07BC2                ; 01:7BA2 - CA C2 7B
    ld     a, (ix+18)                   ; 01:7BA5 - DD 7E 12
@@ -13610,7 +13610,7 @@ addr_07E3C:
    call   addr_07CC1                   ; 01:7E62 - CD C1 7C
 
 addr_07E65:
-   ld     a, (var_D223)                ; 01:7E65 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 01:7E65 - 3A 23 D2
    and    $03                          ; 01:7E68 - E6 03
    ret    nz                           ; 01:7E6A - C0
    inc    (ix+17)                      ; 01:7E6B - DD 34 11
@@ -14023,7 +14023,7 @@ addr_0826B:
    ld     (ix+10), l                   ; 02:826B - DD 75 0A
    ld     (ix+11), h                   ; 02:826E - DD 74 0B
    ld     (ix+12), c                   ; 02:8271 - DD 71 0C
-   ld     a, (var_D223)                ; 02:8274 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8274 - 3A 23 D2
    and    $01                          ; 02:8277 - E6 01
    add    a, (ix+17)                   ; 02:8279 - DD 86 11
    ld     (ix+17), a                   ; 02:827C - DD 77 11
@@ -14037,7 +14037,7 @@ addr_0826B:
 
 addr_08291:
    jr     nz, addr_082A0               ; 02:8291 - 20 0D
-   ld     a, (var_D223)                ; 02:8293 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8293 - 3A 23 D2
    and    $01                          ; 02:8296 - E6 01
    ret    z                            ; 02:8298 - C8
    ld     (ix+22), $00                 ; 02:8299 - DD 36 16 00
@@ -14113,7 +14113,7 @@ addr_0834B:
    call   addr_07C41                   ; 02:835D - CD 41 7C
 
 addr_08360:
-   ld     a, (var_D223)                ; 02:8360 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8360 - 3A 23 D2
    and    $07                          ; 02:8363 - E6 07
    ret    nz                           ; 02:8365 - C0
    inc    (ix+17)                      ; 02:8366 - DD 34 11
@@ -14695,7 +14695,7 @@ addr_08873:
    call   addr_07C41                   ; 02:889F - CD 41 7C
 
 addr_088A2:
-   ld     a, (var_D223)                ; 02:88A2 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:88A2 - 3A 23 D2
    and    $07                          ; 02:88A5 - E6 07
    ret    nz                           ; 02:88A7 - C0
    inc    (ix+17)                      ; 02:88A8 - DD 34 11
@@ -14826,13 +14826,13 @@ addr_08B14:
    ld     (var_D210), hl               ; 02:8B23 - 22 10 D2
    ld     hl, $0000                    ; 02:8B26 - 21 00 00
    ld     (var_D212), hl               ; 02:8B29 - 22 12 D2
-   ld     a, (var_D223)                ; 02:8B2C - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8B2C - 3A 23 D2
    rlca                                ; 02:8B2F - 07
    rlca                                ; 02:8B30 - 07
    and    $03                          ; 02:8B31 - E6 03
    jr     nz, addr_08B49               ; 02:8B33 - 20 14
    ld     hl, UNK_08BBC                ; 02:8B35 - 21 BC 8B
-   ld     a, (var_D223)                ; 02:8B38 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8B38 - 3A 23 D2
    and    $3F                          ; 02:8B3B - E6 3F
    ld     e, a                         ; 02:8B3D - 5F
    cp     $08                          ; 02:8B3E - FE 08
@@ -14852,7 +14852,7 @@ addr_08B54:
    cp     $02                          ; 02:8B54 - FE 02
    jr     nz, addr_08B6C               ; 02:8B56 - 20 14
    ld     hl, $8BC4                    ; 02:8B58 - 21 C4 8B
-   ld     a, (var_D223)                ; 02:8B5B - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8B5B - 3A 23 D2
    and    $3F                          ; 02:8B5E - E6 3F
    ld     e, a                         ; 02:8B60 - 5F
    cp     $08                          ; 02:8B61 - FE 08
@@ -14905,7 +14905,7 @@ addr_08B93:
    ld     (ix+14), a                   ; 02:8BA9 - DD 77 0E
    call   check_collision_with_sonic   ; 02:8BAC - CD 56 39
    call   nc, addr_035FD               ; 02:8BAF - D4 FD 35
-   ld     a, (var_D223)                ; 02:8BB2 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8BB2 - 3A 23 D2
    cp     $80                          ; 02:8BB5 - FE 80
    ret    nz                           ; 02:8BB7 - C0
    ld     a, $1D                       ; 02:8BB8 - 3E 1D
@@ -15074,7 +15074,7 @@ addr_08D5E:
    ld     (ix+6), a                    ; 02:8D6E - DD 77 06
    ld     l, h                         ; 02:8D71 - 6C
    ld     h, (ix+6)                    ; 02:8D72 - DD 66 06
-   ld     a, (var_D223)                ; 02:8D75 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8D75 - 3A 23 D2
    and    $0F                          ; 02:8D78 - E6 0F
    jr     nz, addr_08D8A               ; 02:8D7A - 20 0E
    inc    (ix+17)                      ; 02:8D7C - DD 34 11
@@ -15121,7 +15121,7 @@ addr_08DAB:
    push   hl                           ; 02:8DCE - E5
    ld     hl, var_D000                 ; 02:8DCF - 21 00 D0
    ld     (var_D23C), hl               ; 02:8DD2 - 22 3C D2
-   ld     a, (var_D223)                ; 02:8DD5 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8DD5 - 3A 23 D2
    and    $03                          ; 02:8DD8 - E6 03
    add    a, a                         ; 02:8DDA - 87
    add    a, a                         ; 02:8DDB - 87
@@ -15136,7 +15136,7 @@ addr_08DE5:
    ld     c, (hl)                      ; 02:8DE6 - 4E
    inc    hl                           ; 02:8DE7 - 23
    push   hl                           ; 02:8DE8 - E5
-   ld     a, (var_D223)                ; 02:8DE9 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8DE9 - 3A 23 D2
    and    $0F                          ; 02:8DEC - E6 0F
    add    a, c                         ; 02:8DEE - 81
    ld     l, a                         ; 02:8DEF - 6F
@@ -15200,7 +15200,7 @@ addr_08E72:
    ld     a, $0C                       ; 02:8E9A - 3E 0C
    call   draw_sprite                  ; 02:8E9C - CD 81 35
    inc    (ix+18)                      ; 02:8E9F - DD 34 12
-   ld     a, (var_D223)                ; 02:8EA2 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:8EA2 - 3A 23 D2
    and    $07                          ; 02:8EA5 - E6 07
    ret    nz                           ; 02:8EA7 - C0
    inc    (ix+17)                      ; 02:8EA8 - DD 34 11
@@ -15799,7 +15799,7 @@ addr_093F7:
    ld     (var_D212), hl               ; 02:9420 - 22 12 D2
    ld     hl, $0030                    ; 02:9423 - 21 30 00
    ld     (var_D214), hl               ; 02:9426 - 22 14 D2
-   ld     a, (var_D223)                ; 02:9429 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:9429 - 3A 23 D2
    and    $02                          ; 02:942C - E6 02
    call   draw_sprite                  ; 02:942E - CD 81 35
    ret                                 ; 02:9431 - C9
@@ -16062,7 +16062,7 @@ addr_09634:
    ld     l, (ix+5)                    ; 02:9638 - DD 6E 05
    ld     h, (ix+6)                    ; 02:963B - DD 66 06
    ld     (var_D210), hl               ; 02:963E - 22 10 D2
-   ld     a, (var_D223)                ; 02:9641 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:9641 - 3A 23 D2
    and    $0F                          ; 02:9644 - E6 0F
    ret    nz                           ; 02:9646 - C0
    call   spawn_object                 ; 02:9647 - CD 7B 7C
@@ -17562,7 +17562,7 @@ UNK_0A51A:
 objfunc_1F_UNKNOWN:
    ld     (ix+13), $06                 ; 02:A551 - DD 36 0D 06
    ld     (ix+14), $10                 ; 02:A555 - DD 36 0E 10
-   ld     a, (var_D223)                ; 02:A559 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:A559 - 3A 23 D2
    and    $01                          ; 02:A55C - E6 01
    jr     nz, addr_0A5B3               ; 02:A55E - 20 53
    ld     hl, UNK_0A6B9                ; 02:A560 - 21 B9 A6
@@ -17683,7 +17683,7 @@ addr_0A645:
 
 addr_0A65B:
    ld     (ix+11), $01                 ; 02:A65B - DD 36 0B 01
-   ld     a, (var_D223)                ; 02:A65F - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:A65F - 3A 23 D2
    and    $01                          ; 02:A662 - E6 01
    ret    nz                           ; 02:A664 - C0
    inc    (ix+17)                      ; 02:A665 - DD 34 11
@@ -18252,7 +18252,7 @@ addr_0AC76:
    ld     (var_D214), hl               ; 02:AC79 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AC7C - CD 56 39
    call   nc, addr_035FD               ; 02:AC7F - D4 FD 35
-   ld     a, (var_D223)                ; 02:AC82 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:AC82 - 3A 23 D2
    and    $3F                          ; 02:AC85 - E6 3F
    ret    nz                           ; 02:AC87 - C0
    inc    (ix+17)                      ; 02:AC88 - DD 34 11
@@ -18548,7 +18548,7 @@ addr_0AF84:
    ld     (hl), a                      ; 02:AF84 - 77
    inc    hl                           ; 02:AF85 - 23
    djnz   addr_0AF2E                   ; 02:AF86 - 10 A6
-   ld     a, (var_D223)                ; 02:AF88 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:AF88 - 3A 23 D2
    and    $07                          ; 02:AF8B - E6 07
    ret    z                            ; 02:AF8D - C8
    ld     a, (ix+21)                   ; 02:AF8E - DD 7E 15
@@ -18770,7 +18770,7 @@ addr_0B1C3:
 addr_0B1D4:
    pop    bc                           ; 02:B1D4 - C1
    djnz   addr_0B1AB                   ; 02:B1D5 - 10 D4
-   ld     a, (var_D223)                ; 02:B1D7 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:B1D7 - 3A 23 D2
    and    $3F                          ; 02:B1DA - E6 3F
    jr     nz, addr_0B1E7               ; 02:B1DC - 20 09
    ld     a, (ix+17)                   ; 02:B1DE - DD 7E 11
@@ -19282,7 +19282,7 @@ addr_0B697:
    and    a                            ; 02:B69A - A7
    jp     nz, addr_0B6D4               ; 02:B69B - C2 D4 B6
    call   addr_0B99F                   ; 02:B69E - CD 9F B9
-   ld     a, (var_D223)                ; 02:B6A1 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:B6A1 - 3A 23 D2
    and    $07                          ; 02:B6A4 - E6 07
    jp     nz, addr_0B793               ; 02:B6A6 - C2 93 B7
    ld     a, (ix+22)                   ; 02:B6A9 - DD 7E 16
@@ -19615,7 +19615,7 @@ addr_0B95B:
    cp     $30                          ; 02:B965 - FE 30
    jr     nc, addr_0B98A               ; 02:B967 - 30 21
    ld     c, a                         ; 02:B969 - 4F
-   ld     a, (var_D223)                ; 02:B96A - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:B96A - 3A 23 D2
    and    $07                          ; 02:B96D - E6 07
    jr     nz, addr_0B97D               ; 02:B96F - 20 0C
    ld     a, (ix+23)                   ; 02:B971 - DD 7E 17
@@ -19792,7 +19792,7 @@ addr_0BBA7:
    ret    z                            ; 02:BBD8 - C8
    bit    1, (ix+24)                   ; 02:BBD9 - DD CB 18 4E
    jr     z, addr_0BC2B                ; 02:BBDD - 28 4C
-   ld     a, (var_D223)                ; 02:BBDF - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:BBDF - 3A 23 D2
    bit    0, a                         ; 02:BBE2 - CB 47
    ret    nz                           ; 02:BBE4 - C0
    and    $02                          ; 02:BBE5 - E6 02
@@ -19846,7 +19846,7 @@ addr_0BC2B:
    ld     (ix+17), a                   ; 02:BC3C - DD 77 11
    cp     $80                          ; 02:BC3F - FE 80
    ret    c                            ; 02:BC41 - D8
-   ld     a, (var_D223)                ; 02:BC42 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:BC42 - 3A 23 D2
    ld     c, a                         ; 02:BC45 - 4F
    and    $01                          ; 02:BC46 - E6 01
    ret    nz                           ; 02:BC48 - C0
@@ -19854,7 +19854,7 @@ addr_0BC2B:
    ret                                 ; 02:BC4D - C9
 
 addr_0BC4E:
-   ld     a, (var_D223)                ; 02:BC4E - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:BC4E - 3A 23 D2
    and    $0F                          ; 02:BC51 - E6 0F
    jr     nz, addr_0BC58               ; 02:BC53 - 20 03
    ld     a, $13                       ; 02:BC55 - 3E 13
@@ -19888,7 +19888,7 @@ addr_0BC7E:
 
 addr_0BC88:
    res    1, (ix+24)                   ; 02:BC88 - DD CB 18 8E
-   ld     a, (var_D223)                ; 02:BC8C - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:BC8C - 3A 23 D2
    ld     c, a                         ; 02:BC8F - 4F
    and    $40                          ; 02:BC90 - E6 40
    ret    nz                           ; 02:BC92 - C0
@@ -20069,7 +20069,7 @@ objfunc_53_UNKNOWN:
    set    1, (ix+24)                   ; 02:BE22 - DD CB 18 CE
 
 addr_0BE26:
-   ld     a, (var_D223)                ; 02:BE26 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:BE26 - 3A 23 D2
    rrca                                ; 02:BE29 - 0F
    jr     c, addr_0BE5C                ; 02:BE2A - 38 30
    ld     a, (ix+18)                   ; 02:BE2C - DD 7E 12
@@ -20163,7 +20163,7 @@ addr_0BED7:
    ld     a, (ix+19)                   ; 02:BF00 - DD 7E 13
    cp     $0A                          ; 02:BF03 - FE 0A
    ret    c                            ; 02:BF05 - D8
-   ld     a, (var_D27F)                ; 02:BF06 - 3A 7F D2
+   ld     a, (g_chaos_emeralds_collected)  ; 02:BF06 - 3A 7F D2
    cp     $06                          ; 02:BF09 - FE 06
    jr     c, addr_0BF12                ; 02:BF0B - 38 05
    set    7, (iy+var_D208-IYBASE)      ; 02:BF0D - FD CB 08 FE
@@ -20220,7 +20220,7 @@ addr_0BF89:
 
 addr_0BF95:
    ld     hl, UNK_0BFF1                ; 02:BF95 - 21 F1 BF
-   ld     a, (var_D223)                ; 02:BF98 - 3A 23 D2
+   ld     a, (g_global_tick_counter)   ; 02:BF98 - 3A 23 D2
    rrca                                ; 02:BF9B - 0F
    jr     nc, addr_0BFD5               ; 02:BF9C - 30 37
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:BF9E - FD 7E 0A
