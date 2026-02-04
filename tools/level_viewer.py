@@ -68,6 +68,9 @@ class TkApp:
             [0x0000] * self.mtm_width for y in range(self.mtm_height)
         ]
         self.cram = bytearray(0x20)
+        self.cram_palettes: MutableSequence[MutableSequence[str]] = [
+            ["#000"] * 0x10 for i in range(2)
+        ]
         self.layout = bytearray(0x1000)
         # type, x, y
         self.object_defs: list[tuple[int, int, int]] = []
@@ -225,7 +228,14 @@ class TkApp:
         # TODO: Handle cycling palettes properly! --GM
         with file_path.open("rb") as infp:
             for pi in palette_idx_list:
-                self.cram[pi * 0x10 : (pi + 1) * 0x10] = infp.read(16)
+                paldata = infp.read(16)
+                self.cram[pi * 0x10 : (pi + 1) * 0x10] = paldata
+                for subi, palv in enumerate(paldata):
+                    c = 0
+                    c |= (((palv >> 0) & 0x3) * 0x5) << 8
+                    c |= (((palv >> 2) & 0x3) * 0x5) << 4
+                    c |= (((palv >> 4) & 0x3) * 0x5) << 0
+                    self.cram_palettes[pi][subi] = f"#{c:03X}"
 
     def load_3bpp_art(self, *, file_path: pathlib.Path, vram_addr: int) -> None:
         assert 0x0000 <= vram_addr <= 0x3FFF
@@ -606,7 +616,7 @@ class TkApp:
         xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
         yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
         palsel = (tdata >> 11) & 0x1
-        cram = self.cram[palsel * 16 : (palsel + 1) * 16]
+        cram = self.cram_palettes[palsel]
         for y in range(8):
             outdata.append([])
             addr = toffs + (4 * (yflip ^ y))
@@ -617,17 +627,10 @@ class TkApp:
                 p |= ((planes[1] >> (xflip ^ x)) << 1) & (1 << 1)
                 p |= ((planes[2] >> (xflip ^ x)) << 2) & (1 << 2)
                 p |= ((planes[3] >> (xflip ^ x)) << 3) & (1 << 3)
+                palv = cram[p]
+                outdata[-1] += [palv] * 2
                 if p == 0:
-                    outdata[-1].append("#000")
                     transparent_positions.append((x, y))
-                else:
-                    palv = cram[p]
-                    c = 0
-                    c |= (((palv >> 0) & 0x3) * 0x5) << 8
-                    c |= (((palv >> 2) & 0x3) * 0x5) << 4
-                    c |= (((palv >> 4) & 0x3) * 0x5) << 0
-                    outdata[-1].append(f"#{c:03X}")
-                outdata[-1].append(outdata[-1][-1])
             outdata.append(outdata[-1])
         outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
         img.put(outstr, to=(px * 2, py * 2))
