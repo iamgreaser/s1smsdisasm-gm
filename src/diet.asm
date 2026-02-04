@@ -3364,7 +3364,7 @@ addr_00DB7:
    ld     h, $00                       ; 00:0DBC - 26 00
    ld     d, h                         ; 00:0DBE - 54
    ld     bc, (var_D212)               ; 00:0DBF - ED 4B 12 D2
-   call   addr_0350F                   ; 00:0DC3 - CD 0F 35
+   call   draw_sprite_string           ; 00:0DC3 - CD 0F 35
    pop    hl                           ; 00:0DC6 - E1
    ld     (var_D214), hl               ; 00:0DC7 - 22 14 D2
    pop    bc                           ; 00:0DCA - C1
@@ -3578,7 +3578,7 @@ addr_00EFD:
    pop    hl                           ; 00:0EFE - E1
    push   hl                           ; 00:0EFF - E5
    push   de                           ; 00:0F00 - D5
-   call   addr_0350F                   ; 00:0F01 - CD 0F 35
+   call   draw_sprite_string           ; 00:0F01 - CD 0F 35
    ld     a, (g_FF_string_high_byte)   ; 00:0F04 - 3A 0E D2
    inc    a                            ; 00:0F07 - 3C
    ld     (g_FF_string_high_byte), a   ; 00:0F08 - 32 0E D2
@@ -3996,12 +3996,12 @@ run_title_screen:
    ld     hl, $0080                    ; 00:133B - 21 80 00
    ld     de, $0018                    ; 00:133E - 11 18 00
    ld     bc, (var_D212)               ; 00:1341 - ED 4B 12 D2
-   call   addr_0350F                   ; 00:1345 - CD 0F 35
+   call   draw_sprite_string           ; 00:1345 - CD 0F 35
    .IF show_diet_logo
       ld hl, $0038
       ld de, $003C
       ld bc, diet_edition_logo_sprites
-      call addr_0350F
+      call draw_sprite_string
    .ENDIF
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:1348 - FD CB 03 6E
    jp     nz, @mainloop                ; 00:134C - C2 EA 12
@@ -7027,7 +7027,7 @@ addr_0277E:
    ld     l, a                         ; 00:278C - 6F
    ld     h, $00                       ; 00:278D - 26 00
    ld     d, h                         ; 00:278F - 54
-   call   addr_0350F                   ; 00:2790 - CD 0F 35
+   call   draw_sprite_string           ; 00:2790 - CD 0F 35
    pop    hl                           ; 00:2793 - E1
    ret                                 ; 00:2794 - C9
 
@@ -8553,12 +8553,12 @@ return_from_objfunc:
    ld     b, (ix+16)                   ; 00:3504 - DD 46 10
    ld     a, c                         ; 00:3507 - 79
    or     b                            ; 00:3508 - B0
-   call   nz, addr_0350F               ; 00:3509 - C4 0F 35
+   call   nz, draw_sprite_string       ; 00:3509 - C4 0F 35
    pop    hl                           ; 00:350C - E1
    pop    bc                           ; 00:350D - C1
    ret                                 ; 00:350E - C9
 
-addr_0350F:
+draw_sprite_string:
    ld     (var_D214), hl               ; 00:350F - 22 14 D2
    push   bc                           ; 00:3512 - C5
    exx                                 ; 00:3513 - D9
@@ -8572,7 +8572,7 @@ addr_0350F:
    ; SAVING: 1 byte
    .ENDIF
 
-addr_0351A:
+@each_row:
    exx                                 ; 00:351A - D9
    ld     hl, (var_D214)               ; 00:351B - 2A 14 D2
    ld     a, (bc)                      ; 00:351E - 0A
@@ -8586,30 +8586,30 @@ addr_0351A:
    ret    z                            ; 00:3522 - C8
    ld     a, d                         ; 00:3523 - 7A
    cp     $FF                          ; 00:3524 - FE FF
-   jr     nz, addr_03530               ; 00:3526 - 20 08
+   jr     nz, @consider_left_side_culling  ; 00:3526 - 20 08
    ld     a, e                         ; 00:3528 - 7B
    cp     $F0                          ; 00:3529 - FE F0
-   jr     c, addr_0356C                ; 00:352B - 38 3F
-   jp     addr_03537                   ; 00:352D - C3 37 35
+   jr     c, @move_to_next_row         ; 00:352B - 38 3F
+   jp     @draw_row                    ; 00:352D - C3 37 35
 
-addr_03530:
+@consider_left_side_culling:
    and    a                            ; 00:3530 - A7
-   jr     nz, addr_0356C               ; 00:3531 - 20 39
+   jr     nz, @move_to_next_row        ; 00:3531 - 20 39
    ld     a, e                         ; 00:3533 - 7B
    cp     $C0                          ; 00:3534 - FE C0
    ret    nc                           ; 00:3536 - D0
 
-addr_03537:
+@draw_row:
    ld     b, $06                       ; 00:3537 - 06 06
 
-addr_03539:
+@each_sprite:
    exx                                 ; 00:3539 - D9
    ld     a, h                         ; 00:353A - 7C
    and    a                            ; 00:353B - A7
-   jr     nz, addr_03559               ; 00:353C - 20 1B
+   jr     nz, @cull_horizontal         ; 00:353C - 20 1B
    ld     a, (bc)                      ; 00:353E - 0A
    cp     $FE                          ; 00:353F - FE FE
-   jr     nc, addr_03559               ; 00:3541 - 30 16
+   jr     nc, @cull_horizontal         ; 00:3541 - 30 16
    ld     de, (var_D23C)               ; 00:3543 - ED 5B 3C D2
    ld     a, l                         ; 00:3547 - 7D
    ld     (de), a                      ; 00:3548 - 12
@@ -8625,12 +8625,12 @@ addr_03539:
    ld     (var_D23C), de               ; 00:3552 - ED 53 3C D2
    inc    (iy+g_sprite_count-IYBASE)   ; 00:3556 - FD 34 0A
 
-addr_03559:
+@cull_horizontal:
    inc    bc                           ; 00:3559 - 03
    ld     de, $0008                    ; 00:355A - 11 08 00
    add    hl, de                       ; 00:355D - 19
    exx                                 ; 00:355E - D9
-   djnz   addr_03539                   ; 00:355F - 10 D8
+   djnz   @each_sprite                 ; 00:355F - 10 D8
    ld     a, c                         ; 00:3561 - 79
    ex     de, hl                       ; 00:3562 - EB
    ld     c, $10                       ; 00:3563 - 0E 10
@@ -8638,10 +8638,10 @@ addr_03559:
    ex     de, hl                       ; 00:3566 - EB
    ld     c, a                         ; 00:3567 - 4F
    dec    c                            ; 00:3568 - 0D
-   jr     nz, addr_0351A               ; 00:3569 - 20 AF
+   jr     nz, @each_row                ; 00:3569 - 20 AF
    ret                                 ; 00:356B - C9
 
-addr_0356C:
+@move_to_next_row:
    exx                                 ; 00:356C - D9
    ex     de, hl                       ; 00:356D - EB
    ld     hl, $0006                    ; 00:356E - 21 06 00
@@ -8657,7 +8657,7 @@ addr_0356C:
    ex     de, hl                       ; 00:357B - EB
    ld     c, a                         ; 00:357C - 4F
    dec    c                            ; 00:357D - 0D
-   jr     nz, addr_0351A               ; 00:357E - 20 9A
+   jr     nz, @each_row                ; 00:357E - 20 9A
    ret                                 ; 00:3580 - C9
 
 UNK_03581:
@@ -11307,7 +11307,7 @@ addr_0523C:
    and    a                            ; 01:525C - A7
    sbc    hl, bc                       ; 01:525D - ED 42
    ld     bc, UNK_0526E                ; 01:525F - 01 6E 52
-   call   addr_0350F                   ; 01:5262 - CD 0F 35
+   call   draw_sprite_string           ; 01:5262 - CD 0F 35
    pop    hl                           ; 01:5265 - E1
    pop    af                           ; 01:5266 - F1
    ld     (var_D23C), hl               ; 01:5267 - 22 3C D2
@@ -20059,7 +20059,7 @@ addr_0A974:
    and    a                            ; 02:A9A2 - A7
    sbc    hl, bc                       ; 02:A9A3 - ED 42
    ld     bc, UNK_0A9C0                ; 02:A9A5 - 01 C0 A9
-   call   addr_0350F                   ; 02:A9A8 - CD 0F 35
+   call   draw_sprite_string           ; 02:A9A8 - CD 0F 35
    ld     a, (ix+17)                   ; 02:A9AB - DD 7E 11
    and    $1F                          ; 02:A9AE - E6 1F
    cp     $0F                          ; 02:A9B0 - FE 0F
@@ -20108,7 +20108,7 @@ objfunc_30_UNKNOWN:
    and    a                            ; 02:AA0B - A7
    sbc    hl, bc                       ; 02:AA0C - ED 42
    ld     bc, UNK_0AA63                ; 02:AA0E - 01 63 AA
-   call   addr_0350F                   ; 02:AA11 - CD 0F 35
+   call   draw_sprite_string           ; 02:AA11 - CD 0F 35
    ld     a, (var_D2DE)                ; 02:AA14 - 3A DE D2
    add    a, $0C                       ; 02:AA17 - C6 0C
    ld     (var_D2DE), a                ; 02:AA19 - 32 DE D2
@@ -22362,7 +22362,7 @@ addr_0BF95:
    and    a                            ; 02:BFC4 - A7
    sbc    hl, bc                       ; 02:BFC5 - ED 42
    ld     bc, UNK_0BFF1                ; 02:BFC7 - 01 F1 BF
-   call   addr_0350F                   ; 02:BFCA - CD 0F 35
+   call   draw_sprite_string           ; 02:BFCA - CD 0F 35
    pop    hl                           ; 02:BFCD - E1
    pop    af                           ; 02:BFCE - F1
    ld     (var_D23C), hl               ; 02:BFCF - 22 3C D2
