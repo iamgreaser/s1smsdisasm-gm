@@ -6524,7 +6524,7 @@ return_from_objfunc:
    res    6, (ix+24)                   ; 00:3343 - DD CB 18 B6
    push   de                           ; 00:3347 - D5
    push   hl                           ; 00:3348 - E5
-   call   addr_036F9                   ; 00:3349 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 00:3349 - CD F9 36
    ld     e, (hl)                      ; 00:334C - 5E
    ld     d, $00                       ; 00:334D - 16 00
    ld     a, (var_D2D4)                ; 00:334F - 3A D4 D2
@@ -6648,7 +6648,7 @@ return_from_objfunc:
    res    7, (ix+24)                   ; 00:341B - DD CB 18 BE
    push   bc                           ; 00:341F - C5
    push   hl                           ; 00:3420 - E5
-   call   addr_036F9                   ; 00:3421 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 00:3421 - CD F9 36
    ld     e, (hl)                      ; 00:3424 - 5E
    ld     d, $00                       ; 00:3425 - 16 00
    ld     a, (var_D2D4)                ; 00:3427 - 3A D4 D2
@@ -7073,19 +7073,19 @@ addr_036BE:
    call   addr_039D8                   ; 00:36F5 - CD D8 39
    ret                                 ; 00:36F8 - C9
 
-addr_036F9:
+get_level_tile_ptr_in_ram:
    ld     a, (var_D238)                ; 00:36F9 - 3A 38 D2
    cp     $80                          ; 00:36FC - FE 80
-   jr     z, addr_0370F                ; 00:36FE - 28 0F
+   jr     z, @width_128                ; 00:36FE - 28 0F
    cp     $40                          ; 00:3700 - FE 40
-   jr     z, addr_0373B                ; 00:3702 - 28 37
+   jr     z, @width_64                 ; 00:3702 - 28 37
    cp     $20                          ; 00:3704 - FE 20
-   jr     z, addr_03764                ; 00:3706 - 28 5C
+   jr     z, @width_32                 ; 00:3706 - 28 5C
    cp     $10                          ; 00:3708 - FE 10
-   jr     z, addr_0378A                ; 00:370A - 28 7E
-   jp     addr_037B3                   ; 00:370C - C3 B3 37
+   jr     z, @width_16                 ; 00:370A - 28 7E
+   jp     @width_256                   ; 00:370C - C3 B3 37
 
-addr_0370F:
+@width_128:
    ld     l, (ix+5)                    ; 00:370F - DD 6E 05
    ld     h, (ix+6)                    ; 00:3712 - DD 66 06
    add    hl, de                       ; 00:3715 - 19
@@ -7114,7 +7114,7 @@ addr_0370F:
    add    hl, de                       ; 00:3739 - 19
    ret                                 ; 00:373A - C9
 
-addr_0373B:
+@width_64:
    ld     l, (ix+5)                    ; 00:373B - DD 6E 05
    ld     h, (ix+6)                    ; 00:373E - DD 66 06
    add    hl, de                       ; 00:3741 - 19
@@ -7141,7 +7141,7 @@ addr_0373B:
    add    hl, de                       ; 00:3762 - 19
    ret                                 ; 00:3763 - C9
 
-addr_03764:
+@width_32:
    ld     l, (ix+5)                    ; 00:3764 - DD 6E 05
    ld     h, (ix+6)                    ; 00:3767 - DD 66 06
    add    hl, de                       ; 00:376A - 19
@@ -7166,7 +7166,7 @@ addr_03764:
    add    hl, de                       ; 00:3788 - 19
    ret                                 ; 00:3789 - C9
 
-addr_0378A:
+@width_16:
    ld     l, (ix+5)                    ; 00:378A - DD 6E 05
    ld     h, (ix+6)                    ; 00:378D - DD 66 06
    add    hl, de                       ; 00:3790 - 19
@@ -7193,7 +7193,7 @@ addr_0378A:
    add    hl, de                       ; 00:37B1 - 19
    ret                                 ; 00:37B2 - C9
 
-addr_037B3:
+@width_256:
    ld     l, (ix+5)                    ; 00:37B3 - DD 6E 05
    ld     h, (ix+6)                    ; 00:37B6 - DD 66 06
    add    hl, de                       ; 00:37B9 - 19
@@ -8079,7 +8079,7 @@ addr_049D9:
    ld     (g_committed_rompage_2), a   ; 01:49EC - 32 36 D2
    ld     bc, $000C                    ; 01:49EF - 01 0C 00
    ld     de, $0010                    ; 01:49F2 - 11 10 00
-   call   addr_036F9                   ; 01:49F5 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 01:49F5 - CD F9 36
    ld     e, (hl)                      ; 01:49F8 - 5E
    ld     d, $00                       ; 01:49F9 - 16 00
    ld     a, (var_D2D4)                ; 01:49FB - 3A D4 D2
@@ -8400,7 +8400,7 @@ addr_04C24:
 addr_04C28:
    ld     bc, $000C                    ; 01:4C28 - 01 0C 00
    ld     de, $0008                    ; 01:4C2B - 11 08 00
-   call   addr_036F9                   ; 01:4C2E - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 01:4C2E - CD F9 36
    ld     a, (hl)                      ; 01:4C31 - 7E
    and    $7F                          ; 01:4C32 - E6 7F
    cp     $79                          ; 01:4C34 - FE 79
@@ -10073,7 +10073,7 @@ addr_0581B:
    ret    c                            ; 01:5836 - D8
    ld     bc, $000C                    ; 01:5837 - 01 0C 00
    ld     de, $0010                    ; 01:583A - 11 10 00
-   call   addr_036F9                   ; 01:583D - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 01:583D - CD F9 36
    ld     c, $00                       ; 01:5840 - 0E 00
    ld     a, (hl)                      ; 01:5842 - 7E
    cp     $8A                          ; 01:5843 - FE 8A
@@ -10110,7 +10110,7 @@ addr_05858:
    ret    c                            ; 01:586E - D8
    ld     bc, $000C                    ; 01:586F - 01 0C 00
    ld     de, $0010                    ; 01:5872 - 11 10 00
-   call   addr_036F9                   ; 01:5875 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 01:5875 - CD F9 36
    ld     c, $00                       ; 01:5878 - 0E 00
    ld     a, (hl)                      ; 01:587A - 7E
    cp     $89                          ; 01:587B - FE 89
@@ -10606,7 +10606,7 @@ addr_05DA8:
    ld     bc, $0000                    ; 01:5DB3 - 01 00 00
    ld     e, c                         ; 01:5DB6 - 59
    ld     d, b                         ; 01:5DB7 - 50
-   call   addr_036F9                   ; 01:5DB8 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 01:5DB8 - CD F9 36
    ld     de, $0016                    ; 01:5DBB - 11 16 00
    ld     bc, $0012                    ; 01:5DBE - 01 12 00
    ld     a, (hl)                      ; 01:5DC1 - 7E
@@ -13702,7 +13702,7 @@ addr_07F2A:
 
 addr_07F5A:
    ld     de, $0000                    ; 01:7F5A - 11 00 00
-   call   addr_036F9                   ; 01:7F5D - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 01:7F5D - CD F9 36
    ld     e, (hl)                      ; 01:7F60 - 5E
    ld     d, $00                       ; 01:7F61 - 16 00
    ld     a, (var_D2D4)                ; 01:7F63 - 3A D4 D2
@@ -14946,7 +14946,7 @@ objfunc_3F_UNKNOWN:
    set    0, (ix+24)                   ; 02:8C58 - DD CB 18 C6
    ld     bc, $0000                    ; 02:8C5C - 01 00 00
    ld     de, $0000                    ; 02:8C5F - 11 00 00
-   call   addr_036F9                   ; 02:8C62 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 02:8C62 - CD F9 36
    ld     a, (hl)                      ; 02:8C65 - 7E
    cp     $52                          ; 02:8C66 - FE 52
    jr     z, addr_08C6E                ; 02:8C68 - 28 04
@@ -15433,7 +15433,7 @@ objfunc_45_UNKNOWN:
 addr_09100:
    ld     bc, $0010                    ; 02:9100 - 01 10 00
    ld     de, $0020                    ; 02:9103 - 11 20 00
-   call   addr_036F9                   ; 02:9106 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 02:9106 - CD F9 36
    ld     e, (hl)                      ; 02:9109 - 5E
    ld     d, $00                       ; 02:910A - 16 00
    ld     a, (var_D2D4)                ; 02:910C - 3A D4 D2
@@ -16971,7 +16971,7 @@ addr_09ED4:
    ret    nz                           ; 02:9EF4 - C0
    ld     bc, $0000                    ; 02:9EF5 - 01 00 00
    ld     de, $FFF0                    ; 02:9EF8 - 11 F0 FF
-   call   addr_036F9                   ; 02:9EFB - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 02:9EFB - CD F9 36
    ld     de, $0014                    ; 02:9EFE - 11 14 00
    ld     a, (hl)                      ; 02:9F01 - 7E
    cp     $A3                          ; 02:9F02 - FE A3
@@ -19027,7 +19027,7 @@ objfunc_3A_UNKNOWN:
    ld     bc, $0000                    ; 02:B477 - 01 00 00
    ld     e, c                         ; 02:B47A - 59
    ld     d, b                         ; 02:B47B - 50
-   call   addr_036F9                   ; 02:B47C - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 02:B47C - CD F9 36
    ld     a, (hl)                      ; 02:B47F - 7E
    sub    $3C                          ; 02:B480 - D6 3C
    cp     $04                          ; 02:B482 - FE 04
@@ -19545,7 +19545,7 @@ addr_0B899:
 addr_0B8C1:
    ld     de, $0017                    ; 02:B8C1 - 11 17 00
    ld     bc, $0036                    ; 02:B8C4 - 01 36 00
-   call   addr_036F9                   ; 02:B8C7 - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 02:B8C7 - CD F9 36
    ld     e, (hl)                      ; 02:B8CA - 5E
    ld     d, $00                       ; 02:B8CB - 16 00
    ld     hl, LVTILEFLAGS_SKY_3        ; 02:B8CD - 21 28 3F
@@ -19563,7 +19563,7 @@ addr_0B8C1:
 addr_0B8E9:
    ld     de, $0000                    ; 02:B8E9 - 11 00 00
    ld     bc, $0008                    ; 02:B8EC - 01 08 00
-   call   addr_036F9                   ; 02:B8EF - CD F9 36
+   call   get_level_tile_ptr_in_ram    ; 02:B8EF - CD F9 36
    ld     a, (hl)                      ; 02:B8F2 - 7E
    cp     $49                          ; 02:B8F3 - FE 49
    jr     nz, addr_0B92D               ; 02:B8F5 - 20 36
