@@ -10759,8 +10759,8 @@ addr_05EE3:
    ld     a, (var_D223)                ; 01:5EE3 - 3A 23 D2
    rrca                                ; 01:5EE6 - 0F
    jr     c, addr_05EF1                ; 01:5EE7 - 38 08
-   ld     (ix+15), UNK_05F10&$FF       ; 01:5EE9 - DD 36 0F 10
-   ld     (ix+16), UNK_05F10>>8        ; 01:5EED - DD 36 10 5F
+   ld     (ix+15), SPRITEMAP_monitor_image&$FF  ; 01:5EE9 - DD 36 0F 10
+   ld     (ix+16), SPRITEMAP_monitor_image>>8  ; 01:5EED - DD 36 10 5F
 
 addr_05EF1:
    ld     l, (ix+10)                   ; 01:5EF1 - DD 6E 0A
@@ -10776,7 +10776,7 @@ addr_05EF1:
    call   write_partial_monitor_art    ; 01:5F0C - CD 1D 0C
    ret                                 ; 01:5F0F - C9
 
-UNK_05F10:
+SPRITEMAP_monitor_image:
 .db $5C, $5E, $FF, $FF, $FF, $FF, $FF                                               ; 01:5F10
 
 objfunc_07_signpost:
