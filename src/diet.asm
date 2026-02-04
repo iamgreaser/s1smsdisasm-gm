@@ -12987,10 +12987,19 @@ objfunc_07_signpost:
 
 @decide_maybe_life:
    ld     a, (g_rings_BCD)             ; 01:6073 - 3A AA D2
+   .IF 0
    srl    a                            ; 01:6076 - CB 3F
    srl    a                            ; 01:6078 - CB 3F
    srl    a                            ; 01:607A - CB 3F
    srl    a                            ; 01:607C - CB 3F
+   .ELSE
+   rrca
+   rrca
+   rrca
+   rrca
+   and $0F
+   ; SAVING: 2 bytes
+   .ENDIF
    ld     b, a                         ; 01:607E - 47
    ld     a, (g_level)                 ; 01:607F - 3A 3E D2
    and    $03                          ; 01:6082 - E6 03
@@ -13064,6 +13073,7 @@ objfunc_07_signpost:
 
 @y_vel_was_positive:
    ex     de, hl                       ; 01:60F9 - EB
+   .IF 0
    ld     e, (ix+20)                   ; 01:60FA - DD 5E 14
    ld     d, (ix+21)                   ; 01:60FD - DD 56 15
    ld     c, e                         ; 01:6100 - 4B
@@ -13078,6 +13088,20 @@ objfunc_07_signpost:
    rr     e                            ; 01:6110 - CB 1B
    srl    d                            ; 01:6112 - CB 3A
    rr     e                            ; 01:6114 - CB 1B
+   .ELSE
+   ex af, af'
+   ld a, (ix+20)
+   ld d, (ix+21)
+   ld c, a
+   ld b, d
+   .REPEAT 5
+   srl d
+   rra
+   .ENDR
+   ld e, a
+   ex af, af'
+   ; SAVING: 2 bytes
+   .ENDIF
    and    a                            ; 01:6116 - A7
    sbc    hl, de                       ; 01:6117 - ED 52
    sbc    a, $00                       ; 01:6119 - DE 00
