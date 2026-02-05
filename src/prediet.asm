@@ -12717,60 +12717,60 @@ objfunc_24_animal_1:
    ld     (ix+13), $0C                 ; 01:7598 - DD 36 0D 0C
    ld     (ix+14), $10                 ; 01:759C - DD 36 0E 10
    bit    7, (ix+24)                   ; 01:75A0 - DD CB 18 7E
-   jr     z, addr_075B2                ; 01:75A4 - 28 0C
+   jr     z, @was_not_on_floor         ; 01:75A4 - 28 0C
    ld     (ix+10), $00                 ; 01:75A6 - DD 36 0A 00
    ld     (ix+11), $FD                 ; 01:75AA - DD 36 0B FD
    ld     (ix+12), $FF                 ; 01:75AE - DD 36 0C FF
 
-addr_075B2:
+@was_not_on_floor:
    ld     de, $0012                    ; 01:75B2 - 11 12 00
    ld     a, (g_tile_flags_index)      ; 01:75B5 - 3A D4 D2
    cp     $03                          ; 01:75B8 - FE 03
-   jr     nz, addr_075BF               ; 01:75BA - 20 03
+   jr     nz, @skip_LAB_y_gravity_boost  ; 01:75BA - 20 03
    ld     de, $0038                    ; 01:75BC - 11 38 00
 
-addr_075BF:
+@skip_LAB_y_gravity_boost:
    ld     l, (ix+10)                   ; 01:75BF - DD 6E 0A
    ld     h, (ix+11)                   ; 01:75C2 - DD 66 0B
    ld     a, (ix+12)                   ; 01:75C5 - DD 7E 0C
    add    hl, de                       ; 01:75C8 - 19
    adc    a, $00                       ; 01:75C9 - CE 00
    ld     c, a                         ; 01:75CB - 4F
-   jp     m, addr_075D9                ; 01:75CC - FA D9 75
+   jp     m, @skip_y_vel_clamp         ; 01:75CC - FA D9 75
    ld     a, h                         ; 01:75CF - 7C
    cp     $02                          ; 01:75D0 - FE 02
-   jr     c, addr_075D9                ; 01:75D2 - 38 05
+   jr     c, @skip_y_vel_clamp         ; 01:75D2 - 38 05
    ld     hl, $0200                    ; 01:75D4 - 21 00 02
    ld     c, $00                       ; 01:75D7 - 0E 00
 
-addr_075D9:
+@skip_y_vel_clamp:
    ld     (ix+10), l                   ; 01:75D9 - DD 75 0A
    ld     (ix+11), h                   ; 01:75DC - DD 74 0B
    ld     (ix+12), c                   ; 01:75DF - DD 71 0C
    ld     hl, $FE00                    ; 01:75E2 - 21 00 FE
    ld     a, (g_tile_flags_index)      ; 01:75E5 - 3A D4 D2
    cp     $03                          ; 01:75E8 - FE 03
-   jr     nz, addr_075EF               ; 01:75EA - 20 03
+   jr     nz, @skip_LAB_x_vel_dampen   ; 01:75EA - 20 03
    ld     hl, $FE80                    ; 01:75EC - 21 80 FE
 
-addr_075EF:
+@skip_LAB_x_vel_dampen:
    ld     (ix+7), l                    ; 01:75EF - DD 75 07
    ld     (ix+8), h                    ; 01:75F2 - DD 74 08
    ld     (ix+9), $FF                  ; 01:75F5 - DD 36 09 FF
-   ld     bc, UNK_07629                ; 01:75F9 - 01 29 76
+   ld     bc, animal_1_anim_GHZ        ; 01:75F9 - 01 29 76
    ld     a, (g_tile_flags_index)      ; 01:75FC - 3A D4 D2
    and    a                            ; 01:75FF - A7
-   jr     z, addr_0760C                ; 01:7600 - 28 0A
-   ld     bc, UNK_0762E                ; 01:7602 - 01 2E 76
+   jr     z, @sprite_anim_selected     ; 01:7600 - 28 0A
+   ld     bc, animal_1_anim_LAB        ; 01:7602 - 01 2E 76
    cp     $03                          ; 01:7605 - FE 03
-   jr     nz, addr_0760C               ; 01:7607 - 20 03
-   ld     bc, UNK_07633                ; 01:7609 - 01 33 76
+   jr     nz, @sprite_anim_selected    ; 01:7607 - 20 03
+   ld     bc, animal_1_anim_others     ; 01:7609 - 01 33 76
 
-addr_0760C:
-   ld     de, UNK_07638                ; 01:760C - 11 38 76
+@sprite_anim_selected:
+   ld     de, SPRITEMAP_animal_1       ; 01:760C - 11 38 76
    call   do_framed_animation          ; 01:760F - CD 41 7C
 
-addr_07612:
+animal_common:
    ld     l, (ix+2)                    ; 01:7612 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7615 - DD 66 03
    ld     de, $0010                    ; 01:7618 - 11 10 00
@@ -12782,16 +12782,16 @@ addr_07612:
    ld     (ix+0), $FF                  ; 01:7624 - DD 36 00 FF
    ret                                 ; 01:7628 - C9
 
-UNK_07629:
+animal_1_anim_GHZ:
 .db $00, $02, $01, $02, $FF                                                         ; 01:7629
 
-UNK_0762E:
+animal_1_anim_LAB:
 .db $02, $04, $03, $04, $FF                                                         ; 01:762E
 
-UNK_07633:
+animal_1_anim_others:
 .db $04, $03, $05, $03, $FF                                                         ; 01:7633
 
-UNK_07638:
+SPRITEMAP_animal_1:
 .db $10, $12, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:7638
 .db $FF, $FF, $6E, $0E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:7648
 .db $FF, $FF, $FF, $FF, $28, $2A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:7658
@@ -12804,23 +12804,23 @@ objfunc_23_animal_0:
    res    5, (ix+24)                   ; 01:7699 - DD CB 18 AE
    ld     (ix+13), $0C                 ; 01:769D - DD 36 0D 0C
    ld     (ix+14), $20                 ; 01:76A1 - DD 36 0E 20
-   ld     hl, UNK_07760                ; 01:76A5 - 21 60 77
+   ld     hl, SPRITEMAP_animal_0_airborne_GHZ  ; 01:76A5 - 21 60 77
    ld     a, (g_tile_flags_index)      ; 01:76A8 - 3A D4 D2
    and    a                            ; 01:76AB - A7
-   jr     z, addr_076BD                ; 01:76AC - 28 0F
-   ld     hl, UNK_0777B                ; 01:76AE - 21 7B 77
+   jr     z, @sprite_airborne_anim_selected  ; 01:76AC - 28 0F
+   ld     hl, SPRITEMAP_animal_0_airborne_BRI  ; 01:76AE - 21 7B 77
    dec    a                            ; 01:76B1 - 3D
-   jr     z, addr_076BD                ; 01:76B2 - 28 09
-   ld     hl, UNK_07796                ; 01:76B4 - 21 96 77
+   jr     z, @sprite_airborne_anim_selected  ; 01:76B2 - 28 09
+   ld     hl, SPRITEMAP_animal_0_airborne_JUN  ; 01:76B4 - 21 96 77
    dec    a                            ; 01:76B7 - 3D
-   jr     z, addr_076BD                ; 01:76B8 - 28 03
-   ld     hl, UNK_077B1                ; 01:76BA - 21 B1 77
+   jr     z, @sprite_airborne_anim_selected  ; 01:76B8 - 28 03
+   ld     hl, SPRITEMAP_animal_0_airborne_others  ; 01:76BA - 21 B1 77
 
-addr_076BD:
+@sprite_airborne_anim_selected:
    ld     (ix+15), l                   ; 01:76BD - DD 75 0F
    ld     (ix+16), h                   ; 01:76C0 - DD 74 10
    bit    7, (ix+24)                   ; 01:76C3 - DD CB 18 7E
-   jr     z, addr_07719                ; 01:76C7 - 28 50
+   jr     z, @was_not_on_ground        ; 01:76C7 - 28 50
    xor    a                            ; 01:76C9 - AF
    ld     (ix+10), a                   ; 01:76CA - DD 77 0A
    ld     (ix+11), $01                 ; 01:76CD - DD 36 0B 01
@@ -12828,20 +12828,20 @@ addr_076BD:
    ld     (ix+7), a                    ; 01:76D4 - DD 77 07
    ld     (ix+8), a                    ; 01:76D7 - DD 77 08
    ld     (ix+9), a                    ; 01:76DA - DD 77 09
-   ld     hl, UNK_07752                ; 01:76DD - 21 52 77
+   ld     hl, SPRITEMAP_animal_0_on_ground_GHZ  ; 01:76DD - 21 52 77
    ld     a, (g_tile_flags_index)      ; 01:76E0 - 3A D4 D2
    ld     c, a                         ; 01:76E3 - 4F
    and    a                            ; 01:76E4 - A7
-   jr     z, addr_076F6                ; 01:76E5 - 28 0F
-   ld     hl, UNK_0776D                ; 01:76E7 - 21 6D 77
+   jr     z, @sprite_ground_anim_selected  ; 01:76E5 - 28 0F
+   ld     hl, SPRITEMAP_animal_0_on_ground_BRI  ; 01:76E7 - 21 6D 77
    dec    a                            ; 01:76EA - 3D
-   jr     z, addr_076F6                ; 01:76EB - 28 09
-   ld     hl, UNK_07788                ; 01:76ED - 21 88 77
+   jr     z, @sprite_ground_anim_selected  ; 01:76EB - 28 09
+   ld     hl, SPRITEMAP_animal_0_on_ground_JUN  ; 01:76ED - 21 88 77
    dec    a                            ; 01:76F0 - 3D
-   jr     z, addr_076F6                ; 01:76F1 - 28 03
-   ld     hl, UNK_077A3                ; 01:76F3 - 21 A3 77
+   jr     z, @sprite_ground_anim_selected  ; 01:76F1 - 28 03
+   ld     hl, SPRITEMAP_animal_0_on_ground_others  ; 01:76F3 - 21 A3 77
 
-addr_076F6:
+@sprite_ground_anim_selected:
    ld     (ix+15), l                   ; 01:76F6 - DD 75 0F
    ld     (ix+16), h                   ; 01:76F9 - DD 74 10
    inc    (ix+17)                      ; 01:76FC - DD 34 11
@@ -12851,15 +12851,15 @@ addr_076F6:
    ld     hl, $FFFC                    ; 01:7705 - 21 FC FF
    ld     a, c                         ; 01:7708 - 79
    and    a                            ; 01:7709 - A7
-   jr     z, addr_0770F                ; 01:770A - 28 03
+   jr     z, @skip_LAB_y_vel_dampen    ; 01:770A - 28 03
    ld     hl, $FFFE                    ; 01:770C - 21 FE FF
 
-addr_0770F:
+@skip_LAB_y_vel_dampen:
    ld     (ix+10), $00                 ; 01:770F - DD 36 0A 00
    ld     (ix+11), l                   ; 01:7713 - DD 75 0B
    ld     (ix+12), h                   ; 01:7716 - DD 74 0C
 
-addr_07719:
+@was_not_on_ground:
    ld     l, (ix+10)                   ; 01:7719 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:771C - DD 66 0B
    ld     a, (ix+12)                   ; 01:771F - DD 7E 0C
@@ -12867,14 +12867,14 @@ addr_07719:
    add    hl, de                       ; 01:7725 - 19
    adc    a, $00                       ; 01:7726 - CE 00
    ld     c, a                         ; 01:7728 - 4F
-   jp     m, addr_07736                ; 01:7729 - FA 36 77
+   jp     m, @skip_y_vel_clamp         ; 01:7729 - FA 36 77
    ld     a, h                         ; 01:772C - 7C
    cp     $02                          ; 01:772D - FE 02
-   jr     c, addr_07736                ; 01:772F - 38 05
+   jr     c, @skip_y_vel_clamp         ; 01:772F - 38 05
    ld     hl, $0200                    ; 01:7731 - 21 00 02
    ld     c, $00                       ; 01:7734 - 0E 00
 
-addr_07736:
+@skip_y_vel_clamp:
    ld     (ix+10), l                   ; 01:7736 - DD 75 0A
    ld     (ix+11), h                   ; 01:7739 - DD 74 0B
    ld     (ix+12), c                   ; 01:773C - DD 71 0C
@@ -12882,30 +12882,30 @@ addr_07736:
    ld     (ix+8), $FE                  ; 01:7743 - DD 36 08 FE
    ld     (ix+9), $FF                  ; 01:7747 - DD 36 09 FF
    ld     (ix+17), $00                 ; 01:774B - DD 36 11 00
-   jp     addr_07612                   ; 01:774F - C3 12 76
+   jp     animal_common                ; 01:774F - C3 12 76
 
-UNK_07752:
+SPRITEMAP_animal_0_on_ground_GHZ:
 .db $70, $72, $FF, $FF, $FF, $FF, $54, $56, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:7752
 
-UNK_07760:
+SPRITEMAP_animal_0_airborne_GHZ:
 .db $5C, $5E, $FF, $FF, $FF, $FF, $58, $5A, $FF, $FF, $FF, $FF, $FF                 ; 01:7760
 
-UNK_0776D:
+SPRITEMAP_animal_0_on_ground_BRI:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $34, $36, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:776D
 
-UNK_0777B:
+SPRITEMAP_animal_0_airborne_BRI:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $38, $3A, $FF, $FF, $FF, $FF, $FF                 ; 01:777B
 
-UNK_07788:
+SPRITEMAP_animal_0_on_ground_JUN:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $3C, $3E, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:7788
 
-UNK_07796:
+SPRITEMAP_animal_0_airborne_JUN:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $1C, $1E, $FF, $FF, $FF, $FF, $FF                 ; 01:7796
 
-UNK_077A3:
+SPRITEMAP_animal_0_on_ground_others:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $14, $16, $FF, $FF, $FF, $FF, $FF, $FF            ; 01:77A3
 
-UNK_077B1:
+SPRITEMAP_animal_0_airborne_others:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $FF                 ; 01:77B1
 
 addr_077BE:
