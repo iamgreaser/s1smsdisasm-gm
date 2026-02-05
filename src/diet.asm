@@ -7346,7 +7346,7 @@ LUT_object_functions:
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_UNKNOWN, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
-.dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_UNKNOWN  ; 00:2B96
+.dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
 .dw $0100, $0200, $0100, $0200, $0020, $0120, $0020, $00E0                          ; 00:2BA2
@@ -15359,19 +15359,19 @@ UNK_07B5D:
 UNK_07B85:
 .db $00, $01, $08, $00, $02, $03, $78, $00, $01, $04, $08, $00, $02, $03, $78, $00  ; 01:7B85
 
-objfunc_55_UNKNOWN:
+objfunc_55_thrown_ring_on_sonic_damage:
    set    5, (ix+24)                   ; 01:7B95 - DD CB 18 EE
    set    0, (iy+var_D209-IYBASE)      ; 01:7B99 - FD CB 09 C6
    ld     a, (g_global_tick_counter)   ; 01:7B9D - 3A 23 D2
    and    $01                          ; 01:7BA0 - E6 01
-   jp     z, addr_07BC2                ; 01:7BA2 - CA C2 7B
+   jp     z, @tick_mod_2_is_0          ; 01:7BA2 - CA C2 7B
    ld     a, (ix+18)                   ; 01:7BA5 - DD 7E 12
    ld     c, a                         ; 01:7BA8 - 4F
    add    a, a                         ; 01:7BA9 - 87
    add    a, c                         ; 01:7BAA - 81
    ld     c, a                         ; 01:7BAB - 4F
    ld     b, $00                       ; 01:7BAC - 06 00
-   ld     hl, PTRTAB_UNK_07C17         ; 01:7BAE - 21 17 7C
+   ld     hl, PTRTAB_thrown_ring_spriteptrs_and_sonicarts  ; 01:7BAE - 21 17 7C
    add    hl, bc                       ; 01:7BB1 - 09
    ld     e, (hl)                      ; 01:7BB2 - 5E
    inc    hl                           ; 01:7BB3 - 23
@@ -15381,13 +15381,13 @@ objfunc_55_UNKNOWN:
    ld     (ix+15), e                   ; 01:7BB7 - DD 73 0F
    ld     (ix+16), d                   ; 01:7BBA - DD 72 10
    ld     (var_D302), a                ; 01:7BBD - 32 02 D3
-   jr     addr_07BC8                   ; 01:7BC0 - 18 06
+   jr     @tick_mod_2_was_not_0        ; 01:7BC0 - 18 06
 
-addr_07BC2:
+@tick_mod_2_is_0:
    ld     (ix+15), a                   ; 01:7BC2 - DD 77 0F
    ld     (ix+16), a                   ; 01:7BC5 - DD 77 10
 
-addr_07BC8:
+@tick_mod_2_was_not_0:
    ld     l, (ix+10)                   ; 01:7BC8 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:7BCB - DD 66 0B
    ld     a, (ix+12)                   ; 01:7BCE - DD 7E 0C
@@ -15403,12 +15403,12 @@ addr_07BC8:
    inc    h                            ; 01:7BE9 - 24
    xor    a                            ; 01:7BEA - AF
    sbc    hl, de                       ; 01:7BEB - ED 52
-   jr     nc, addr_07BF8               ; 01:7BED - 30 09
+   jr     nc, @skip_despawn_at_bottom_of_screen  ; 01:7BED - 30 09
    ld     (ix+0), $FF                  ; 01:7BEF - DD 36 00 FF
    res    0, (iy+var_D209-IYBASE)      ; 01:7BF3 - FD CB 09 86
    ret                                 ; 01:7BF7 - C9
 
-addr_07BF8:
+@skip_despawn_at_bottom_of_screen:
    ld     (ix+7), a                    ; 01:7BF8 - DD 77 07
    ld     (ix+8), a                    ; 01:7BFB - DD 77 08
    ld     (ix+9), a                    ; 01:7BFE - DD 77 09
@@ -15422,42 +15422,42 @@ addr_07BF8:
    ld     (ix+18), $00                 ; 01:7C12 - DD 36 12 00
    ret                                 ; 01:7C16 - C9
 
-PTRTAB_UNK_07C17:
+PTRTAB_thrown_ring_spriteptrs_and_sonicarts:
 .IF shrink_sonicuncart_interleave
-.dw addr_07C29
+.dw SPRITEMAP_thrown_ring_00_03
 .db $1C+($27-$19)
-.dw addr_07C31
+.dw SPRITEMAP_thrown_ring_01_04
 .db $1C+($27-$19)
-.dw addr_07C39
+.dw SPRITEMAP_thrown_ring_02_05
 .db $1C+($27-$19)
-.dw addr_07C29
+.dw SPRITEMAP_thrown_ring_00_03
 .db $1D+($27-$19)
-.dw addr_07C31
+.dw SPRITEMAP_thrown_ring_01_04
 .db $1D+($27-$19)
-.dw addr_07C39
+.dw SPRITEMAP_thrown_ring_02_05
 .db $1D+($27-$19)
 .ELSE
-.dw addr_07C29                                                                      ; 01:7C17
+.dw SPRITEMAP_thrown_ring_00_03                                                     ; 01:7C17
 .db $1C                                                                             ; 01:7C19
-.dw addr_07C31                                                                      ; 01:7C1A
+.dw SPRITEMAP_thrown_ring_01_04                                                     ; 01:7C1A
 .db $1C                                                                             ; 01:7C1C
-.dw addr_07C39                                                                      ; 01:7C1D
+.dw SPRITEMAP_thrown_ring_02_05                                                     ; 01:7C1D
 .db $1C                                                                             ; 01:7C1F
-.dw addr_07C29                                                                      ; 01:7C20
+.dw SPRITEMAP_thrown_ring_00_03                                                     ; 01:7C20
 .db $1D                                                                             ; 01:7C22
-.dw addr_07C31                                                                      ; 01:7C23
+.dw SPRITEMAP_thrown_ring_01_04                                                     ; 01:7C23
 .db $1D                                                                             ; 01:7C25
-.dw addr_07C39                                                                      ; 01:7C26
+.dw SPRITEMAP_thrown_ring_02_05                                                     ; 01:7C26
 .db $1D                                                                             ; 01:7C28
 .ENDIF
 
-addr_07C29:
+SPRITEMAP_thrown_ring_00_03:
 .db $B4, $B6, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C29
 
-addr_07C31:
+SPRITEMAP_thrown_ring_01_04:
 .db $B8, $BA, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C31
 
-addr_07C39:
+SPRITEMAP_thrown_ring_02_05:
 .db $BC, $BE, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 01:7C39
 
 do_framed_animation:
