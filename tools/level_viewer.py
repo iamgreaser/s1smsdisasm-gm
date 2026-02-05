@@ -531,6 +531,15 @@ class TkApp:
             self.maybe_draw_sprite(sonic_x + dx, sonic_y + dy, smaps[0])
 
             for v, tx, ty in self.object_defs:
+                # Early check
+                if (
+                    tx < self.cam_mtx - 2
+                    or tx >= self.cam_mtx + self.mtm_width + 2
+                    or ty < self.cam_mty - 2
+                    or ty >= self.cam_mty + self.mtm_height + 2
+                ):
+                    continue
+
                 x = tx * 32
                 y = ty * 32
                 if v in obj_sprite_maps:
