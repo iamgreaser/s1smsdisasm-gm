@@ -675,7 +675,8 @@ class TkApp:
         t_beg = time.time()
         self.tk.update_idletasks()
         t_end = time.time()
-        logging.debug(f"time {t_end-t_beg:9.6f}")
+        if False:
+            logging.debug(f"time {t_end-t_beg:9.6f}")
 
     def maybe_draw_sprite(
         self, spr_x: int, spr_y: int, spr_data: Sequence[Sequence[int]]
