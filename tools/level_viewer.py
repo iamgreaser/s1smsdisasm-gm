@@ -84,6 +84,10 @@ class TkApp:
         self.cam_mtx = 0
         self.cam_mty = 16 - self.mtm_height
 
+        # Pick an obviously wrong one
+        self.prev_cam_mtx = self.cam_mtx - (self.mtm_width * 2)
+        self.prev_cam_mty = self.cam_mty
+
         # One variant for each:
         # +1 = hflip
         # +2 = vflip
@@ -436,74 +440,76 @@ class TkApp:
         self.screen.delete("info_boxes", "info_text", "lines_physics")
 
         # Set up layout
-        for cy in range(self.mtm_height):
-            for cx in range(self.mtm_width):
-                # Metatile index
-                offs = ((cy + self.cam_mty) * self.level_width) + cx + self.cam_mtx
-                mtidx = self.layout[offs]
-                self.set_vram_metatile_map_cell(cx, cy, mtidx)
-                tf = self.layout_tile_flags[mtidx]
-                ts = self.layout_tile_specials[mtidx]
+        # TODO: FIXME: Reintegrate this stuff on demand! --GM
+        if False:
+            for cy in range(self.mtm_height):
+                for cx in range(self.mtm_width):
+                    # Metatile index
+                    offs = ((cy + self.cam_mty) * self.level_width) + cx + self.cam_mtx
+                    mtidx = self.layout[offs]
+                    self.set_vram_metatile_map_cell(cx, cy, mtidx)
+                    tf = self.layout_tile_flags[mtidx]
+                    ts = self.layout_tile_specials[mtidx]
 
-                if False:
-                    self.screen.create_text(
-                        ((cx * 32) + 2) * 2,
-                        ((cy * 32) + 2) * 2,
-                        text=f"{mtidx:02X} {offs:03X}\n{tf:02X} {ts:02X}",
-                        anchor="nw",
-                        fill="#FFFFFF",
-                        tags=["info_text"],
-                    )
+                    if False:
+                        self.screen.create_text(
+                            ((cx * 32) + 2) * 2,
+                            ((cy * 32) + 2) * 2,
+                            text=f"{mtidx:02X} {offs:03X}\n{tf:02X} {ts:02X}",
+                            anchor="nw",
+                            fill="#FFFFFF",
+                            tags=["info_text"],
+                        )
 
-                if False:
-                    # Draw physics lines!
-                    ptlist: list[tuple[int, int]] = []
-                    orderlist = [
-                        (0, -1, push_up),
-                        (0, 1, push_down),
-                        (-1, 0, push_left),
-                        (1, 0, push_right),
-                    ]
-                    for dx, dy, basetable in orderlist:
-                        for i, vbase in enumerate(basetable[tf & 0x3F]):
-                            if vbase != 0x80:
-                                # Convert to signed
-                                vbase = (vbase ^ 0x80) - 0x80
+                    if False:
+                        # Draw physics lines!
+                        ptlist: list[tuple[int, int]] = []
+                        orderlist = [
+                            (0, -1, push_up),
+                            (0, 1, push_down),
+                            (-1, 0, push_left),
+                            (1, 0, push_right),
+                        ]
+                        for dx, dy, basetable in orderlist:
+                            for i, vbase in enumerate(basetable[tf & 0x3F]):
+                                if vbase != 0x80:
+                                    # Convert to signed
+                                    vbase = (vbase ^ 0x80) - 0x80
 
-                                v = vbase
-                                x = (i * 2) + 1
-                                y = (v * 2) + 1
-                                if dx != 0:
-                                    x, y = y, x
-                                ptlist.append(
-                                    (
-                                        x + (cx * 8 * 4 * 2),
-                                        y + (cy * 8 * 4 * 2),
-                                    )
-                                )
-
-                            if vbase == 0x80 or i == 0x1F:
-                                if len(ptlist) >= 1:
-                                    ptlist.insert(
-                                        0,
-                                        (
-                                            ptlist[0][0] - (dx * 4 * 2),
-                                            ptlist[0][1] - (dy * 4 * 2),
-                                        ),
-                                    )
+                                    v = vbase
+                                    x = (i * 2) + 1
+                                    y = (v * 2) + 1
+                                    if dx != 0:
+                                        x, y = y, x
                                     ptlist.append(
                                         (
-                                            ptlist[-1][0] - (dx * 4 * 2),
-                                            ptlist[-1][1] - (dy * 4 * 2),
+                                            x + (cx * 8 * 4 * 2),
+                                            y + (cy * 8 * 4 * 2),
                                         )
                                     )
-                                    self.screen.create_line(
-                                        ptlist,
-                                        width=3,
-                                        fill="#FF00FF",
-                                        tags="lines_physics",
-                                    )
-                                ptlist.clear()
+
+                                if vbase == 0x80 or i == 0x1F:
+                                    if len(ptlist) >= 1:
+                                        ptlist.insert(
+                                            0,
+                                            (
+                                                ptlist[0][0] - (dx * 4 * 2),
+                                                ptlist[0][1] - (dy * 4 * 2),
+                                            ),
+                                        )
+                                        ptlist.append(
+                                            (
+                                                ptlist[-1][0] - (dx * 4 * 2),
+                                                ptlist[-1][1] - (dy * 4 * 2),
+                                            )
+                                        )
+                                        self.screen.create_line(
+                                            ptlist,
+                                            width=3,
+                                            fill="#FF00FF",
+                                            tags="lines_physics",
+                                        )
+                                    ptlist.clear()
 
         # Set background
         palv = self.cram[0]
@@ -514,102 +520,139 @@ class TkApp:
         self.screen.configure(background=f"#{c:06X}")
 
         # Set up sprites
+        # TODO: Optimise me! --GM
         self.vram_sprites_used = 0
-        sonic_x = (((self.mtm_width * 32) - 24) // 2) & ~0x1F
-        sonic_y = (((self.mtm_height * 32) - 32) // 2) & ~0x1F
-        sonic_x += self.cam_mtx * 32
-        sonic_y += self.cam_mty * 32
-        (dx, dy), smaps = obj_sprite_maps[OT.player_sonic.value]
-        self.maybe_draw_sprite(sonic_x + dx, sonic_y + dy, smaps[0])
+        if True:
+            sonic_x = (((self.mtm_width * 32) - 24) // 2) & ~0x1F
+            sonic_y = (((self.mtm_height * 32) - 32) // 2) & ~0x1F
+            sonic_x += self.cam_mtx * 32
+            sonic_y += self.cam_mty * 32
+            (dx, dy), smaps = obj_sprite_maps[OT.player_sonic.value]
+            self.maybe_draw_sprite(sonic_x + dx, sonic_y + dy, smaps[0])
 
-        for v, tx, ty in self.object_defs:
-            x = tx * 32
-            y = ty * 32
-            if v in obj_sprite_maps:
-                (dx, dy), smaps = obj_sprite_maps[v]
+            for v, tx, ty in self.object_defs:
+                x = tx * 32
+                y = ty * 32
+                if v in obj_sprite_maps:
+                    (dx, dy), smaps = obj_sprite_maps[v]
 
-                sidx = 0
-                # Special cases
-                if v == OT.platform_horizontal.value:
-                    # This is grabbed from the tile flag index.
-                    if zlib.crc32(self.layout_tile_flags[:0xB8]) == 0x5B23CE2A:
-                        # GHZ (index $00)
-                        sidx = 0
-                    elif zlib.crc32(self.layout_tile_flags[:0x90]) == 0x753831C5:
-                        # BRI (index $01)
-                        sidx = 1
-                    else:
-                        # All other cases (probably just JUN)
-                        sidx = 2
+                    sidx = 0
+                    # Special cases
+                    if v == OT.platform_horizontal.value:
+                        # This is grabbed from the tile flag index.
+                        if zlib.crc32(self.layout_tile_flags[:0xB8]) == 0x5B23CE2A:
+                            # GHZ (index $00)
+                            sidx = 0
+                        elif zlib.crc32(self.layout_tile_flags[:0x90]) == 0x753831C5:
+                            # BRI (index $01)
+                            sidx = 1
+                        else:
+                            # All other cases (probably just JUN)
+                            sidx = 2
 
-                self.maybe_draw_sprite(x + dx, y + dy, smaps[sidx])
-            else:
-                self.screen.create_rectangle(
-                    ((x + 16) - 9 - (self.cam_mtx * 32)) * 2,
-                    ((y + 16) - 6 - (self.cam_mty * 32)) * 2,
-                    ((x + 16) + 9 - (self.cam_mtx * 32)) * 2,
-                    ((y + 16) + 6 - (self.cam_mty * 32)) * 2,
-                    fill="#000000",
-                    outline="#FFFFFF",
-                    width=1,
-                    tags=["info_boxes"],
-                )
-                self.screen.create_text(
-                    ((x + 16) - (self.cam_mtx * 32)) * 2,
-                    ((y + 16) - (self.cam_mty * 32)) * 2,
-                    text=f"{v:02X}",
-                    anchor="center",
-                    fill="#FFFFFF",
-                    tags=["info_text"],
-                )
+                    self.maybe_draw_sprite(x + dx, y + dy, smaps[sidx])
+                else:
+                    self.screen.create_rectangle(
+                        ((x + 16) - 9 - (self.cam_mtx * 32)) * 2,
+                        ((y + 16) - 6 - (self.cam_mty * 32)) * 2,
+                        ((x + 16) + 9 - (self.cam_mtx * 32)) * 2,
+                        ((y + 16) + 6 - (self.cam_mty * 32)) * 2,
+                        fill="#000000",
+                        outline="#FFFFFF",
+                        width=1,
+                        tags=["info_boxes"],
+                    )
+                    self.screen.create_text(
+                        ((x + 16) - (self.cam_mtx * 32)) * 2,
+                        ((y + 16) - (self.cam_mty * 32)) * 2,
+                        text=f"{v:02X}",
+                        anchor="center",
+                        fill="#FFFFFF",
+                        tags=["info_text"],
+                    )
 
         # Draw a 32x28 display
-        for mty in range(self.mtm_height):
-            for mtx in range(self.mtm_width):
-                self.tk.update_idletasks()
-                mtidx = self.vram_metatile_map[mty][mtx]
-                hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
-                priority = "tile_hi" if (hi & 0x10) != 0 else "tile_lo"
-                mtm_img = self.ensure_metatile_img(mtidx)
-
-                opt_mtm_lbl = self.vram_metatile_map_items[mty][mtx]
+        self.screen.move(
+            ["tile"],
+            -(self.cam_mtx - self.prev_cam_mtx) * (32 * 2),
+            -(self.cam_mty - self.prev_cam_mty) * (32 * 2),
+        )
+        # Unlike C, Python actually uses sane integer division and not the stupid one.
+        # So we don't have to work around negative numbers being stupid under the stupid division.
+        for mapoffs_mty in range(self.mtm_height):
+            # self.tk.update_idletasks()
+            for mapoffs_mtx in range(self.mtm_width):
+                map_mtx = mapoffs_mtx + self.cam_mtx
+                map_mty = mapoffs_mty + self.cam_mty
+                screen_mtx = map_mtx % self.mtm_width
+                screen_mty = map_mty % self.mtm_height
+                opt_mtm_lbl = self.vram_metatile_map_items[screen_mty][screen_mtx]
                 if opt_mtm_lbl is None:
                     mtm_lbl = self.screen.create_image(
-                        32 * 2 * mtx, 32 * 2 * mty, image=mtm_img, anchor="nw"
+                        screen_mtx * (32 * 2),
+                        screen_mty * (32 * 2),
+                        image=None,
+                        anchor="nw",
                     )
-                    self.vram_metatile_map_items[mty][mtx] = mtm_lbl
+                    self.vram_metatile_map_items[screen_mty][screen_mtx] = mtm_lbl
                 else:
                     mtm_lbl = opt_mtm_lbl
-                self.screen.itemconfigure(mtm_lbl, image=mtm_img, tags=[priority])
+
+                if (
+                    map_mtx < self.prev_cam_mtx
+                    or map_mtx >= self.prev_cam_mtx + self.mtm_width
+                    or map_mty < self.prev_cam_mty
+                    or map_mty >= self.prev_cam_mty + self.mtm_height
+                ):
+                    offs = map_mtx + (self.level_width * map_mty)
+                    mtidx = self.layout[offs]
+                    hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
+                    priority = "tile_hi" if (hi & 0x10) != 0 else "tile_lo"
+                    mtm_img = self.ensure_metatile_img(mtidx)
+                    self.screen.itemconfigure(
+                        mtm_lbl, image=mtm_img, tags=["tile", priority]
+                    )
+
+                    self.screen.moveto(
+                        mtm_lbl,
+                        mapoffs_mtx * (32 * 2),
+                        mapoffs_mty * (32 * 2),
+                    )
+
+        self.prev_cam_mtx = self.cam_mtx
+        self.prev_cam_mty = self.cam_mty
 
         # Sprites
         # Make sure we render these backwards!
-        for si, (x, y, opt_t, tdata) in reversed(
-            list(enumerate(self.vram_sprites[0 : self.vram_sprites_used]))
-        ):
-            if opt_t is not None:
-                tag0 = opt_t
-                self.screen.moveto(tag0, x * 2, (y + (8 * 0)) * 2)
-            else:
-                tag0 = self.screen.create_image(x * 2, (y + (8 * 0)) * 2, anchor="nw")
-                self.vram_sprites[si] = (x, y, tag0, tdata)
+        if True:
+            for si, (x, y, opt_t, tdata) in reversed(
+                list(enumerate(self.vram_sprites[0 : self.vram_sprites_used]))
+            ):
+                if opt_t is not None:
+                    tag0 = opt_t
+                    self.screen.moveto(tag0, x * 2, (y + (8 * 0)) * 2)
+                else:
+                    tag0 = self.screen.create_image(
+                        x * 2, (y + (8 * 0)) * 2, anchor="nw"
+                    )
+                    self.vram_sprites[si] = (x, y, tag0, tdata)
 
-            self.screen.itemconfigure(
-                tag0,
-                image=self.ensure_sprite_img(tdata >> 1),
-                state="normal",
-            )
-            self.screen.tag_raise(tag0)
-
-        # Remove excess
-        for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used :]:
-            if opt_t is not None:
-                tag0 = opt_t
                 self.screen.itemconfigure(
                     tag0,
-                    image=None,
-                    state="hidden",
+                    image=self.ensure_sprite_img(tdata >> 1),
+                    state="normal",
                 )
+                self.screen.tag_raise(tag0)
+
+            # Remove excess
+            for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used :]:
+                if opt_t is not None:
+                    tag0 = opt_t
+                    self.screen.itemconfigure(
+                        tag0,
+                        image=None,
+                        state="hidden",
+                    )
 
         # Correct ordering
         self.screen.tag_raise("tile_hi")
@@ -617,6 +660,9 @@ class TkApp:
         self.screen.tag_raise("lines_physics")
         self.screen.tag_raise("info_boxes")
         self.screen.tag_raise("info_text")
+
+        # Blit it!
+        self.tk.update_idletasks()
 
     def maybe_draw_sprite(
         self, spr_x: int, spr_y: int, spr_data: Sequence[Sequence[int]]
