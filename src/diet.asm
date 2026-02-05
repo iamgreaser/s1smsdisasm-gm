@@ -21,7 +21,7 @@
 ;; - $7F causes a reset.
 ;; - $80 upwards behaves a bit like $00 upwards but things are weird and you have weird starting times and the clock goes in the middle of the screen... and you're stuck on the same level repeatedly.
 ;; - Go explore if you want to find out what the out-of-range values do.
-.DEF cht_starting_level $05
+.DEF cht_starting_level $00
 
 ;; bool: No Death On Hit
 .DEF cht_no_death_on_hit 0
@@ -8744,7 +8744,7 @@ enemy_touched_sonic:
    and    $02                          ; 00:35F8 - E6 02
    jp     nz, addr_036BE               ; 00:35FA - C2 BE 36
 
-addr_035FD:
+damage_sonic:
    bit    0, (iy+var_D209-IYBASE)      ; 00:35FD - FD CB 09 46
    ret    nz                           ; 00:3601 - C0
    bit    6, (iy+var_D206-IYBASE)      ; 00:3602 - FD CB 06 76
@@ -11616,7 +11616,7 @@ addr_054BC:
 
 addr_054C6:
    bit    0, (iy+var_D205-IYBASE)      ; 01:54C6 - FD CB 05 46
-   jp     z, addr_035FD                ; 01:54CA - CA FD 35
+   jp     z, damage_sonic              ; 01:54CA - CA FD 35
    ret                                 ; 01:54CD - C9
 
 addr_054CE:
@@ -12073,7 +12073,7 @@ addr_057F6:
    sbc    hl, de                       ; 01:57FD - ED 52
    ret    c                            ; 01:57FF - D8
    bit    0, (iy+var_D205-IYBASE)      ; 01:5800 - FD CB 05 46
-   jp     z, addr_035FD                ; 01:5804 - CA FD 35
+   jp     z, damage_sonic              ; 01:5804 - CA FD 35
    ret                                 ; 01:5807 - C9
 
 addr_05808:
@@ -13292,7 +13292,7 @@ objfunc_08_badnik_crabmeat:
    ld     de, $0000                    ; 01:6647 - 11 00 00
    ld     c, e                         ; 01:664A - 4B
    ld     b, d                         ; 01:664B - 42
-   call   UNK_0AC96                    ; 01:664C - CD 96 AC
+   call   init_fireball_object         ; 01:664C - CD 96 AC
    ld     hl, $0001                    ; 01:664F - 21 01 00
    ld     (var_D212), hl               ; 01:6652 - 22 12 D2
    ld     hl, $FFFC                    ; 01:6655 - 21 FC FF
@@ -13301,7 +13301,7 @@ objfunc_08_badnik_crabmeat:
    jr     c, @continue                 ; 01:665E - 38 18
    ld     de, $000E                    ; 01:6660 - 11 0E 00
    ld     bc, $0000                    ; 01:6663 - 01 00 00
-   call   UNK_0AC96                    ; 01:6666 - CD 96 AC
+   call   init_fireball_object         ; 01:6666 - CD 96 AC
    ld     a, $0A                       ; 01:6669 - 3E 0A
    rst    $28                          ; 01:666B - EF
    jp     @continue                    ; 01:666C - C3 78 66
@@ -13448,7 +13448,7 @@ objfunc_09_platform_swing:
    ld     (sonic_x), hl                ; 01:67ED - 22 FE D3
    ld     bc, $0010                    ; 01:67F0 - 01 10 00
    ld     de, $0000                    ; 01:67F3 - 11 00 00
-   call   addr_07CC1                   ; 01:67F6 - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 01:67F6 - CD C1 7C
 
 @skip_sonic_collision:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:67F9 - 21 11 69
@@ -13614,7 +13614,7 @@ objfunc_0B_platform_semilowering:
    ld     (ix+11), d                   ; 01:6A20 - DD 72 0B
    ld     (ix+12), $00                 ; 01:6A23 - DD 36 0C 00
    ld     bc, $0010                    ; 01:6A27 - 01 10 00
-   call   addr_07CC1                   ; 01:6A2A - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 01:6A2A - CD C1 7C
    ret                                 ; 01:6A2D - C9
 
 @not_collided_with_sonic:
@@ -13664,7 +13664,7 @@ objfunc_0C_platform_fall_on_touch:
    ld     bc, $0010                    ; 01:6A8D - 01 10 00
    ld     e, (ix+10)                   ; 01:6A90 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:6A93 - DD 56 0B
-   call   addr_07CC1                   ; 01:6A96 - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 01:6A96 - CD C1 7C
 
 @sonic_was_not_positioned_correctly:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:6A99 - 21 11 69
@@ -13694,7 +13694,7 @@ objfunc_0D_fireball_pallet:
    ld     hl, $0303                    ; 01:6ACD - 21 03 03
    ld     (var_D214), hl               ; 01:6AD0 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6AD3 - CD 56 39
-   call   nc, addr_035FD               ; 01:6AD6 - D4 FD 35
+   call   nc, damage_sonic             ; 01:6AD6 - D4 FD 35
    ld     l, (ix+10)                   ; 01:6AD9 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:6ADC - DD 66 0B
    ld     a, (ix+12)                   ; 01:6ADF - DD 7E 0C
@@ -13986,7 +13986,7 @@ objfunc_0F_platform_horizontal:
    jr     c, @sonic_was_not_positioned_correctly  ; 01:6DA4 - 38 0B
    ld     bc, $0010                    ; 01:6DA6 - 01 10 00
    ld     de, $0000                    ; 01:6DA9 - 11 00 00
-   call   addr_07CC1                   ; 01:6DAC - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 01:6DAC - CD C1 7C
    ld     c, $01                       ; 01:6DAF - 0E 01
 
 @sonic_was_not_positioned_correctly:
@@ -14598,11 +14598,11 @@ objfunc_25_animal_capsule:
    ld     h, (ix+6)                    ; 01:7382 - DD 66 06
    add    hl, bc                       ; 01:7385 - 09
    ld     (var_D2AD), hl               ; 01:7386 - 22 AD D2
-   ld     hl, SPRITEMAP_animal_capsule_TODO_blink  ; 01:7389 - 21 2E 75
+   ld     hl, SPRITEMAP_animal_capsule_blink  ; 01:7389 - 21 2E 75
    ld     a, (g_global_tick_counter)   ; 01:738C - 3A 23 D2
    and    $10                          ; 01:738F - E6 10
    jr     z, @tick_mod_32_was_below_16  ; 01:7391 - 28 03
-   ld     hl, SPRITEMAP_animal_capsule_TODO_pressed  ; 01:7393 - 21 52 75
+   ld     hl, SPRITEMAP_animal_capsule_pressed  ; 01:7393 - 21 52 75
 
 @tick_mod_32_was_below_16:
    ld     (ix+15), l                   ; 01:7396 - DD 75 0F
@@ -14784,7 +14784,7 @@ animal_capsule_UNK_0750E:
 .db $15, $12, $11, $10, $10, $0F, $0E, $0D, $03, $03, $03, $03, $03, $03, $03, $03  ; 01:750E
 .db $03, $03, $03, $03, $03, $03, $03, $03, $0D, $0E, $0F, $10, $10, $11, $12, $15  ; 01:751E
 
-SPRITEMAP_animal_capsule_TODO_blink:
+SPRITEMAP_animal_capsule_blink:
 .db $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:752E
 .db $FF, $FF                                                                        ; 01:753E
 
@@ -14792,7 +14792,7 @@ SPRITEMAP_animal_capsule_normal:
 .db $00, $08, $0A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:7540
 .db $FF, $FF                                                                        ; 01:7550
 
-SPRITEMAP_animal_capsule_TODO_pressed:
+SPRITEMAP_animal_capsule_pressed:
 .db $00, $68, $6A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:7552
 .db $FF, $FF                                                                        ; 01:7562
 
@@ -15017,7 +15017,7 @@ addr_077BE:
    rrca                                ; 01:77DE - 0F
    jr     c, addr_077E6                ; 01:77DF - 38 05
    and    $02                          ; 01:77E1 - E6 02
-   jp     z, addr_035FD                ; 01:77E3 - CA FD 35
+   jp     z, damage_sonic              ; 01:77E3 - CA FD 35
 
 addr_077E6:
    ld     de, $0001                    ; 01:77E6 - 11 01 00
@@ -15537,17 +15537,17 @@ addr_07CA6:
    res    5, (iy+var_D200-IYBASE)      ; 01:7CBC - FD CB 00 AE
    ret                                 ; 01:7CC0 - C9
 
-addr_07CC1:
+put_sonic_y_pos_on_platform:
    bit    6, (iy+var_D206-IYBASE)      ; 01:7CC1 - FD CB 06 76
    ret    nz                           ; 01:7CC5 - C0
    ld     l, (ix+4)                    ; 01:7CC6 - DD 6E 04
    ld     h, (ix+5)                    ; 01:7CC9 - DD 66 05
    xor    a                            ; 01:7CCC - AF
    bit    7, d                         ; 01:7CCD - CB 7A
-   jr     z, addr_07CD2                ; 01:7CCF - 28 01
+   jr     z, @y_vel_was_not_negative   ; 01:7CCF - 28 01
    dec    a                            ; 01:7CD1 - 3D
 
-addr_07CD2:
+@y_vel_was_not_negative:
    add    hl, de                       ; 01:7CD2 - 19
    adc    a, (ix+6)                    ; 01:7CD3 - DD 8E 06
    ld     l, h                         ; 01:7CD6 - 6C
@@ -15709,7 +15709,7 @@ addr_07E3C:
    ld     bc, $0010                    ; 01:7E59 - 01 10 00
    ld     e, (ix+10)                   ; 01:7E5C - DD 5E 0A
    ld     d, (ix+11)                   ; 01:7E5F - DD 56 0B
-   call   addr_07CC1                   ; 01:7E62 - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 01:7E62 - CD C1 7C
 
 addr_07E65:
    ld     a, (g_global_tick_counter)   ; 01:7E65 - 3A 23 D2
@@ -15792,7 +15792,7 @@ addr_07F2A:
    ld     bc, $0010                    ; 01:7F3D - 01 10 00
    ld     e, (ix+10)                   ; 01:7F40 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:7F43 - DD 56 0B
-   call   addr_07CC1                   ; 01:7F46 - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 01:7F46 - CD C1 7C
    ld     hl, (sonic_vel_x_sub)        ; 01:7F49 - 2A 03 D4
    ld     a, l                         ; 01:7F4C - 7D
    or     h                            ; 01:7F4D - B4
@@ -16123,7 +16123,7 @@ objfunc_2B_UNKNOWN:
    ld     hl, $0202                    ; 02:8224 - 21 02 02
    ld     (var_D214), hl               ; 02:8227 - 22 14 D2
    call   check_collision_with_sonic   ; 02:822A - CD 56 39
-   call   nc, addr_035FD               ; 02:822D - D4 FD 35
+   call   nc, damage_sonic             ; 02:822D - D4 FD 35
    ld     l, (ix+7)                    ; 02:8230 - DD 6E 07
    ld     h, (ix+8)                    ; 02:8233 - DD 66 08
    ld     a, (ix+9)                    ; 02:8236 - DD 7E 09
@@ -16209,7 +16209,7 @@ objfunc_2D_UNKNOWN:
    ld     hl, $0408                    ; 02:82EE - 21 08 04
    ld     (var_D214), hl               ; 02:82F1 - 22 14 D2
    call   check_collision_with_sonic   ; 02:82F4 - CD 56 39
-   call   nc, addr_035FD               ; 02:82F7 - D4 FD 35
+   call   nc, damage_sonic             ; 02:82F7 - D4 FD 35
    ld     (ix+13), $14                 ; 02:82FA - DD 36 0D 14
    ld     (ix+14), $20                 ; 02:82FE - DD 36 0E 20
    ld     hl, $1006                    ; 02:8302 - 21 06 10
@@ -16351,7 +16351,7 @@ addr_08467:
    ret    m                            ; 02:8475 - F8
    ld     de, (var_D20E)               ; 02:8476 - ED 5B 0E D2
    ld     bc, $0010                    ; 02:847A - 01 10 00
-   call   addr_07CC1                   ; 02:847D - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 02:847D - CD C1 7C
    ret                                 ; 02:8480 - C9
 
 UNK_08481:
@@ -16904,7 +16904,7 @@ addr_0894B:
    ld     hl, $0204                    ; 02:8965 - 21 04 02
    ld     (var_D214), hl               ; 02:8968 - 22 14 D2
    call   check_collision_with_sonic   ; 02:896B - CD 56 39
-   call   nc, addr_035FD               ; 02:896E - D4 FD 35
+   call   nc, damage_sonic             ; 02:896E - D4 FD 35
    ld     (ix+15), UNK_08987&$FF       ; 02:8971 - DD 36 0F 87
    ld     (ix+16), UNK_08987>>8        ; 02:8975 - DD 36 10 89
    inc    (ix+17)                      ; 02:8979 - DD 34 11
@@ -17038,7 +17038,7 @@ addr_08B93:
    ld     (ix+13), $01                 ; 02:8BA5 - DD 36 0D 01
    ld     (ix+14), a                   ; 02:8BA9 - DD 77 0E
    call   check_collision_with_sonic   ; 02:8BAC - CD 56 39
-   call   nc, addr_035FD               ; 02:8BAF - D4 FD 35
+   call   nc, damage_sonic             ; 02:8BAF - D4 FD 35
    ld     a, (g_global_tick_counter)   ; 02:8BB2 - 3A 23 D2
    cp     $80                          ; 02:8BB5 - FE 80
    ret    nz                           ; 02:8BB7 - C0
@@ -17135,7 +17135,7 @@ addr_08CBC:
    ld     hl, $0402                    ; 02:8CD1 - 21 02 04
    ld     (var_D214), hl               ; 02:8CD4 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8CD7 - CD 56 39
-   call   nc, addr_035FD               ; 02:8CDA - D4 FD 35
+   call   nc, damage_sonic             ; 02:8CDA - D4 FD 35
    ld     e, (ix+2)                    ; 02:8CDD - DD 5E 02
    ld     d, (ix+3)                    ; 02:8CE0 - DD 56 03
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8CE3 - 2A 5A D2
@@ -17677,7 +17677,7 @@ addr_091D1:
    ld     e, (ix+10)                   ; 02:91D1 - DD 5E 0A
    ld     d, (ix+11)                   ; 02:91D4 - DD 56 0B
    ld     bc, $0010                    ; 02:91D7 - 01 10 00
-   call   addr_07CC1                   ; 02:91DA - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 02:91DA - CD C1 7C
    ret                                 ; 02:91DD - C9
 
 UNK_091DE:
@@ -17992,7 +17992,7 @@ objfunc_2F_UNKNOWN:
    ld     hl, $0404                    ; 02:94B1 - 21 04 04
    ld     (var_D214), hl               ; 02:94B4 - 22 14 D2
    call   check_collision_with_sonic   ; 02:94B7 - CD 56 39
-   call   nc, addr_035FD               ; 02:94BA - D4 FD 35
+   call   nc, damage_sonic             ; 02:94BA - D4 FD 35
    bit    1, (ix+24)                   ; 02:94BD - DD CB 18 4E
    jr     nz, addr_094E2               ; 02:94C1 - 20 1F
    set    1, (ix+24)                   ; 02:94C3 - DD CB 18 CE
@@ -18808,7 +18808,7 @@ addr_09C19:
    ld     hl, $0400                    ; 02:9C28 - 21 00 04
    ld     (var_D214), hl               ; 02:9C2B - 22 14 D2
    call   check_collision_with_sonic   ; 02:9C2E - CD 56 39
-   call   nc, addr_035FD               ; 02:9C31 - D4 FD 35
+   call   nc, damage_sonic             ; 02:9C31 - D4 FD 35
 
 addr_09C34:
    inc    (ix+19)                      ; 02:9C34 - DD 34 13
@@ -18932,7 +18932,7 @@ addr_09D11:
    ld     hl, $0202                    ; 02:9D2A - 21 02 02
    ld     (var_D214), hl               ; 02:9D2D - 22 14 D2
    call   check_collision_with_sonic   ; 02:9D30 - CD 56 39
-   call   nc, addr_035FD               ; 02:9D33 - D4 FD 35
+   call   nc, damage_sonic             ; 02:9D33 - D4 FD 35
 
 addr_09D36:
    inc    (ix+17)                      ; 02:9D36 - DD 34 11
@@ -19331,7 +19331,7 @@ addr_0A12A:
    ld     hl, $0000                    ; 02:A12A - 21 00 00
    ld     (var_D214), hl               ; 02:A12D - 22 14 D2
    call   check_collision_with_sonic   ; 02:A130 - CD 56 39
-   call   nc, addr_035FD               ; 02:A133 - D4 FD 35
+   call   nc, damage_sonic             ; 02:A133 - D4 FD 35
    ld     de, UNK_0A173                ; 02:A136 - 11 73 A1
    ld     bc, UNK_0A167                ; 02:A139 - 01 67 A1
    call   do_framed_animation          ; 02:A13C - CD 41 7C
@@ -19516,7 +19516,7 @@ objfunc_1C_UNKNOWN:
    ld     hl, $0101                    ; 02:A348 - 21 01 01
    ld     (var_D214), hl               ; 02:A34B - 22 14 D2
    call   check_collision_with_sonic   ; 02:A34E - CD 56 39
-   call   nc, addr_035FD               ; 02:A351 - D4 FD 35
+   call   nc, damage_sonic             ; 02:A351 - D4 FD 35
    bit    7, (ix+24)                   ; 02:A354 - DD CB 18 7E
    jr     z, addr_0A366                ; 02:A358 - 28 0C
    ld     (ix+10), $00                 ; 02:A35A - DD 36 0A 00
@@ -19604,7 +19604,7 @@ addr_0A41A:
 addr_0A443:
    ld     bc, $0006                    ; 02:A443 - 01 06 00
    ld     de, $0000                    ; 02:A446 - 11 00 00
-   call   addr_07CC1                   ; 02:A449 - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 02:A449 - CD C1 7C
    bit    1, (ix+24)                   ; 02:A44C - DD CB 18 4E
    jr     nz, addr_0A47F               ; 02:A450 - 20 2D
    set    1, (ix+24)                   ; 02:A452 - DD CB 18 CE
@@ -19803,7 +19803,7 @@ addr_0A602:
    ld     hl, $0806                    ; 02:A606 - 21 06 08
    ld     (var_D214), hl               ; 02:A609 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A60C - CD 56 39
-   call   nc, addr_035FD               ; 02:A60F - D4 FD 35
+   call   nc, damage_sonic             ; 02:A60F - D4 FD 35
    jr     addr_0A65B                   ; 02:A612 - 18 47
 
 addr_0A614:
@@ -19824,7 +19824,7 @@ addr_0A614:
    ld     (var_D214), hl               ; 02:A638 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A63B - CD 56 39
    jr     c, addr_0A645                ; 02:A63E - 38 05
-   call   addr_035FD                   ; 02:A640 - CD FD 35
+   call   damage_sonic                 ; 02:A640 - CD FD 35
    jr     addr_0A65B                   ; 02:A643 - 18 16
 
 addr_0A645:
@@ -20250,7 +20250,7 @@ addr_0AADA:
    ld     hl, $0202                    ; 02:AADD - 21 02 02
    ld     (var_D214), hl               ; 02:AAE0 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AAE3 - CD 56 39
-   call   nc, addr_035FD               ; 02:AAE6 - D4 FD 35
+   call   nc, damage_sonic             ; 02:AAE6 - D4 FD 35
    ld     (ix+15), $00                 ; 02:AAE9 - DD 36 0F 00
    ld     (ix+16), $00                 ; 02:AAED - DD 36 10 00
    ld     a, (ix+17)                   ; 02:AAF1 - DD 7E 11
@@ -20332,7 +20332,7 @@ addr_0AB9D:
    ld     de, $0000                    ; 02:ABBC - 11 00 00
    ld     c, e                         ; 02:ABBF - 4B
    ld     b, d                         ; 02:ABC0 - 42
-   call   UNK_0AC96                    ; 02:ABC1 - CD 96 AC
+   call   init_fireball_object         ; 02:ABC1 - CD 96 AC
    ld     hl, $0003                    ; 02:ABC4 - 21 03 00
    ld     (var_D212), hl               ; 02:ABC7 - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABCA - 21 FC FF
@@ -20341,7 +20341,7 @@ addr_0AB9D:
    jp     c, addr_0AC76                ; 02:ABD3 - DA 76 AC
    ld     de, $0008                    ; 02:ABD6 - 11 08 00
    ld     bc, $0000                    ; 02:ABD9 - 01 00 00
-   call   UNK_0AC96                    ; 02:ABDC - CD 96 AC
+   call   init_fireball_object         ; 02:ABDC - CD 96 AC
    ld     hl, $FFFE                    ; 02:ABDF - 21 FE FF
    ld     (var_D212), hl               ; 02:ABE2 - 22 12 D2
    ld     hl, $FFFE                    ; 02:ABE5 - 21 FE FF
@@ -20350,7 +20350,7 @@ addr_0AB9D:
    jp     c, addr_0AC76                ; 02:ABEE - DA 76 AC
    ld     de, $0000                    ; 02:ABF1 - 11 00 00
    ld     bc, $0008                    ; 02:ABF4 - 01 08 00
-   call   UNK_0AC96                    ; 02:ABF7 - CD 96 AC
+   call   init_fireball_object         ; 02:ABF7 - CD 96 AC
    ld     hl, $0003                    ; 02:ABFA - 21 03 00
    ld     (var_D212), hl               ; 02:ABFD - 22 12 D2
    ld     hl, $FFFE                    ; 02:AC00 - 21 FE FF
@@ -20359,7 +20359,7 @@ addr_0AB9D:
    jp     c, addr_0AC76                ; 02:AC09 - DA 76 AC
    ld     de, $0008                    ; 02:AC0C - 11 08 00
    ld     bc, $0008                    ; 02:AC0F - 01 08 00
-   call   UNK_0AC96                    ; 02:AC12 - CD 96 AC
+   call   init_fireball_object         ; 02:AC12 - CD 96 AC
    ld     (ix+0), $FF                  ; 02:AC15 - DD 36 00 FF
    ld     a, $1B                       ; 02:AC19 - 3E 1B
    rst    $28                          ; 02:AC1B - EF
@@ -20406,7 +20406,7 @@ addr_0AC76:
    ld     hl, $0202                    ; 02:AC76 - 21 02 02
    ld     (var_D214), hl               ; 02:AC79 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AC7C - CD 56 39
-   call   nc, addr_035FD               ; 02:AC7F - D4 FD 35
+   call   nc, damage_sonic             ; 02:AC7F - D4 FD 35
    ld     a, (g_global_tick_counter)   ; 02:AC82 - 3A 23 D2
    and    $3F                          ; 02:AC85 - E6 3F
    ret    nz                           ; 02:AC87 - C0
@@ -20417,7 +20417,7 @@ addr_0AC76:
    ld     (ix+17), $00                 ; 02:AC91 - DD 36 11 00
    ret                                 ; 02:AC95 - C9
 
-UNK_0AC96:
+init_fireball_object:
    push   ix                           ; 02:AC96 - DD E5
    push   hl                           ; 02:AC98 - E5
    ld     l, (ix+2)                    ; 02:AC99 - DD 6E 02
@@ -20571,7 +20571,7 @@ addr_0AE57:
    ld     hl, $0202                    ; 02:AE57 - 21 02 02
    ld     (var_D214), hl               ; 02:AE5A - 22 14 D2
    call   check_collision_with_sonic   ; 02:AE5D - CD 56 39
-   call   nc, addr_035FD               ; 02:AE60 - D4 FD 35
+   call   nc, damage_sonic             ; 02:AE60 - D4 FD 35
    xor    a                            ; 02:AE63 - AF
    ld     (ix+7), $80                  ; 02:AE64 - DD 36 07 80
    ld     (ix+8), $02                  ; 02:AE68 - DD 36 08 02
@@ -20680,7 +20680,7 @@ addr_0AF2E:
    add    a, $04                       ; 02:AF62 - C6 04
    ld     (ix+14), a                   ; 02:AF64 - DD 77 0E
    call   check_collision_with_sonic   ; 02:AF67 - CD 56 39
-   call   nc, addr_035FD               ; 02:AF6A - D4 FD 35
+   call   nc, damage_sonic             ; 02:AF6A - D4 FD 35
 
 addr_0AF6D:
    pop    hl                           ; 02:AF6D - E1
@@ -20821,7 +20821,7 @@ objfunc_36_UNKNOWN:
    ld     hl, $0602                    ; 02:B108 - 21 02 06
    ld     (var_D214), hl               ; 02:B10B - 22 14 D2
    call   check_collision_with_sonic   ; 02:B10E - CD 56 39
-   call   nc, addr_035FD               ; 02:B111 - D4 FD 35
+   call   nc, damage_sonic             ; 02:B111 - D4 FD 35
    ld     l, (ix+2)                    ; 02:B114 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B117 - DD 66 03
    ld     (var_D20E), hl               ; 02:B11A - 22 0E D2
@@ -21026,7 +21026,7 @@ addr_0B2B7:
    ld     (var_D26D), hl               ; 02:B2F6 - 22 6D D2
    ld     bc, $0010                    ; 02:B2F9 - 01 10 00
    ld     de, $0000                    ; 02:B2FC - 11 00 00
-   call   addr_07CC1                   ; 02:B2FF - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 02:B2FF - CD C1 7C
    ld     l, (ix+1)                    ; 02:B302 - DD 6E 01
    ld     h, (ix+2)                    ; 02:B305 - DD 66 02
    ld     a, (ix+3)                    ; 02:B308 - DD 7E 03
@@ -21109,7 +21109,7 @@ addr_0B3B2:
    ld     hl, $0202                    ; 02:B3C2 - 21 02 02
    ld     (var_D214), hl               ; 02:B3C5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:B3C8 - CD 56 39
-   call   nc, addr_035FD               ; 02:B3CB - D4 FD 35
+   call   nc, damage_sonic             ; 02:B3CB - D4 FD 35
    ld     l, (ix+1)                    ; 02:B3CE - DD 6E 01
    ld     h, (ix+2)                    ; 02:B3D1 - DD 66 02
    ld     a, (ix+3)                    ; 02:B3D4 - DD 7E 03
@@ -21333,7 +21333,7 @@ addr_0B591:
    ld     e, (ix+10)                   ; 02:B5A8 - DD 5E 0A
    ld     d, (ix+11)                   ; 02:B5AB - DD 56 0B
    ld     bc, $0010                    ; 02:B5AE - 01 10 00
-   call   addr_07CC1                   ; 02:B5B1 - CD C1 7C
+   call   put_sonic_y_pos_on_platform  ; 02:B5B1 - CD C1 7C
    ret                                 ; 02:B5B4 - C9
 
 UNK_0B5B5:
@@ -21991,7 +21991,7 @@ addr_0BBF3:
    sbc    hl, bc                       ; 02:BC20 - ED 42
    jr     c, addr_0BC2B                ; 02:BC22 - 38 07
    bit    0, (iy+var_D205-IYBASE)      ; 02:BC24 - FD CB 05 46
-   call   z, addr_035FD                ; 02:BC28 - CC FD 35
+   call   z, damage_sonic              ; 02:BC28 - CC FD 35
 
 addr_0BC2B:
    ld     a, (var_D2EC)                ; 02:BC2B - 3A EC D2
@@ -22097,7 +22097,7 @@ objfunc_47_UNKNOWN:
    call   check_collision_with_sonic   ; 02:BCED - CD 56 39
    jr     c, addr_0BCFC                ; 02:BCF0 - 38 0A
    bit    0, (iy+var_D205-IYBASE)      ; 02:BCF2 - FD CB 05 46
-   call   z, addr_035FD                ; 02:BCF6 - CC FD 35
+   call   z, damage_sonic              ; 02:BCF6 - CC FD 35
    jp     addr_0BDBE                   ; 02:BCF9 - C3 BE BD
 
 addr_0BCFC:
