@@ -10301,7 +10301,7 @@ objfunc_01_monitor_rings:
    call   addr_05DEB                   ; 01:5B1F - CD EB 5D
    jr     c, monitor_common_set_art_and_go_to_main  ; 01:5B22 - 38 0D
 
-objfunc_01_monitor_rings@on_hit:
+@on_hit:
    ld     a, $10                       ; 01:5B24 - 3E 10
    call   add_A_rings                  ; 01:5B26 - CD AC 39
 
@@ -12152,7 +12152,7 @@ objfunc_12_GHZ_boss:
    ld     (ix+14), $1C                 ; 01:7014 - DD 36 0E 1C
    call   addr_07CA6                   ; 01:7018 - CD A6 7C
    bit    0, (ix+17)                   ; 01:701B - DD CB 11 46
-   jr     nz, GHZ3boss_already_initialised  ; 01:701F - 20 42
+   jr     nz, @already_initialised     ; 01:701F - 20 42
    ld     l, (ix+5)                    ; 01:7021 - DD 6E 05
    ld     h, (ix+6)                    ; 01:7024 - DD 66 06
    ld     de, $FFF8                    ; 01:7027 - 11 F8 FF
@@ -12178,7 +12178,7 @@ objfunc_12_GHZ_boss:
    call   addr_07C8C                   ; 01:705C - CD 8C 7C
    set    0, (ix+17)                   ; 01:705F - DD CB 11 C6
 
-GHZ3boss_already_initialised:
+@already_initialised:
    ld     a, (ix+19)                   ; 01:7063 - DD 7E 13
    and    $3F                          ; 01:7066 - E6 3F
    ld     e, a                         ; 01:7068 - 5F
@@ -12187,19 +12187,19 @@ GHZ3boss_already_initialised:
    add    hl, de                       ; 01:706E - 19
    ld     a, (hl)                      ; 01:706F - 7E
    and    a                            ; 01:7070 - A7
-   jp     p, GHZ3boss_y_vel_is_positive  ; 01:7071 - F2 78 70
+   jp     p, @y_vel_is_positive        ; 01:7071 - F2 78 70
    ld     c, $FF                       ; 01:7074 - 0E FF
-   jr     GHZ3boss_y_vel_was_negative  ; 01:7076 - 18 02
+   jr     @y_vel_was_negative          ; 01:7076 - 18 02
 
-GHZ3boss_y_vel_is_positive:
+@y_vel_is_positive:
    ld     c, $00                       ; 01:7078 - 0E 00
 
-GHZ3boss_y_vel_was_negative:
+@y_vel_was_negative:
    ld     (ix+10), a                   ; 01:707A - DD 77 0A
    ld     (ix+11), c                   ; 01:707D - DD 71 0B
    ld     (ix+12), c                   ; 01:7080 - DD 71 0C
 
-GHZ3boss_find_next_state:
+@find_next_state:
    ld     e, (ix+18)                   ; 01:7083 - DD 5E 12
    ld     d, $00                       ; 01:7086 - 16 00
    ld     l, (ix+20)                   ; 01:7088 - DD 6E 14
@@ -12208,13 +12208,13 @@ GHZ3boss_find_next_state:
    ld     (var_D214), hl               ; 01:708F - 22 14 D2
    ld     a, (hl)                      ; 01:7092 - 7E
    and    a                            ; 01:7093 - A7
-   jr     nz, GHZ3boss_found_state     ; 01:7094 - 20 08
+   jr     nz, @found_state             ; 01:7094 - 20 08
    inc    hl                           ; 01:7096 - 23
    ld     a, (hl)                      ; 01:7097 - 7E
    ld     (ix+18), a                   ; 01:7098 - DD 77 12
-   jp     GHZ3boss_find_next_state     ; 01:709B - C3 83 70
+   jp     @find_next_state             ; 01:709B - C3 83 70
 
-GHZ3boss_found_state:
+@found_state:
    dec    a                            ; 01:709E - 3D
    add    a, a                         ; 01:709F - 87
    ld     e, a                         ; 01:70A0 - 5F
@@ -12227,7 +12227,7 @@ GHZ3boss_found_state:
    ld     l, a                         ; 01:70AA - 6F
    jp     (hl)                         ; 01:70AB - E9
 
-GHZ3boss_state_01:
+@state_01:
    ld     hl, (var_D273)               ; 01:70AC - 2A 73 D2
    ld     de, $0006                    ; 01:70AF - 11 06 00
    add    hl, de                       ; 01:70B2 - 19
@@ -12237,22 +12237,22 @@ GHZ3boss_state_01:
    sbc    hl, de                       ; 01:70BA - ED 52
    ld     c, $FF                       ; 01:70BC - 0E FF
    ld     hl, $FF00                    ; 01:70BE - 21 00 FF
-   jp     c, GHZ3boss_continue         ; 01:70C1 - DA 05 72
+   jp     c, @continue                 ; 01:70C1 - DA 05 72
    ld     (ix+18), $00                 ; 01:70C4 - DD 36 12 00
    bit    1, (ix+17)                   ; 01:70C8 - DD CB 11 4E
-   jr     nz, GHZ3boss_TODO_70DD       ; 01:70CC - 20 0F
+   jr     nz, @TODO_70DD               ; 01:70CC - 20 0F
    ld     (ix+20), UNK_072A4&$FF       ; 01:70CE - DD 36 14 A4
    ld     (ix+21), UNK_072A4>>8        ; 01:70D2 - DD 36 15 72
    set    1, (ix+17)                   ; 01:70D6 - DD CB 11 CE
-   jp     GHZ3boss_continue            ; 01:70DA - C3 05 72
+   jp     @continue                    ; 01:70DA - C3 05 72
 
-GHZ3boss_TODO_70DD:
+@TODO_70DD:
    ld     (ix+20), UNK_072A7&$FF       ; 01:70DD - DD 36 14 A7
    ld     (ix+21), UNK_072A7>>8        ; 01:70E1 - DD 36 15 72
    res    1, (ix+17)                   ; 01:70E5 - DD CB 11 8E
-   jp     GHZ3boss_continue            ; 01:70E9 - C3 05 72
+   jp     @continue                    ; 01:70E9 - C3 05 72
 
-GHZ3boss_state_02:
+@state_02:
    ld     hl, (var_D273)               ; 01:70EC - 2A 73 D2
    ld     de, $00E0                    ; 01:70EF - 11 E0 00
    add    hl, de                       ; 01:70F2 - 19
@@ -12262,22 +12262,22 @@ GHZ3boss_state_02:
    sbc    hl, de                       ; 01:70FA - ED 52
    ld     c, $00                       ; 01:70FC - 0E 00
    ld     hl, $0100                    ; 01:70FE - 21 00 01
-   jp     nc, GHZ3boss_continue        ; 01:7101 - D2 05 72
+   jp     nc, @continue                ; 01:7101 - D2 05 72
    ld     (ix+18), $00                 ; 01:7104 - DD 36 12 00
    bit    2, (ix+17)                   ; 01:7108 - DD CB 11 56
-   jr     nz, GHZ3boss_TODO_711D       ; 01:710C - 20 0F
+   jr     nz, @TODO_711D               ; 01:710C - 20 0F
    ld     (ix+20), UNK_072A1&$FF       ; 01:710E - DD 36 14 A1
    ld     (ix+21), UNK_072A1>>8        ; 01:7112 - DD 36 15 72
    set    2, (ix+17)                   ; 01:7116 - DD CB 11 D6
-   jp     GHZ3boss_continue            ; 01:711A - C3 05 72
+   jp     @continue                    ; 01:711A - C3 05 72
 
-GHZ3boss_TODO_711D:
+@TODO_711D:
    ld     (ix+20), UNK_072AA&$FF       ; 01:711D - DD 36 14 AA
    ld     (ix+21), UNK_072AA>>8        ; 01:7121 - DD 36 15 72
    res    2, (ix+17)                   ; 01:7125 - DD CB 11 96
-   jp     GHZ3boss_continue            ; 01:7129 - C3 05 72
+   jp     @continue                    ; 01:7129 - C3 05 72
 
-GHZ3boss_state_03:
+@state_03:
    ld     (ix+10), $60                 ; 01:712C - DD 36 0A 60
    ld     (ix+11), $00                 ; 01:7130 - DD 36 0B 00
    ld     (ix+12), $00                 ; 01:7134 - DD 36 0C 00
@@ -12291,18 +12291,18 @@ GHZ3boss_state_03:
    ld     c, a                         ; 01:7148 - 4F
    ld     l, c                         ; 01:7149 - 69
    ld     h, c                         ; 01:714A - 61
-   jp     nc, GHZ3boss_continue        ; 01:714B - D2 05 72
+   jp     nc, @continue                ; 01:714B - D2 05 72
    ld     (ix+18), $00                 ; 01:714E - DD 36 12 00
    ld     (ix+20), UNK_072B0&$FF       ; 01:7152 - DD 36 14 B0
    ld     (ix+21), UNK_072B0>>8        ; 01:7156 - DD 36 15 72
-   jp     GHZ3boss_continue            ; 01:715A - C3 05 72
+   jp     @continue                    ; 01:715A - C3 05 72
 
-GHZ3boss_state_04:
+@state_04:
    ld     c, $00                       ; 01:715D - 0E 00
    ld     hl, $0400                    ; 01:715F - 21 00 04
-   jp     GHZ3boss_continue            ; 01:7162 - C3 05 72
+   jp     @continue                    ; 01:7162 - C3 05 72
 
-GHZ3boss_state_05:
+@state_05:
    ld     (ix+10), $60                 ; 01:7165 - DD 36 0A 60
    ld     (ix+11), $00                 ; 01:7169 - DD 36 0B 00
    ld     (ix+12), $00                 ; 01:716D - DD 36 0C 00
@@ -12316,24 +12316,24 @@ GHZ3boss_state_05:
    ld     c, a                         ; 01:7181 - 4F
    ld     l, c                         ; 01:7182 - 69
    ld     h, c                         ; 01:7183 - 61
-   jp     nc, GHZ3boss_continue        ; 01:7184 - D2 05 72
+   jp     nc, @continue                ; 01:7184 - D2 05 72
    ld     (ix+18), $00                 ; 01:7187 - DD 36 12 00
    ld     (ix+20), UNK_072BC&$FF       ; 01:718B - DD 36 14 BC
    ld     (ix+21), UNK_072BC>>8        ; 01:718F - DD 36 15 72
-   jp     GHZ3boss_continue            ; 01:7193 - C3 05 72
+   jp     @continue                    ; 01:7193 - C3 05 72
 
-GHZ3boss_state_06:
+@state_06:
    ld     c, $FF                       ; 01:7196 - 0E FF
    ld     hl, $FC00                    ; 01:7198 - 21 00 FC
-   jr     GHZ3boss_continue            ; 01:719B - 18 68
+   jr     @continue                    ; 01:719B - 18 68
 
-GHZ3boss_state_07_0B:
+@state_07_0B:
    ld     c, $00                       ; 01:719D - 0E 00
    ld     l, c                         ; 01:719F - 69
    ld     h, c                         ; 01:71A0 - 61
-   jr     GHZ3boss_continue            ; 01:71A1 - 18 62
+   jr     @continue                    ; 01:71A1 - 18 62
 
-GHZ3boss_state_08:
+@state_08:
    ld     c, $00                       ; 01:71A3 - 0E 00
    ld     l, c                         ; 01:71A5 - 69
    ld     h, c                         ; 01:71A6 - 61
@@ -12341,9 +12341,9 @@ GHZ3boss_state_08:
    ld     (ix+21), UNK_072AD>>8        ; 01:71AB - DD 36 15 72
    ld     (ix+18), c                   ; 01:71AF - DD 71 12
    ld     (ix+19), c                   ; 01:71B2 - DD 71 13
-   jr     GHZ3boss_continue            ; 01:71B5 - 18 4E
+   jr     @continue                    ; 01:71B5 - 18 4E
 
-GHZ3boss_state_09:
+@state_09:
    ld     (ix+10), $00                 ; 01:71B7 - DD 36 0A 00
    ld     (ix+11), $FF                 ; 01:71BB - DD 36 0B FF
    ld     (ix+12), $FF                 ; 01:71BF - DD 36 0C FF
@@ -12357,7 +12357,7 @@ GHZ3boss_state_09:
    ld     c, a                         ; 01:71D3 - 4F
    ld     l, c                         ; 01:71D4 - 69
    ld     h, c                         ; 01:71D5 - 61
-   jp     c, GHZ3boss_continue         ; 01:71D6 - DA 05 72
+   jp     c, @continue                 ; 01:71D6 - DA 05 72
    ld     l, (ix+2)                    ; 01:71D9 - DD 6E 02
    ld     h, (ix+3)                    ; 01:71DC - DD 66 03
    ld     de, (var_D273)               ; 01:71DF - ED 5B 73 D2
@@ -12366,19 +12366,19 @@ GHZ3boss_state_09:
    ld     c, a                         ; 01:71E6 - 4F
    ld     l, c                         ; 01:71E7 - 69
    ld     h, c                         ; 01:71E8 - 61
-   jr     c, GHZ3boss_TODO_71F8        ; 01:71E9 - 38 0D
+   jr     c, @TODO_71F8                ; 01:71E9 - 38 0D
    ld     (ix+20), UNK_072A1&$FF       ; 01:71EB - DD 36 14 A1
    ld     (ix+21), UNK_072A1>>8        ; 01:71EF - DD 36 15 72
    ld     (ix+18), a                   ; 01:71F3 - DD 77 12
-   jr     GHZ3boss_continue            ; 01:71F6 - 18 0D
+   jr     @continue                    ; 01:71F6 - 18 0D
 
-GHZ3boss_TODO_71F8:
+@TODO_71F8:
    ld     (ix+20), UNK_072A4&$FF       ; 01:71F8 - DD 36 14 A4
    ld     (ix+21), UNK_072A4>>8        ; 01:71FC - DD 36 15 72
    ld     (ix+18), a                   ; 01:7200 - DD 77 12
-   jr     GHZ3boss_continue            ; 01:7203 - 18 00
+   jr     @continue                    ; 01:7203 - 18 00
 
-GHZ3boss_continue:
+@continue:
    ld     (ix+7), l                    ; 01:7205 - DD 75 07
    ld     (ix+8), h                    ; 01:7208 - DD 74 08
    ld     (ix+9), c                    ; 01:720B - DD 71 09
@@ -12390,10 +12390,10 @@ GHZ3boss_continue:
    ld     a, (hl)                      ; 01:7218 - 7E
    ld     hl, UNK_072F8                ; 01:7219 - 21 F8 72
    and    a                            ; 01:721C - A7
-   jr     z, GHZ3boss_TODO_7222        ; 01:721D - 28 03
+   jr     z, @TODO_7222                ; 01:721D - 28 03
    ld     hl, UNK_0730A                ; 01:721F - 21 0A 73
 
-GHZ3boss_TODO_7222:
+@TODO_7222:
    ld     e, a                         ; 01:7222 - 5F
    ld     a, (ix+24)                   ; 01:7223 - DD 7E 18
    and    $FD                          ; 01:7226 - E6 FD
@@ -12413,8 +12413,8 @@ GHZ3boss_TODO_7222:
    ret                                 ; 01:724A - C9
 
 CODEPTRTAB_GHZ3boss_states:
-.dw GHZ3boss_state_01, GHZ3boss_state_02, GHZ3boss_state_03, GHZ3boss_state_04, GHZ3boss_state_05, GHZ3boss_state_06, GHZ3boss_state_07_0B, GHZ3boss_state_08  ; 01:724B
-.dw GHZ3boss_state_09, ENTRY_RESET, GHZ3boss_state_07_0B                            ; 01:725B
+.dw objfunc_12_GHZ_boss@state_01, objfunc_12_GHZ_boss@state_02, objfunc_12_GHZ_boss@state_03, objfunc_12_GHZ_boss@state_04, objfunc_12_GHZ_boss@state_05, objfunc_12_GHZ_boss@state_06, objfunc_12_GHZ_boss@state_07_0B, objfunc_12_GHZ_boss@state_08  ; 01:724B
+.dw objfunc_12_GHZ_boss@state_09, ENTRY_RESET, objfunc_12_GHZ_boss@state_07_0B      ; 01:725B
 
 LUT_GHZ3boss_y_velocities:
 .db $00, $14, $28, $28, $3C, $3C, $3C, $50, $50, $50, $50, $64, $64, $64, $64, $64  ; 01:7261

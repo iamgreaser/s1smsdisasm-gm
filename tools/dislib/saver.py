@@ -152,6 +152,9 @@ class Saver:
                         prev_rel_addr = rel_addr
                     self.write(f"\n")
                     for label in self.rom.labels_from_addr[phys_addr]:
+                        if "@" in label:
+                            label = "@" + label.rpartition("@")[-1]
+
                         self.write(f"{label}:\n")
 
             prev_phys_addr = PhysAddress(bank_phys_addr + prev_rel_addr)
