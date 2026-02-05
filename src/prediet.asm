@@ -5760,7 +5760,7 @@ LUT_object_functions:
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
-.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
+.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_animal_capsule, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
 .dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
@@ -12459,10 +12459,10 @@ UNK_0730A:
 PAL2_boss:
 .INCBIN "src/data/boss.pal2"
 
-objfunc_25_UNKNOWN:
+objfunc_25_animal_capsule:
    set    5, (ix+24)                   ; 01:732C - DD CB 18 EE
    bit    0, (ix+24)                   ; 01:7330 - DD CB 18 46
-   jr     nz, addr_0734A               ; 01:7334 - 20 14
+   jr     nz, @already_initialised     ; 01:7334 - 20 14
    ld     l, (ix+5)                    ; 01:7336 - DD 6E 05
    ld     h, (ix+6)                    ; 01:7339 - DD 66 06
    ld     de, $0010                    ; 01:733C - 11 10 00
@@ -12471,22 +12471,22 @@ objfunc_25_UNKNOWN:
    ld     (ix+6), h                    ; 01:7343 - DD 74 06
    set    0, (ix+24)                   ; 01:7346 - DD CB 18 C6
 
-addr_0734A:
+@already_initialised:
    ld     (ix+13), $1C                 ; 01:734A - DD 36 0D 1C
    ld     (ix+14), $40                 ; 01:734E - DD 36 0E 40
-   ld     hl, UNK_07564                ; 01:7352 - 21 64 75
+   ld     hl, animal_capsule_UNK_07564  ; 01:7352 - 21 64 75
    bit    1, (ix+24)                   ; 01:7355 - DD CB 18 4E
-   jr     z, addr_0735E                ; 01:7359 - 28 03
-   ld     hl, UNK_0757C                ; 01:735B - 21 7C 75
+   jr     z, @capsule_show_as_intact   ; 01:7359 - 28 03
+   ld     hl, animal_capsule_UNK_0757C  ; 01:735B - 21 7C 75
 
-addr_0735E:
+@capsule_show_as_intact:
    ld     a, (g_global_tick_counter)   ; 01:735E - 3A 23 D2
    rrca                                ; 01:7361 - 0F
-   jr     nc, addr_07368               ; 01:7362 - 30 04
+   jr     nc, @tick_mod_2_was_not_0    ; 01:7362 - 30 04
    ld     de, $000C                    ; 01:7364 - 11 0C 00
    add    hl, de                       ; 01:7367 - 19
 
-addr_07368:
+@tick_mod_2_was_not_0:
    ld     c, (hl)                      ; 01:7368 - 4E
    inc    hl                           ; 01:7369 - 23
    ld     b, (hl)                      ; 01:736A - 46
@@ -12506,13 +12506,13 @@ addr_07368:
    ld     h, (ix+6)                    ; 01:7382 - DD 66 06
    add    hl, bc                       ; 01:7385 - 09
    ld     (var_D2AD), hl               ; 01:7386 - 22 AD D2
-   ld     hl, UNK_0752E                ; 01:7389 - 21 2E 75
+   ld     hl, SPRITEMAP_animal_capsule_TODO_blink  ; 01:7389 - 21 2E 75
    ld     a, (g_global_tick_counter)   ; 01:738C - 3A 23 D2
    and    $10                          ; 01:738F - E6 10
-   jr     z, addr_07396                ; 01:7391 - 28 03
-   ld     hl, UNK_07552                ; 01:7393 - 21 52 75
+   jr     z, @tick_mod_32_was_below_16  ; 01:7391 - 28 03
+   ld     hl, SPRITEMAP_animal_capsule_TODO_pressed  ; 01:7393 - 21 52 75
 
-addr_07396:
+@tick_mod_32_was_below_16:
    ld     (ix+15), l                   ; 01:7396 - DD 75 0F
    ld     (ix+16), h                   ; 01:7399 - DD 74 10
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:739C - 2A 5A D2
@@ -12525,16 +12525,16 @@ addr_07396:
    ld     hl, $0002                    ; 01:73AF - 21 02 00
    ld     (var_D214), hl               ; 01:73B2 - 22 14 D2
    call   check_collision_with_sonic   ; 01:73B5 - CD 56 39
-   jp     c, addr_0745B                ; 01:73B8 - DA 5B 74
+   jp     c, @sonic_was_not_positioned_correctly  ; 01:73B8 - DA 5B 74
    ld     a, (sonic_vel_y_hi)          ; 01:73BB - 3A 08 D4
    and    a                            ; 01:73BE - A7
-   jp     m, addr_0745B                ; 01:73BF - FA 5B 74
+   jp     m, @sonic_was_not_positioned_correctly  ; 01:73BF - FA 5B 74
    ld     e, (ix+5)                    ; 01:73C2 - DD 5E 05
    ld     d, (ix+6)                    ; 01:73C5 - DD 56 06
    ld     hl, (sonic_y)                ; 01:73C8 - 2A 01 D4
    and    a                            ; 01:73CB - A7
    sbc    hl, de                       ; 01:73CC - ED 52
-   jr     c, addr_073F6                ; 01:73CE - 38 26
+   jr     c, @sonic_y_is_below         ; 01:73CE - 38 26
    ld     l, (ix+2)                    ; 01:73D0 - DD 6E 02
    ld     h, (ix+3)                    ; 01:73D3 - DD 66 03
    ld     de, $0010                    ; 01:73D6 - 11 10 00
@@ -12543,17 +12543,17 @@ addr_07396:
    ld     bc, (sonic_x)                ; 01:73DD - ED 4B FE D3
    and    a                            ; 01:73E1 - A7
    sbc    hl, bc                       ; 01:73E2 - ED 42
-   jr     nc, addr_073E9               ; 01:73E4 - 30 03
+   jr     nc, @sonic_x_was_to_the_right  ; 01:73E4 - 30 03
    ld     de, $001D                    ; 01:73E6 - 11 1D 00
 
-addr_073E9:
+@sonic_x_was_to_the_right:
    ld     l, (ix+2)                    ; 01:73E9 - DD 6E 02
    ld     h, (ix+3)                    ; 01:73EC - DD 66 03
    add    hl, de                       ; 01:73EF - 19
    ld     (sonic_x), hl                ; 01:73F0 - 22 FE D3
-   jp     addr_07452                   ; 01:73F3 - C3 52 74
+   jp     @stop_sonic_x_vel            ; 01:73F3 - C3 52 74
 
-addr_073F6:
+@sonic_y_is_below:
    ld     hl, (sonic_x)                ; 01:73F6 - 2A FE D3
    ld     bc, $000C                    ; 01:73F9 - 01 0C 00
    add    hl, bc                       ; 01:73FC - 09
@@ -12574,7 +12574,7 @@ addr_073F6:
    and    $1F                          ; 01:7413 - E6 1F
    ld     c, a                         ; 01:7415 - 4F
    ld     b, $00                       ; 01:7416 - 06 00
-   ld     hl, UNK_0750E                ; 01:7418 - 21 0E 75
+   ld     hl, animal_capsule_UNK_0750E  ; 01:7418 - 21 0E 75
    add    hl, bc                       ; 01:741B - 09
    ld     c, (hl)                      ; 01:741C - 4E
    ld     l, (ix+5)                    ; 01:741D - DD 6E 05
@@ -12592,27 +12592,27 @@ addr_073F6:
    ld     a, c                         ; 01:743C - 79
    cp     $03                          ; 01:743D - FE 03
    ret    nz                           ; 01:743F - C0
-   ld     (ix+15), UNK_07540&$FF       ; 01:7440 - DD 36 0F 40
-   ld     (ix+16), UNK_07540>>8        ; 01:7444 - DD 36 10 75
+   ld     (ix+15), SPRITEMAP_animal_capsule_normal&$FF  ; 01:7440 - DD 36 0F 40
+   ld     (ix+16), SPRITEMAP_animal_capsule_normal>>8  ; 01:7444 - DD 36 10 75
    bit    1, (iy+var_D206-IYBASE)      ; 01:7448 - FD CB 06 4E
-   jr     nz, addr_07460               ; 01:744C - 20 12
+   jr     nz, @spawn_8_explosions      ; 01:744C - 20 12
    set    1, (iy+var_D206-IYBASE)      ; 01:744E - FD CB 06 CE
 
-addr_07452:
+@stop_sonic_x_vel:
    xor    a                            ; 01:7452 - AF
    ld     l, a                         ; 01:7453 - 6F
    ld     h, a                         ; 01:7454 - 67
    ld     (sonic_vel_x_sub), hl        ; 01:7455 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:7458 - 32 05 D4
 
-addr_0745B:
+@sonic_was_not_positioned_correctly:
    bit    1, (iy+var_D206-IYBASE)      ; 01:745B - FD CB 06 4E
    ret    z                            ; 01:745F - C8
 
-addr_07460:
+@spawn_8_explosions:
    ld     a, (ix+18)                   ; 01:7460 - DD 7E 12
    cp     $08                          ; 01:7463 - FE 08
-   jr     nc, addr_0747B               ; 01:7465 - 30 14
+   jr     nc, @spawn_12_animals        ; 01:7465 - 30 14
    inc    (ix+17)                      ; 01:7467 - DD 34 11
    ld     a, (ix+17)                   ; 01:746A - DD 7E 11
    cp     $14                          ; 01:746D - FE 14
@@ -12622,16 +12622,16 @@ addr_07460:
    inc    (ix+18)                      ; 01:7477 - DD 34 12
    ret                                 ; 01:747A - C9
 
-addr_0747B:
+@spawn_12_animals:
    bit    1, (ix+24)                   ; 01:747B - DD CB 18 4E
-   jr     nz, addr_0748D               ; 01:747F - 20 0C
+   jr     nz, @capsule_already_visibly_broken  ; 01:747F - 20 0C
    ld     a, $A0                       ; 01:7481 - 3E A0
    ld     (g_signpost_tickdown_counter), a  ; 01:7483 - 32 89 D2
    ld     a, $09                       ; 01:7486 - 3E 09
    rst    $18                          ; 01:7488 - DF
    set    1, (ix+24)                   ; 01:7489 - DD CB 18 CE
 
-addr_0748D:
+@capsule_already_visibly_broken:
    xor    a                            ; 01:748D - AF
    ld     (ix+15), a                   ; 01:748E - DD 77 0F
    ld     (ix+16), a                   ; 01:7491 - DD 77 10
@@ -12642,7 +12642,7 @@ addr_0748D:
    call   random_A                     ; 01:749E - CD 25 06
    and    $01                          ; 01:74A1 - E6 01
    add    a, $23                       ; 01:74A3 - C6 23
-   call   addr_074B6                   ; 01:74A5 - CD B6 74
+   call   @animal_spawning_subroutine  ; 01:74A5 - CD B6 74
    inc    (ix+22)                      ; 01:74A8 - DD 34 16
    ld     a, (ix+22)                   ; 01:74AB - DD 7E 16
    cp     $0C                          ; 01:74AE - FE 0C
@@ -12650,7 +12650,7 @@ addr_0748D:
    ld     (ix+0), $FF                  ; 01:74B1 - DD 36 00 FF
    ret                                 ; 01:74B5 - C9
 
-addr_074B6:
+@animal_spawning_subroutine:
    ld     (var_D216), a                ; 01:74B6 - 32 16 D2
    call   spawn_object                 ; 01:74B9 - CD 7B 7C
    ret    c                            ; 01:74BC - D8
@@ -12688,30 +12688,27 @@ addr_074B6:
    pop    ix                           ; 01:750B - DD E1
    ret                                 ; 01:750D - C9
 
-UNK_0750E:
+animal_capsule_UNK_0750E:
 .db $15, $12, $11, $10, $10, $0F, $0E, $0D, $03, $03, $03, $03, $03, $03, $03, $03  ; 01:750E
 .db $03, $03, $03, $03, $03, $03, $03, $03, $0D, $0E, $0F, $10, $10, $11, $12, $15  ; 01:751E
 
-UNK_0752E:
+SPRITEMAP_animal_capsule_TODO_blink:
 .db $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:752E
 .db $FF, $FF                                                                        ; 01:753E
 
-UNK_07540:
+SPRITEMAP_animal_capsule_normal:
 .db $00, $08, $0A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:7540
 .db $FF, $FF                                                                        ; 01:7550
 
-UNK_07552:
+SPRITEMAP_animal_capsule_TODO_pressed:
 .db $00, $68, $6A, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $40, $42, $44, $46  ; 01:7552
 .db $FF, $FF                                                                        ; 01:7562
 
-UNK_07564:
-.db $00, $00, $30, $00                                                              ; 01:7564
+animal_capsule_UNK_07564:
+.db $00, $00, $30, $00, $60, $19, $62, $19, $61, $19, $63, $19, $10, $00, $30, $00  ; 01:7564
+.db $64, $19, $66, $19, $65, $19, $67, $19                                          ; 01:7574
 
-UNK_07568:
-.db $60, $19, $62, $19, $61, $19, $63, $19, $10, $00, $30, $00, $64, $19, $66, $19  ; 01:7568
-.db $65, $19, $67, $19                                                              ; 01:7578
-
-UNK_0757C:
+animal_capsule_UNK_0757C:
 .db $00, $00, $20, $00, $00, $00, $00, $00, $49, $19, $4B, $19, $10, $00, $20, $00  ; 01:757C
 .db $00, $00, $00, $00, $4D, $19, $4F, $19                                          ; 01:758C
 
