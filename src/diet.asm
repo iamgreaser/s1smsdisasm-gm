@@ -13962,7 +13962,7 @@ objfunc_0F_platform_horizontal:
    set    5, (ix+24)                   ; 01:6D65 - DD CB 18 EE
    ld     a, (g_level)                 ; 01:6D69 - 3A 3E D2
    cp     $07                          ; 01:6D6C - FE 07
-   jr     z, addr_06D88                ; 01:6D6E - 28 18
+   jr     z, @level_was_not_JUN2_dont_break_the_camera  ; 01:6D6E - 28 18
    ld     hl, $0020                    ; 01:6D70 - 21 20 00
    ld     (var_D267), hl               ; 01:6D73 - 22 67 D2
    ld     hl, $0048                    ; 01:6D76 - 21 48 00
@@ -13972,24 +13972,24 @@ objfunc_0F_platform_horizontal:
    ld     hl, $0030                    ; 01:6D82 - 21 30 00
    ld     (var_D26D), hl               ; 01:6D85 - 22 6D D2
 
-addr_06D88:
+@level_was_not_JUN2_dont_break_the_camera:
    ld     (ix+13), $1A                 ; 01:6D88 - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6D8C - DD 36 0E 10
    ld     c, $00                       ; 01:6D90 - 0E 00
    ld     a, (sonic_vel_y_hi)          ; 01:6D92 - 3A 08 D4
    and    a                            ; 01:6D95 - A7
-   jp     m, addr_06DB1                ; 01:6D96 - FA B1 6D
+   jp     m, @sonic_was_not_positioned_correctly  ; 01:6D96 - FA B1 6D
    ld     hl, $0806                    ; 01:6D99 - 21 06 08
    ld     (var_D214), hl               ; 01:6D9C - 22 14 D2
    call   check_collision_with_sonic   ; 01:6D9F - CD 56 39
    ld     c, $00                       ; 01:6DA2 - 0E 00
-   jr     c, addr_06DB1                ; 01:6DA4 - 38 0B
+   jr     c, @sonic_was_not_positioned_correctly  ; 01:6DA4 - 38 0B
    ld     bc, $0010                    ; 01:6DA6 - 01 10 00
    ld     de, $0000                    ; 01:6DA9 - 11 00 00
    call   addr_07CC1                   ; 01:6DAC - CD C1 7C
    ld     c, $01                       ; 01:6DAF - 0E 01
 
-addr_06DB1:
+@sonic_was_not_positioned_correctly:
    ld     l, (ix+18)                   ; 01:6DB1 - DD 6E 12
    ld     h, (ix+19)                   ; 01:6DB4 - DD 66 13
    inc    hl                           ; 01:6DB7 - 23
@@ -13998,18 +13998,18 @@ addr_06DB1:
    ld     de, $00A0                    ; 01:6DBE - 11 A0 00
    xor    a                            ; 01:6DC1 - AF
    sbc    hl, de                       ; 01:6DC2 - ED 52
-   jr     c, addr_06DCF                ; 01:6DC4 - 38 09
+   jr     c, @skip_carry_time_counter  ; 01:6DC4 - 38 09
    ld     (ix+18), a                   ; 01:6DC6 - DD 77 12
    ld     (ix+19), a                   ; 01:6DC9 - DD 77 13
    inc    (ix+20)                      ; 01:6DCC - DD 34 14
 
-addr_06DCF:
+@skip_carry_time_counter:
    ld     de, $0001                    ; 01:6DCF - 11 01 00
    bit    0, (ix+20)                   ; 01:6DD2 - DD CB 14 46
-   jr     z, addr_06DDB                ; 01:6DD6 - 28 03
+   jr     z, @movement_direction_was_positive  ; 01:6DD6 - 28 03
    ld     de, $FFFF                    ; 01:6DD8 - 11 FF FF
 
-addr_06DDB:
+@movement_direction_was_positive:
    ld     l, (ix+2)                    ; 01:6DDB - DD 6E 02
    ld     h, (ix+3)                    ; 01:6DDE - DD 66 03
    add    hl, de                       ; 01:6DE1 - 19
@@ -14017,28 +14017,27 @@ addr_06DDB:
    ld     (ix+3), h                    ; 01:6DE5 - DD 74 03
    ld     a, c                         ; 01:6DE8 - 79
    and    a                            ; 01:6DE9 - A7
-   jr     z, addr_06DF3                ; 01:6DEA - 28 07
+   jr     z, @dont_move_sonic_horizontally  ; 01:6DEA - 28 07
    ld     hl, (sonic_x)                ; 01:6DEC - 2A FE D3
    add    hl, de                       ; 01:6DEF - 19
    ld     (sonic_x), hl                ; 01:6DF0 - 22 FE D3
 
-addr_06DF3:
+@dont_move_sonic_horizontally:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:6DF3 - 21 11 69
    ld     a, (var_D2D4)                ; 01:6DF6 - 3A D4 D2
    and    a                            ; 01:6DF9 - A7
-   jr     z, addr_06E05                ; 01:6DFA - 28 09
+   jr     z, @level_art_selected       ; 01:6DFA - 28 09
    ld     hl, SPRITEMAP_platform_BRI   ; 01:6DFC - 21 31 69
    dec    a                            ; 01:6DFF - 3D
-   jr     z, addr_06E05                ; 01:6E00 - 28 03
+   jr     z, @level_art_selected       ; 01:6E00 - 28 03
    ld     hl, SPRITEMAP_platform_JUN   ; 01:6E02 - 21 23 69
 
-addr_06E05:
+@level_art_selected:
    ld     (ix+15), l                   ; 01:6E05 - DD 75 0F
    ld     (ix+16), h                   ; 01:6E08 - DD 74 10
    ret                                 ; 01:6E0B - C9
 
 objfunc_10_badnik_motobug:
-objfunc_10_motobug:
    res    5, (ix+24)                   ; 01:6E0C - DD CB 18 AE
    ld     (ix+13), $0A                 ; 01:6E10 - DD 36 0D 0A
    ld     (ix+14), $10                 ; 01:6E14 - DD 36 0E 10
