@@ -225,7 +225,7 @@ g_time_subsecs db   ; D2D0
 .  dsb 1
 var_D2D2 db   ; D2D2
 var_D2D3 db   ; D2D3
-var_D2D4 db   ; D2D4
+g_tile_flags_index db   ; D2D4
 var_D2D5 dw   ; D2D5
 g_random_seed dw   ; D2D7
 var_D2D9 dw   ; D2D9
@@ -1867,7 +1867,7 @@ addr_006BD:
    .ENDIF
    ei                                  ; 00:06D3 - FB
    .IF 0
-   ld     a, (var_D2D4)                ; 00:06D4 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 00:06D4 - 3A D4 D2
    add    a, a                         ; 00:06D7 - 87
    ld     c, a                         ; 00:06D8 - 4F
    ld     b, $00                       ; 00:06D9 - 06 00
@@ -2506,7 +2506,7 @@ addr_00987:
    exx                                 ; 00:098B - D9
    ld     e, a                         ; 00:098C - 5F
    .IF 0
-   ld     a, (var_D2D4)                ; 00:098D - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 00:098D - 3A D4 D2
    add    a, a                         ; 00:0990 - 87
    ld     c, a                         ; 00:0991 - 4F
    ld     b, $00                       ; 00:0992 - 06 00
@@ -6091,7 +6091,7 @@ addr_02172:
    pop    hl                           ; 00:217D - E1
    ;; Get bank $04 offset index thing
    ld     a, (hl)                      ; 00:217E - 7E
-   ld     (var_D2D4), a                ; 00:217F - 32 D4 D2
+   ld     (g_tile_flags_index), a      ; 00:217F - 32 D4 D2
    inc    hl                           ; 00:2182 - 23
    ;; Get level width
    ld     e, (hl)                      ; 00:2183 - 5E
@@ -8288,7 +8288,7 @@ return_from_objfunc:
    ld     e, (hl)                      ; 00:334C - 5E
    ld     d, $00                       ; 00:334D - 16 00
    .IF 0
-   ld     a, (var_D2D4)                ; 00:334F - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 00:334F - 3A D4 D2
    add    a, a                         ; 00:3352 - 87
    ld     c, a                         ; 00:3353 - 4F
    ld     b, d                         ; 00:3354 - 42
@@ -8420,7 +8420,7 @@ return_from_objfunc:
    ld     e, (hl)                      ; 00:3424 - 5E
    ld     d, $00                       ; 00:3425 - 16 00
    .IF 0
-   ld     a, (var_D2D4)                ; 00:3427 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 00:3427 - 3A D4 D2
    add    a, a                         ; 00:342A - 87
    ld     c, a                         ; 00:342B - 4F
    ld     b, d                         ; 00:342C - 42
@@ -9612,7 +9612,7 @@ UNK_03A62:
 .ELSE
 ;; This is called 6 times.
 fetch_PTRLUT_level_tile_flags:
-   ld a, (var_D2D4)
+   ld a, (g_tile_flags_index)
    add a, a
    ld c, a
    ld b, $00
@@ -10060,7 +10060,7 @@ addr_049D9:
    call   get_obj_level_tile_ptr_in_ram  ; 01:49F5 - CD F9 36
    ld     e, (hl)                      ; 01:49F8 - 5E
    ld     d, $00                       ; 01:49F9 - 16 00
-   ld     a, (var_D2D4)                ; 01:49FB - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:49FB - 3A D4 D2
    add    a, a                         ; 01:49FE - 87
    ld     l, a                         ; 01:49FF - 6F
    ld     h, d                         ; 01:4A00 - 62
@@ -10983,7 +10983,7 @@ addr_04FF5:
    ret                                 ; 01:5008 - C9
 
 addr_05009:
-   ld     a, (var_D2D4)                ; 01:5009 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:5009 - 3A D4 D2
    cp     $03                          ; 01:500C - FE 03
    ret    nz                           ; 01:500E - C0
    ld     a, (g_level)                 ; 01:500F - 3A 3E D2
@@ -12650,7 +12650,7 @@ objfunc_52_monitor_continue:
 addr_05DA8:
    bit    0, (ix+24)                   ; 01:5DA8 - DD CB 18 46
    ret    nz                           ; 01:5DAC - C0
-   ld     a, (var_D2D4)                ; 01:5DAD - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:5DAD - 3A D4 D2
    and    a                            ; 01:5DB0 - A7
    jr     nz, addr_05DC6               ; 01:5DB1 - 20 13
    ld     bc, $0000                    ; 01:5DB3 - 01 00 00
@@ -13452,7 +13452,7 @@ objfunc_09_platform_swing:
 
 @skip_sonic_collision:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:67F9 - 21 11 69
-   ld     a, (var_D2D4)                ; 01:67FC - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:67FC - 3A D4 D2
    and    a                            ; 01:67FF - A7
    jr     z, @was_not_GHZ_platform     ; 01:6800 - 28 03
    ld     hl, SPRITEMAP_platform_JUN   ; 01:6802 - 21 23 69
@@ -13668,7 +13668,7 @@ objfunc_0C_platform_fall_on_touch:
 
 @sonic_was_not_positioned_correctly:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:6A99 - 21 11 69
-   ld     a, (var_D2D4)                ; 01:6A9C - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:6A9C - 3A D4 D2
    and    a                            ; 01:6A9F - A7
    jr     z, @spritemap_selected       ; 01:6AA0 - 28 03
    ld     hl, SPRITEMAP_platform_JUN   ; 01:6AA2 - 21 23 69
@@ -14024,7 +14024,7 @@ objfunc_0F_platform_horizontal:
 
 @dont_move_sonic_horizontally:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:6DF3 - 21 11 69
-   ld     a, (var_D2D4)                ; 01:6DF6 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:6DF6 - 3A D4 D2
    and    a                            ; 01:6DF9 - A7
    jr     z, @level_art_selected       ; 01:6DFA - 28 09
    ld     hl, SPRITEMAP_platform_BRI   ; 01:6DFC - 21 31 69
@@ -14816,7 +14816,7 @@ objfunc_24_UNKNOWN:
 
 addr_075B2:
    ld     de, $0012                    ; 01:75B2 - 11 12 00
-   ld     a, (var_D2D4)                ; 01:75B5 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:75B5 - 3A D4 D2
    cp     $03                          ; 01:75B8 - FE 03
    jr     nz, addr_075BF               ; 01:75BA - 20 03
    ld     de, $0038                    ; 01:75BC - 11 38 00
@@ -14840,7 +14840,7 @@ addr_075D9:
    ld     (ix+11), h                   ; 01:75DC - DD 74 0B
    ld     (ix+12), c                   ; 01:75DF - DD 71 0C
    ld     hl, $FE00                    ; 01:75E2 - 21 00 FE
-   ld     a, (var_D2D4)                ; 01:75E5 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:75E5 - 3A D4 D2
    cp     $03                          ; 01:75E8 - FE 03
    jr     nz, addr_075EF               ; 01:75EA - 20 03
    ld     hl, $FE80                    ; 01:75EC - 21 80 FE
@@ -14850,7 +14850,7 @@ addr_075EF:
    ld     (ix+8), h                    ; 01:75F2 - DD 74 08
    ld     (ix+9), $FF                  ; 01:75F5 - DD 36 09 FF
    ld     bc, UNK_07629                ; 01:75F9 - 01 29 76
-   ld     a, (var_D2D4)                ; 01:75FC - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:75FC - 3A D4 D2
    and    a                            ; 01:75FF - A7
    jr     z, addr_0760C                ; 01:7600 - 28 0A
    ld     bc, UNK_0762E                ; 01:7602 - 01 2E 76
@@ -14897,7 +14897,7 @@ objfunc_23_UNKNOWN:
    ld     (ix+13), $0C                 ; 01:769D - DD 36 0D 0C
    ld     (ix+14), $20                 ; 01:76A1 - DD 36 0E 20
    ld     hl, UNK_07760                ; 01:76A5 - 21 60 77
-   ld     a, (var_D2D4)                ; 01:76A8 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:76A8 - 3A D4 D2
    and    a                            ; 01:76AB - A7
    jr     z, addr_076BD                ; 01:76AC - 28 0F
    ld     hl, UNK_0777B                ; 01:76AE - 21 7B 77
@@ -14921,7 +14921,7 @@ addr_076BD:
    ld     (ix+8), a                    ; 01:76D7 - DD 77 08
    ld     (ix+9), a                    ; 01:76DA - DD 77 09
    ld     hl, UNK_07752                ; 01:76DD - 21 52 77
-   ld     a, (var_D2D4)                ; 01:76E0 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:76E0 - 3A D4 D2
    ld     c, a                         ; 01:76E3 - 4F
    and    a                            ; 01:76E4 - A7
    jr     z, addr_076F6                ; 01:76E5 - 28 0F
@@ -15808,7 +15808,7 @@ addr_07F5A:
    ld     e, (hl)                      ; 01:7F60 - 5E
    ld     d, $00                       ; 01:7F61 - 16 00
    .IF 0
-   ld     a, (var_D2D4)                ; 01:7F63 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 01:7F63 - 3A D4 D2
    add    a, a                         ; 01:7F66 - 87
    ld     c, a                         ; 01:7F67 - 4F
    ld     b, d                         ; 01:7F68 - 42
@@ -17571,7 +17571,7 @@ addr_09100:
    ld     e, (hl)                      ; 02:9109 - 5E
    ld     d, $00                       ; 02:910A - 16 00
    .IF 0
-   ld     a, (var_D2D4)                ; 02:910C - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 02:910C - 3A D4 D2
    add    a, a                         ; 02:910F - 87
    ld     c, a                         ; 02:9110 - 4F
    ld     b, d                         ; 02:9111 - 42
@@ -19595,7 +19595,7 @@ addr_0A41A:
    jp     m, addr_0A464                ; 02:A429 - FA 64 A4
    ld     (ix+15), UNK_0A48B&$FF       ; 02:A42C - DD 36 0F 8B
    ld     (ix+16), UNK_0A48B>>8        ; 02:A430 - DD 36 10 A4
-   ld     a, (var_D2D4)                ; 02:A434 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 02:A434 - 3A D4 D2
    cp     $03                          ; 02:A437 - FE 03
    jr     nz, addr_0A443               ; 02:A439 - 20 08
    ld     (ix+15), UNK_0A49B&$FF       ; 02:A43B - DD 36 0F 9B
@@ -19621,7 +19621,7 @@ addr_0A464:
    res    1, (ix+24)                   ; 02:A464 - DD CB 18 8E
    ld     (ix+15), UNK_0A493&$FF       ; 02:A468 - DD 36 0F 93
    ld     (ix+16), UNK_0A493>>8        ; 02:A46C - DD 36 10 A4
-   ld     a, (var_D2D4)                ; 02:A470 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 02:A470 - 3A D4 D2
    cp     $03                          ; 02:A473 - FE 03
    jr     nz, addr_0A47F               ; 02:A475 - 20 08
    ld     (ix+15), UNK_0A4A3&$FF       ; 02:A477 - DD 36 0F A3
@@ -20716,7 +20716,7 @@ addr_0AF98:
    ld     a, (ix+21)                   ; 02:AF98 - DD 7E 15
    cp     $C8                          ; 02:AF9B - FE C8
    ret    nz                           ; 02:AF9D - C0
-   ld     a, (var_D2D4)                ; 02:AF9E - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 02:AF9E - 3A D4 D2
    cp     $03                          ; 02:AFA1 - FE 03
    ret    nz                           ; 02:AFA3 - C0
    ld     l, (ix+5)                    ; 02:AFA4 - DD 6E 05
@@ -21257,7 +21257,7 @@ UNK_0B4E6:
 objfunc_3B_UNKNOWN:
    set    5, (ix+24)                   ; 02:B50E - DD CB 18 EE
    ld     hl, UNK_0B37B                ; 02:B512 - 21 7B B3
-   ld     a, (var_D2D4)                ; 02:B515 - 3A D4 D2
+   ld     a, (g_tile_flags_index)      ; 02:B515 - 3A D4 D2
    cp     $01                          ; 02:B518 - FE 01
    jr     nz, addr_0B51F               ; 02:B51A - 20 03
    ld     hl, UNK_0B5B5                ; 02:B51C - 21 B5 B5
