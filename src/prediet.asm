@@ -5757,7 +5757,7 @@ LUT_02AD6:
 
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
-.dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_UNKNOWN, objfunc_0C_UNKNOWN, objfunc_0D_UNKNOWN, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
+.dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
@@ -11497,7 +11497,7 @@ SPRITEMAP_explosion_frames:
 .db $FF, $FF, $78, $7A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:69CE
 .db $FF, $FF, $FF, $FF, $7C, $7E, $FF, $FF, $FF, $FF, $FF                           ; 01:69DE
 
-objfunc_0B_UNKNOWN:
+objfunc_0B_platform_semilowering:
    set    5, (ix+24)                   ; 01:69E9 - DD CB 18 EE
    ld     (ix+13), $1A                 ; 01:69ED - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:69F1 - DD 36 0E 10
@@ -11505,19 +11505,19 @@ objfunc_0B_UNKNOWN:
    ld     (ix+16), SPRITEMAP_platform_GHZ>>8  ; 01:69F9 - DD 36 10 69
    ld     a, (sonic_vel_y_hi)          ; 01:69FD - 3A 08 D4
    and    a                            ; 01:6A00 - A7
-   jp     m, addr_06A2E                ; 01:6A01 - FA 2E 6A
+   jp     m, @not_collided_with_sonic  ; 01:6A01 - FA 2E 6A
    ld     hl, $0806                    ; 01:6A04 - 21 06 08
    ld     (var_D214), hl               ; 01:6A07 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6A0A - CD 56 39
-   jr     c, addr_06A2E                ; 01:6A0D - 38 1F
+   jr     c, @not_collided_with_sonic  ; 01:6A0D - 38 1F
    ld     de, $0000                    ; 01:6A0F - 11 00 00
    ld     a, (ix+5)                    ; 01:6A12 - DD 7E 05
    and    $1F                          ; 01:6A15 - E6 1F
    cp     $10                          ; 01:6A17 - FE 10
-   jr     nc, addr_06A1D               ; 01:6A19 - 30 02
+   jr     nc, @platform_was_not_at_bottom  ; 01:6A19 - 30 02
    ld     e, $80                       ; 01:6A1B - 1E 80
 
-addr_06A1D:
+@platform_was_not_at_bottom:
    ld     (ix+10), e                   ; 01:6A1D - DD 73 0A
    ld     (ix+11), d                   ; 01:6A20 - DD 72 0B
    ld     (ix+12), $00                 ; 01:6A23 - DD 36 0C 00
@@ -11525,29 +11525,29 @@ addr_06A1D:
    call   addr_07CC1                   ; 01:6A2A - CD C1 7C
    ret                                 ; 01:6A2D - C9
 
-addr_06A2E:
+@not_collided_with_sonic:
    ld     c, $00                       ; 01:6A2E - 0E 00
    ld     l, c                         ; 01:6A30 - 69
    ld     h, c                         ; 01:6A31 - 61
    ld     a, (ix+5)                    ; 01:6A32 - DD 7E 05
    and    $1F                          ; 01:6A35 - E6 1F
-   jr     z, addr_06A3D                ; 01:6A37 - 28 04
+   jr     z, @platform_was_at_top      ; 01:6A37 - 28 04
    ld     hl, $FFC0                    ; 01:6A39 - 21 C0 FF
    dec    c                            ; 01:6A3C - 0D
 
-addr_06A3D:
+@platform_was_at_top:
    ld     (ix+10), l                   ; 01:6A3D - DD 75 0A
    ld     (ix+11), h                   ; 01:6A40 - DD 74 0B
    ld     (ix+12), c                   ; 01:6A43 - DD 71 0C
    ret                                 ; 01:6A46 - C9
 
-objfunc_0C_UNKNOWN:
+objfunc_0C_platform_fall_on_touch:
    set    5, (ix+24)                   ; 01:6A47 - DD CB 18 EE
    ld     a, (ix+22)                   ; 01:6A4B - DD 7E 16
    add    a, (ix+23)                   ; 01:6A4E - DD 86 17
    ld     (ix+23), a                   ; 01:6A51 - DD 77 17
    cp     $18                          ; 01:6A54 - FE 18
-   jr     c, addr_06A6F                ; 01:6A56 - 38 17
+   jr     c, @pre_fall_delay_was_not_expired  ; 01:6A56 - 38 17
    ld     l, (ix+10)                   ; 01:6A58 - DD 6E 0A
    ld     h, (ix+11)                   ; 01:6A5B - DD 66 0B
    ld     a, (ix+12)                   ; 01:6A5E - DD 7E 0C
@@ -11558,30 +11558,30 @@ objfunc_0C_UNKNOWN:
    ld     (ix+11), h                   ; 01:6A69 - DD 74 0B
    ld     (ix+12), a                   ; 01:6A6C - DD 77 0C
 
-addr_06A6F:
+@pre_fall_delay_was_not_expired:
    ld     (ix+13), $1A                 ; 01:6A6F - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6A73 - DD 36 0E 10
    ld     a, (sonic_vel_y_hi)          ; 01:6A77 - 3A 08 D4
    and    a                            ; 01:6A7A - A7
-   jp     m, addr_06A99                ; 01:6A7B - FA 99 6A
+   jp     m, @sonic_was_not_positioned_correctly  ; 01:6A7B - FA 99 6A
    ld     hl, $0806                    ; 01:6A7E - 21 06 08
    ld     (var_D214), hl               ; 01:6A81 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6A84 - CD 56 39
-   jr     c, addr_06A99                ; 01:6A87 - 38 10
+   jr     c, @sonic_was_not_positioned_correctly  ; 01:6A87 - 38 10
    ld     (ix+22), $01                 ; 01:6A89 - DD 36 16 01
    ld     bc, $0010                    ; 01:6A8D - 01 10 00
    ld     e, (ix+10)                   ; 01:6A90 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:6A93 - DD 56 0B
    call   addr_07CC1                   ; 01:6A96 - CD C1 7C
 
-addr_06A99:
+@sonic_was_not_positioned_correctly:
    ld     hl, SPRITEMAP_platform_GHZ   ; 01:6A99 - 21 11 69
    ld     a, (var_D2D4)                ; 01:6A9C - 3A D4 D2
    and    a                            ; 01:6A9F - A7
-   jr     z, addr_06AA5                ; 01:6AA0 - 28 03
+   jr     z, @spritemap_selected       ; 01:6AA0 - 28 03
    ld     hl, SPRITEMAP_platform_JUN   ; 01:6AA2 - 21 23 69
 
-addr_06AA5:
+@spritemap_selected:
    ld     (ix+15), l                   ; 01:6AA5 - DD 75 0F
    ld     (ix+16), h                   ; 01:6AA8 - DD 74 10
    ld     hl, (g_level_scroll_y_pix_lo)  ; 01:6AAB - 2A 5D D2
@@ -11595,7 +11595,7 @@ addr_06AA5:
    ld     (ix+0), $FF                  ; 01:6ABC - DD 36 00 FF
    ret                                 ; 01:6AC0 - C9
 
-objfunc_0D_UNKNOWN:
+objfunc_0D_fireball_pallet:
    set    5, (ix+24)                   ; 01:6AC1 - DD CB 18 EE
    ld     (ix+13), $02                 ; 01:6AC5 - DD 36 0D 02
    ld     (ix+14), $02                 ; 01:6AC9 - DD 36 0E 02
@@ -11624,15 +11624,15 @@ objfunc_0D_UNKNOWN:
    ld     (var_D214), hl               ; 01:6B0C - 22 14 D2
    ld     (ix+15), l                   ; 01:6B0F - DD 75 0F
    ld     (ix+16), h                   ; 01:6B12 - DD 74 10
-   ld     hl, UNK_06B72                ; 01:6B15 - 21 72 6B
+   ld     hl, LUT_fireball_BRI3_LAB3   ; 01:6B15 - 21 72 6B
    ld     a, (g_level)                 ; 01:6B18 - 3A 3E D2
    cp     $05                          ; 01:6B1B - FE 05
-   jr     z, addr_06B26                ; 01:6B1D - 28 07
+   jr     z, @sprites_not_BRI3_nor_LAB3  ; 01:6B1D - 28 07
    cp     $0B                          ; 01:6B1F - FE 0B
-   jr     z, addr_06B26                ; 01:6B21 - 28 03
-   ld     hl, UNK_06B70                ; 01:6B23 - 21 70 6B
+   jr     z, @sprites_not_BRI3_nor_LAB3  ; 01:6B21 - 28 03
+   ld     hl, LUT_fireball_main        ; 01:6B23 - 21 70 6B
 
-addr_06B26:
+@sprites_not_BRI3_nor_LAB3:
    ld     a, (g_global_tick_counter)   ; 01:6B26 - 3A 23 D2
    and    $01                          ; 01:6B29 - E6 01
    ld     e, a                         ; 01:6B2B - 5F
@@ -11649,11 +11649,11 @@ addr_06B26:
    ld     de, (g_level_scroll_x_pix_lo)  ; 01:6B3F - ED 5B 5A D2
    and    a                            ; 01:6B43 - A7
    sbc    hl, de                       ; 01:6B44 - ED 52
-   jr     c, addr_06B6B                ; 01:6B46 - 38 23
+   jr     c, @destroy_fireball_because_offscreen  ; 01:6B46 - 38 23
    inc    d                            ; 01:6B48 - 14
    ex     de, hl                       ; 01:6B49 - EB
    sbc    hl, bc                       ; 01:6B4A - ED 42
-   jr     c, addr_06B6B                ; 01:6B4C - 38 1D
+   jr     c, @destroy_fireball_because_offscreen  ; 01:6B4C - 38 1D
    ld     c, (ix+5)                    ; 01:6B4E - DD 4E 05
    ld     b, (ix+6)                    ; 01:6B51 - DD 46 06
    ld     l, c                         ; 01:6B54 - 69
@@ -11663,28 +11663,27 @@ addr_06B26:
    ld     de, (g_level_scroll_y_pix_lo)  ; 01:6B5A - ED 5B 5D D2
    and    a                            ; 01:6B5E - A7
    sbc    hl, de                       ; 01:6B5F - ED 52
-   jr     c, addr_06B6B                ; 01:6B61 - 38 08
+   jr     c, @destroy_fireball_because_offscreen  ; 01:6B61 - 38 08
    ld     hl, $00C0                    ; 01:6B63 - 21 C0 00
    add    hl, de                       ; 01:6B66 - 19
    and    a                            ; 01:6B67 - A7
    sbc    hl, bc                       ; 01:6B68 - ED 42
    ret    nc                           ; 01:6B6A - D0
 
-addr_06B6B:
+@destroy_fireball_because_offscreen:
    ld     (ix+0), $FF                  ; 01:6B6B - DD 36 00 FF
    ret                                 ; 01:6B6F - C9
 
-UNK_06B70:
+LUT_fireball_main:
 .db $06, $08                                                                        ; 01:6B70
 
-UNK_06B72:
+LUT_fireball_BRI3_LAB3:
 .db $34, $36                                                                        ; 01:6B72
 
 objfunc_0E_badnik_buzz_bomber:
-objfunc_0E_UNKNOWN:
    set    5, (ix+24)                   ; 01:6B74 - DD CB 18 EE
    bit    0, (ix+24)                   ; 01:6B78 - DD CB 18 46
-   jr     nz, addr_06BAB               ; 01:6B7C - 20 2D
+   jr     nz, @already_initialised     ; 01:6B7C - 20 2D
    ld     e, (ix+2)                    ; 01:6B7E - DD 5E 02
    ld     d, (ix+3)                    ; 01:6B81 - DD 56 03
    ld     (ix+20), e                   ; 01:6B84 - DD 73 14
@@ -11703,7 +11702,7 @@ objfunc_0E_UNKNOWN:
    ret    nc                           ; 01:6BA6 - D0
    set    0, (ix+24)                   ; 01:6BA7 - DD CB 18 C6
 
-addr_06BAB:
+@already_initialised:
    ld     (ix+13), $14                 ; 01:6BAB - DD 36 0D 14
    ld     (ix+14), $20                 ; 01:6BAF - DD 36 0E 20
    ld     l, (ix+2)                    ; 01:6BB3 - DD 6E 02
@@ -11711,33 +11710,33 @@ addr_06BAB:
    ld     de, (sonic_x)                ; 01:6BB9 - ED 5B FE D3
    and    a                            ; 01:6BBD - A7
    sbc    hl, de                       ; 01:6BBE - ED 52
-   jr     c, addr_06BD4                ; 01:6BC0 - 38 12
+   jr     c, @not_ready_to_fire        ; 01:6BC0 - 38 12
    ld     de, $0040                    ; 01:6BC2 - 11 40 00
    sbc    hl, de                       ; 01:6BC5 - ED 52
-   jr     nc, addr_06BD4               ; 01:6BC7 - 30 0B
+   jr     nc, @not_ready_to_fire       ; 01:6BC7 - 30 0B
    ld     a, (ix+18)                   ; 01:6BC9 - DD 7E 12
    cp     $05                          ; 01:6BCC - FE 05
-   jr     nc, addr_06BD4               ; 01:6BCE - 30 04
+   jr     nc, @not_ready_to_fire       ; 01:6BCE - 30 04
    ld     (ix+18), $05                 ; 01:6BD0 - DD 36 12 05
 
-addr_06BD4:
+@not_ready_to_fire:
    ld     e, (ix+18)                   ; 01:6BD4 - DD 5E 12
    ld     d, $00                       ; 01:6BD7 - 16 00
 
-addr_06BD9:
-   ld     hl, UNK_06CD7                ; 01:6BD9 - 21 D7 6C
+@find_next_state:
+   ld     hl, LUT_buzz_bomber_state_sequence  ; 01:6BD9 - 21 D7 6C
    add    hl, de                       ; 01:6BDC - 19
    ld     (var_D214), hl               ; 01:6BDD - 22 14 D2
    ld     a, (hl)                      ; 01:6BE0 - 7E
    and    a                            ; 01:6BE1 - A7
-   jr     nz, addr_06BEB               ; 01:6BE2 - 20 07
+   jr     nz, @found_state             ; 01:6BE2 - 20 07
    ld     (ix+18), a                   ; 01:6BE4 - DD 77 12
    ld     e, a                         ; 01:6BE7 - 5F
-   jp     addr_06BD9                   ; 01:6BE8 - C3 D9 6B
+   jp     @find_next_state             ; 01:6BE8 - C3 D9 6B
 
-addr_06BEB:
+@found_state:
    dec    a                            ; 01:6BEB - 3D
-   jr     nz, addr_06C20               ; 01:6BEC - 20 32
+   jr     nz, @not_state_01            ; 01:6BEC - 20 32
    ld     l, (ix+2)                    ; 01:6BEE - DD 6E 02
    ld     h, (ix+3)                    ; 01:6BF1 - DD 66 03
    ld     de, $0030                    ; 01:6BF4 - 11 30 00
@@ -11745,7 +11744,7 @@ addr_06BEB:
    ld     de, (g_level_scroll_x_pix_lo)  ; 01:6BF8 - ED 5B 5A D2
    xor    a                            ; 01:6BFC - AF
    sbc    hl, de                       ; 01:6BFD - ED 52
-   jr     nc, addr_06C18               ; 01:6BFF - 30 17
+   jr     nc, @was_not_off_left_side   ; 01:6BFF - 30 17
    ld     (ix+15), a                   ; 01:6C01 - DD 77 0F
    ld     (ix+16), a                   ; 01:6C04 - DD 77 10
    ld     a, (ix+20)                   ; 01:6C07 - DD 7E 14
@@ -11755,25 +11754,25 @@ addr_06BEB:
    res    0, (ix+24)                   ; 01:6C13 - DD CB 18 86
    ret                                 ; 01:6C17 - C9
 
-addr_06C18:
+@was_not_off_left_side:
    ld     c, $FF                       ; 01:6C18 - 0E FF
    ld     hl, $FE00                    ; 01:6C1A - 21 00 FE
-   jp     addr_06C98                   ; 01:6C1D - C3 98 6C
+   jp     @update_vel_x_and_continue   ; 01:6C1D - C3 98 6C
 
-addr_06C20:
+@not_state_01:
    dec    a                            ; 01:6C20 - 3D
-   jr     nz, addr_06C2A               ; 01:6C21 - 20 07
+   jr     nz, @not_state_02            ; 01:6C21 - 20 07
    ld     c, $00                       ; 01:6C23 - 0E 00
    ld     l, c                         ; 01:6C25 - 69
    ld     h, c                         ; 01:6C26 - 61
-   jp     addr_06C98                   ; 01:6C27 - C3 98 6C
+   jp     @update_vel_x_and_continue   ; 01:6C27 - C3 98 6C
 
-addr_06C2A:
+@not_state_02:
    ld     a, (ix+17)                   ; 01:6C2A - DD 7E 11
    cp     $20                          ; 01:6C2D - FE 20
-   jp     nz, addr_06CA1               ; 01:6C2F - C2 A1 6C
+   jp     nz, @continue                ; 01:6C2F - C2 A1 6C
    call   spawn_object                 ; 01:6C32 - CD 7B 7C
-   jp     c, addr_06CA1                ; 01:6C35 - DA A1 6C
+   jp     c, @continue                 ; 01:6C35 - DA A1 6C
    push   bc                           ; 01:6C38 - C5
    ld     e, (ix+2)                    ; 01:6C39 - DD 5E 02
    ld     d, (ix+3)                    ; 01:6C3C - DD 56 03
@@ -11812,12 +11811,12 @@ addr_06C2A:
    ld     l, c                         ; 01:6C96 - 69
    ld     h, c                         ; 01:6C97 - 61
 
-addr_06C98:
+@update_vel_x_and_continue:
    ld     (ix+7), l                    ; 01:6C98 - DD 75 07
    ld     (ix+8), h                    ; 01:6C9B - DD 74 08
    ld     (ix+9), c                    ; 01:6C9E - DD 71 09
 
-addr_06CA1:
+@continue:
    ld     l, (ix+17)                   ; 01:6CA1 - DD 6E 11
    ld     h, (ix+18)                   ; 01:6CA4 - DD 66 12
    ld     de, $0008                    ; 01:6CA7 - 11 08 00
@@ -11828,12 +11827,12 @@ addr_06CA1:
    ld     a, (hl)                      ; 01:6CB4 - 7E
    add    a, a                         ; 01:6CB5 - 87
    ld     e, a                         ; 01:6CB6 - 5F
-   ld     hl, UNK_06CE2                ; 01:6CB7 - 21 E2 6C
+   ld     hl, LUT_buzz_bomber_state_anim_ptrs  ; 01:6CB7 - 21 E2 6C
    add    hl, de                       ; 01:6CBA - 19
    ld     c, (hl)                      ; 01:6CBB - 4E
    inc    hl                           ; 01:6CBC - 23
    ld     b, (hl)                      ; 01:6CBD - 46
-   ld     de, UNK_06CF9                ; 01:6CBE - 11 F9 6C
+   ld     de, SPRITEMAP_buzz_bomber_frames  ; 01:6CBE - 11 F9 6C
    call   do_framed_animation          ; 01:6CC1 - CD 41 7C
    ld     hl, $1000                    ; 01:6CC4 - 21 00 10
    ld     (var_D214), hl               ; 01:6CC7 - 22 14 D2
@@ -11843,22 +11842,22 @@ addr_06CA1:
    call   nc, enemy_touched_sonic      ; 01:6CD3 - D4 E5 35
    ret                                 ; 01:6CD6 - C9
 
-UNK_06CD7:
+LUT_buzz_bomber_state_sequence:
 .db $01, $01, $01, $01, $00, $02, $02, $03, $01, $01, $00                           ; 01:6CD7
 
-UNK_06CE2:
-.dw addr_06CEA, addr_06CEA, addr_06CEF, addr_06CF4                                  ; 01:6CE2
+LUT_buzz_bomber_state_anim_ptrs:
+.dw buzz_bomber_anim_01_flying, buzz_bomber_anim_01_flying, buzz_bomber_anim_02_stopped_about_to_fire, buzz_bomber_anim_03_fired  ; 01:6CE2
 
-addr_06CEA:
+buzz_bomber_anim_01_flying:
 .db $00, $02, $01, $02, $FF                                                         ; 01:6CEA
 
-addr_06CEF:
+buzz_bomber_anim_02_stopped_about_to_fire:
 .db $02, $02, $03, $02, $FF                                                         ; 01:6CEF
 
-addr_06CF4:
+buzz_bomber_anim_03_fired:
 .db $04, $02, $05, $02, $FF                                                         ; 01:6CF4
 
-UNK_06CF9:
+SPRITEMAP_buzz_bomber_frames:
 .db $FE, $0A, $FF, $FF, $FF, $FF, $0C, $0E, $10, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6CF9
 .db $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $0C, $0E, $2C, $FF, $FF, $FF, $FF, $FF  ; 01:6D09
 .db $FF, $FF, $FF, $FF, $FE, $0A, $FF, $FF, $FF, $FF, $12, $14, $16, $FF, $FF, $FF  ; 01:6D19
