@@ -5758,7 +5758,7 @@ LUT_02AD6:
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
-.dw objfunc_10_badnik_motobug, objfunc_11_UNKNOWN, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_UNKNOWN, objfunc_24_UNKNOWN, objfunc_25_UNKNOWN, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
 .dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
@@ -11952,37 +11952,37 @@ objfunc_10_badnik_motobug:
    ld     e, (ix+18)                   ; 01:6E18 - DD 5E 12
    ld     d, $00                       ; 01:6E1B - 16 00
 
-addr_06E1D:
-   ld     hl, UNK_06E96                ; 01:6E1D - 21 96 6E
+@find_next_state:
+   ld     hl, LUT_motobug_state_sequence  ; 01:6E1D - 21 96 6E
    add    hl, de                       ; 01:6E20 - 19
    ld     (var_D214), hl               ; 01:6E21 - 22 14 D2
    ld     a, (hl)                      ; 01:6E24 - 7E
    and    a                            ; 01:6E25 - A7
-   jr     nz, addr_06E2F               ; 01:6E26 - 20 07
+   jr     nz, @found_state             ; 01:6E26 - 20 07
    ld     (ix+18), a                   ; 01:6E28 - DD 77 12
    ld     e, a                         ; 01:6E2B - 5F
-   jp     addr_06E1D                   ; 01:6E2C - C3 1D 6E
+   jp     @find_next_state             ; 01:6E2C - C3 1D 6E
 
-addr_06E2F:
+@found_state:
    dec    a                            ; 01:6E2F - 3D
-   jr     nz, addr_06E3A               ; 01:6E30 - 20 08
+   jr     nz, @not_state_01            ; 01:6E30 - 20 08
    ld     c, $FF                       ; 01:6E32 - 0E FF
    ld     hl, $FF00                    ; 01:6E34 - 21 00 FF
-   jp     addr_06E49                   ; 01:6E37 - C3 49 6E
+   jp     @continue                    ; 01:6E37 - C3 49 6E
 
-addr_06E3A:
+@not_state_01:
    dec    a                            ; 01:6E3A - 3D
-   jr     nz, addr_06E45               ; 01:6E3B - 20 08
+   jr     nz, @not_state_02            ; 01:6E3B - 20 08
    ld     c, $00                       ; 01:6E3D - 0E 00
    ld     hl, $0100                    ; 01:6E3F - 21 00 01
-   jp     addr_06E49                   ; 01:6E42 - C3 49 6E
+   jp     @continue                    ; 01:6E42 - C3 49 6E
 
-addr_06E45:
+@not_state_02:
    ld     c, $00                       ; 01:6E45 - 0E 00
    ld     l, c                         ; 01:6E47 - 69
    ld     h, c                         ; 01:6E48 - 61
 
-addr_06E49:
+@continue:
    ld     (ix+7), l                    ; 01:6E49 - DD 75 07
    ld     (ix+8), h                    ; 01:6E4C - DD 74 08
    ld     (ix+9), c                    ; 01:6E4F - DD 71 09
@@ -12000,12 +12000,12 @@ addr_06E49:
    add    a, a                         ; 01:6E72 - 87
    ld     e, a                         ; 01:6E73 - 5F
    ld     d, $00                       ; 01:6E74 - 16 00
-   ld     hl, UNK_06EB1                ; 01:6E76 - 21 B1 6E
+   ld     hl, LUT_motobug_state_anim_ptrs  ; 01:6E76 - 21 B1 6E
    add    hl, de                       ; 01:6E79 - 19
    ld     c, (hl)                      ; 01:6E7A - 4E
    inc    hl                           ; 01:6E7B - 23
    ld     b, (hl)                      ; 01:6E7C - 46
-   ld     de, UNK_06ECB                ; 01:6E7D - 11 CB 6E
+   ld     de, SPRITEMAP_motobug_frames  ; 01:6E7D - 11 CB 6E
    call   do_framed_animation          ; 01:6E80 - CD 41 7C
    ld     hl, $0203                    ; 01:6E83 - 21 03 02
    ld     (var_D214), hl               ; 01:6E86 - 22 14 D2
@@ -12015,69 +12015,69 @@ addr_06E49:
    call   nc, enemy_touched_sonic      ; 01:6E92 - D4 E5 35
    ret                                 ; 01:6E95 - C9
 
-UNK_06E96:
+LUT_motobug_state_sequence:
 .db $01, $01, $01, $01, $01, $01, $01, $01, $01, $03, $03, $03, $03, $02, $02, $02  ; 01:6E96
 .db $02, $02, $02, $02, $02, $02, $04, $04, $04, $04, $00                           ; 01:6EA6
 
-UNK_06EB1:
-.dw addr_06EBB, addr_06EBB, addr_06EC0, addr_06EC5, addr_06EC8                      ; 01:6EB1
+LUT_motobug_state_anim_ptrs:
+.dw motobug_anim_01_go_left, motobug_anim_01_go_left, motobug_anim_02_go_right, motobug_anim_03_stop_left, motobug_anim_04_stop_right  ; 01:6EB1
 
-addr_06EBB:
+motobug_anim_01_go_left:
 .db $00, $08, $01, $08, $FF                                                         ; 01:6EBB
 
-addr_06EC0:
+motobug_anim_02_go_right:
 .db $02, $08, $03, $08, $FF                                                         ; 01:6EC0
 
-addr_06EC5:
+motobug_anim_03_stop_left:
 .db $00, $FF, $FF                                                                   ; 01:6EC5
 
-addr_06EC8:
+motobug_anim_04_stop_right:
 .db $02, $FF, $FF                                                                   ; 01:6EC8
 
-UNK_06ECB:
+SPRITEMAP_motobug_frames:
 .db $60, $62, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6ECB
 .db $FF, $FF, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6EDB
 .db $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6EEB
 .db $FF, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $FF, $FF, $FF, $FF, $FF                 ; 01:6EFB
 
-objfunc_11_UNKNOWN:
+objfunc_11_badnik_newtron:
    set    5, (ix+24)                   ; 01:6F08 - DD CB 18 EE
    ld     (ix+13), $0C                 ; 01:6F0C - DD 36 0D 0C
    ld     (ix+14), $14                 ; 01:6F10 - DD 36 0E 14
    ld     a, (ix+17)                   ; 01:6F14 - DD 7E 11
    cp     $02                          ; 01:6F17 - FE 02
-   jr     z, addr_06F1E                ; 01:6F19 - 28 03
+   jr     z, @state_02                 ; 01:6F19 - 28 03
    and    a                            ; 01:6F1B - A7
-   jr     nz, addr_06F42               ; 01:6F1C - 20 24
+   jr     nz, @not_state_00            ; 01:6F1C - 20 24
 
-addr_06F1E:
+@state_02:
    ld     a, (g_global_tick_counter)   ; 01:6F1E - 3A 23 D2
    and    $01                          ; 01:6F21 - E6 01
-   jr     z, addr_06F2A                ; 01:6F23 - 28 05
+   jr     z, @tick_mod_2_is_0          ; 01:6F23 - 28 05
    ld     bc, $0000                    ; 01:6F25 - 01 00 00
-   jr     addr_06F2D                   ; 01:6F28 - 18 03
+   jr     @tick_mod_2_was_not_0        ; 01:6F28 - 18 03
 
-addr_06F2A:
-   ld     bc, UNK_06FED                ; 01:6F2A - 01 ED 6F
+@tick_mod_2_is_0:
+   ld     bc, SPRITEMAP_newtron        ; 01:6F2A - 01 ED 6F
 
-addr_06F2D:
+@tick_mod_2_was_not_0:
    inc    (ix+23)                      ; 01:6F2D - DD 34 17
    ld     a, (ix+23)                   ; 01:6F30 - DD 7E 17
    cp     $3C                          ; 01:6F33 - FE 3C
-   jp     c, addr_06FD4                ; 01:6F35 - DA D4 6F
+   jp     c, @continue                 ; 01:6F35 - DA D4 6F
    ld     (ix+23), $00                 ; 01:6F38 - DD 36 17 00
    inc    (ix+17)                      ; 01:6F3C - DD 34 11
-   jp     addr_06FD4                   ; 01:6F3F - C3 D4 6F
+   jp     @continue                    ; 01:6F3F - C3 D4 6F
 
-addr_06F42:
+@not_state_00:
    cp     $01                          ; 01:6F42 - FE 01
-   jp     nz, addr_06FC1               ; 01:6F44 - C2 C1 6F
+   jp     nz, @not_state_01            ; 01:6F44 - C2 C1 6F
    inc    (ix+23)                      ; 01:6F47 - DD 34 17
    ld     a, (ix+23)                   ; 01:6F4A - DD 7E 17
    cp     $64                          ; 01:6F4D - FE 64
-   jr     nz, addr_06FB1               ; 01:6F4F - 20 60
+   jr     nz, @dont_spawn_fireball     ; 01:6F4F - 20 60
    call   spawn_object                 ; 01:6F51 - CD 7B 7C
-   jp     c, addr_06FB1                ; 01:6F54 - DA B1 6F
+   jp     c, @dont_spawn_fireball      ; 01:6F54 - DA B1 6F
    push   bc                           ; 01:6F57 - C5
    ld     e, (ix+2)                    ; 01:6F58 - DD 5E 02
    ld     d, (ix+3)                    ; 01:6F5B - DD 56 03
@@ -12113,25 +12113,25 @@ addr_06F42:
    ld     a, $0A                       ; 01:6FAE - 3E 0A
    rst    $28                          ; 01:6FB0 - EF
 
-addr_06FB1:
-   ld     bc, UNK_06FED                ; 01:6FB1 - 01 ED 6F
+@dont_spawn_fireball:
+   ld     bc, SPRITEMAP_newtron        ; 01:6FB1 - 01 ED 6F
    cp     $78                          ; 01:6FB4 - FE 78
-   jr     c, addr_06FD4                ; 01:6FB6 - 38 1C
+   jr     c, @continue                 ; 01:6FB6 - 38 1C
    ld     (ix+23), $00                 ; 01:6FB8 - DD 36 17 00
    inc    (ix+17)                      ; 01:6FBC - DD 34 11
-   jr     addr_06FD4                   ; 01:6FBF - 18 13
+   jr     @continue                    ; 01:6FBF - 18 13
 
-addr_06FC1:
+@not_state_01:
    cp     $03                          ; 01:6FC1 - FE 03
-   jr     nz, addr_06FD4               ; 01:6FC3 - 20 0F
+   jr     nz, @continue                ; 01:6FC3 - 20 0F
    ld     bc, $0000                    ; 01:6FC5 - 01 00 00
    inc    (ix+23)                      ; 01:6FC8 - DD 34 17
    ld     a, (ix+23)                   ; 01:6FCB - DD 7E 17
    and    a                            ; 01:6FCE - A7
-   jr     nz, addr_06FD4               ; 01:6FCF - 20 03
+   jr     nz, @continue                ; 01:6FCF - 20 03
    ld     (ix+17), c                   ; 01:6FD1 - DD 71 11
 
-addr_06FD4:
+@continue:
    ld     (ix+15), c                   ; 01:6FD4 - DD 71 0F
    ld     (ix+16), b                   ; 01:6FD7 - DD 70 10
    ld     hl, $0202                    ; 01:6FDA - 21 02 02
@@ -12142,7 +12142,7 @@ addr_06FD4:
    call   nc, enemy_touched_sonic      ; 01:6FE9 - D4 E5 35
    ret                                 ; 01:6FEC - C9
 
-UNK_06FED:
+SPRITEMAP_newtron:
 .db $1C, $1E, $FF, $FF, $FF, $FF, $FE, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6FED
 .db $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $FE, $62, $FF, $FF, $FF, $FF, $FF       ; 01:6FFD
 
