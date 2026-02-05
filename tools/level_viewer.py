@@ -98,14 +98,17 @@ class TkApp:
         self.vram_metatile_map_items: MutableSequence[
             MutableSequence[Optional[int]]
         ] = [[None] * self.mtm_width for y in range(self.mtm_height)]
-        # (x, y, item1, item2)
         self.vram_sprite_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
             None
         ] * 128
+        # (x, y, item, sprite_idx)
         self.vram_sprites: list[tuple[int, int, Optional[int], int]] = [
             (-8, -16, None, 0)
         ] * 64
         self.vram_sprites_used = 0
+
+        # Caching of planar-to-chunky rows.
+        self.p2c_cache: dict[bytes, list[tuple[int, str]]] = {}
 
     def add_file(self, *, file_path: pathlib.Path) -> None:
         if False:
@@ -500,6 +503,7 @@ class TkApp:
         # Draw a 32x28 display
         for mty in range(self.mtm_height):
             for mtx in range(self.mtm_width):
+                self.tk.update_idletasks()
                 mtidx = self.vram_metatile_map[mty][mtx]
                 hi = (self.layout_tile_flags[mtidx] >> 3) & 0x10
                 priority = "tile_hi" if (hi & 0x10) != 0 else "tile_lo"
@@ -611,7 +615,7 @@ class TkApp:
         self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
     ) -> None:
         transparent_positions: list[tuple[int, int]] = []
-        outdata: list[list[str]] = []
+        outdata: list[str] = []
         toffs = (tdata & 0x1FF) * 4 * 8
         xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
         yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
@@ -620,41 +624,65 @@ class TkApp:
         ra_remap = bytes(v * 4 for v in b"\x07\x05\x03\x01\x06\x04\x02\x00")
         for y in range(8):
             addr = toffs + (4 * (yflip ^ y))
-            (planes,) = struct.unpack("<I", self.vram[addr : addr + 4])
+            planes_bs: bytes = bytes(self.vram[addr : addr + 4])
 
-            # Bit-swap
-            # DDDDDDDDCCCCCCCCBBBBBBBBAAAAAAAA
-            # 76543210765432107654321076543210
-            # ->->->-><-<-<-<-->->->-><-<-<-<- shift 7
-            planes = (
-                (planes & 0xAA55AA55)
-                | ((planes & 0x55005500) >> 7)
-                | ((planes << 7) & 0x55005500)
-            )
-            # DCDCDCDCDCDCDCDCBABABABABABABABA
-            # 77553311664422007755331166442200
-            # -->>-->>-->>-->><<--<<--<<--<<-- shift 14
-            planes = (
-                (planes & 0xCCCC3333)
-                | ((planes & 0x33330000) >> 14)
-                | ((planes << 14) & 0x33330000)
-            )
-            # DCBADCBADCBADCBADCBADCBADCBADCBA
-            # 77773333666622225555111144440000
+            outrow: list[tuple[int, str]]
+            try:
+                outrow = self.p2c_cache[planes_bs]
+            except KeyError:
+                outrow = []
+                outaccum: list[str] = []
+                outaccum_x: int = 0
+                (planes,) = struct.unpack("<I", planes_bs)
 
-            outrow: list[str] = []
-            for x, shift in enumerate(ra_remap):
-                p = (planes >> shift) & 0xF
-                outrow += [cram[p]] * 2
-                if p == 0:
-                    transparent_positions.append((x, y))
-            outdata += [outrow] * 2
-        outstr = " ".join("{" + " ".join(row) + "}" for row in outdata)
-        img.put(outstr, to=(px * 2, py * 2))
-        for x, y in transparent_positions:
-            for sy in range((py + y) * 2, (py + (y + 1)) * 2, 1):
-                for sx in range((px + x) * 2, (px + (x + 1)) * 2, 1):
-                    img.transparency_set(sx, sy, True)
+                # Bit-swap
+                # DDDDDDDDCCCCCCCCBBBBBBBBAAAAAAAA
+                # 76543210765432107654321076543210
+                # ->->->-><-<-<-<-->->->-><-<-<-<- shift 7
+                planes = (
+                    (planes & 0xAA55AA55)
+                    | ((planes & 0x55005500) >> 7)
+                    | ((planes << 7) & 0x55005500)
+                )
+                # DCDCDCDCDCDCDCDCBABABABABABABABA
+                # 77553311664422007755331166442200
+                # -->>-->>-->>-->><<--<<--<<--<<-- shift 14
+                planes = (
+                    (planes & 0xCCCC3333)
+                    | ((planes & 0x33330000) >> 14)
+                    | ((planes << 14) & 0x33330000)
+                )
+                # DCBADCBADCBADCBADCBADCBADCBADCBA
+                # 77773333666622225555111144440000
+
+                transparent_x_accum: list[int] = []
+                for x, shift in enumerate(ra_remap):
+                    p = (planes >> shift) & 0xF
+                    if p == 0:
+                        if outaccum:
+                            outrow.append(
+                                (
+                                    outaccum_x * 2,
+                                    (("{" + " ".join(outaccum) + "} ") * 2)[:-1],
+                                )
+                            )
+                            outaccum.clear()
+                        outaccum_x = x + 1
+                    else:
+                        c = cram[p]
+                        outaccum.append(c)
+                        outaccum.append(c)
+
+                if outaccum:
+                    outrow.append(
+                        (outaccum_x * 2, (("{" + " ".join(outaccum) + "} ") * 2)[:-1])
+                    )
+                    outaccum.clear()
+
+                self.p2c_cache[planes_bs] = outrow
+
+            for outrow_x, outrow_str in outrow:
+                img.put(outrow_str, to=((px * 2) + outrow_x, (py + y) * 2))
 
     def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
         assert len(data) == vram_len
