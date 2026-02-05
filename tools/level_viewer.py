@@ -34,9 +34,14 @@ def main() -> None:
     logging.basicConfig(
         level=logging.DEBUG,
     )
+    logging.info("Starting!")
     app = TkApp()
+    logging.info("Loading files")
     for file_name in sys.argv[1:]:
         app.add_file(file_path=pathlib.Path(file_name))
+    logging.info("Files loaded!")
+    app.rebuild_tiles()
+    logging.info("Running Tcl event loop!")
     app.run()
 
 
@@ -59,9 +64,6 @@ class TkApp:
         self.level_width = 0x40
         self.level_height = 0x1000 // self.level_width
         assert self.level_width * self.level_height == 0x1000
-
-        self.tk = tkinter.Tk(className="level_viewer")
-        self.tk.wm_title("Sonic 1 SMS Level Viewer")
 
         self.vram = bytearray(0x3800)
         self.vram_metatile_map: MutableSequence[MutableSequence[int]] = [
@@ -89,12 +91,6 @@ class TkApp:
         self.vram_metatile_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
             None for i in range(256)
         ]
-        self.screen = tkinter.Canvas(
-            master=self.tk,
-            width=32 * 2 * self.mtm_width,
-            height=32 * 2 * self.mtm_height,
-        )
-        self.screen.grid()
         self.vram_metatile_map_items: MutableSequence[
             MutableSequence[Optional[int]]
         ] = [[None] * self.mtm_width for y in range(self.mtm_height)]
@@ -108,7 +104,74 @@ class TkApp:
         self.vram_sprites_used = 0
 
         # Caching of planar-to-chunky rows.
-        self.p2c_cache: dict[bytes, list[tuple[int, str]]] = {}
+        self.p2c_cache: Sequence[dict[bytes, list[tuple[int, str]]]] = [{}, {}]
+
+        self._init_tk()
+
+    def _init_tk(self) -> None:
+        logging.info("Initialising Tk widgets")
+
+        self.tk = tkinter.Tk(className="level_viewer")
+        self.tk.wm_title("Sonic 1 SMS Level Viewer")
+        self.screen = tkinter.Canvas(
+            master=self.tk,
+            width=32 * 2 * self.mtm_width,
+            height=32 * 2 * self.mtm_height,
+        )
+        self.screen.grid()
+
+        #
+        self.vram_all_tiles = tkinter.PhotoImage(
+            master=self.tk, width=8 * 2 * 64, height=8 * 2 * 64
+        )
+
+        if not hasattr(tkinter.PhotoImage, "copy_replace"):
+            # Python 3.9 lacks this function, and that's the latest version in TinyCoreLinux at the time of writing,
+            # which is basically about as good as Linux gets on my Covington box.
+            # Fortunately, Tk 8.6 *does* support this call! --GM
+            logging.warning(
+                "Python version is a little bit old. Monkey-patching in tkinter.PhotoImage.copy_replace()."
+            )
+
+            def _monkeypatched_copy_replace(
+                xself: tkinter.PhotoImage,
+                sourceImage: tkinter.PhotoImage,
+                *,
+                from_coords: tuple[int, int, int, int],
+                to: tuple[int, int],
+            ) -> None:
+                xself.tk.call(
+                    xself.name,
+                    "copy",
+                    sourceImage,
+                    "-from",
+                    *from_coords,
+                    "-to",
+                    *to,
+                )
+
+            tkinter.PhotoImage.copy_replace = _monkeypatched_copy_replace  # type: ignore
+
+    def rebuild_tiles(self) -> None:
+        logging.info("Rebuilding all VRAM tiles")
+        for pal_idx in range(2):
+            logging.info(
+                "Loading first VRAM quadrant, palette %(pal_idx)d", {"pal_idx": pal_idx}
+            )
+            for i in range(0x1C0):
+                tdata = i | (pal_idx * 0x800)
+                self.blit_fresh_tile_to_img(
+                    self.vram_all_tiles,
+                    (i & 0x1F) * 8,
+                    (((i >> 5) & 0x0F) + (pal_idx * 0x10)) * 8,
+                    tdata,
+                )
+                i1 = i + 1
+                if i1 % 0x20 == 0:
+                    logging.info(
+                        "VRAM quadrant loading %(load_percentage)6.2f%%",
+                        {"load_percentage": (float(i1) * 100.0) / 0x1C0},
+                    )
 
     def add_file(self, *, file_path: pathlib.Path) -> None:
         if False:
@@ -614,6 +677,33 @@ class TkApp:
     def blit_tile_to_img(
         self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
     ) -> None:
+        tdata_x = tdata & 0x1F
+        tdata_y = (tdata >> 5) & 0x0F
+
+        # Palette
+        if (tdata & 0x800) != 0:
+            tdata_y |= 0x10
+        # H flip
+        # TODO! --GM
+        # V flip
+        # TODO! --GM
+
+        tdata_x *= 8 * 2
+        tdata_y *= 8 * 2
+        img.copy_replace(
+            self.vram_all_tiles,
+            from_coords=(
+                tdata_x,
+                tdata_y,
+                tdata_x + (8 * 2),
+                tdata_y + (8 * 2),
+            ),
+            to=(px * 2, py * 2),
+        )
+
+    def blit_fresh_tile_to_img(
+        self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
+    ) -> None:
         transparent_positions: list[tuple[int, int]] = []
         outdata: list[str] = []
         toffs = (tdata & 0x1FF) * 4 * 8
@@ -628,7 +718,7 @@ class TkApp:
 
             outrow: list[tuple[int, str]]
             try:
-                outrow = self.p2c_cache[planes_bs]
+                outrow = self.p2c_cache[palsel][planes_bs]
             except KeyError:
                 outrow = []
                 outaccum: list[str] = []
@@ -679,7 +769,7 @@ class TkApp:
                     )
                     outaccum.clear()
 
-                self.p2c_cache[planes_bs] = outrow
+                self.p2c_cache[palsel][planes_bs] = outrow
 
             for outrow_x, outrow_str in outrow:
                 img.put(outrow_str, to=((px * 2) + outrow_x, (py + y) * 2))
