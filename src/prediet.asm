@@ -5765,7 +5765,7 @@ LUT_object_functions:
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
-.dw objfunc_48_UNKNOWN, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_UNKNOWN, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
+.dw objfunc_48_UNKNOWN, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_UNKNOWN  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
@@ -13171,7 +13171,7 @@ addr_07A3A:
    rst    $28                          ; 01:7AA5 - EF
    ret                                 ; 01:7AA6 - C9
 
-objfunc_4B_UNKNOWN:
+objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    set    5, (ix+24)                   ; 01:7AA7 - DD CB 18 EE
    ld     (ix+13), $40                 ; 01:7AAB - DD 36 0D 40
    ld     (ix+14), $40                 ; 01:7AAF - DD 36 0E 40
@@ -13203,12 +13203,12 @@ objfunc_4B_UNKNOWN:
 objfunc_50_flower_raiser:
    set    5, (ix+24)                   ; 01:7AED - DD CB 18 EE
    bit    0, (ix+24)                   ; 01:7AF1 - DD CB 18 46
-   jr     nz, addr_07B03               ; 01:7AF5 - 20 0C
+   jr     nz, @already_initialised     ; 01:7AF5 - 20 0C
    ld     (ix+17), $32                 ; 01:7AF7 - DD 36 11 32
    ld     (ix+18), $00                 ; 01:7AFB - DD 36 12 00
    set    0, (ix+24)                   ; 01:7AFF - DD CB 18 C6
 
-addr_07B03:
+@already_initialised:
    ld     bc, $0000                    ; 01:7B03 - 01 00 00
    ld     l, (ix+2)                    ; 01:7B06 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7B09 - DD 66 03
@@ -13217,12 +13217,12 @@ addr_07B03:
    ld     h, (ix+6)                    ; 01:7B12 - DD 66 06
    ld     a, (g_global_tick_counter)   ; 01:7B15 - 3A 23 D2
    rrca                                ; 01:7B18 - 0F
-   jr     nc, addr_07B20               ; 01:7B19 - 30 05
+   jr     nc, @tick_mod_2_was_not_0    ; 01:7B19 - 30 05
    ld     de, $0010                    ; 01:7B1B - 11 10 00
    add    hl, de                       ; 01:7B1E - 19
    inc    bc                           ; 01:7B1F - 03
 
-addr_07B20:
+@tick_mod_2_was_not_0:
    ld     (var_D2AD), hl               ; 01:7B20 - 22 AD D2
    ld     a, (ix+18)                   ; 01:7B23 - DD 7E 12
    add    a, a                         ; 01:7B26 - 87
