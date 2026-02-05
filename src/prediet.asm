@@ -13396,12 +13396,12 @@ spawn_object:
    ld     de, $001A                    ; 01:7C7E - 11 1A 00
    ld     b, $1F                       ; 01:7C81 - 06 1F
 
-addr_07C83:
+@find_free_object:
    ld     a, (hl)                      ; 01:7C83 - 7E
    cp     $FF                          ; 01:7C84 - FE FF
    ret    z                            ; 01:7C86 - C8
    add    hl, de                       ; 01:7C87 - 19
-   djnz   addr_07C83                   ; 01:7C88 - 10 F9
+   djnz   @find_free_object            ; 01:7C88 - 10 F9
    scf                                 ; 01:7C8A - 37
    ret                                 ; 01:7C8B - C9
 
