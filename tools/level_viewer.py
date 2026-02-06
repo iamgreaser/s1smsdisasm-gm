@@ -249,8 +249,8 @@ class TkApp:
             tdata = i
             self.blit_fresh_tile_to_img_unzoomed_dualpalette(
                 self.vram_all_tiles,
-                (i & 0x0F) * 8 * 2,
-                ((i >> 4) & 0x1F) * 8,
+                ((i >> 5) & 0x0F) * 8 * 2,
+                (i & 0x1F) * 8,
                 tdata,
             )
             i1 = i + 1
@@ -810,11 +810,10 @@ class TkApp:
             spr_img = tkinter.PhotoImage(width=8 * SCALE, height=16 * SCALE)
             self.vram_sprite_images[sprite_idx] = spr_img
 
+            # Set background + bank
+            tdata = (sprite_idx << 1) + 0x0900
             # Draw image
-            for ty in range(2):
-                # Set background + bank
-                tdata = (sprite_idx << 1) + 0x0900 + ty
-                self.blit_tile_to_img(spr_img, 0 * 8, ty * 8, tdata)
+            self.blit_tile_to_img(spr_img, 0 * 8, 0 * 8, tdata, height_tiles=2)
 
         else:
             spr_img = opt_spr_img
@@ -822,10 +821,16 @@ class TkApp:
         return spr_img
 
     def blit_tile_to_img(
-        self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
+        self,
+        img: tkinter.PhotoImage,
+        px: int,
+        py: int,
+        tdata: int,
+        *,
+        height_tiles: int = 1,
     ) -> None:
-        tdata_x = (tdata & 0x0F) << 1
-        tdata_y = (tdata >> 4) & 0x1F
+        tdata_x = ((tdata >> 5) & 0x0F) << 1
+        tdata_y = tdata & 0x1F
 
         # Palette
         if (tdata & 0x800) != 0:
@@ -843,7 +848,7 @@ class TkApp:
                 tdata_x,
                 tdata_y,
                 tdata_x + 8,
-                tdata_y + 8,
+                tdata_y + 8 * height_tiles,
             ),
             to=(px * SCALE, py * SCALE),
             zoom=(SCALE, SCALE),
