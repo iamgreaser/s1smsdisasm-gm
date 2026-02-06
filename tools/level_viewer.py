@@ -183,7 +183,12 @@ class TkApp:
         self.vram_sprites_used = 0
 
         # Caching of planar-to-chunky rows.
-        self.p2c_cache: Sequence[dict[bytes, list[tuple[int, str]]]] = [{}, {}]
+        self.p2c_cache: Sequence[
+            dict[bytes, list[tuple[int, Sequence[str], Sequence[str]]]]
+        ] = [
+            {},
+            {},
+        ]
 
         self._init_tk()
 
@@ -201,7 +206,7 @@ class TkApp:
 
         #
         self.vram_all_tiles = tkinter.PhotoImage(
-            master=self.tk, width=8 * 2 * 64, height=8 * 2 * 64
+            master=self.tk, width=8 * 64, height=8 * 64
         )
 
         if not hasattr(tkinter.PhotoImage, "copy_replace"):
@@ -218,6 +223,7 @@ class TkApp:
                 *,
                 from_coords: tuple[int, int, int, int],
                 to: tuple[int, int],
+                zoom: tuple[int, int] = (1, 1),
             ) -> None:
                 xself.tk.call(
                     xself.name,
@@ -227,30 +233,35 @@ class TkApp:
                     *from_coords,
                     "-to",
                     *to,
+                    "-zoom",
+                    *zoom,
                 )
 
             tkinter.PhotoImage.copy_replace = _monkeypatched_copy_replace  # type: ignore
 
     def rebuild_tiles(self) -> None:
         logging.info("Rebuilding all VRAM tiles")
-        for pal_idx in range(2):
-            logging.info(
-                "Loading first VRAM quadrant, palette %(pal_idx)d", {"pal_idx": pal_idx}
+        logging.info("Loading first VRAM quadrant")
+        t_beg = time.time()
+        for i in range(0x1C0):
+            tdata = i
+            self.blit_fresh_tile_to_img_unzoomed_dualpalette(
+                self.vram_all_tiles,
+                (i & 0x0F) * 8 * 2,
+                ((i >> 4) & 0x1F) * 8,
+                tdata,
             )
-            for i in range(0x1C0):
-                tdata = i | (pal_idx * 0x800)
-                self.blit_fresh_tile_to_img(
-                    self.vram_all_tiles,
-                    (i & 0x1F) * 8,
-                    (((i >> 5) & 0x0F) + (pal_idx * 0x10)) * 8,
-                    tdata,
+            i1 = i + 1
+            if i1 % 0x20 == 0:
+                logging.info(
+                    "VRAM quadrant loading %(load_percentage)6.2f%%",
+                    {"load_percentage": (float(i1) * 100.0) / 0x1C0},
                 )
-                i1 = i + 1
-                if i1 % 0x20 == 0:
-                    logging.info(
-                        "VRAM quadrant loading %(load_percentage)6.2f%%",
-                        {"load_percentage": (float(i1) * 100.0) / 0x1C0},
-                    )
+        t_end = time.time()
+        t_delta = t_end - t_beg
+        logging.info(
+            "Quadrant uploaded in %(t_delta)7.3f seconds", {"t_delta": t_delta}
+        )
 
     def add_file(self, *, file_path: pathlib.Path) -> None:
         if False:
@@ -811,53 +822,68 @@ class TkApp:
     def blit_tile_to_img(
         self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
     ) -> None:
-        tdata_x = tdata & 0x1F
-        tdata_y = (tdata >> 5) & 0x0F
+        tdata_x = (tdata & 0x0F) << 1
+        tdata_y = (tdata >> 4) & 0x1F
 
         # Palette
         if (tdata & 0x800) != 0:
-            tdata_y |= 0x10
+            tdata_x |= 0x01
         # H flip
         # TODO! --GM
         # V flip
         # TODO! --GM
 
-        tdata_x *= 8 * 2
-        tdata_y *= 8 * 2
+        tdata_x *= 8
+        tdata_y *= 8
         img.copy_replace(
             self.vram_all_tiles,
             from_coords=(
                 tdata_x,
                 tdata_y,
-                tdata_x + (8 * 2),
-                tdata_y + (8 * 2),
+                tdata_x + 8,
+                tdata_y + 8,
             ),
             to=(px * 2, py * 2),
+            zoom=(2, 2),
         )
 
-    def blit_fresh_tile_to_img(
+    def blit_fresh_tile_to_img_unzoomed_dualpalette(
         self, img: tkinter.PhotoImage, px: int, py: int, tdata: int
     ) -> None:
         transparent_positions: list[tuple[int, int]] = []
-        outdata: list[str] = []
         toffs = (tdata & 0x1FF) * 4 * 8
         xflip = 0x0 if (tdata & 0x200) != 0 else 0x7
         yflip = 0x7 if (tdata & 0x400) != 0 else 0x0
         palsel = (tdata >> 11) & 0x1
-        cram = self.cram_palettes[palsel]
-        ra_remap = bytes(v * 4 for v in b"\x07\x05\x03\x01\x06\x04\x02\x00")
+        ra_remap = b"\x1c\x14\x0c\x04\x18\x10\x08\x00"
+        # You can save time by avoiding accesses to self.
+        cache = self.p2c_cache[palsel]
+        cram0 = self.cram_palettes[0]
+        cram1 = self.cram_palettes[1]
+        vram = self.vram
+        # Or any attribute lookup, really.
+        # Also, raw calls *do* save time!
+        img_call = img.tk.call
+        img_name = img.name
+        outrow: list[tuple[int, Sequence[str], Sequence[str]]]
         for y in range(8):
             addr = toffs + (4 * (yflip ^ y))
-            planes_bs: bytes = bytes(self.vram[addr : addr + 4])
+            planes_bs: bytes = bytes(vram[addr : addr + 4])
 
-            outrow: list[tuple[int, str]]
             try:
-                outrow = self.p2c_cache[palsel][planes_bs]
+                outrow = cache[planes_bs]
             except KeyError:
                 outrow = []
-                outaccum: list[str] = []
+                outaccum0: list[str] = []
+                outaccum1: list[str] = []
                 outaccum_x: int = 0
-                (planes,) = struct.unpack("<I", planes_bs)
+                # (planes,) = struct.unpack("<I", planes_bs)
+                planes = (
+                    planes_bs[0]
+                    + (planes_bs[1] << 8)
+                    + (planes_bs[2] << 16)
+                    + (planes_bs[3] << 24)
+                )
 
                 # Bit-swap
                 # DDDDDDDDCCCCCCCCBBBBBBBBAAAAAAAA
@@ -883,30 +909,42 @@ class TkApp:
                 for x, shift in enumerate(ra_remap):
                     p = (planes >> shift) & 0xF
                     if p == 0:
-                        if outaccum:
+                        if outaccum0:
                             outrow.append(
                                 (
-                                    outaccum_x * 2,
-                                    (("{" + " ".join(outaccum) + "} ") * 2)[:-1],
+                                    outaccum_x,
+                                    list(outaccum0),
+                                    list(outaccum1),
                                 )
                             )
-                            outaccum.clear()
+                            outaccum0.clear()
+                            outaccum1.clear()
                         outaccum_x = x + 1
                     else:
-                        c = cram[p]
-                        outaccum.append(c)
-                        outaccum.append(c)
+                        outaccum0.append(cram0[p])
+                        outaccum1.append(cram1[p])
 
-                if outaccum:
-                    outrow.append(
-                        (outaccum_x * 2, (("{" + " ".join(outaccum) + "} ") * 2)[:-1])
-                    )
-                    outaccum.clear()
+                if outaccum0:
+                    if len(outaccum0) == 8:
+                        outaccum0 += outaccum1
+                        outaccum1.clear()
+                    outrow.append((outaccum_x, list(outaccum0), list(outaccum1)))
 
-                self.p2c_cache[palsel][planes_bs] = outrow
+                cache[planes_bs] = outrow
 
-            for outrow_x, outrow_str in outrow:
-                img.put(outrow_str, to=((px * 2) + outrow_x, (py + y) * 2))
+            for outrow_x, outdata0, outdata1 in outrow:
+                # Doing the calls directly saves a little bit of CPU time. I think.
+                if outdata0:
+                    img_call(img_name, "put", [outdata0], "-to", px + outrow_x, py + y)
+                    if outdata1:
+                        img_call(
+                            img_name,
+                            "put",
+                            [outdata1],
+                            "-to",
+                            px + outrow_x + 8,
+                            py + y,
+                        )
 
     def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
         assert len(data) == vram_len
