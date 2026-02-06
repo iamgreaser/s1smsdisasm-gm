@@ -8240,9 +8240,13 @@ try_run_objfunc_DE:
 
 return_from_objfunc:
    ;; Make sure we don't run anything extra if this has been freed up!
-   ld a, (ix+7)
+   ld a, (ix+0)
    cp $FF
-   ret z
+   jr nz, +
+      pop hl
+      pop bc
+      ret
+   +:
 
    .IF 0
    ld     e, (ix+7)                    ; 00:32E2 - DD 5E 07
