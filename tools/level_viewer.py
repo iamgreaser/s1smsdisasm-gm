@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import logging
-import pathlib
-import struct
+# Announce loading as soon as possible.
 import sys
-import time
-import zlib
 
-import tkinter
-import tkinter.ttk
+sys.stderr.write("Loading level_viewer!\n")
+
+# This takes about 7 seconds to load on my Covington.
+# But it's also unavoidable as I think tkinter uses it.
 
 from typing import (
     MutableSequence,
@@ -18,10 +16,46 @@ from typing import (
     Sequence,
 )
 
+sys.stderr.write("- loaded typing\n")
+
+# OK, now nothing too surprising should bite us.
+
+# The fully-fledged logging module is pretty heavy.
+# On modern systems we can get away with it, but on my Covington it takes about 4 seconds to load.
+import minilogging as logging
+
+sys.stderr.write("- loaded minilogging\n")
+
+# As much as I like pathlib, that's another 4 seconds on the Covington.
+import minipathlib as pathlib
+
+sys.stderr.write("- loaded minipathlib\n")
+
+# import os.path
+
+import struct
+
+sys.stderr.write("- loaded struct\n")
+import time
+
+sys.stderr.write("- loaded time\n")
+import zlib
+
+sys.stderr.write("- loaded zlib\n")
+
+import tkinter
+
+sys.stderr.write("- loaded tkinter\n")
+import tkinter.ttk
+
+sys.stderr.write("- loaded tkinter.ttk\n")
+
 from edlib.gamedefs import (
     OT,
     obj_sprite_maps,
 )
+
+sys.stderr.write("- loaded edlib.gamedefs\n")
 
 from edlib.physdefs import (
     push_left,
@@ -29,6 +63,8 @@ from edlib.physdefs import (
     push_up,
     push_down,
 )
+
+sys.stderr.write("- loaded edlib.physdefs\n")
 
 
 def main() -> None:
