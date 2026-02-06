@@ -128,6 +128,8 @@ layout_fname_extn_widths = {
     ".layout4": (1 << 4),
 }
 
+SCALE = 2
+
 
 class TkApp:
     mtm_width = 8
@@ -199,8 +201,8 @@ class TkApp:
         self.tk.wm_title("Sonic 1 SMS Level Viewer")
         self.screen = tkinter.Canvas(
             master=self.tk,
-            width=32 * 2 * self.mtm_width,
-            height=32 * 2 * self.mtm_height,
+            width=32 * SCALE * self.mtm_width,
+            height=32 * SCALE * self.mtm_height,
         )
         self.screen.grid()
 
@@ -539,8 +541,8 @@ class TkApp:
 
                     if False:
                         self.screen.create_text(
-                            ((cx * 32) + 2) * 2,
-                            ((cy * 32) + 2) * 2,
+                            ((cx * 32) + 2) * SCALE,
+                            ((cy * 32) + 2) * SCALE,
                             text=f"{mtidx:02X} {offs:03X}\n{tf:02X} {ts:02X}",
                             anchor="nw",
                             fill="#FFFFFF",
@@ -563,14 +565,14 @@ class TkApp:
                                     vbase = (vbase ^ 0x80) - 0x80
 
                                     v = vbase
-                                    x = (i * 2) + 1
-                                    y = (v * 2) + 1
+                                    x = (i * SCALE) + (SCALE // 2)
+                                    y = (v * SCALE) + (SCALE // 2)
                                     if dx != 0:
                                         x, y = y, x
                                     ptlist.append(
                                         (
-                                            x + (cx * 8 * 4 * 2),
-                                            y + (cy * 8 * 4 * 2),
+                                            x + (cx * 8 * 4 * SCALE),
+                                            y + (cy * 8 * 4 * SCALE),
                                         )
                                     )
 
@@ -579,14 +581,14 @@ class TkApp:
                                         ptlist.insert(
                                             0,
                                             (
-                                                ptlist[0][0] - (dx * 4 * 2),
-                                                ptlist[0][1] - (dy * 4 * 2),
+                                                ptlist[0][0] - (dx * 4 * SCALE),
+                                                ptlist[0][1] - (dy * 4 * SCALE),
                                             ),
                                         )
                                         ptlist.append(
                                             (
-                                                ptlist[-1][0] - (dx * 4 * 2),
-                                                ptlist[-1][1] - (dy * 4 * 2),
+                                                ptlist[-1][0] - (dx * 4 * SCALE),
+                                                ptlist[-1][1] - (dy * 4 * SCALE),
                                             )
                                         )
                                         self.screen.create_line(
@@ -648,18 +650,18 @@ class TkApp:
                     self.maybe_draw_sprite(x + dx, y + dy, smaps[sidx])
                 else:
                     self.screen.create_rectangle(
-                        ((x + 16) - 9 - (self.cam_mtx * 32)) * 2,
-                        ((y + 16) - 6 - (self.cam_mty * 32)) * 2,
-                        ((x + 16) + 9 - (self.cam_mtx * 32)) * 2,
-                        ((y + 16) + 6 - (self.cam_mty * 32)) * 2,
+                        ((x + 16) - 9 - (self.cam_mtx * 32)) * SCALE,
+                        ((y + 16) - 6 - (self.cam_mty * 32)) * SCALE,
+                        ((x + 16) + 9 - (self.cam_mtx * 32)) * SCALE,
+                        ((y + 16) + 6 - (self.cam_mty * 32)) * SCALE,
                         fill="#000000",
                         outline="#FFFFFF",
                         width=1,
                         tags=["info_boxes"],
                     )
                     self.screen.create_text(
-                        ((x + 16) - (self.cam_mtx * 32)) * 2,
-                        ((y + 16) - (self.cam_mty * 32)) * 2,
+                        ((x + 16) - (self.cam_mtx * 32)) * SCALE,
+                        ((y + 16) - (self.cam_mty * 32)) * SCALE,
                         text=f"{v:02X}",
                         anchor="center",
                         fill="#FFFFFF",
@@ -669,8 +671,8 @@ class TkApp:
         # Draw a 32x28 display
         self.screen.move(
             ["tile"],
-            -(self.cam_mtx - self.prev_cam_mtx) * (32 * 2),
-            -(self.cam_mty - self.prev_cam_mty) * (32 * 2),
+            -(self.cam_mtx - self.prev_cam_mtx) * (32 * SCALE),
+            -(self.cam_mty - self.prev_cam_mty) * (32 * SCALE),
         )
         # Unlike C, Python actually uses sane integer division and not the stupid one.
         # So we don't have to work around negative numbers being stupid under the stupid division.
@@ -684,8 +686,8 @@ class TkApp:
                 opt_mtm_lbl = self.vram_metatile_map_items[screen_mty][screen_mtx]
                 if opt_mtm_lbl is None:
                     mtm_lbl = self.screen.create_image(
-                        screen_mtx * (32 * 2),
-                        screen_mty * (32 * 2),
+                        screen_mtx * (32 * SCALE),
+                        screen_mty * (32 * SCALE),
                         image=None,
                         anchor="nw",
                     )
@@ -710,8 +712,8 @@ class TkApp:
 
                     self.screen.moveto(
                         mtm_lbl,
-                        mapoffs_mtx * (32 * 2),
-                        mapoffs_mty * (32 * 2),
+                        mapoffs_mtx * (32 * SCALE),
+                        mapoffs_mty * (32 * SCALE),
                     )
 
         self.prev_cam_mtx = self.cam_mtx
@@ -725,10 +727,10 @@ class TkApp:
             ):
                 if opt_t is not None:
                     tag0 = opt_t
-                    self.screen.moveto(tag0, x * 2, (y + (8 * 0)) * 2)
+                    self.screen.moveto(tag0, x * SCALE, (y + (8 * 0)) * SCALE)
                 else:
                     tag0 = self.screen.create_image(
-                        x * 2, (y + (8 * 0)) * 2, anchor="nw"
+                        x * SCALE, (y + (8 * 0)) * SCALE, anchor="nw"
                     )
                     self.vram_sprites[si] = (x, y, tag0, tdata)
 
@@ -788,7 +790,7 @@ class TkApp:
     def ensure_metatile_img(self, mtidx: int) -> tkinter.PhotoImage:
         opt_mtm_img = self.vram_metatile_images[mtidx]
         if opt_mtm_img is None:
-            mtm_img = tkinter.PhotoImage(width=32 * 2, height=32 * 2)
+            mtm_img = tkinter.PhotoImage(width=32 * SCALE, height=32 * SCALE)
             self.vram_metatile_images[mtidx] = mtm_img
 
             # Draw image
@@ -805,7 +807,7 @@ class TkApp:
     def ensure_sprite_img(self, sprite_idx: int) -> tkinter.PhotoImage:
         opt_spr_img = self.vram_sprite_images[sprite_idx]
         if opt_spr_img is None:
-            spr_img = tkinter.PhotoImage(width=8 * 2, height=16 * 2)
+            spr_img = tkinter.PhotoImage(width=8 * SCALE, height=16 * SCALE)
             self.vram_sprite_images[sprite_idx] = spr_img
 
             # Draw image
@@ -843,8 +845,8 @@ class TkApp:
                 tdata_x + 8,
                 tdata_y + 8,
             ),
-            to=(px * 2, py * 2),
-            zoom=(2, 2),
+            to=(px * SCALE, py * SCALE),
+            zoom=(SCALE, SCALE),
         )
 
     def blit_fresh_tile_to_img_unzoomed_dualpalette(
