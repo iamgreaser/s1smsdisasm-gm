@@ -5760,8 +5760,8 @@ LUT_object_functions:
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
-.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_UNKNOWN  ; 00:2B36
-.dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
+.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
+.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
@@ -13568,7 +13568,7 @@ SPRITEMAP_chopper_normal:
 SPRITEMAP_chopper_emerging:
 .db $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF, $FF                           ; 01:7DF7
 
-objfunc_27_UNKNOWN:
+objfunc_27_platform_downwards_tall:
    set    5, (ix+24)                   ; 01:7E02 - DD CB 18 EE
    ld     hl, $0030                    ; 01:7E06 - 21 30 00
    ld     (var_D267), hl               ; 01:7E09 - 22 67 D2
@@ -13576,10 +13576,10 @@ objfunc_27_UNKNOWN:
    ld     (var_D269), hl               ; 01:7E0F - 22 69 D2
    ld     (ix+13), $0C                 ; 01:7E12 - DD 36 0D 0C
    ld     (ix+14), $10                 ; 01:7E16 - DD 36 0E 10
-   ld     (ix+15), UNK_07E89&$FF       ; 01:7E1A - DD 36 0F 89
-   ld     (ix+16), UNK_07E89>>8        ; 01:7E1E - DD 36 10 7E
+   ld     (ix+15), SPRITEMAP_platform_downwards_tall&$FF  ; 01:7E1A - DD 36 0F 89
+   ld     (ix+16), SPRITEMAP_platform_downwards_tall>>8  ; 01:7E1E - DD 36 10 7E
    bit    0, (ix+24)                   ; 01:7E22 - DD CB 18 46
-   jr     nz, addr_07E3C               ; 01:7E26 - 20 14
+   jr     nz, platform_downwards_common  ; 01:7E26 - 20 14
    ld     a, (ix+5)                    ; 01:7E28 - DD 7E 05
    ld     (ix+18), a                   ; 01:7E2B - DD 77 12
    ld     a, (ix+6)                    ; 01:7E2E - DD 7E 06
@@ -13587,24 +13587,24 @@ objfunc_27_UNKNOWN:
    ld     (ix+20), $C0                 ; 01:7E34 - DD 36 14 C0
    set    0, (ix+24)                   ; 01:7E38 - DD CB 18 C6
 
-addr_07E3C:
+platform_downwards_common:
    ld     (ix+10), $80                 ; 01:7E3C - DD 36 0A 80
    xor    a                            ; 01:7E40 - AF
    ld     (ix+11), a                   ; 01:7E41 - DD 77 0B
    ld     (ix+12), a                   ; 01:7E44 - DD 77 0C
    ld     a, (sonic_vel_y_hi)          ; 01:7E47 - 3A 08 D4
    and    a                            ; 01:7E4A - A7
-   jp     m, addr_07E65                ; 01:7E4B - FA 65 7E
+   jp     m, @not_collided_with_sonic  ; 01:7E4B - FA 65 7E
    ld     hl, $0806                    ; 01:7E4E - 21 06 08
    ld     (var_D214), hl               ; 01:7E51 - 22 14 D2
    call   check_collision_with_sonic   ; 01:7E54 - CD 56 39
-   jr     c, addr_07E65                ; 01:7E57 - 38 0C
+   jr     c, @not_collided_with_sonic  ; 01:7E57 - 38 0C
    ld     bc, $0010                    ; 01:7E59 - 01 10 00
    ld     e, (ix+10)                   ; 01:7E5C - DD 5E 0A
    ld     d, (ix+11)                   ; 01:7E5F - DD 56 0B
    call   put_sonic_y_pos_on_platform  ; 01:7E62 - CD C1 7C
 
-addr_07E65:
+@not_collided_with_sonic:
    ld     a, (g_global_tick_counter)   ; 01:7E65 - 3A 23 D2
    and    $03                          ; 01:7E68 - E6 03
    ret    nz                           ; 01:7E6A - C0
@@ -13621,11 +13621,11 @@ addr_07E65:
    ld     (ix+6), a                    ; 01:7E85 - DD 77 06
    ret                                 ; 01:7E88 - C9
 
-UNK_07E89:
+SPRITEMAP_platform_downwards_tall:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $28, $2E, $FF, $FF  ; 01:7E89
 .db $FF, $FF                                                                        ; 01:7E99
 
-objfunc_28_UNKNOWN:
+objfunc_28_platform_downwards_wide:
    set    5, (ix+24)                   ; 01:7E9B - DD CB 18 EE
    ld     hl, $0030                    ; 01:7E9F - 21 30 00
    ld     (var_D267), hl               ; 01:7EA2 - 22 67 D2
@@ -13633,27 +13633,27 @@ objfunc_28_UNKNOWN:
    ld     (var_D269), hl               ; 01:7EA8 - 22 69 D2
    ld     (ix+13), $1A                 ; 01:7EAB - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:7EAF - DD 36 0E 10
-   ld     (ix+15), UNK_07ED9&$FF       ; 01:7EB3 - DD 36 0F D9
-   ld     (ix+16), UNK_07ED9>>8        ; 01:7EB7 - DD 36 10 7E
+   ld     (ix+15), SPRITEMAP_platform_downwards_wide&$FF  ; 01:7EB3 - DD 36 0F D9
+   ld     (ix+16), SPRITEMAP_platform_downwards_wide>>8  ; 01:7EB7 - DD 36 10 7E
    bit    0, (ix+24)                   ; 01:7EBB - DD CB 18 46
-   jp     nz, addr_07E3C               ; 01:7EBF - C2 3C 7E
+   jp     nz, platform_downwards_common  ; 01:7EBF - C2 3C 7E
    ld     a, (ix+5)                    ; 01:7EC2 - DD 7E 05
    ld     (ix+18), a                   ; 01:7EC5 - DD 77 12
    ld     a, (ix+6)                    ; 01:7EC8 - DD 7E 06
    ld     (ix+19), a                   ; 01:7ECB - DD 77 13
    ld     (ix+20), $C6                 ; 01:7ECE - DD 36 14 C6
    set    0, (ix+24)                   ; 01:7ED2 - DD CB 18 C6
-   jp     addr_07E3C                   ; 01:7ED6 - C3 3C 7E
+   jp     platform_downwards_common    ; 01:7ED6 - C3 3C 7E
 
-UNK_07ED9:
+SPRITEMAP_platform_downwards_wide:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6E, $48, $FF, $FF, $FF                 ; 01:7ED9
 
-objfunc_29_UNKNOWN:
+objfunc_29_log:
    set    5, (ix+24)                   ; 01:7EE6 - DD CB 18 EE
    ld     (ix+13), $0A                 ; 01:7EEA - DD 36 0D 0A
    ld     (ix+14), $10                 ; 01:7EEE - DD 36 0E 10
    bit    0, (ix+24)                   ; 01:7EF2 - DD CB 18 46
-   jr     nz, addr_07F0C               ; 01:7EF6 - 20 14
+   jr     nz, @already_initialised     ; 01:7EF6 - 20 14
    ld     l, (ix+5)                    ; 01:7EF8 - DD 6E 05
    ld     h, (ix+6)                    ; 01:7EFB - DD 66 06
    ld     de, $FFE8                    ; 01:7EFE - 11 E8 FF
@@ -13662,26 +13662,26 @@ objfunc_29_UNKNOWN:
    ld     (ix+6), h                    ; 01:7F05 - DD 74 06
    set    0, (ix+24)                   ; 01:7F08 - DD CB 18 C6
 
-addr_07F0C:
+@already_initialised:
    ld     (ix+10), $40                 ; 01:7F0C - DD 36 0A 40
    xor    a                            ; 01:7F10 - AF
    ld     (ix+11), a                   ; 01:7F11 - DD 77 0B
    ld     (ix+12), a                   ; 01:7F14 - DD 77 0C
    ld     a, (ix+17)                   ; 01:7F17 - DD 7E 11
    cp     $14                          ; 01:7F1A - FE 14
-   jr     c, addr_07F2A                ; 01:7F1C - 38 0C
+   jr     c, @bobbing_was_downwards    ; 01:7F1C - 38 0C
    ld     (ix+10), $C0                 ; 01:7F1E - DD 36 0A C0
    ld     (ix+11), $FF                 ; 01:7F22 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 01:7F26 - DD 36 0C FF
 
-addr_07F2A:
+@bobbing_was_downwards:
    ld     a, (sonic_vel_y_hi)          ; 01:7F2A - 3A 08 D4
    and    a                            ; 01:7F2D - A7
-   jp     m, UNK_08003                 ; 01:7F2E - FA 03 80
+   jp     m, log_obj_continue          ; 01:7F2E - FA 03 80
    ld     hl, $0806                    ; 01:7F31 - 21 06 08
    ld     (var_D214), hl               ; 01:7F34 - 22 14 D2
    call   check_collision_with_sonic   ; 01:7F37 - CD 56 39
-   jp     c, UNK_08003                 ; 01:7F3A - DA 03 80
+   jp     c, log_obj_continue          ; 01:7F3A - DA 03 80
    ld     bc, $0010                    ; 01:7F3D - 01 10 00
    ld     e, (ix+10)                   ; 01:7F40 - DD 5E 0A
    ld     d, (ix+11)                   ; 01:7F43 - DD 56 0B
@@ -13689,13 +13689,13 @@ addr_07F2A:
    ld     hl, (sonic_vel_x_sub)        ; 01:7F49 - 2A 03 D4
    ld     a, l                         ; 01:7F4C - 7D
    or     h                            ; 01:7F4D - B4
-   jr     z, addr_07F79                ; 01:7F4E - 28 29
+   jr     z, @x_vel_sonic_was_not_running  ; 01:7F4E - 28 29
    ld     bc, $0012                    ; 01:7F50 - 01 12 00
    bit    7, h                         ; 01:7F53 - CB 7C
-   jr     z, addr_07F5A                ; 01:7F55 - 28 03
+   jr     z, @x_vel_sonic_was_running_right  ; 01:7F55 - 28 03
    ld     bc, $FFFE                    ; 01:7F57 - 01 FE FF
 
-addr_07F5A:
+@x_vel_sonic_was_running_right:
    ld     de, $0000                    ; 01:7F5A - 11 00 00
    call   get_obj_level_tile_ptr_in_ram  ; 01:7F5D - CD F9 36
    ld     e, (hl)                      ; 01:7F60 - 5E
@@ -13715,16 +13715,16 @@ addr_07F5A:
    and    $3F                          ; 01:7F73 - E6 3F
    ld     a, d                         ; 01:7F75 - 7A
    ld     e, d                         ; 01:7F76 - 5A
-   jr     nz, addr_07F85               ; 01:7F77 - 20 0C
+   jr     nz, @did_not_hit_non_00_tileflag  ; 01:7F77 - 20 0C
 
-addr_07F79:
+@x_vel_sonic_was_not_running:
    ld     a, (sonic_vel_x_sub)         ; 01:7F79 - 3A 03 D4
    ld     de, (sonic_vel_x)            ; 01:7F7C - ED 5B 04 D4
    sra    d                            ; 01:7F80 - CB 2A
    rr     e                            ; 01:7F82 - CB 1B
    rra                                 ; 01:7F84 - 1F
 
-addr_07F85:
+@did_not_hit_non_00_tileflag:
    ld     l, (ix+2)                    ; 01:7F85 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7F88 - DD 66 03
    add    a, (ix+1)                    ; 01:7F8B - DD 86 01
@@ -13738,7 +13738,7 @@ addr_07F85:
    ld     (sonic_x), hl                ; 01:7FA0 - 22 FE D3
    ld     de, (sonic_vel_x_sub)        ; 01:7FA3 - ED 5B 03 D4
    bit    7, d                         ; 01:7FA7 - CB 7A
-   jr     z, addr_07FB2                ; 01:7FA9 - 28 07
+   jr     z, @anim_sonic_was_not_running  ; 01:7FA9 - 28 07
    ld     a, e                         ; 01:7FAB - 7B
    cpl                                 ; 01:7FAC - 2F
    ld     e, a                         ; 01:7FAD - 5F
@@ -13747,29 +13747,29 @@ addr_07F85:
    ld     d, a                         ; 01:7FB0 - 57
    inc    de                           ; 01:7FB1 - 13
 
-addr_07FB2:
+@anim_sonic_was_not_running:
    ld     l, (ix+18)                   ; 01:7FB2 - DD 6E 12
    ld     h, (ix+19)                   ; 01:7FB5 - DD 66 13
    add    hl, de                       ; 01:7FB8 - 19
    ld     a, h                         ; 01:7FB9 - 7C
    cp     $09                          ; 01:7FBA - FE 09
-   jr     c, addr_07FC1                ; 01:7FBC - 38 03
+   jr     c, @anim_cycle_did_not_wrap  ; 01:7FBC - 38 03
    sub    $09                          ; 01:7FBE - D6 09
    ld     h, a                         ; 01:7FC0 - 67
 
-addr_07FC1:
+@anim_cycle_did_not_wrap:
    ld     (ix+18), l                   ; 01:7FC1 - DD 75 12
    ld     (ix+19), h                   ; 01:7FC4 - DD 74 13
    ld     e, a                         ; 01:7FC7 - 5F
    ld     d, $00                       ; 01:7FC8 - 16 00
-   ld     hl, OFFSTAB_UNK_08019        ; 01:7FCA - 21 19 80
+   ld     hl, OFFSTAB_log_frame_offsets  ; 01:7FCA - 21 19 80
    add    hl, de                       ; 01:7FCD - 19
    ld     e, (hl)                      ; 01:7FCE - 5E
-   ld     hl, UNK_08022                ; 01:7FCF - 21 22 80
+   ld     hl, SPRITEMAP_log            ; 01:7FCF - 21 22 80
    add    hl, de                       ; 01:7FD2 - 19
    ld     (ix+15), l                   ; 01:7FD3 - DD 75 0F
    ld     (ix+16), h                   ; 01:7FD6 - DD 74 10
-   jr     addr_0800B                   ; 01:7FD9 - 18 30
+   jr     log_obj_continue@sprite_was_set  ; 01:7FD9 - 18 30
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:7FDB
 .db $00, $00, $00, $00, $00                                                         ; 01:7FEB
 
@@ -13780,11 +13780,11 @@ TMRSEGA:
 .SECTION "Bank02" SLOT 2 BANK $02 FORCE ORG $0000
 .db $00, $00, $00                                                                   ; 02:8000
 
-UNK_08003:
-   ld     (ix+15), UNK_08022&$FF       ; 02:8003 - DD 36 0F 22
-   ld     (ix+16), UNK_08022>>8        ; 02:8007 - DD 36 10 80
+log_obj_continue:
+   ld     (ix+15), SPRITEMAP_log&$FF   ; 02:8003 - DD 36 0F 22
+   ld     (ix+16), SPRITEMAP_log>>8    ; 02:8007 - DD 36 10 80
 
-addr_0800B:
+@sprite_was_set:
    inc    (ix+17)                      ; 02:800B - DD 34 11
    ld     a, (ix+17)                   ; 02:800E - DD 7E 11
    cp     $28                          ; 02:8011 - FE 28
@@ -13792,10 +13792,10 @@ addr_0800B:
    ld     (ix+17), $00                 ; 02:8014 - DD 36 11 00
    ret                                 ; 02:8018 - C9
 
-OFFSTAB_UNK_08019:
+OFFSTAB_log_frame_offsets:
 .db $00, $00, $00, $12, $12, $12, $24, $24, $24                                     ; 02:8019
 
-UNK_08022:
+SPRITEMAP_log:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $3A, $3C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:8022
 .db $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $36, $38, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:8032
 .db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $4C, $4E, $FF, $FF, $FF, $FF  ; 02:8042
