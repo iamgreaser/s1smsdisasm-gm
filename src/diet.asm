@@ -48,6 +48,9 @@
 ;; (for example, the highlight on Sonic rolled up into a ball changes, which is unrealistic)
 .DEF shrink_sonicuncart_interleave 1
 
+;; Get objects from a freelist instead of searching the list every time.
+.DEF opt_object_freelist 1
+
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
 SLOT 1 START $4000 SIZE $4000
@@ -379,6 +382,14 @@ var_DD05 db   ; DD05
 .  dsb 5
 var_DD0B db   ; DD0B (auto)
 .ENDS
+
+.IF opt_object_freelist
+   ;; Need extra storage for this.
+   ;; Seems all of $DBxx is free. For now, let's allocate from the end of this space.
+   .DEF g_freelist_ptr $DBFE
+   ;; Use this (IX+d) offset unless it gets clobbered by the inevitable use-after-frees that happen here in which case either fix the UAF or use a different offset that's compatible with all the UAFing code
+   .DEF free_chain_ix_offs 13
+.ENDIF
 
 .DEF rompage_cfg $FFFC
 .DEF rompage_0 $FFFD
@@ -6494,11 +6505,50 @@ load_object_list:
    ; SAVING: 4 bytes
    .ENDIF
 
+   .IF opt_object_freelist
+      ;; Clear the freelist pointer
+      push hl
+         ld hl, $0000
+         ld (g_freelist_ptr), hl
+      pop hl
+   .ENDIF
 -:
+   .IF 0
    ld     (ix+0), $FF                  ; 00:2355 - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
    add    ix, de                       ; 00:2359 - DD 19
    djnz   -                            ; 00:235B - 10 F8
    ret                                 ; 00:235D - C9
+
+.IF 1
+;; Saves 1 byte per callsite with a 5-byte up-front cost.
+;; Also adds 27 cycles over just doing it directly.
+;; Or 2 bytes if we do a tail-call, and a 10-cycle cost.
+;; Which is probably what we *should* be doing.
+;;
+;; Main advantage here though is we can implement a freelist.
+;; FIXME: Some stuff does use-after-free! --GM
+.IF opt_object_freelist
+;; Freelist version
+free_object:
+   ld (ix+0), $FF
+   push hl
+   ld hl, (g_freelist_ptr)
+   ld (ix+free_chain_ix_offs+0), l
+   ld (ix+free_chain_ix_offs+1), h
+   pop hl
+   ld (g_freelist_ptr), ix
+   ret
+.ELSE
+;; Basic version
+free_object:
+   ld (ix+0), $FF
+   ret
+; SAVING: 30 bytes
+.ENDIF
+.ENDIF
 
 load_object_from_level_spec:
    .IF 0
@@ -8189,6 +8239,11 @@ try_run_objfunc_DE:
    jp     (hl)                         ; 00:32E1 - E9
 
 return_from_objfunc:
+   ;; Make sure we don't run anything extra if this has been freed up!
+   ld a, (ix+7)
+   cp $FF
+   ret z
+
    .IF 0
    ld     e, (ix+7)                    ; 00:32E2 - DD 5E 07
    ld     d, (ix+8)                    ; 00:32E5 - DD 56 08
@@ -12456,7 +12511,11 @@ objfunc_03_monitor_life:
    ld     a, (hl)                      ; 01:5C16 - 7E
    and    c                            ; 01:5C17 - A1
    jr     z, @life_not_consumed_yet    ; 01:5C18 - 28 07
+   .IF 0
    ld     (ix+0), $FF                  ; 01:5C1A - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
    jp     monitor_common_destroy_after_hit  ; 01:5C1E - C3 29 5B
 
 @life_not_consumed_yet:
@@ -12545,7 +12604,11 @@ objfunc_03_monitor_life:
    ld     a, (g_level_lives_collected)  ; 01:5CCA - 3A 80 D2
    cp     $11                          ; 01:5CCD - FE 11
    jr     nc, @continue_into_common_main  ; 01:5CCF - 30 9C
+   .IF 0
    ld     (ix+0), $FF                  ; 01:5CD1 - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
    jr     @continue_into_common_main   ; 01:5CD5 - 18 96
 
 objfunc_04_monitor_shield:
@@ -12802,8 +12865,12 @@ objfunc_06_chaos_emerald:
    rst    $18                          ; 01:5EDD - DF
 
 @destroy_already_collected:
+   .IF 0
    ld     (ix+0), $FF                  ; 01:5EDE - DD 36 00 FF
    ret                                 ; 01:5EE2 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 @dont_collect_yet:
    ld     a, (g_global_tick_counter)   ; 01:5EE3 - 3A 23 D2
@@ -13578,8 +13645,12 @@ objfunc_0A_explosion:
    ld     a, (ix+17)                   ; 01:69AC - DD 7E 11
    cp     $18                          ; 01:69AF - FE 18
    ret    c                            ; 01:69B1 - D8
+   .IF 0
    ld     (ix+0), $FF                  ; 01:69B2 - DD 36 00 FF
    ret                                 ; 01:69B6 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 LUT_explosion_state_sequence:
 .db $00, $08, $01, $08, $02, $08, $FF                                               ; 01:69B7
@@ -13684,8 +13755,12 @@ objfunc_0C_platform_fall_on_touch:
    and    a                            ; 01:6AB8 - A7
    sbc    hl, de                       ; 01:6AB9 - ED 52
    ret    nc                           ; 01:6ABB - D0
+   .IF 0
    ld     (ix+0), $FF                  ; 01:6ABC - DD 36 00 FF
    ret                                 ; 01:6AC0 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 objfunc_0D_fireball_pallet:
    set    5, (ix+24)                   ; 01:6AC1 - DD CB 18 EE
@@ -13763,8 +13838,12 @@ objfunc_0D_fireball_pallet:
    ret    nc                           ; 01:6B6A - D0
 
 @destroy_fireball_because_offscreen:
+   .IF 0
    ld     (ix+0), $FF                  ; 01:6B6B - DD 36 00 FF
    ret                                 ; 01:6B6F - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 LUT_fireball_main:
 .db $06, $08                                                                        ; 01:6B70
@@ -14739,8 +14818,12 @@ objfunc_25_animal_capsule:
    ld     a, (ix+22)                   ; 01:74AB - DD 7E 16
    cp     $0C                          ; 01:74AE - FE 0C
    ret    c                            ; 01:74B0 - D8
+   .IF 0
    ld     (ix+0), $FF                  ; 01:74B1 - DD 36 00 FF
    ret                                 ; 01:74B5 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 @animal_spawning_subroutine:
    ld     (var_D216), a                ; 01:74B6 - 32 16 D2
@@ -14871,8 +14954,12 @@ animal_common:
    and    a                            ; 01:7620 - A7
    sbc    hl, de                       ; 01:7621 - ED 52
    ret    nc                           ; 01:7623 - D0
+   .IF 0
    ld     (ix+0), $FF                  ; 01:7624 - DD 36 00 FF
    ret                                 ; 01:7628 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 animal_1_anim_GHZ:
 .db $00, $02, $01, $02, $FF                                                         ; 01:7629
@@ -15499,6 +15586,39 @@ do_framed_animation:
    ret                                 ; 01:7C7A - C9
 
 spawn_object:
+.IF opt_object_freelist
+   ; Cycle counts:
+   ; Original version:
+   ; - 52 best case
+   ; - 52+43*(N-1) match
+   ;   - 95 for second slot
+   ;   - 138 for third slot
+   ;   - 1383 for 31st slot (last slot!)
+   ; - 61+43*31 no match = 1394 cycles
+   ; Freelist version:
+   ; - 115 match
+   ; - 38 no match
+   ; So, if either of the first two slots past Sonic are available, then the old method is faster.
+   ; But that's almost never the case.
+   ld hl, (g_freelist_ptr)
+   ;; LAZY VERSION: RAM always has bit 15 set.
+   ;; ...but we do need to ensure carry is set on failure without clobbering Z.
+   ld a, h
+   cp $C0
+   ret c
+   ;; Grab the next free pointer!
+   ex de, hl
+   ld hl, free_chain_ix_offs
+   add hl, de
+   ld a, (hl)
+   inc hl
+   ld h, (hl)
+   ld l, a
+   ld (g_freelist_ptr), hl
+   ex de, hl
+   or a
+   ret
+.ELSE
    ld     hl, object_list_past_sonic   ; 01:7C7B - 21 16 D4
    ld     de, $001A                    ; 01:7C7E - 11 1A 00
    ld     b, $1F                       ; 01:7C81 - 06 1F
@@ -15511,6 +15631,7 @@ spawn_object:
    djnz   @find_free_object            ; 01:7C88 - 10 F9
    scf                                 ; 01:7C8A - 37
    ret                                 ; 01:7C8B - C9
+.ENDIF
 
 addr_07C8C:
    ld     (var_D27B), hl               ; 01:7C8C - 22 7B D2
@@ -16190,8 +16311,12 @@ addr_082A0:
    add    a, $12                       ; 02:82B6 - C6 12
    cp     (ix+17)                      ; 02:82B8 - DD BE 11
    ret    nc                           ; 02:82BB - D0
+   .IF 0
    ld     (ix+0), $FF                  ; 02:82BC - DD 36 00 FF
    ret                                 ; 02:82C0 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 UNK_082C1:
 .db $00, $04, $01, $04, $FF                                                         ; 02:82C1
@@ -16338,8 +16463,12 @@ addr_08446:
    and    a                            ; 02:845D - A7
    sbc    hl, de                       ; 02:845E - ED 52
    jr     c, addr_08467                ; 02:8460 - 38 05
+   .IF 0
    ld     (ix+0), $FF                  ; 02:8462 - DD 36 00 FF
    ret                                 ; 02:8466 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 addr_08467:
    ld     hl, $0402                    ; 02:8467 - 21 02 04
@@ -17443,7 +17572,11 @@ addr_08F1B:
    jr     nc, addr_08F5A               ; 02:8F54 - 30 04
 
 addr_08F56:
+   .IF 0
    ld     (ix+0), $FF                  ; 02:8F56 - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
 
 addr_08F5A:
    ld     hl, $0000                    ; 02:8F5A - 21 00 00
@@ -18087,7 +18220,11 @@ addr_09518:
    jr     nc, addr_09553               ; 02:954D - 30 04
 
 addr_0954F:
+   .IF 0
    ld     (ix+0), $FF                  ; 02:954F - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
 
 addr_09553:
    xor    a                            ; 02:9553 - AF
@@ -18290,8 +18427,12 @@ objfunc_2A_UNKNOWN:
    ld     a, (ix+18)                   ; 02:96EA - DD 7E 12
    cp     $03                          ; 02:96ED - FE 03
    ret    c                            ; 02:96EF - D8
+   .IF 0
    ld     (ix+0), $FF                  ; 02:96F0 - DD 36 00 FF
    ret                                 ; 02:96F4 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 UNK_096F5:
 .db $1C, $1E, $5E                                                                   ; 02:96F5
@@ -18365,7 +18506,11 @@ addr_09767:
    ld     (ix+12), c                   ; 02:9787 - DD 71 0C
    dec    (ix+18)                      ; 02:978A - DD 35 12
    jp     nz, addr_09809               ; 02:978D - C2 09 98
+   .IF 0
    ld     (ix+0), $FF                  ; 02:9790 - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
    jp     addr_09809                   ; 02:9794 - C3 09 98
 
 addr_09797:
@@ -18467,7 +18612,11 @@ addr_09826:
    jr     nc, addr_09862               ; 02:985C - 30 04
 
 addr_0985E:
+   .IF 0
    ld     (ix+0), $FF                  ; 02:985E - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
 
 addr_09862:
    inc    (ix+17)                      ; 02:9862 - DD 34 11
@@ -19582,8 +19731,12 @@ addr_0A3A3:
    ld     a, (ix+17)                   ; 02:A3A6 - DD 7E 11
    cp     $A5                          ; 02:A3A9 - FE A5
    ret    c                            ; 02:A3AB - D8
+   .IF 0
    ld     (ix+0), $FF                  ; 02:A3AC - DD 36 00 FF
    ret                                 ; 02:A3B0 - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 UNK_0A3B1:
 .db $00, $08, $FF                                                                   ; 02:A3B1
@@ -20387,7 +20540,11 @@ addr_0AB9D:
    ld     de, $0008                    ; 02:AC0C - 11 08 00
    ld     bc, $0008                    ; 02:AC0F - 01 08 00
    call   init_fireball_object         ; 02:AC12 - CD 96 AC
+   .IF 0
    ld     (ix+0), $FF                  ; 02:AC15 - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
    ld     a, $1B                       ; 02:AC19 - 3E 1B
    rst    $28                          ; 02:AC1B - EF
    jr     addr_0AC76                   ; 02:AC1C - 18 58
@@ -20592,7 +20749,11 @@ objfunc_34_UNKNOWN:
    and    a                            ; 02:AE4E - A7
    sbc    hl, de                       ; 02:AE4F - ED 52
    jr     nc, addr_0AE57               ; 02:AE51 - 30 04
+   .IF 0
    ld     (ix+0), $FF                  ; 02:AE53 - DD 36 00 FF
+   .ELSE
+   call free_object
+   .ENDIF
 
 addr_0AE57:
    ld     hl, $0202                    ; 02:AE57 - 21 02 02
@@ -20889,8 +21050,12 @@ objfunc_36_UNKNOWN:
    ret                                 ; 02:B166 - C9
 
 addr_0B167:
+   .IF 0
    ld     (ix+0), $FF                  ; 02:B167 - DD 36 00 FF
    ret                                 ; 02:B16B - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 objfunc_37_UNKNOWN:
    set    5, (ix+24)                   ; 02:B16C - DD CB 18 EE
@@ -21822,8 +21987,12 @@ addr_0B98A:
    ld     a, (ix+22)                   ; 02:B994 - DD 7E 16
    cp     $70                          ; 02:B997 - FE 70
    ret    c                            ; 02:B999 - D8
+   .IF 0
    ld     (ix+0), $FF                  ; 02:B99A - DD 36 00 FF
    ret                                 ; 02:B99E - C9
+   .ELSE
+   jp free_object
+   .ENDIF
 
 addr_0B99F:
    ld     hl, UNK_0BA1C                ; 02:B99F - 21 1C BA
@@ -22225,9 +22394,14 @@ addr_0BDB0:
    ret    nz                           ; 02:BDBD - C0
 
 addr_0BDBE:
+   .IF 0
    ld     (ix+0), $FF                  ; 02:BDBE - DD 36 00 FF
    res    5, (iy+var_D208-IYBASE)      ; 02:BDC2 - FD CB 08 AE
    ret                                 ; 02:BDC6 - C9
+   .ELSE
+   res 5, (iy+var_D208-IYBASE)
+   jp free_object
+   .ENDIF
 
 UNK_0BDC7:
 .db $00, $01, $01, $01, $02, $01, $FF                                               ; 02:BDC7
