@@ -7,6 +7,44 @@ import sys
 
 sys.stderr.write("Loading level_viewer!\n")
 
+# Fake-load typing module.
+# We need something ambiguous enough to fool mypy into thinking this is actually imported.
+
+if not hasattr(sys, "version"):
+    from typing import Any
+
+# Hijack the import machinery to not *actually* load typing, as that wastes about 7 seconds on my Covington and other things like to depend on it.
+# This is not how you're supposed to do it by the way...
+
+import builtins
+
+sys.stderr.write("- loaded builtins\n")
+
+_orig_import = builtins.__import__
+
+
+def wrap_import(
+    name: str,
+    globals: Any = None,
+    locals: Any = None,
+    fromlist: Any = (),
+    level: int = 0,
+) -> Any:
+    if name == "typing":
+
+        class DummyTypingModule:
+            def __getattr__(self, k: str) -> Any:
+                return None
+
+        return DummyTypingModule()
+
+    else:
+        return _orig_import(name, globals, locals, fromlist, level)
+
+
+builtins.__import__ = wrap_import
+
+
 # This takes about 7 seconds to load on my Covington.
 # But it's also unavoidable as I think tkinter uses it.
 
@@ -16,7 +54,7 @@ from typing import (
     Sequence,
 )
 
-sys.stderr.write("- loaded typing\n")
+sys.stderr.write("- fake-loaded typing\n")
 
 # OK, now nothing too surprising should bite us.
 
