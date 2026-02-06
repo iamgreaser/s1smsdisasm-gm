@@ -862,11 +862,10 @@ class TkApp:
         cram1 = self.cram_palettes[1]
         vram = self.vram
         # Or any attribute lookup, really.
-        # Also, raw calls *do* save time!
-        img_call = img.tk.call
         img_name = img.name
         outrow: list[tuple[int, Sequence[str], Sequence[str]]]
-        bigaccum: list[Sequence[str]] = []
+        bigaccum: list[str] = []
+        eval_pile: list[str] = []
         for y in range(8):
             addr = toffs + (4 * (yflip ^ y))
             planes_bs: bytes = bytes(vram[addr : addr + 4])
@@ -934,37 +933,30 @@ class TkApp:
                 cache[planes_bs] = outrow
 
             if outrow and len(outrow[0][1]) == 16:
-                bigaccum.append(outrow[0][1])
+                bigaccum.append("{" + " ".join(outrow[0][1]) + "}")
                 if y == 8 - 1:
-                    img_call(
-                        img_name,
-                        "put",
-                        bigaccum,
-                        "-to",
-                        px,
-                        py + (y + 1) - len(bigaccum),
+                    eval_pile.append(
+                        f"{img_name} put {{{' '.join(bigaccum)}}} -to {px} {py + (y + 1) - len(bigaccum)}"
                     )
             else:
                 if bigaccum:
-                    img_call(
-                        img_name, "put", bigaccum, "-to", px, py + y - len(bigaccum)
+                    eval_pile.append(
+                        f"{img_name} put {{{' '.join(bigaccum)}}} -to {px} {py + y - len(bigaccum)}"
                     )
                     bigaccum.clear()
                 for outrow_x, outdata0, outdata1 in outrow:
                     # Doing the calls directly saves a little bit of CPU time. I think.
                     if outdata0:
-                        img_call(
-                            img_name, "put", [outdata0], "-to", px + outrow_x, py + y
+                        eval_pile.append(
+                            f"{img_name} put {{{{{' '.join(outdata0)}}}}} -to {px + outrow_x} {py + y}"
                         )
                         if outdata1:
-                            img_call(
-                                img_name,
-                                "put",
-                                [outdata1],
-                                "-to",
-                                px + outrow_x + 8,
-                                py + y,
+                            eval_pile.append(
+                                f"{img_name} put {{{{{' '.join(outdata1)}}}}} -to {px + outrow_x + 8} {py + y}"
                             )
+
+        # Run our batch!
+        self.tk.eval("\n".join(eval_pile))
 
     def set_vram(self, addr: int, vram_len: int, data: bytes) -> None:
         assert len(data) == vram_len
