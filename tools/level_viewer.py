@@ -52,6 +52,7 @@ from typing import (
     MutableSequence,
     Optional,
     Sequence,
+    Union,
 )
 
 sys.stderr.write("- fake-loaded typing\n")
@@ -152,7 +153,7 @@ class TkApp:
         ]
         self.layout = bytearray(0x1000)
         # type, x, y
-        self.object_defs: list[tuple[int, int, int]] = []
+        self.object_defs: list[Obj] = []
 
         self.layout_tile_flags = bytearray(0x100)
         self.layout_tile_specials = bytearray(0x100)
@@ -175,14 +176,6 @@ class TkApp:
         self.vram_metatile_map_items: MutableSequence[
             MutableSequence[Optional[int]]
         ] = [[None] * self.mtm_width for y in range(self.mtm_height)]
-        self.vram_sprite_images: MutableSequence[Optional[tkinter.PhotoImage]] = [
-            None
-        ] * 128
-        # (x, y, item, sprite_idx)
-        self.vram_sprites: list[tuple[int, int, Optional[int], int]] = [
-            (-8, -16, None, 0)
-        ] * 64
-        self.vram_sprites_used = 0
 
         # Caching of planar-to-chunky rows.
         self.p2c_cache: Sequence[
@@ -224,8 +217,9 @@ class TkApp:
                 sourceImage: tkinter.PhotoImage,
                 *,
                 from_coords: tuple[int, int, int, int],
-                to: tuple[int, int],
+                to: Union[tuple[int, int], tuple[int, int, int, int]],
                 zoom: tuple[int, int] = (1, 1),
+                compositingrule: str = "overlay",
             ) -> None:
                 xself.tk.call(
                     xself.name,
@@ -237,6 +231,8 @@ class TkApp:
                     *to,
                     "-zoom",
                     *zoom,
+                    "-compositingrule",
+                    compositingrule,
                 )
 
             tkinter.PhotoImage.copy_replace = _monkeypatched_copy_replace  # type: ignore
@@ -463,6 +459,7 @@ class TkApp:
         with file_path.open("rb") as infp:
             count = infp.read(1)[0]
             self.object_defs.clear()
+            self.object_defs.append(make_obj(OT.player_sonic.value, 0, 0))
             for i in range(count - 1):
                 v, x, y = infp.read(3)
                 if v not in obj_sprite_maps:
@@ -475,7 +472,7 @@ class TkApp:
                         "object %(v)02X at %(x)02X,%(y)02X",
                         {"x": x, "y": y, "v": v},
                     )
-                self.object_defs.append((v, x, y))
+                self.object_defs.append(make_obj(v, x, y))
 
             assert infp.read() == b""
 
@@ -504,6 +501,9 @@ class TkApp:
         self.layout_tile_specials[: len(data)] = data
 
     def run(self) -> None:
+        # Set up stuff for drawing
+        self.init_sprites()
+
         # Redraw everything
         self.redraw()
 
@@ -522,6 +522,11 @@ class TkApp:
         self.cam_mty = max(0, min(self.level_height - self.mtm_height, oy + dy))
         if (ox, oy) != (self.cam_mtx, self.cam_mty):
             self.redraw()
+
+    def init_sprites(self) -> None:
+        # Make sure we render these backwards!
+        for obj in reversed(self.object_defs):
+            obj.init_img(self, self.cam_mtx, self.cam_mty)
 
     def redraw(self) -> None:
         # Clear info boxes
@@ -607,73 +612,23 @@ class TkApp:
         c |= (((palv >> 4) & 0x3) * 0x55) << 0
         self.screen.configure(background=f"#{c:06X}")
 
-        # Set up sprites
-        # TODO: Optimise me! --GM
-        self.vram_sprites_used = 0
-        if True:
-            sonic_x = (((self.mtm_width * 32) - 24) // 2) & ~0x1F
-            sonic_y = (((self.mtm_height * 32) - 32) // 2) & ~0x1F
-            sonic_x += self.cam_mtx * 32
-            sonic_y += self.cam_mty * 32
-            (dx, dy), smaps = obj_sprite_maps[OT.player_sonic.value]
-            self.maybe_draw_sprite(sonic_x + dx, sonic_y + dy, smaps[0])
-
-            for v, tx, ty in self.object_defs:
-                # Early check
-                if (
-                    tx < self.cam_mtx - 2
-                    or tx >= self.cam_mtx + self.mtm_width + 2
-                    or ty < self.cam_mty - 2
-                    or ty >= self.cam_mty + self.mtm_height + 2
-                ):
-                    continue
-
-                x = tx * 32
-                y = ty * 32
-                if v in obj_sprite_maps:
-                    (dx, dy), smaps = obj_sprite_maps[v]
-
-                    sidx = 0
-                    # Special cases
-                    if v == OT.platform_horizontal.value:
-                        # This is grabbed from the tile flag index.
-                        if zlib.crc32(self.layout_tile_flags[:0xB8]) == 0x5B23CE2A:
-                            # GHZ (index $00)
-                            sidx = 0
-                        elif zlib.crc32(self.layout_tile_flags[:0x90]) == 0x753831C5:
-                            # BRI (index $01)
-                            sidx = 1
-                        else:
-                            # All other cases (probably just JUN)
-                            sidx = 2
-
-                    self.maybe_draw_sprite(x + dx, y + dy, smaps[sidx])
-                else:
-                    self.screen.create_rectangle(
-                        ((x + 16) - 9 - (self.cam_mtx * 32)) * SCALE,
-                        ((y + 16) - 6 - (self.cam_mty * 32)) * SCALE,
-                        ((x + 16) + 9 - (self.cam_mtx * 32)) * SCALE,
-                        ((y + 16) + 6 - (self.cam_mty * 32)) * SCALE,
-                        fill="#000000",
-                        outline="#FFFFFF",
-                        width=1,
-                        tags=["info_boxes"],
-                    )
-                    self.screen.create_text(
-                        ((x + 16) - (self.cam_mtx * 32)) * SCALE,
-                        ((y + 16) - (self.cam_mty * 32)) * SCALE,
-                        text=f"{v:02X}",
-                        anchor="center",
-                        fill="#FFFFFF",
-                        tags=["info_text"],
-                    )
+        # Move Sonic
+        sonic_x = (((self.mtm_width * 32) - 24) // 2) & ~0x1F
+        sonic_y = (((self.mtm_height * 32) - 32) // 2) & ~0x1F
+        sonic_x += self.cam_mtx * 32
+        sonic_y += self.cam_mty * 32
+        sonic_x >>= 5
+        sonic_y >>= 5
+        self.object_defs[0].move_to_tile(self, sonic_x, sonic_y)
 
         # Draw a 32x28 display
-        self.screen.move(
-            ["tile"],
-            -(self.cam_mtx - self.prev_cam_mtx) * (32 * SCALE),
-            -(self.cam_mty - self.prev_cam_mty) * (32 * SCALE),
-        )
+        if self.prev_cam_mtx >= 0:
+            self.screen.move(
+                ["scroll_me"],
+                -(self.cam_mtx - self.prev_cam_mtx) * (32 * SCALE),
+                -(self.cam_mty - self.prev_cam_mty) * (32 * SCALE),
+            )
+
         # Unlike C, Python actually uses sane integer division and not the stupid one.
         # So we don't have to work around negative numbers being stupid under the stupid division.
         for mapoffs_mty in range(self.mtm_height):
@@ -707,7 +662,7 @@ class TkApp:
                     priority = "tile_hi" if (hi & 0x10) != 0 else "tile_lo"
                     mtm_img = self.ensure_metatile_img(mtidx)
                     self.screen.itemconfigure(
-                        mtm_lbl, image=mtm_img, tags=["tile", priority]
+                        mtm_lbl, image=mtm_img, tags=["tile", "scroll_me", priority]
                     )
 
                     self.screen.moveto(
@@ -719,40 +674,9 @@ class TkApp:
         self.prev_cam_mtx = self.cam_mtx
         self.prev_cam_mty = self.cam_mty
 
-        # Sprites
-        # Make sure we render these backwards!
-        if True:
-            for si, (x, y, opt_t, tdata) in reversed(
-                list(enumerate(self.vram_sprites[0 : self.vram_sprites_used]))
-            ):
-                if opt_t is not None:
-                    tag0 = opt_t
-                    self.screen.moveto(tag0, x * SCALE, (y + (8 * 0)) * SCALE)
-                else:
-                    tag0 = self.screen.create_image(
-                        x * SCALE, (y + (8 * 0)) * SCALE, anchor="nw"
-                    )
-                    self.vram_sprites[si] = (x, y, tag0, tdata)
-
-                self.screen.itemconfigure(
-                    tag0,
-                    image=self.ensure_sprite_img(tdata >> 1),
-                    state="normal",
-                )
-                self.screen.tag_raise(tag0)
-
-            # Remove excess
-            for x, y, opt_t, tdata in self.vram_sprites[self.vram_sprites_used :]:
-                if opt_t is not None:
-                    tag0 = opt_t
-                    self.screen.itemconfigure(
-                        tag0,
-                        image=None,
-                        state="hidden",
-                    )
-
         # Correct ordering
         self.screen.tag_raise("tile_hi")
+        self.screen.tag_raise("sprite_hi")
         self.screen.tag_lower("tile_lo")
         self.screen.tag_raise("lines_physics")
         self.screen.tag_raise("info_boxes")
@@ -764,28 +688,6 @@ class TkApp:
         t_end = time.time()
         if False:
             logging.debug(f"time {t_end-t_beg:9.6f}")
-
-    def maybe_draw_sprite(
-        self, spr_x: int, spr_y: int, spr_data: Sequence[Sequence[int]]
-    ) -> None:
-        for dy, row in enumerate(spr_data):
-            for dx, tile in enumerate(row):
-                if tile == 0xFE:
-                    continue
-
-                x = spr_x + (dx * 8) - (self.cam_mtx * 32)
-                y = spr_y + (dy * 16) - (self.cam_mty * 32)
-                if x >= 8 * (self.mtm_width * 4):
-                    continue
-                if x <= -8:
-                    continue
-                if y >= 8 * (self.mtm_height * 4):
-                    continue
-                if y <= -16:
-                    continue
-                _, _, opt_t, _ = self.vram_sprites[self.vram_sprites_used]
-                self.vram_sprites[self.vram_sprites_used] = (x, y, opt_t, tile)
-                self.vram_sprites_used += 1
 
     def ensure_metatile_img(self, mtidx: int) -> tkinter.PhotoImage:
         opt_mtm_img = self.vram_metatile_images[mtidx]
@@ -803,22 +705,6 @@ class TkApp:
             mtm_img = opt_mtm_img
 
         return mtm_img
-
-    def ensure_sprite_img(self, sprite_idx: int) -> tkinter.PhotoImage:
-        opt_spr_img = self.vram_sprite_images[sprite_idx]
-        if opt_spr_img is None:
-            spr_img = tkinter.PhotoImage(width=8 * SCALE, height=16 * SCALE)
-            self.vram_sprite_images[sprite_idx] = spr_img
-
-            # Set background + bank
-            tdata = (sprite_idx << 1) + 0x0900
-            # Draw image
-            self.blit_tile_to_img(spr_img, 0 * 8, 0 * 8, tdata, height_tiles=2)
-
-        else:
-            spr_img = opt_spr_img
-
-        return spr_img
 
     def blit_tile_to_img(
         self,
@@ -850,8 +736,12 @@ class TkApp:
                 tdata_x + 8,
                 tdata_y + 8 * height_tiles,
             ),
-            to=(px * SCALE, py * SCALE),
+            to=(
+                px * SCALE,
+                py * SCALE,
+            ),
             zoom=(SCALE, SCALE),
+            compositingrule="set",
         )
 
     def blit_fresh_tile_to_img_unzoomed_dualpalette(
@@ -973,6 +863,108 @@ class TkApp:
     def set_vram_metatile_map_cell(self, x: int, y: int, v: int) -> None:
         assert 0x00 <= v <= 0xFF
         self.vram_metatile_map[y][x] = v
+
+
+class Obj:
+    def __init__(self, v: int, mtx: int, mty: int) -> None:
+        self.v = v
+        self.mtx = mtx
+        self.mty = mty
+
+        self.smaps: Optional[Sequence[Sequence[Sequence[int]]]]
+        try:
+            (self.dx, self.dy), self.smaps = obj_sprite_maps[v]
+        except KeyError:
+            self.dx = 16
+            self.dy = 16
+            self.smaps = None
+
+        self.img: Optional[tkinter.PhotoImage] = None
+        self.items: list[int] = []
+
+    def move_to_tile(self, app: TkApp, mtx: int, mty: int) -> None:
+        xstep = (mtx - self.mtx) * 32 * SCALE
+        ystep = (mty - self.mty) * 32 * SCALE
+
+        for item in self.items:
+            app.screen.move(item, xstep, ystep)
+
+        self.mtx = mtx
+        self.mty = mty
+
+    def init_img(self, app: TkApp, cam_mtx: int, cam_mty: int) -> None:
+        if self.items:
+            return
+
+        if self.smaps is not None and self.img is None:
+            # TODO: Actually cache sprite images instead of spawning up to 32 unconditionally --GM
+            sidx = 0
+
+            # Special cases
+            if self.v == OT.platform_horizontal.value:
+                # This is grabbed from the tile flag index.
+                if zlib.crc32(app.layout_tile_flags[:0xB8]) == 0x5B23CE2A:
+                    # GHZ (index $00)
+                    sidx = 0
+                elif zlib.crc32(app.layout_tile_flags[:0x90]) == 0x753831C5:
+                    # BRI (index $01)
+                    sidx = 1
+                else:
+                    # All other cases (probably just JUN)
+                    sidx = 2
+
+            smap = self.smaps[sidx]
+
+            ly = len(smap) * 16 * SCALE
+            lx = max(map(len, smap)) * 8 * SCALE
+            self.img = tkinter.PhotoImage(master=app.tk, width=lx, height=ly)
+
+            for sy, row in enumerate(smap):
+                for sx, tidx in enumerate(row):
+                    if tidx == 0xFF:
+                        break
+                    elif tidx != 0xFE:
+                        tdata = (tidx & 0xFE) | 0x0900
+                        app.blit_tile_to_img(
+                            self.img, sx * 8, sy * 16, tdata, height_tiles=2
+                        )
+
+            self.items.append(
+                app.screen.create_image(
+                    ((self.mtx - cam_mtx) * 32 + self.dx) * SCALE,
+                    ((self.mty - cam_mty) * 32 + self.dy) * SCALE,
+                    image=self.img,
+                    tags=["sprite", "scroll_me"],
+                    anchor="nw",
+                )
+            )
+        else:
+            x = self.mtx * 32
+            y = self.mty * 32
+            self.items += [
+                app.screen.create_rectangle(
+                    ((x + 16) - 9 - (cam_mtx * 32)) * SCALE,
+                    ((y + 16) - 6 - (cam_mty * 32)) * SCALE,
+                    ((x + 16) + 9 - (cam_mtx * 32)) * SCALE,
+                    ((y + 16) + 6 - (cam_mty * 32)) * SCALE,
+                    fill="#000000",
+                    outline="#FFFFFF",
+                    width=1,
+                    tags=["sprite_hi", "scroll_me"],
+                ),
+                app.screen.create_text(
+                    ((x + 16) - (cam_mtx * 32)) * SCALE,
+                    ((y + 16) - (cam_mty * 32)) * SCALE,
+                    text=f"{self.v:02X}",
+                    anchor="center",
+                    fill="#FFFFFF",
+                    tags=["sprite_hi", "scroll_me"],
+                ),
+            ]
+
+
+def make_obj(v: int, mtx: int, mty: int) -> Obj:
+    return Obj(v, mtx, mty)
 
 
 if __name__ == "__main__":
