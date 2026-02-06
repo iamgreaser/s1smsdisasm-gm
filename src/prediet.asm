@@ -5760,7 +5760,7 @@ LUT_object_functions:
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
-.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_UNKNOWN, objfunc_27_UNKNOWN  ; 00:2B36
+.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_UNKNOWN  ; 00:2B36
 .dw objfunc_28_UNKNOWN, objfunc_29_UNKNOWN, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
@@ -13460,24 +13460,24 @@ put_sonic_y_pos_on_platform:
    set    7, (hl)                      ; 01:7CF3 - CB FE
    ret                                 ; 01:7CF5 - C9
 
-objfunc_26_UNKNOWN:
+objfunc_26_badnik_chopper:
    set    5, (ix+24)                   ; 01:7CF6 - DD CB 18 EE
    ld     (ix+13), $08                 ; 01:7CFA - DD 36 0D 08
    ld     (ix+14), $0C                 ; 01:7CFE - DD 36 0E 0C
    ld     a, (ix+20)                   ; 01:7D02 - DD 7E 14
    and    a                            ; 01:7D05 - A7
-   jr     z, addr_07D13                ; 01:7D06 - 28 0B
+   jr     z, @not_hidden               ; 01:7D06 - 28 0B
    dec    (ix+20)                      ; 01:7D08 - DD 35 14
    xor    a                            ; 01:7D0B - AF
    ld     (ix+15), a                   ; 01:7D0C - DD 77 0F
    ld     (ix+16), a                   ; 01:7D0F - DD 77 10
    ret                                 ; 01:7D12 - C9
 
-addr_07D13:
+@not_hidden:
    bit    0, (ix+24)                   ; 01:7D13 - DD CB 18 46
-   jr     nz, addr_07D5C               ; 01:7D17 - 20 43
+   jr     nz, @already_jumping         ; 01:7D17 - 20 43
    bit    1, (ix+24)                   ; 01:7D19 - DD CB 18 4E
-   jr     nz, addr_07D43               ; 01:7D1D - 20 24
+   jr     nz, @already_initialised     ; 01:7D1D - 20 24
    ld     l, (ix+5)                    ; 01:7D1F - DD 6E 05
    ld     h, (ix+6)                    ; 01:7D22 - DD 66 06
    ld     de, $FFF4                    ; 01:7D25 - 11 F4 FF
@@ -13492,7 +13492,7 @@ addr_07D13:
    ld     (ix+3), h                    ; 01:7D3C - DD 74 03
    set    1, (ix+24)                   ; 01:7D3F - DD CB 18 CE
 
-addr_07D43:
+@already_initialised:
    ld     (ix+10), $00                 ; 01:7D43 - DD 36 0A 00
    ld     (ix+11), $FC                 ; 01:7D47 - DD 36 0B FC
    ld     (ix+12), $FF                 ; 01:7D4B - DD 36 0C FF
@@ -13500,9 +13500,9 @@ addr_07D43:
    ld     a, $12                       ; 01:7D53 - 3E 12
    rst    $28                          ; 01:7D55 - EF
    ld     (ix+17), $03                 ; 01:7D56 - DD 36 11 03
-   jr     addr_07DAF                   ; 01:7D5A - 18 53
+   jr     @dont_hide                   ; 01:7D5A - 18 53
 
-addr_07D5C:
+@already_jumping:
    ld     l, (ix+10)                   ; 01:7D5C - DD 6E 0A
    ld     h, (ix+11)                   ; 01:7D5F - DD 66 0B
    ld     a, (ix+12)                   ; 01:7D62 - DD 7E 0C
@@ -13511,14 +13511,14 @@ addr_07D5C:
    adc    a, $00                       ; 01:7D69 - CE 00
    ex     de, hl                       ; 01:7D6B - EB
    and    a                            ; 01:7D6C - A7
-   jp     m, addr_07D7B                ; 01:7D6D - FA 7B 7D
+   jp     m, @skip_y_vel_clamp         ; 01:7D6D - FA 7B 7D
    ld     hl, $0400                    ; 01:7D70 - 21 00 04
    and    a                            ; 01:7D73 - A7
    sbc    hl, de                       ; 01:7D74 - ED 52
-   jr     nc, addr_07D7B               ; 01:7D76 - 30 03
+   jr     nc, @skip_y_vel_clamp        ; 01:7D76 - 30 03
    ld     de, $0400                    ; 01:7D78 - 11 00 04
 
-addr_07D7B:
+@skip_y_vel_clamp:
    ld     (ix+10), e                   ; 01:7D7B - DD 73 0A
    ld     (ix+11), d                   ; 01:7D7E - DD 72 0B
    ld     (ix+12), a                   ; 01:7D81 - DD 77 0C
@@ -13528,7 +13528,7 @@ addr_07D7B:
    ld     h, (ix+6)                    ; 01:7D8D - DD 66 06
    xor    a                            ; 01:7D90 - AF
    sbc    hl, de                       ; 01:7D91 - ED 52
-   jr     c, addr_07DAF                ; 01:7D93 - 38 1A
+   jr     c, @dont_hide                ; 01:7D93 - 38 1A
    ld     (ix+4), a                    ; 01:7D95 - DD 77 04
    ld     (ix+5), e                    ; 01:7D98 - DD 73 05
    ld     (ix+6), d                    ; 01:7D9B - DD 72 06
@@ -13538,18 +13538,18 @@ addr_07D7B:
    ld     (ix+20), $1E                 ; 01:7DA7 - DD 36 14 1E
    res    0, (ix+24)                   ; 01:7DAB - DD CB 18 86
 
-addr_07DAF:
-   ld     de, UNK_07DE1                ; 01:7DAF - 11 E1 7D
-   ld     bc, UNK_07DDC                ; 01:7DB2 - 01 DC 7D
+@dont_hide:
+   ld     de, SPRITEMAP_chopper_normal  ; 01:7DAF - 11 E1 7D
+   ld     bc, LUT_chopper_anim_sequence  ; 01:7DB2 - 01 DC 7D
    call   do_framed_animation          ; 01:7DB5 - CD 41 7C
    ld     a, (ix+17)                   ; 01:7DB8 - DD 7E 11
    and    a                            ; 01:7DBB - A7
-   jr     z, addr_07DC9                ; 01:7DBC - 28 0B
+   jr     z, @not_emerging             ; 01:7DBC - 28 0B
    dec    (ix+17)                      ; 01:7DBE - DD 35 11
-   ld     (ix+15), UNK_07DF7&$FF       ; 01:7DC1 - DD 36 0F F7
-   ld     (ix+16), UNK_07DF7>>8        ; 01:7DC5 - DD 36 10 7D
+   ld     (ix+15), SPRITEMAP_chopper_emerging&$FF  ; 01:7DC1 - DD 36 0F F7
+   ld     (ix+16), SPRITEMAP_chopper_emerging>>8  ; 01:7DC5 - DD 36 10 7D
 
-addr_07DC9:
+@not_emerging:
    ld     hl, $0204                    ; 01:7DC9 - 21 04 02
    ld     (var_D214), hl               ; 01:7DCC - 22 14 D2
    call   check_collision_with_sonic   ; 01:7DCF - CD 56 39
@@ -13558,14 +13558,14 @@ addr_07DC9:
    call   nc, enemy_touched_sonic      ; 01:7DD8 - D4 E5 35
    ret                                 ; 01:7DDB - C9
 
-UNK_07DDC:
+LUT_chopper_anim_sequence:
 .db $00, $04, $01, $04, $FF                                                         ; 01:7DDC
 
-UNK_07DE1:
+SPRITEMAP_chopper_normal:
 .db $60, $62, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:7DE1
 .db $FF, $FF, $64, $66, $FF, $FF                                                    ; 01:7DF1
 
-UNK_07DF7:
+SPRITEMAP_chopper_emerging:
 .db $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF, $FF                           ; 01:7DF7
 
 objfunc_27_UNKNOWN:
