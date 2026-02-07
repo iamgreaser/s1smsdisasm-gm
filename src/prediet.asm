@@ -7979,7 +7979,7 @@ objfunc_00_sonic:
    call   nz, @fn_TODO_4FF0            ; 01:48E2 - C4 F0 4F
    res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
    bit    6, (iy+var_D206-IYBASE)      ; 01:48E9 - FD CB 06 76
-   call   nz, @fn_TODO_510A            ; 01:48ED - C4 0A 51
+   call   nz, @fn_handle_damage_stun_and_input_suppression  ; 01:48ED - C4 0A 51
    ld     a, (g_directional_input_suppression_timer)  ; 01:48F0 - 3A 8C D2
    and    a                            ; 01:48F3 - A7
    call   nz, @fn_enforce_directional_input_suppression  ; 01:48F4 - C4 8F 56
@@ -8412,7 +8412,7 @@ objfunc_00_sonic:
    and    a                            ; 01:4C3C - A7
    call   nz, @fn_decrement_directional_input_suppression_timer  ; 01:4C3D - C4 B3 51
    bit    6, (iy+var_D206-IYBASE)      ; 01:4C40 - FD CB 06 76
-   call   nz, @fn_TODO_51BC            ; 01:4C44 - C4 BC 51
+   call   nz, @fn_handle_damage_stun_animation_and_deactivation  ; 01:4C44 - C4 BC 51
    bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
    call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
    ld     a, (var_D410)                ; 01:4C4E - 3A 10 D4
@@ -9094,7 +9094,7 @@ objfunc_00_sonic:
    ld     (ix+20), $0D                 ; 01:5105 - DD 36 14 0D
    ret                                 ; 01:5109 - C9
 
-@fn_TODO_510A:
+@fn_handle_damage_stun_and_input_suppression:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:510A - FD 36 03 FF
    ld     a, (var_D414)                ; 01:510E - 3A 14 D4
    and    $FA                          ; 01:5111 - E6 FA
@@ -9196,7 +9196,7 @@ objfunc_00_sonic:
    ld     (ix+20), $11                 ; 01:51B7 - DD 36 14 11
    ret                                 ; 01:51BB - C9
 
-@fn_TODO_51BC:
+@fn_handle_damage_stun_animation_and_deactivation:
    ld     (ix+13), $1C                 ; 01:51BC - DD 36 0D 1C
    ld     (ix+20), $10                 ; 01:51C0 - DD 36 14 10
    bit    7, (ix+12)                   ; 01:51C4 - DD CB 0C 7E
