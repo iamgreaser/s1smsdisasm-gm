@@ -111,10 +111,10 @@ var_D26B dw   ; D26B
 var_D26D dw   ; D26D
 var_D26F dw   ; D26F
 var_D271 dw   ; D271
-var_D273 dw   ; D273
-var_D275 dw   ; D275
-var_D277 dw   ; D277
-var_D279 dw   ; D279
+g_level_limit_x0 dw   ; D273
+g_level_limit_x1 dw   ; D275
+g_level_limit_y0 dw   ; D277
+g_level_limit_y1 dw   ; D279
 var_D27B dw   ; D27B
 var_D27D dw   ; D27D
 g_chaos_emeralds_collected db   ; D27F
@@ -227,7 +227,7 @@ var_D322 db   ; D322 (auto)
 .  dsb 11
 var_D32E db   ; D32E (auto)
 .  dsb 37
-var_D354 db   ; D354 (auto)
+g_level_header_copy db   ; D354
 .  dsb 39
 g_object_ptrs dw   ; D37C
 g_active_object_ptrs dw   ; D37E
@@ -4365,7 +4365,7 @@ addr_01E48:
 
 addr_01E78:
    ld     (iy+g_inputs_player_1-IYBASE), $F7  ; 00:1E78 - FD 36 03 F7
-   ld     hl, (var_D273)               ; 00:1E7C - 2A 73 D2
+   ld     hl, (g_level_limit_x0)       ; 00:1E7C - 2A 73 D2
    ld     de, $0112                    ; 00:1E7F - 11 12 01
    add    hl, de                       ; 00:1E82 - 19
    ex     de, hl                       ; 00:1E83 - EB
@@ -4409,32 +4409,32 @@ addr_01EA4:
 
 addr_01ED8:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:1ED8 - 2A 5A D2
-   ld     (var_D273), hl               ; 00:1EDB - 22 73 D2
-   ld     (var_D275), hl               ; 00:1EDE - 22 75 D2
+   ld     (g_level_limit_x0), hl       ; 00:1EDB - 22 73 D2
+   ld     (g_level_limit_x1), hl       ; 00:1EDE - 22 75 D2
    ret                                 ; 00:1EE1 - C9
 
 addr_01EE2:
    ld     a, (g_global_tick_counter)   ; 00:1EE2 - 3A 23 D2
    rrca                                ; 00:1EE5 - 0F
    ret    nc                           ; 00:1EE6 - D0
-   ld     hl, (var_D273)               ; 00:1EE7 - 2A 73 D2
+   ld     hl, (g_level_limit_x0)       ; 00:1EE7 - 2A 73 D2
    inc    hl                           ; 00:1EEA - 23
-   ld     (var_D273), hl               ; 00:1EEB - 22 73 D2
-   ld     (var_D275), hl               ; 00:1EEE - 22 75 D2
+   ld     (g_level_limit_x0), hl       ; 00:1EEB - 22 73 D2
+   ld     (g_level_limit_x1), hl       ; 00:1EEE - 22 75 D2
    ret                                 ; 00:1EF1 - C9
 
 addr_01EF2:
    ld     a, (g_global_tick_counter)   ; 00:1EF2 - 3A 23 D2
    rrca                                ; 00:1EF5 - 0F
    ret    nc                           ; 00:1EF6 - D0
-   ld     hl, (var_D279)               ; 00:1EF7 - 2A 79 D2
+   ld     hl, (g_level_limit_y1)       ; 00:1EF7 - 2A 79 D2
    dec    hl                           ; 00:1EFA - 2B
-   ld     (var_D279), hl               ; 00:1EFB - 22 79 D2
+   ld     (g_level_limit_y1), hl       ; 00:1EFB - 22 79 D2
    ret                                 ; 00:1EFE - C9
 
 addr_01EFF:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:1EFF - 2A 5D D2
-   ld     (var_D279), hl               ; 00:1F02 - 22 79 D2
+   ld     (g_level_limit_y1), hl       ; 00:1F02 - 22 79 D2
    ret                                 ; 00:1F05 - C9
 
 addr_01F06:
@@ -4706,10 +4706,10 @@ addr_020CB:
    ld     (g_saved_vdp_reg_01), a      ; 00:20D0 - 32 19 D2
    res    0, (iy+var_D200-IYBASE)      ; 00:20D3 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:20D7 - CD 1C 03
-   ld     de, var_D354                 ; 00:20DA - 11 54 D3
+   ld     de, g_level_header_copy      ; 00:20DA - 11 54 D3
    ld     bc, $0028                    ; 00:20DD - 01 28 00
    ldir                                ; 00:20E0 - ED B0
-   ld     hl, var_D354                 ; 00:20E2 - 21 54 D3
+   ld     hl, g_level_header_copy      ; 00:20E2 - 21 54 D3
    push   hl                           ; 00:20E5 - E5
    ld     a, (iy+var_D205-IYBASE)      ; 00:20E6 - FD 7E 05
    ld     (iy+var_D20B-IYBASE), a      ; 00:20E9 - FD 77 0B
@@ -4798,7 +4798,7 @@ addr_02172:
    ld     d, (hl)                      ; 00:218D - 56
    inc    hl                           ; 00:218E - 23
    ld     (g_level_height), de         ; 00:218F - ED 53 3A D2
-   ld     de, var_D273                 ; 00:2193 - 11 73 D2
+   ld     de, g_level_limit_x0         ; 00:2193 - 11 73 D2
    ld     bc, $0008                    ; 00:2196 - 01 08 00
    ldir                                ; 00:2199 - ED B0
    push   hl                           ; 00:219B - E5
@@ -6063,7 +6063,7 @@ addr_03029:
 
 addr_03033:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3033 - 2A 5A D2
-   ld     de, (var_D273)               ; 00:3036 - ED 5B 73 D2
+   ld     de, (g_level_limit_x0)       ; 00:3036 - ED 5B 73 D2
    and    a                            ; 00:303A - A7
    sbc    hl, de                       ; 00:303B - ED 52
    jr     nc, addr_03045               ; 00:303D - 30 06
@@ -6072,7 +6072,7 @@ addr_03033:
 
 addr_03045:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3045 - 2A 5A D2
-   ld     de, (var_D275)               ; 00:3048 - ED 5B 75 D2
+   ld     de, (g_level_limit_x1)       ; 00:3048 - ED 5B 75 D2
    and    a                            ; 00:304C - A7
    sbc    hl, de                       ; 00:304D - ED 52
    jr     c, addr_03055                ; 00:304F - 38 04
@@ -6168,7 +6168,7 @@ addr_030E9:
 
 addr_030F9:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30F9 - 2A 5D D2
-   ld     de, (var_D277)               ; 00:30FC - ED 5B 77 D2
+   ld     de, (g_level_limit_y0)       ; 00:30FC - ED 5B 77 D2
    and    a                            ; 00:3100 - A7
    sbc    hl, de                       ; 00:3101 - ED 52
    jr     nc, addr_03109               ; 00:3103 - 30 04
@@ -6176,7 +6176,7 @@ addr_030F9:
 
 addr_03109:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3109 - 2A 5D D2
-   ld     de, (var_D279)               ; 00:310C - ED 5B 79 D2
+   ld     de, (g_level_limit_y1)       ; 00:310C - ED 5B 79 D2
    and    a                            ; 00:3110 - A7
    sbc    hl, de                       ; 00:3111 - ED 52
    jr     c, addr_03119                ; 00:3113 - 38 04
@@ -6197,37 +6197,37 @@ addr_0311F:
    ret                                 ; 00:3121 - C9
 
 addr_03122:
-   ld     de, (var_D277)               ; 00:3122 - ED 5B 77 D2
+   ld     de, (g_level_limit_y0)       ; 00:3122 - ED 5B 77 D2
    and    a                            ; 00:3126 - A7
    sbc    hl, de                       ; 00:3127 - ED 52
    ret    z                            ; 00:3129 - C8
    jr     c, addr_03136                ; 00:312A - 38 0A
    inc    de                           ; 00:312C - 13
-   ld     (var_D277), de               ; 00:312D - ED 53 77 D2
-   ld     (var_D279), de               ; 00:3131 - ED 53 79 D2
+   ld     (g_level_limit_y0), de       ; 00:312D - ED 53 77 D2
+   ld     (g_level_limit_y1), de       ; 00:3131 - ED 53 79 D2
    ret                                 ; 00:3135 - C9
 
 addr_03136:
    dec    de                           ; 00:3136 - 1B
-   ld     (var_D277), de               ; 00:3137 - ED 53 77 D2
-   ld     (var_D279), de               ; 00:313B - ED 53 79 D2
+   ld     (g_level_limit_y0), de       ; 00:3137 - ED 53 77 D2
+   ld     (g_level_limit_y1), de       ; 00:313B - ED 53 79 D2
    ret                                 ; 00:313F - C9
 
 addr_03140:
-   ld     de, (var_D273)               ; 00:3140 - ED 5B 73 D2
+   ld     de, (g_level_limit_x0)       ; 00:3140 - ED 5B 73 D2
    and    a                            ; 00:3144 - A7
    sbc    hl, de                       ; 00:3145 - ED 52
    ret    z                            ; 00:3147 - C8
    jr     c, addr_03154                ; 00:3148 - 38 0A
    inc    de                           ; 00:314A - 13
-   ld     (var_D273), de               ; 00:314B - ED 53 73 D2
-   ld     (var_D275), de               ; 00:314F - ED 53 75 D2
+   ld     (g_level_limit_x0), de       ; 00:314B - ED 53 73 D2
+   ld     (g_level_limit_x1), de       ; 00:314F - ED 53 75 D2
    ret                                 ; 00:3153 - C9
 
 addr_03154:
    dec    de                           ; 00:3154 - 1B
-   ld     (var_D273), de               ; 00:3155 - ED 53 73 D2
-   ld     (var_D275), de               ; 00:3159 - ED 53 75 D2
+   ld     (g_level_limit_x0), de       ; 00:3155 - ED 53 73 D2
+   ld     (g_level_limit_x1), de       ; 00:3159 - ED 53 75 D2
    ret                                 ; 00:315D - C9
 
 addr_0315E:
@@ -7969,7 +7969,7 @@ addr_048A8:
 objfunc_00_sonic:
    res    1, (iy+var_D208-IYBASE)      ; 01:48C8 - FD CB 08 8E
    bit    7, (ix+24)                   ; 01:48CC - DD CB 18 7E
-   call   nz, @fn_TODO_4E88            ; 01:48D0 - C4 88 4E
+   call   nz, @fn_set_was_on_ground_bit  ; 01:48D0 - C4 88 4E
    set    7, (iy+var_D207-IYBASE)      ; 01:48D3 - FD CB 07 FE
    bit    0, (iy+var_D205-IYBASE)      ; 01:48D7 - FD CB 05 46
    jp     nz, @sonic_is_dying          ; 01:48DB - C2 3C 54
@@ -8118,7 +8118,7 @@ objfunc_00_sonic:
    ld     de, $0024                    ; 01:4A2B - 11 24 00
    add    hl, de                       ; 01:4A2E - 19
    ex     de, hl                       ; 01:4A2F - EB
-   ld     hl, (var_D279)               ; 01:4A30 - 2A 79 D2
+   ld     hl, (g_level_limit_y1)       ; 01:4A30 - 2A 79 D2
    ld     bc, $00C0                    ; 01:4A33 - 01 C0 00
    add    hl, bc                       ; 01:4A36 - 09
    xor    a                            ; 01:4A37 - AF
@@ -8409,7 +8409,7 @@ objfunc_00_sonic:
 @TODO_4C39:
    ld     a, (g_directional_input_suppression_timer)  ; 01:4C39 - 3A 8C D2
    and    a                            ; 01:4C3C - A7
-   call   nz, @fn_TODO_51B3            ; 01:4C3D - C4 B3 51
+   call   nz, @fn_decrement_directional_input_suppression_timer  ; 01:4C3D - C4 B3 51
    bit    6, (iy+var_D206-IYBASE)      ; 01:4C40 - FD CB 06 76
    call   nz, @fn_TODO_51BC            ; 01:4C44 - C4 BC 51
    bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
@@ -8529,7 +8529,7 @@ objfunc_00_sonic:
    call   nz, @fn_TODO_4E51            ; 01:4D1E - C4 51 4E
    bit    1, (iy+var_D206-IYBASE)      ; 01:4D21 - FD CB 06 4E
    jr     nz, @TODO_4D81               ; 01:4D25 - 20 5A
-   ld     hl, (var_D273)               ; 01:4D27 - 2A 73 D2
+   ld     hl, (g_level_limit_x0)       ; 01:4D27 - 2A 73 D2
    ld     bc, $0008                    ; 01:4D2A - 01 08 00
    add    hl, bc                       ; 01:4D2D - 09
    ex     de, hl                       ; 01:4D2E - EB
@@ -8548,7 +8548,7 @@ objfunc_00_sonic:
    jp     @TODO_4D81                   ; 01:4D4C - C3 81 4D
 
 @TODO_4D4F:
-   ld     hl, (var_D275)               ; 01:4D4F - 2A 75 D2
+   ld     hl, (g_level_limit_x1)       ; 01:4D4F - 2A 75 D2
    ld     de, $00F8                    ; 01:4D52 - 11 F8 00
    add    hl, de                       ; 01:4D55 - 19
    ex     de, hl                       ; 01:4D56 - EB
@@ -8718,7 +8718,7 @@ objfunc_00_sonic:
    call   draw_sprite                  ; 01:4E84 - CD 81 35
    ret                                 ; 01:4E87 - C9
 
-@fn_TODO_4E88:
+@fn_set_was_on_ground_bit:
    set    1, (iy+var_D208-IYBASE)      ; 01:4E88 - FD CB 08 CE
    ret                                 ; 01:4E8C - C9
 
@@ -9185,7 +9185,7 @@ objfunc_00_sonic:
    set    2, (ix+24)                   ; 01:51AC - DD CB 18 D6
    jp     @TODO_4C39                   ; 01:51B0 - C3 39 4C
 
-@fn_TODO_51B3:
+@fn_decrement_directional_input_suppression_timer:
    dec    a                            ; 01:51B3 - 3D
    ld     (g_directional_input_suppression_timer), a  ; 01:51B4 - 32 8C D2
    ld     (ix+20), $11                 ; 01:51B7 - DD 36 14 11
@@ -10802,12 +10802,12 @@ objfunc_07_signpost:
 
 @art_already_loaded:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:5F44 - 2A 5A D2
-   ld     (var_D273), hl               ; 01:5F47 - 22 73 D2
+   ld     (g_level_limit_x0), hl       ; 01:5F47 - 22 73 D2
    ld     l, (ix+2)                    ; 01:5F4A - DD 6E 02
    ld     h, (ix+3)                    ; 01:5F4D - DD 66 03
    ld     de, $FF90                    ; 01:5F50 - 11 90 FF
    add    hl, de                       ; 01:5F53 - 19
-   ld     (var_D275), hl               ; 01:5F54 - 22 75 D2
+   ld     (g_level_limit_x1), hl       ; 01:5F54 - 22 75 D2
    ld     hl, $0080                    ; 01:5F57 - 21 80 00
    ld     (var_D26B), hl               ; 01:5F5A - 22 6B D2
    ld     hl, $0088                    ; 01:5F5D - 21 88 00
@@ -12233,7 +12233,7 @@ objfunc_12_GHZ_boss:
    jp     (hl)                         ; 01:70AB - E9
 
 @state_01:
-   ld     hl, (var_D273)               ; 01:70AC - 2A 73 D2
+   ld     hl, (g_level_limit_x0)       ; 01:70AC - 2A 73 D2
    ld     de, $0006                    ; 01:70AF - 11 06 00
    add    hl, de                       ; 01:70B2 - 19
    ld     e, (ix+2)                    ; 01:70B3 - DD 5E 02
@@ -12258,7 +12258,7 @@ objfunc_12_GHZ_boss:
    jp     @continue                    ; 01:70E9 - C3 05 72
 
 @state_02:
-   ld     hl, (var_D273)               ; 01:70EC - 2A 73 D2
+   ld     hl, (g_level_limit_x0)       ; 01:70EC - 2A 73 D2
    ld     de, $00E0                    ; 01:70EF - 11 E0 00
    add    hl, de                       ; 01:70F2 - 19
    ld     e, (ix+2)                    ; 01:70F3 - DD 5E 02
@@ -12365,7 +12365,7 @@ objfunc_12_GHZ_boss:
    jp     c, @continue                 ; 01:71D6 - DA 05 72
    ld     l, (ix+2)                    ; 01:71D9 - DD 6E 02
    ld     h, (ix+3)                    ; 01:71DC - DD 66 03
-   ld     de, (var_D273)               ; 01:71DF - ED 5B 73 D2
+   ld     de, (g_level_limit_x0)       ; 01:71DF - ED 5B 73 D2
    xor    a                            ; 01:71E3 - AF
    sbc    hl, de                       ; 01:71E4 - ED 52
    ld     c, a                         ; 01:71E6 - 4F
@@ -12521,12 +12521,12 @@ objfunc_25_animal_capsule:
    ld     (ix+15), l                   ; 01:7396 - DD 75 0F
    ld     (ix+16), h                   ; 01:7399 - DD 74 10
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:739C - 2A 5A D2
-   ld     (var_D273), hl               ; 01:739F - 22 73 D2
+   ld     (g_level_limit_x0), hl       ; 01:739F - 22 73 D2
    ld     l, (ix+2)                    ; 01:73A2 - DD 6E 02
    ld     h, (ix+3)                    ; 01:73A5 - DD 66 03
    ld     de, $FF90                    ; 01:73A8 - 11 90 FF
    add    hl, de                       ; 01:73AB - 19
-   ld     (var_D275), hl               ; 01:73AC - 22 75 D2
+   ld     (g_level_limit_x1), hl       ; 01:73AC - 22 75 D2
    ld     hl, $0002                    ; 01:73AF - 21 02 00
    ld     (var_D214), hl               ; 01:73B2 - 22 14 D2
    call   check_collision_with_sonic   ; 01:73B5 - CD 56 39
@@ -13065,7 +13065,7 @@ addr_078C0:
    ret    c                            ; 01:78EE - D8
    ld     (ix+0), $FF                  ; 01:78EF - DD 36 00 FF
    ld     hl, $2000                    ; 01:78F3 - 21 00 20
-   ld     (var_D275), hl               ; 01:78F6 - 22 75 D2
+   ld     (g_level_limit_x1), hl       ; 01:78F6 - 22 75 D2
    ld     hl, $0000                    ; 01:78F9 - 21 00 00
    ld     (var_D27B), hl               ; 01:78FC - 22 7B D2
    set    5, (iy+var_D200-IYBASE)      ; 01:78FF - FD CB 00 EE
@@ -13414,11 +13414,11 @@ addr_07C8C:
    ld     (var_D27B), hl               ; 01:7C8C - 22 7B D2
    ld     (var_D27D), de               ; 01:7C8F - ED 53 7D D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:7C93 - 2A 5A D2
-   ld     (var_D273), hl               ; 01:7C96 - 22 73 D2
-   ld     (var_D275), hl               ; 01:7C99 - 22 75 D2
+   ld     (g_level_limit_x0), hl       ; 01:7C96 - 22 73 D2
+   ld     (g_level_limit_x1), hl       ; 01:7C99 - 22 75 D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 01:7C9C - 2A 5D D2
-   ld     (var_D277), hl               ; 01:7C9F - 22 77 D2
-   ld     (var_D279), hl               ; 01:7CA2 - 22 79 D2
+   ld     (g_level_limit_y0), hl       ; 01:7C9F - 22 77 D2
+   ld     (g_level_limit_y1), hl       ; 01:7CA2 - 22 79 D2
    ret                                 ; 01:7CA5 - C9
 
 addr_07CA6:
@@ -13832,11 +13832,11 @@ objfunc_2C_UNKNOWN:
    xor    a                            ; 02:808A - AF
    ld     (var_D2EC), a                ; 02:808B - 32 EC D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:808E - 2A 5A D2
-   ld     (var_D273), hl               ; 02:8091 - 22 73 D2
-   ld     (var_D275), hl               ; 02:8094 - 22 75 D2
+   ld     (g_level_limit_x0), hl       ; 02:8091 - 22 73 D2
+   ld     (g_level_limit_x1), hl       ; 02:8094 - 22 75 D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8097 - 2A 5D D2
-   ld     (var_D277), hl               ; 02:809A - 22 77 D2
-   ld     (var_D279), hl               ; 02:809D - 22 79 D2
+   ld     (g_level_limit_y0), hl       ; 02:809A - 22 77 D2
+   ld     (g_level_limit_y1), hl       ; 02:809D - 22 79 D2
    ld     hl, $01F0                    ; 02:80A0 - 21 F0 01
    ld     (var_D27B), hl               ; 02:80A3 - 22 7B D2
    ld     hl, $0048                    ; 02:80A6 - 21 48 00
@@ -17790,12 +17790,12 @@ objfunc_22_UNKNOWN:
    bit    0, (ix+24)                   ; 02:A7F5 - DD CB 18 46
    jr     nz, addr_0A830               ; 02:A7F9 - 20 35
    ld     hl, $0340                    ; 02:A7FB - 21 40 03
-   ld     (var_D273), hl               ; 02:A7FE - 22 73 D2
+   ld     (g_level_limit_x0), hl       ; 02:A7FE - 22 73 D2
    ld     hl, $0540                    ; 02:A801 - 21 40 05
-   ld     (var_D275), hl               ; 02:A804 - 22 75 D2
+   ld     (g_level_limit_x1), hl       ; 02:A804 - 22 75 D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:A807 - 2A 5D D2
-   ld     (var_D277), hl               ; 02:A80A - 22 77 D2
-   ld     (var_D279), hl               ; 02:A80D - 22 79 D2
+   ld     (g_level_limit_y0), hl       ; 02:A80A - 22 77 D2
+   ld     (g_level_limit_y1), hl       ; 02:A80D - 22 79 D2
    ld     hl, $0220                    ; 02:A810 - 21 20 02
    ld     (var_D27D), hl               ; 02:A813 - 22 7D D2
    ld     hl, ART_0C_EF3F              ; 02:A816 - 21 3F EF
@@ -17813,7 +17813,7 @@ addr_0A830:
    bit    1, (ix+24)                   ; 02:A830 - DD CB 18 4E
    jr     nz, addr_0A893               ; 02:A834 - 20 5D
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:A836 - 2A 5A D2
-   ld     (var_D273), hl               ; 02:A839 - 22 73 D2
+   ld     (g_level_limit_x0), hl       ; 02:A839 - 22 73 D2
    ld     de, UNK_0BAF9                ; 02:A83C - 11 F9 BA
    ld     bc, UNK_0A9B7                ; 02:A83F - 01 B7 A9
    call   do_framed_animation          ; 02:A842 - CD 41 7C
@@ -19521,7 +19521,7 @@ addr_0B821:
    set    5, (iy+var_D200-IYBASE)      ; 02:B85C - FD CB 00 EE
    res    1, (iy+var_D202-IYBASE)      ; 02:B860 - FD CB 02 8E
    ld     hl, $0550                    ; 02:B864 - 21 50 05
-   ld     (var_D275), hl               ; 02:B867 - 22 75 D2
+   ld     (g_level_limit_x1), hl       ; 02:B867 - 22 75 D2
 
 addr_0B86A:
    ld     e, (ix+2)                    ; 02:B86A - DD 5E 02
