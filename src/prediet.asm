@@ -139,7 +139,7 @@ var_D293 dw   ; D293
 var_D295 dw   ; D295
 var_D297 db   ; D297
 var_D298 db   ; D298 (auto)
-var_D299 dw   ; D299
+g_sonic_bored_anim_countup_timer dw   ; D299
 g_sonic_underwater_countup_timer db   ; D29B
 .  dsb 1
 var_D29D dw   ; D29D
@@ -8128,27 +8128,27 @@ objfunc_00_sonic:
    ld     hl, $0000                    ; 01:4A3D - 21 00 00
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A40 - FD 7E 03
    cp     $FF                          ; 01:4A43 - FE FF
-   jr     nz, @TODO_4A59               ; 01:4A45 - 20 12
+   jr     nz, @sonic_not_bored         ; 01:4A45 - 20 12
    ld     de, (sonic_vel_x_sub)        ; 01:4A47 - ED 5B 03 D4
    ld     a, e                         ; 01:4A4B - 7B
    or     d                            ; 01:4A4C - B2
-   jr     nz, @TODO_4A59               ; 01:4A4D - 20 0A
+   jr     nz, @sonic_not_bored         ; 01:4A4D - 20 0A
    ld     a, (sonic_flags_ix_24)       ; 01:4A4F - 3A 14 D4
    rlca                                ; 01:4A52 - 07
-   jr     nc, @TODO_4A59               ; 01:4A53 - 30 04
-   ld     hl, (var_D299)               ; 01:4A55 - 2A 99 D2
+   jr     nc, @sonic_not_bored         ; 01:4A53 - 30 04
+   ld     hl, (g_sonic_bored_anim_countup_timer)  ; 01:4A55 - 2A 99 D2
    inc    hl                           ; 01:4A58 - 23
 
-@TODO_4A59:
-   ld     (var_D299), hl               ; 01:4A59 - 22 99 D2
+@sonic_not_bored:
+   ld     (g_sonic_bored_anim_countup_timer), hl  ; 01:4A59 - 22 99 D2
    bit    7, (iy+var_D206-IYBASE)      ; 01:4A5C - FD CB 06 7E
    call   nz, @fn_set_underwater_state_based_on_water_level  ; 01:4A60 - C4 E8 50
    ld     (ix+20), $05                 ; 01:4A63 - DD 36 14 05
-   ld     hl, (var_D299)               ; 01:4A67 - 2A 99 D2
+   ld     hl, (g_sonic_bored_anim_countup_timer)  ; 01:4A67 - 2A 99 D2
    ld     de, $0168                    ; 01:4A6A - 11 68 01
    and    a                            ; 01:4A6D - A7
    sbc    hl, de                       ; 01:4A6E - ED 52
-   call   nc, @fn_TODO_5105            ; 01:4A70 - D4 05 51
+   call   nc, @fn_handle_sonic_bored_anim  ; 01:4A70 - D4 05 51
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A73 - FD 7E 03
    cp     $FE                          ; 01:4A76 - FE FE
    call   z, @fn_TODO_4EDD             ; 01:4A78 - CC DD 4E
@@ -9090,7 +9090,7 @@ objfunc_00_sonic:
    set    2, (ix+24)                   ; 01:5100 - DD CB 18 D6
    ret                                 ; 01:5104 - C9
 
-@fn_TODO_5105:
+@fn_handle_sonic_bored_anim:
    ld     (ix+20), $0D                 ; 01:5105 - DD 36 14 0D
    ret                                 ; 01:5109 - C9
 
