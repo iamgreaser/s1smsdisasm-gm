@@ -53,7 +53,6 @@
 .DEF shrink_sonicuncart_interleave 1
 
 ;; Get objects from a freelist instead of searching the list every time.
-;; FIXME: If you lose your rings to the motobug at the start of GHZ1, a $55 thrown ring doesn't seem to appear properly --GM
 .DEF opt_object_freelist 1
 
 .MEMORYMAP
@@ -6485,7 +6484,7 @@ load_object_list:
    ld     b, a                         ; 00:2344 - 47
    .IF 0
    .ELSE
-   ld c, $20
+   ld c, $20 - 1
    ;; See below
    .ENDIF
 
