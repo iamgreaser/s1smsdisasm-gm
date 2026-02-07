@@ -130,7 +130,7 @@ g_current_signpost db   ; D288
 g_signpost_tickdown_counter db   ; D289
 var_D28A db   ; D28A
 var_D28B db   ; D28B
-var_D28C db   ; D28C
+g_directional_input_suppression_timer db   ; D28C
 var_D28D db   ; D28D
 var_D28E db   ; D28E
 var_D28F dw   ; D28F
@@ -7979,9 +7979,9 @@ objfunc_00_sonic:
    res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
    bit    6, (iy+var_D206-IYBASE)      ; 01:48E9 - FD CB 06 76
    call   nz, @fn_TODO_510A            ; 01:48ED - C4 0A 51
-   ld     a, (var_D28C)                ; 01:48F0 - 3A 8C D2
+   ld     a, (g_directional_input_suppression_timer)  ; 01:48F0 - 3A 8C D2
    and    a                            ; 01:48F3 - A7
-   call   nz, @fn_TODO_568F            ; 01:48F4 - C4 8F 56
+   call   nz, @fn_enforce_directional_input_suppression  ; 01:48F4 - C4 8F 56
    bit    0, (iy+var_D207-IYBASE)      ; 01:48F7 - FD CB 07 46
    call   nz, @fn_TODO_5100            ; 01:48FB - C4 00 51
    bit    0, (iy+var_D208-IYBASE)      ; 01:48FE - FD CB 08 46
@@ -8407,7 +8407,7 @@ objfunc_00_sonic:
    call   nc, @fn_try_collect_ring_in_ring_tile  ; 01:4C36 - D4 EF 4D
 
 @TODO_4C39:
-   ld     a, (var_D28C)                ; 01:4C39 - 3A 8C D2
+   ld     a, (g_directional_input_suppression_timer)  ; 01:4C39 - 3A 8C D2
    and    a                            ; 01:4C3C - A7
    call   nz, @fn_TODO_51B3            ; 01:4C3D - C4 B3 51
    bit    6, (iy+var_D206-IYBASE)      ; 01:4C40 - FD CB 06 76
@@ -9187,7 +9187,7 @@ objfunc_00_sonic:
 
 @fn_TODO_51B3:
    dec    a                            ; 01:51B3 - 3D
-   ld     (var_D28C), a                ; 01:51B4 - 32 8C D2
+   ld     (g_directional_input_suppression_timer), a  ; 01:51B4 - 32 8C D2
    ld     (ix+20), $11                 ; 01:51B7 - DD 36 14 11
    ret                                 ; 01:51BB - C9
 
@@ -9628,7 +9628,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:550D - EF
    ret                                 ; 01:550E - C9
 
-@special_03:
+@special_03_spring_left_8_px_t:
    ld     a, (ix+2)                    ; 01:550F - DD 7E 02
    add    a, $0C                       ; 01:5512 - C6 0C
    and    $1F                          ; 01:5514 - E6 1F
@@ -9642,7 +9642,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:552B - EF
    ret                                 ; 01:552C - C9
 
-@special_04:
+@special_04_spring_left_12_px_t:
    ld     a, (ix+2)                    ; 01:552D - DD 7E 02
    add    a, $0C                       ; 01:5530 - C6 0C
    and    $1F                          ; 01:5532 - E6 1F
@@ -9661,7 +9661,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:5554 - EF
    ret                                 ; 01:5555 - C9
 
-@special_05:
+@special_05_spring_right_8_px_t:
    ld     a, (ix+2)                    ; 01:5556 - DD 7E 02
    add    a, $0C                       ; 01:5559 - C6 0C
    and    $1F                          ; 01:555B - E6 1F
@@ -9710,7 +9710,7 @@ objfunc_00_sonic:
    set    4, (ix+24)                   ; 01:55B1 - DD CB 18 E6
    ret                                 ; 01:55B5 - C9
 
-@special_09:
+@special_09_spring_up_12_px_t:
    ld     a, (ix+2)                    ; 01:55B6 - DD 7E 02
    add    a, $0C                       ; 01:55B9 - C6 0C
    and    $1F                          ; 01:55BB - E6 1F
@@ -9825,11 +9825,11 @@ objfunc_00_sonic:
    ld     (sonic_vel_x), hl            ; 01:5683 - 22 04 D4
    res    1, (ix+24)                   ; 01:5686 - DD CB 18 8E
 
-@TODO_568A:
+@set_directional_input_suppression:
    ld     a, $06                       ; 01:568A - 3E 06
-   ld     (var_D28C), a                ; 01:568C - 32 8C D2
+   ld     (g_directional_input_suppression_timer), a  ; 01:568C - 32 8C D2
 
-@fn_TODO_568F:
+@fn_enforce_directional_input_suppression:
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:568F - FD 7E 03
    or     $0F                          ; 01:5692 - F6 0F
    ld     (iy+g_inputs_player_1-IYBASE), a  ; 01:5694 - FD 77 03
@@ -9845,7 +9845,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_x_sub), a         ; 01:56AA - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:56AD - 22 04 D4
    res    1, (ix+24)                   ; 01:56B0 - DD CB 18 8E
-   jr     @TODO_568A                   ; 01:56B4 - 18 D4
+   jr     @set_directional_input_suppression  ; 01:56B4 - 18 D4
 
 @special_0F_spring_left_5_px_t:
    xor    a                            ; 01:56B6 - AF
@@ -9853,7 +9853,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_x_sub), a         ; 01:56BA - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:56BD - 22 04 D4
    set    1, (ix+24)                   ; 01:56C0 - DD CB 18 CE
-   jr     @TODO_568A                   ; 01:56C4 - 18 C4
+   jr     @set_directional_input_suppression  ; 01:56C4 - 18 C4
 
 @special_10_spring_left_6_px_t:
    xor    a                            ; 01:56C6 - AF
@@ -9861,7 +9861,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_x_sub), a         ; 01:56CA - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:56CD - 22 04 D4
    set    1, (ix+24)                   ; 01:56D0 - DD CB 18 CE
-   jr     @TODO_568A                   ; 01:56D4 - 18 B4
+   jr     @set_directional_input_suppression  ; 01:56D4 - 18 B4
 
 @special_11:
    ld     a, (var_D2E1)                ; 01:56D6 - 3A E1 D2
@@ -10175,8 +10175,8 @@ objfunc_00_sonic:
    ret                                 ; 01:58E4 - C9
 
 CODEPTRTAB_sonic_tile_specials:
-.dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03, objfunc_00_sonic@special_04, objfunc_00_sonic@special_05, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
-.dw objfunc_00_sonic@special_08, objfunc_00_sonic@special_09, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C, objfunc_00_sonic@special_0D_spring_right_5_px_t, objfunc_00_sonic@special_0E_spring_right_6_px_t, objfunc_00_sonic@special_0F_spring_left_5_px_t  ; 01:58F5
+.dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_left_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
+.dw objfunc_00_sonic@special_08, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C, objfunc_00_sonic@special_0D_spring_right_5_px_t, objfunc_00_sonic@special_0E_spring_right_6_px_t, objfunc_00_sonic@special_0F_spring_left_5_px_t  ; 01:58F5
 .dw objfunc_00_sonic@special_10_spring_left_6_px_t, objfunc_00_sonic@special_11, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
 .dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
