@@ -7972,7 +7972,7 @@ objfunc_00_sonic:
    call   nz, @fn_TODO_4E88            ; 01:48D0 - C4 88 4E
    set    7, (iy+var_D207-IYBASE)      ; 01:48D3 - FD CB 07 FE
    bit    0, (iy+var_D205-IYBASE)      ; 01:48D7 - FD CB 05 46
-   jp     nz, @TODO_543C               ; 01:48DB - C2 3C 54
+   jp     nz, @sonic_is_dying          ; 01:48DB - C2 3C 54
    ld     a, (var_D412)                ; 01:48DE - 3A 12 D4
    and    a                            ; 01:48E1 - A7
    call   nz, @fn_TODO_4FF0            ; 01:48E2 - C4 F0 4F
@@ -9510,7 +9510,7 @@ objfunc_00_sonic:
    set    3, (ix+24)                   ; 01:5435 - DD CB 18 DE
    jp     @TODO_4BAC                   ; 01:5439 - C3 AC 4B
 
-@TODO_543C:
+@sonic_is_dying:
    set    5, (ix+24)                   ; 01:543C - DD CB 18 EE
    ld     a, (var_D287)                ; 01:5440 - 3A 87 D2
    cp     $60                          ; 01:5443 - FE 60
@@ -9520,9 +9520,9 @@ objfunc_00_sonic:
    add    hl, de                       ; 01:544D - 19
    ld     de, (sonic_y)                ; 01:544E - ED 5B 01 D4
    sbc    hl, de                       ; 01:5452 - ED 52
-   jr     nc, @TODO_546C               ; 01:5454 - 30 16
+   jr     nc, @dont_deduct_lives       ; 01:5454 - 30 16
    bit    2, (iy+var_D206-IYBASE)      ; 01:5456 - FD CB 06 56
-   jr     nz, @TODO_546C               ; 01:545A - 20 10
+   jr     nz, @dont_deduct_lives       ; 01:545A - 20 10
    ld     a, $01                       ; 01:545C - 3E 01
    ld     (var_D283), a                ; 01:545E - 32 83 D2
    ld     hl, g_lives                  ; 01:5461 - 21 46 D2
@@ -9530,7 +9530,7 @@ objfunc_00_sonic:
    set    2, (iy+var_D206-IYBASE)      ; 01:5465 - FD CB 06 D6
    jp     @TODO_54AA                   ; 01:5469 - C3 AA 54
 
-@TODO_546C:
+@dont_deduct_lives:
    xor    a                            ; 01:546C - AF
    ld     hl, $0080                    ; 01:546D - 21 80 00
    bit    3, (iy+var_D208-IYBASE)      ; 01:5470 - FD CB 08 5E
