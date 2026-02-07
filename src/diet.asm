@@ -11898,7 +11898,7 @@ objfunc_00_sonic:
    set    4, (ix+24)                   ; 01:5677 - DD CB 18 E6
    ret                                 ; 01:567B - C9
 
-@special_0D_spring_right_5_px_t:
+@special_0D_slide_right_5_px_t:
    xor    a                            ; 01:567C - AF
    ld     hl, $0005                    ; 01:567D - 21 05 00
    ld     (sonic_vel_x_sub), a         ; 01:5680 - 32 03 D4
@@ -11919,7 +11919,7 @@ objfunc_00_sonic:
    res    2, (ix+24)                   ; 01:56A1 - DD CB 18 96
    ret                                 ; 01:56A5 - C9
 
-@special_0E_spring_right_6_px_t:
+@special_0E_slide_right_6_px_t:
    xor    a                            ; 01:56A6 - AF
    ld     hl, $0006                    ; 01:56A7 - 21 06 00
    ld     (sonic_vel_x_sub), a         ; 01:56AA - 32 03 D4
@@ -11927,7 +11927,7 @@ objfunc_00_sonic:
    res    1, (ix+24)                   ; 01:56B0 - DD CB 18 8E
    jr     @set_directional_input_suppression  ; 01:56B4 - 18 D4
 
-@special_0F_spring_left_5_px_t:
+@special_0F_slide_left_5_px_t:
    xor    a                            ; 01:56B6 - AF
    ld     hl, $FFFB                    ; 01:56B7 - 21 FB FF
    ld     (sonic_vel_x_sub), a         ; 01:56BA - 32 03 D4
@@ -11935,7 +11935,7 @@ objfunc_00_sonic:
    set    1, (ix+24)                   ; 01:56C0 - DD CB 18 CE
    jr     @set_directional_input_suppression  ; 01:56C4 - 18 C4
 
-@special_10_spring_left_6_px_t:
+@special_10_slide_left_6_px_t:
    xor    a                            ; 01:56C6 - AF
    ld     hl, $FFFA                    ; 01:56C7 - 21 FA FF
    ld     (sonic_vel_x_sub), a         ; 01:56CA - 32 03 D4
@@ -12256,8 +12256,8 @@ objfunc_00_sonic:
 
 CODEPTRTAB_sonic_tile_specials:
 .dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_left_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
-.dw objfunc_00_sonic@special_08, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C, objfunc_00_sonic@special_0D_spring_right_5_px_t, objfunc_00_sonic@special_0E_spring_right_6_px_t, objfunc_00_sonic@special_0F_spring_left_5_px_t  ; 01:58F5
-.dw objfunc_00_sonic@special_10_spring_left_6_px_t, objfunc_00_sonic@special_11, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
+.dw objfunc_00_sonic@special_08, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
+.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
 .dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
 SPRITEMAP_sonic_normal:
