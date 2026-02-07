@@ -40,6 +40,10 @@
 ;; This is mostly for testing purposes.
 .DEF cht_force_good_ending 0
 
+;; bool: Noclip on Button 1: Holding 1 allows Sonic to clip through walls.
+;; Also, holding the button down forces Sonic to be treated as on the ground and allows Sonic to jump in mid-air.
+.DEF cht_noclip_button_1 0
+
 ;; Branding! WARNING: Heavy (consumes about 410 bytes or something) - make sure to rip this out when making your own mods!
 .DEF show_diet_logo 1
 
@@ -504,8 +508,10 @@ irq_start:
    .ENDIF
    call   snddrv_update                ; 00:00CB - CD 00 40
    call   poll_player_1_inputs         ; 00:00CE - CD A7 05
+   .IF !cht_noclip_button_1
    bit    4, (iy+g_inputs_player_1-IYBASE)  ; 00:00D1 - FD CB 03 66
    call   z, addr_000F2                ; 00:00D5 - CC F2 00
+   .ENDIF
    .IF 0
    .ELSE
    ;; Mega Drive controller pad hack.
@@ -10008,7 +10014,19 @@ objfunc_00_sonic:
    ld     a, (var_D412)                ; 01:48DE - 3A 12 D4
    and    a                            ; 01:48E1 - A7
    call   nz, @fn_TODO_4FF0            ; 01:48E2 - C4 F0 4F
-   res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
+   ;; TEST: MEMES --GM
+   .IF cht_noclip_button_1
+   bit 4, (iy+g_inputs_player_1-IYBASE)
+   jr nz, +
+      set 5, (ix+24)
+      set 7, (ix+24)
+      jr ++
+   +:
+      res 5, (ix+24)
+   ++:
+   .ELSE
+      res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
+   .ENDIF
    bit    6, (iy+var_D206-IYBASE)      ; 01:48E9 - FD CB 06 76
    call   nz, @fn_TODO_510A            ; 01:48ED - C4 0A 51
    ld     a, (g_directional_input_suppression_timer)  ; 01:48F0 - 3A 8C D2
