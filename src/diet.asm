@@ -10067,7 +10067,7 @@ objfunc_00_sonic:
    and    a                            ; 01:4952 - A7
    jr     nz, @is_speed_shoes_physics  ; 01:4953 - 20 58
    bit    0, (iy+var_D207-IYBASE)      ; 01:4955 - FD CB 07 46
-   jr     nz, @TODO_4981               ; 01:4959 - 20 26
+   jr     nz, @is_special_stage_air_physics  ; 01:4959 - 20 26
 
 @is_normal_physics:
    ld     hl, objfunc_00_sonic@sonic_physics_main  ; 01:495B - 21 CB 4D
@@ -10084,10 +10084,10 @@ objfunc_00_sonic:
    ld     (var_DC0A), hl               ; 01:497B - 22 0A DC
    jp     @physics_selected            ; 01:497E - C3 D9 49
 
-@TODO_4981:
+@is_special_stage_air_physics:
    bit    7, (ix+24)                   ; 01:4981 - DD CB 18 7E
    jr     nz, @is_normal_physics       ; 01:4985 - 20 D4
-   ld     hl, objfunc_00_sonic@sonic_physics_UNK_4DD4  ; 01:4987 - 21 D4 4D
+   ld     hl, objfunc_00_sonic@sonic_physics_special_stage_airborne  ; 01:4987 - 21 D4 4D
    ld     de, var_D20E                 ; 01:498A - 11 0E D2
    ld     bc, $0009                    ; 01:498D - 01 09 00
    ldir                                ; 01:4990 - ED B0
@@ -10701,7 +10701,7 @@ objfunc_00_sonic:
 .dw $0010, $0030, $0008, $0800                                                      ; 01:4DCB
 .db $02                                                                             ; 01:4DD3
 
-@sonic_physics_UNK_4DD4:
+@sonic_physics_special_stage_airborne:
 .dw $0010, $0030, $0002, $0800                                                      ; 01:4DD4
 .db $02                                                                             ; 01:4DDC
 
