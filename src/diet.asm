@@ -53,6 +53,7 @@
 .DEF shrink_sonicuncart_interleave 1
 
 ;; Get objects from a freelist instead of searching the list every time.
+;; FIXME: If you lose your rings to the motobug at the start of GHZ1, a $55 thrown ring doesn't seem to appear properly --GM
 .DEF opt_object_freelist 1
 
 .MEMORYMAP
@@ -13483,7 +13484,7 @@ objfunc_09_platform_swing:
    ld     l, (ix+2)                    ; 01:678A - DD 6E 02
    ld     h, (ix+3)                    ; 01:678D - DD 66 03
    ld     (var_D20E), hl               ; 01:6790 - 22 0E D2
-   ld     hl, LUT_0682F                ; 01:6793 - 21 2F 68
+   ld     hl, LUT_swing_xy_table       ; 01:6793 - 21 2F 68
    ld     e, (ix+17)                   ; 01:6796 - DD 5E 11
    ld     d, $00                       ; 01:6799 - 16 00
    add    hl, de                       ; 01:679B - 19
@@ -13564,7 +13565,7 @@ objfunc_09_platform_swing:
    res    1, (ix+24)                   ; 01:682A - DD CB 18 8E
    ret                                 ; 01:682E - C9
 
-LUT_0682F:
+LUT_swing_xy_table:
 .db $B3, $00, $B3, $01, $B3, $02, $B3, $02, $B3, $03, $B3, $04, $B3, $05, $B3, $06  ; 01:682F
 .db $B4, $07, $B4, $08, $B4, $09, $B4, $0B, $B4, $0C, $B4, $0D, $B5, $0E, $B5, $0F  ; 01:683F
 .db $B5, $11, $B5, $12, $B6, $13, $B6, $15, $B7, $16, $B7, $18, $B8, $19, $B8, $1B  ; 01:684F
