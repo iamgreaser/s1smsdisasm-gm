@@ -302,14 +302,14 @@ sonic_vel_y db   ; D407
 sonic_vel_y_hi db   ; D408
 sonic_size_x db   ; D409
 sonic_size_y db   ; D40A
-var_D40B dw   ; D40B
-var_D40D dw   ; D40D
-var_D40F db   ; D40F
-var_D410 db   ; D410
-sonic_speed_shoes_countdown_timer db   ; D411
-var_D412 db   ; D412
-.  dsb 1
-var_D414 db   ; D414
+sonic_spritemap_ix_15 dw   ; D40B
+sonic_ix_17 dw   ; D40D
+sonic_ix_19 db   ; D40F
+sonic_ix_20 db   ; D410
+sonic_speed_shoes_countdown_timer_ix_21 db   ; D411
+sonic_ix_22 db   ; D412
+sonic_ix_23 db   ; D413
+sonic_flags_ix_24 db   ; D414
 .  dsb 1
 object_list_past_sonic db   ; D416
 .  dsb 2029
@@ -8804,7 +8804,7 @@ enemy_touched_sonic:
    ret    nz                           ; 00:35E9 - C0
    bit    0, (iy+var_D208-IYBASE)      ; 00:35EA - FD CB 08 46
    jp     nz, addr_036BE               ; 00:35EE - C2 BE 36
-   ld     a, (var_D414)                ; 00:35F1 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 00:35F1 - 3A 14 D4
    rrca                                ; 00:35F4 - 0F
    jp     c, addr_036BE                ; 00:35F5 - DA BE 36
    and    $02                          ; 00:35F8 - E6 02
@@ -8829,7 +8829,7 @@ damage_sonic:
 
 kill_sonic:
    set    0, (iy+var_D205-IYBASE)      ; 00:3618 - FD CB 05 C6
-   ld     hl, var_D414                 ; 00:361C - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 00:361C - 21 14 D4
    set    7, (hl)                      ; 00:361F - CB FE
    ld     hl, $FFFA                    ; 00:3621 - 21 FA FF
    xor    a                            ; 00:3624 - AF
@@ -8868,7 +8868,7 @@ addr_03644:
    pop    ix                           ; 00:367C - DD E1
 
 addr_0367E:
-   ld     hl, var_D414                 ; 00:367E - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 00:367E - 21 14 D4
    ld     de, $FFFC                    ; 00:3681 - 11 FC FF
    xor    a                            ; 00:3684 - AF
    bit    4, (hl)                      ; 00:3685 - CB 66
@@ -10012,7 +10012,7 @@ objfunc_00_sonic:
    set    7, (iy+var_D207-IYBASE)      ; 01:48D3 - FD CB 07 FE
    bit    0, (iy+var_D205-IYBASE)      ; 01:48D7 - FD CB 05 46
    jp     nz, @sonic_is_dying          ; 01:48DB - C2 3C 54
-   ld     a, (var_D412)                ; 01:48DE - 3A 12 D4
+   ld     a, (sonic_ix_22)             ; 01:48DE - 3A 12 D4
    and    a                            ; 01:48E1 - A7
    call   nz, @fn_TODO_4FF0            ; 01:48E2 - C4 F0 4F
    .IF cht_noclip_button_1
@@ -10192,7 +10192,7 @@ objfunc_00_sonic:
    ld     a, e                         ; 01:4A4B - 7B
    or     d                            ; 01:4A4C - B2
    jr     nz, @TODO_4A59               ; 01:4A4D - 20 0A
-   ld     a, (var_D414)                ; 01:4A4F - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:4A4F - 3A 14 D4
    rlca                                ; 01:4A52 - 07
    jr     nc, @TODO_4A59               ; 01:4A53 - 30 04
    ld     hl, (var_D299)               ; 01:4A55 - 2A 99 D2
@@ -10446,7 +10446,7 @@ objfunc_00_sonic:
    and    a                            ; 01:4C0C - A7
    sbc    hl, de                       ; 01:4C0D - ED 52
    jr     nc, @TODO_4C28               ; 01:4C0F - 30 17
-   ld     a, (var_D414)                ; 01:4C11 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:4C11 - 3A 14 D4
    and    $85                          ; 01:4C14 - E6 85
    jr     nz, @TODO_4C28               ; 01:4C16 - 20 10
    bit    7, (ix+12)                   ; 01:4C18 - DD CB 0C 7E
@@ -10474,7 +10474,7 @@ objfunc_00_sonic:
    call   nz, @fn_handle_damage_stun_animation_and_deactivation  ; 01:4C44 - C4 BC 51
    bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
    call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
-   ld     a, (var_D410)                ; 01:4C4E - 3A 10 D4
+   ld     a, (sonic_ix_20)             ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
    call   z, @fn_TODO_51F3             ; 01:4C53 - CC F3 51
    ld     l, (ix+20)                   ; 01:4C56 - DD 6E 14
@@ -10486,11 +10486,11 @@ objfunc_00_sonic:
    ld     e, (hl)                      ; 01:4C61 - 5E
    inc    hl                           ; 01:4C62 - 23
    ld     d, (hl)                      ; 01:4C63 - 56
-   ld     (var_D40D), de               ; 01:4C64 - ED 53 0D D4
+   ld     (sonic_ix_17), de            ; 01:4C64 - ED 53 0D D4
    ld     a, (var_D2DF)                ; 01:4C68 - 3A DF D2
    sub    c                            ; 01:4C6B - 91
    call   nz, @fn_TODO_521F            ; 01:4C6C - C4 1F 52
-   ld     a, (var_D40F)                ; 01:4C6F - 3A 0F D4
+   ld     a, (sonic_ix_19)             ; 01:4C6F - 3A 0F D4
 
 @TODO_4C72:
    ld     h, $00                       ; 01:4C72 - 26 00
@@ -10501,7 +10501,7 @@ objfunc_00_sonic:
    jp     p, @TODO_4C83                ; 01:4C78 - F2 83 4C
    inc    hl                           ; 01:4C7B - 23
    ld     a, (hl)                      ; 01:4C7C - 7E
-   ld     (var_D40F), a                ; 01:4C7D - 32 0F D4
+   ld     (sonic_ix_19), a             ; 01:4C7D - 32 0F D4
    jp     @TODO_4C72                   ; 01:4C80 - C3 72 4C
 
 @TODO_4C83:
@@ -10550,13 +10550,13 @@ objfunc_00_sonic:
    .ENDIF
    bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
    call   nz, @fn_TODO_520F            ; 01:4CB6 - C4 0F 52
-   ld     a, (var_D410)                ; 01:4CB9 - 3A 10 D4
+   ld     a, (sonic_ix_20)             ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
    call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
    ld     a, (g_sonic_sprite_index_override)  ; 01:4CC1 - 3A 02 D3
    and    a                            ; 01:4CC4 - A7
    call   nz, @fn_TODO_4E4D            ; 01:4CC5 - C4 4D 4E
-   ld     (var_D40B), hl               ; 01:4CC8 - 22 0B D4
+   ld     (sonic_spritemap_ix_15), hl  ; 01:4CC8 - 22 0B D4
    ld     c, $10                       ; 01:4CCB - 0E 10
    ld     a, (sonic_vel_x)             ; 01:4CCD - 3A 04 D4
    and    a                            ; 01:4CD0 - A7
@@ -10652,9 +10652,9 @@ objfunc_00_sonic:
    ld     (sonic_vel_x_hi), a          ; 01:4D7E - 32 05 D4
 
 @TODO_4D81:
-   ld     a, (var_D414)                ; 01:4D81 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:4D81 - 3A 14 D4
    ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
-   ld     a, (var_D410)                ; 01:4D87 - 3A 10 D4
+   ld     a, (sonic_ix_20)             ; 01:4D87 - 3A 10 D4
    ld     (var_D2DF), a                ; 01:4D8A - 32 DF D2
    ld     d, $01                       ; 01:4D8D - 16 01
    ld     c, $30                       ; 01:4D8F - 0E 30
@@ -10690,11 +10690,11 @@ objfunc_00_sonic:
    ld     a, h                         ; 01:4DBC - 7C
    adc    a, d                         ; 01:4DBD - 8A
    adc    a, (ix+19)                   ; 01:4DBE - DD 8E 13
-   ld     (var_D40F), a                ; 01:4DC1 - 32 0F D4
+   ld     (sonic_ix_19), a             ; 01:4DC1 - 32 0F D4
    cp     c                            ; 01:4DC4 - B9
    ret    c                            ; 01:4DC5 - D8
    sub    c                            ; 01:4DC6 - 91
-   ld     (var_D40F), a                ; 01:4DC7 - 32 0F D4
+   ld     (sonic_ix_19), a             ; 01:4DC7 - 32 0F D4
    ret                                 ; 01:4DCA - C9
 
 @sonic_physics_main:
@@ -10860,7 +10860,7 @@ objfunc_00_sonic:
    ld     a, h                         ; 01:4EE0 - 7C
    or     l                            ; 01:4EE1 - B5
    ret    nz                           ; 01:4EE2 - C0
-   ld     a, (var_D414)                ; 01:4EE3 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:4EE3 - 3A 14 D4
    rlca                                ; 01:4EE6 - 07
    ret    nc                           ; 01:4EE7 - D0
    ld     (ix+20), $0C                 ; 01:4EE8 - DD 36 14 0C
@@ -11037,7 +11037,7 @@ objfunc_00_sonic:
 
 @fn_TODO_4FF0:
    dec    a                            ; 01:4FF0 - 3D
-   ld     (var_D412), a                ; 01:4FF1 - 32 12 D4
+   ld     (sonic_ix_22), a             ; 01:4FF1 - 32 12 D4
    ret                                 ; 01:4FF4 - C9
 
 @fn_handle_invincibility:
@@ -11193,9 +11193,9 @@ objfunc_00_sonic:
 
 @fn_handle_damage_stun_and_input_suppression:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:510A - FD 36 03 FF
-   ld     a, (var_D414)                ; 01:510E - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:510E - 3A 14 D4
    and    $FA                          ; 01:5111 - E6 FA
-   ld     (var_D414), a                ; 01:5113 - 32 14 D4
+   ld     (sonic_flags_ix_24), a       ; 01:5113 - 32 14 D4
    ret                                 ; 01:5116 - C9
 
 @TODO_5117:
@@ -11280,7 +11280,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_y_sub), hl        ; 01:5196 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:5199 - 32 08 D4
    ld     (ix+20), $16                 ; 01:519C - DD 36 14 16
-   ld     a, (var_D40F)                ; 01:51A0 - 3A 0F D4
+   ld     a, (sonic_ix_19)             ; 01:51A0 - 3A 0F D4
    cp     $12                          ; 01:51A3 - FE 12
    jp     c, @TODO_4C39                ; 01:51A5 - DA 39 4C
    res    6, (iy+var_D208-IYBASE)      ; 01:51A8 - FD CB 08 B6
@@ -11308,9 +11308,9 @@ objfunc_00_sonic:
    ret                                 ; 01:51DC - C9
 
 @fn_TODO_51DD:
-   ld     a, (var_D414)                ; 01:51DD - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:51DD - 3A 14 D4
    and    $FA                          ; 01:51E0 - E6 FA
-   ld     (var_D414), a                ; 01:51E2 - 32 14 D4
+   ld     (sonic_flags_ix_24), a       ; 01:51E2 - 32 14 D4
    ld     (ix+20), $14                 ; 01:51E5 - DD 36 14 14
    ld     hl, var_D2FB                 ; 01:51E9 - 21 FB D2
    dec    (hl)                         ; 01:51EC - 35
@@ -11319,7 +11319,7 @@ objfunc_00_sonic:
    ret                                 ; 01:51F2 - C9
 
 @fn_TODO_51F3:
-   ld     a, (var_D412)                ; 01:51F3 - 3A 12 D4
+   ld     a, (sonic_ix_22)             ; 01:51F3 - 3A 12 D4
    and    a                            ; 01:51F6 - A7
    ret    nz                           ; 01:51F7 - C0
    bit    7, (ix+24)                   ; 01:51F8 - DD CB 18 7E
@@ -11327,7 +11327,7 @@ objfunc_00_sonic:
    ld     a, $03                       ; 01:51FD - 3E 03
    rst    $28                          ; 01:51FF - EF
    ld     a, $3C                       ; 01:5200 - 3E 3C
-   ld     (var_D412), a                ; 01:5202 - 32 12 D4
+   ld     (sonic_ix_22), a             ; 01:5202 - 32 12 D4
    ret                                 ; 01:5205 - C9
 
 @fn_handle_shield_animation:
@@ -11698,7 +11698,7 @@ objfunc_00_sonic:
    and    $1F                          ; 01:54D3 - E6 1F
    cp     $1A                          ; 01:54D5 - FE 1A
    ret    c                            ; 01:54D7 - D8
-   ld     a, (var_D414)                ; 01:54D8 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:54D8 - 3A 14 D4
    rrca                                ; 01:54DB - 0F
    jr     c, @TODO_54E1                ; 01:54DC - 38 03
    and    $02                          ; 01:54DE - E6 02
@@ -12150,7 +12150,7 @@ objfunc_00_sonic:
    ret                                 ; 01:5807 - C9
 
 @special_18:
-   ld     a, (var_D414)                ; 01:5808 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:5808 - 3A 14 D4
    rlca                                ; 01:580B - 07
    ret    nc                           ; 01:580C - D0
    ld     hl, (sonic_x)                ; 01:580D - 2A FE D3
@@ -12510,7 +12510,7 @@ objfunc_02_monitor_speed_shoes:
    call   addr_05DEB                   ; 01:5BEF - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5BF2 - 38 0B
    ld     a, $F0                       ; 01:5BF4 - 3E F0
-   ld     (sonic_speed_shoes_countdown_timer), a  ; 01:5BF6 - 32 11 D4
+   ld     (sonic_speed_shoes_countdown_timer_ix_21), a  ; 01:5BF6 - 32 11 D4
    ld     a, $02                       ; 01:5BF9 - 3E 02
    rst    $28                          ; 01:5BFB - EF
    jp     monitor_common_destroy_after_hit  ; 01:5BFC - C3 29 5B
@@ -12764,7 +12764,7 @@ addr_05DCC:
 addr_05DEB:
    ld     hl, $0804                    ; 01:5DEB - 21 04 08
    ld     (var_D20E), hl               ; 01:5DEE - 22 0E D2
-   ld     a, (var_D414)                ; 01:5DF1 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:5DF1 - 3A 14 D4
    and    $01                          ; 01:5DF4 - E6 01
    jr     nz, addr_05E49               ; 01:5DF6 - 20 51
    ld     de, (sonic_x)                ; 01:5DF8 - ED 5B FE D3
@@ -12780,7 +12780,7 @@ addr_05DEB:
    and    a                            ; 01:5E0F - A7
    sbc    hl, de                       ; 01:5E10 - ED 52
    jr     c, addr_05E6D                ; 01:5E12 - 38 59
-   ld     a, (var_D414)                ; 01:5E14 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:5E14 - 3A 14 D4
    and    $04                          ; 01:5E17 - E6 04
    jr     nz, addr_05E42               ; 01:5E19 - 20 27
    ld     l, (ix+5)                    ; 01:5E1B - DD 6E 05
@@ -12796,7 +12796,7 @@ addr_05DEB:
    ld     hl, (var_D2E6)               ; 01:5E32 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:5E35 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:5E38 - 32 08 D4
-   ld     hl, var_D414                 ; 01:5E3B - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 01:5E3B - 21 14 D4
    set    7, (hl)                      ; 01:5E3E - CB FE
    scf                                 ; 01:5E40 - 37
    ret                                 ; 01:5E41 - C9
@@ -12942,7 +12942,7 @@ objfunc_07_signpost:
    ld     hl, $0088                    ; 01:5F5D - 21 88 00
    ld     (var_D26D), hl               ; 01:5F60 - 22 6D D2
    ld     c, (ix+19)                   ; 01:5F63 - DD 4E 13
-   ld     a, (var_D414)                ; 01:5F66 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:5F66 - 3A 14 D4
    and    $80                          ; 01:5F69 - E6 80
    ld     (ix+19), a                   ; 01:5F6B - DD 77 13
    jr     z, @dont_bounce              ; 01:5F6E - 28 34
@@ -13606,7 +13606,7 @@ objfunc_0A_explosion:
    ld     a, (g_level)                 ; 01:695E - 3A 3E D2
    cp     $12                          ; 01:6961 - FE 12
    jr     z, @skip_sonic_bounce_off_top  ; 01:6963 - 28 28
-   ld     a, (var_D414)                ; 01:6965 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:6965 - 3A 14 D4
    rlca                                ; 01:6968 - 07
    jr     c, @skip_sonic_bounce_off_top  ; 01:6969 - 38 22
    ld     a, (var_D2E8)                ; 01:696B - 3A E8 D2
@@ -14775,7 +14775,7 @@ objfunc_25_animal_capsule:
    ld     hl, (var_D2E6)               ; 01:742E - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:7431 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:7434 - 32 08 D4
-   ld     hl, var_D414                 ; 01:7437 - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 01:7437 - 21 14 D4
    set    7, (hl)                      ; 01:743A - CB FE
    ld     a, c                         ; 01:743C - 79
    cp     $03                          ; 01:743D - FE 03
@@ -15117,7 +15117,7 @@ addr_077BE:
    ret    c                            ; 01:77D5 - D8
    bit    0, (iy+var_D205-IYBASE)      ; 01:77D6 - FD CB 05 46
    ret    nz                           ; 01:77DA - C0
-   ld     a, (var_D414)                ; 01:77DB - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:77DB - 3A 14 D4
    rrca                                ; 01:77DE - 0F
    jr     c, addr_077E6                ; 01:77DF - 38 05
    and    $02                          ; 01:77E1 - E6 02
@@ -15377,7 +15377,7 @@ objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    ret    c                            ; 01:7ABC - D8
    bit    6, (iy+var_D206-IYBASE)      ; 01:7ABD - FD CB 06 76
    ret    nz                           ; 01:7AC1 - C0
-   ld     a, (var_D414)                ; 01:7AC2 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 01:7AC2 - 3A 14 D4
    and    $80                          ; 01:7AC5 - E6 80
    ret    z                            ; 01:7AC7 - C8
    ld     hl, $FFFB                    ; 01:7AC8 - 21 FB FF
@@ -15388,7 +15388,7 @@ objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    xor    a                            ; 01:7AD5 - AF
    ld     (sonic_vel_x_sub), a         ; 01:7AD6 - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:7AD9 - 22 04 D4
-   ld     hl, var_D414                 ; 01:7ADC - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 01:7ADC - 21 14 D4
    res    1, (hl)                      ; 01:7ADF - CB 8E
    set    6, (iy+var_D206-IYBASE)      ; 01:7AE1 - FD CB 06 F6
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:7AE5 - FD 36 03 FF
@@ -15701,7 +15701,7 @@ put_sonic_y_pos_on_platform:
    ld     hl, (var_D2E6)               ; 01:7CE7 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:7CEA - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:7CED - 32 08 D4
-   ld     hl, var_D414                 ; 01:7CF0 - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 01:7CF0 - 21 14 D4
    set    7, (hl)                      ; 01:7CF3 - CB FE
    ret                                 ; 01:7CF5 - C9
 
@@ -16089,7 +16089,7 @@ objfunc_2C_UNKNOWN:
    and    a                            ; 02:806B - A7
    sbc    hl, de                       ; 02:806C - ED 52
    ret    nc                           ; 02:806E - D0
-   ld     a, (var_D414)                ; 02:806F - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 02:806F - 3A 14 D4
    rlca                                ; 02:8072 - 07
    ret    nc                           ; 02:8073 - D0
    ld     hl, ART_09_AEB1              ; 02:8074 - 21 B1 AE
@@ -16920,7 +16920,7 @@ addr_087F9:
    xor    a                            ; 02:880E - AF
    sbc    hl, bc                       ; 02:880F - ED 42
    ld     (sonic_y), hl                ; 02:8811 - 22 01 D4
-   ld     hl, var_D414                 ; 02:8814 - 21 14 D4
+   ld     hl, sonic_flags_ix_24        ; 02:8814 - 21 14 D4
    set    7, (hl)                      ; 02:8817 - CB FE
    ret                                 ; 02:8819 - C9
 
@@ -20236,7 +20236,7 @@ addr_0A8EB:
 
 addr_0A91D:
    ld     a, $80                       ; 02:A91D - 3E 80
-   ld     (var_D414), a                ; 02:A91F - 32 14 D4
+   ld     (sonic_flags_ix_24), a       ; 02:A91F - 32 14 D4
    ld     hl, $05A0                    ; 02:A922 - 21 A0 05
    ld     (sonic_x), hl                ; 02:A925 - 22 FE D3
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:A928 - FD 36 03 FF
@@ -21796,7 +21796,7 @@ addr_0B7E6:
    ret    nz                           ; 02:B7EA - C0
    bit    0, (iy+var_D205-IYBASE)      ; 02:B7EB - FD CB 05 46
    ret    nz                           ; 02:B7EF - C0
-   ld     a, (var_D414)                ; 02:B7F0 - 3A 14 D4
+   ld     a, (sonic_flags_ix_24)       ; 02:B7F0 - 3A 14 D4
    rrca                                ; 02:B7F3 - 0F
    jr     c, addr_0B7F9                ; 02:B7F4 - 38 03
    and    $02                          ; 02:B7F6 - E6 02
