@@ -184,7 +184,7 @@ g_signpost_tickdown_counter db   ; D289
 var_D28A db   ; D28A
 var_D28B db   ; D28B
 g_directional_input_suppression_timer db   ; D28C
-var_D28D db   ; D28D
+g_invincibility_countdown_timer db   ; D28D
 var_D28E db   ; D28E
 var_D28F dw   ; D28F
 var_D291 dw   ; D291
@@ -264,7 +264,7 @@ var_D2FD db   ; D2FD
 var_D2FE db   ; D2FE (auto)
 var_D2FF db   ; D2FF
 .  dsb 2
-var_D302 db   ; D302
+g_sonic_sprite_index_override db   ; D302
 .  dsb 2
 g_level_lives_collected_mask db   ; D305
 .  dsb 5
@@ -5622,7 +5622,7 @@ addr_01E07:
    bit    2, (iy+var_D205-IYBASE)      ; 00:1E26 - FD CB 05 56
    call   nz, addr_0239C               ; 00:1E2A - C4 9C 23
    xor    a                            ; 00:1E2D - AF
-   ld     (var_D302), a                ; 00:1E2E - 32 02 D3
+   ld     (g_sonic_sprite_index_override), a  ; 00:1E2E - 32 02 D3
    ld     (var_D2DE), a                ; 00:1E31 - 32 DE D2
    ld     (iy+g_sprite_count-IYBASE), $15  ; 00:1E34 - FD 36 0A 15
    ld     hl, var_D03F                 ; 00:1E38 - 21 3F D0
@@ -10036,7 +10036,7 @@ objfunc_00_sonic:
    bit    0, (iy+var_D207-IYBASE)      ; 01:48F7 - FD CB 07 46
    call   nz, @fn_TODO_5100            ; 01:48FB - C4 00 51
    bit    0, (iy+var_D208-IYBASE)      ; 01:48FE - FD CB 08 46
-   call   nz, @fn_TODO_4FF5            ; 01:4902 - C4 F5 4F
+   call   nz, @fn_handle_invincibility  ; 01:4902 - C4 F5 4F
    bit    4, (ix+24)                   ; 01:4905 - DD CB 18 66
    call   nz, @fn_handle_air_timer_and_drowning  ; 01:4909 - C4 09 50
    ld     a, (var_D28B)                ; 01:490C - 3A 8B D2
@@ -10510,10 +10510,10 @@ objfunc_00_sonic:
    .IF !shrink_sonicuncart_interleave
    ld     bc, $4000                    ; 01:4C84 - 01 00 40
    bit    1, (ix+24)                   ; 01:4C87 - DD CB 18 4E
-   jr     z, @TODO_4C90                ; 01:4C8B - 28 03
+   jr     z, @sprite_setting_was_facing_left  ; 01:4C8B - 28 03
    ld     bc, $7000                    ; 01:4C8D - 01 00 70
 
-@TODO_4C90:
+@sprite_setting_was_facing_left:
    .ELSE
    ld bc, sonic_art
    bit 1, (ix+24)
@@ -10522,8 +10522,8 @@ objfunc_00_sonic:
    +:
    .ENDIF
    bit    5, (iy+var_D206-IYBASE)      ; 01:4C90 - FD CB 06 6E
-   call   nz, @fn_TODO_5206            ; 01:4C94 - C4 06 52
-   ld     a, (var_D302)                ; 01:4C97 - 3A 02 D3
+   call   nz, @fn_handle_shield_animation  ; 01:4C94 - C4 06 52
+   ld     a, (g_sonic_sprite_index_override)  ; 01:4C97 - 3A 02 D3
    and    a                            ; 01:4C9A - A7
    call   nz, @fn_TODO_4E48            ; 01:4C9B - C4 48 4E
    ld     a, d                         ; 01:4C9E - 7A
@@ -10554,7 +10554,7 @@ objfunc_00_sonic:
    ld     a, (var_D410)                ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
    call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
-   ld     a, (var_D302)                ; 01:4CC1 - 3A 02 D3
+   ld     a, (g_sonic_sprite_index_override)  ; 01:4CC1 - 3A 02 D3
    and    a                            ; 01:4CC4 - A7
    call   nz, @fn_TODO_4E4D            ; 01:4CC5 - C4 4D 4E
    ld     (var_D40B), hl               ; 01:4CC8 - 22 0B D4
@@ -11037,11 +11037,11 @@ objfunc_00_sonic:
    ld     (var_D412), a                ; 01:4FF1 - 32 12 D4
    ret                                 ; 01:4FF4 - C9
 
-@fn_TODO_4FF5:
+@fn_handle_invincibility:
    ld     a, (g_global_tick_counter)   ; 01:4FF5 - 3A 23 D2
    and    $03                          ; 01:4FF8 - E6 03
    ret    nz                           ; 01:4FFA - C0
-   ld     hl, var_D28D                 ; 01:4FFB - 21 8D D2
+   ld     hl, g_invincibility_countdown_timer  ; 01:4FFB - 21 8D D2
    dec    (hl)                         ; 01:4FFE - 35
    ret    nz                           ; 01:4FFF - C0
    res    0, (iy+var_D208-IYBASE)      ; 01:5000 - FD CB 08 86
@@ -11327,7 +11327,7 @@ objfunc_00_sonic:
    ld     (var_D412), a                ; 01:5202 - 32 12 D4
    ret                                 ; 01:5205 - C9
 
-@fn_TODO_5206:
+@fn_handle_shield_animation:
    ld     a, (g_global_tick_counter)   ; 01:5206 - 3A 23 D2
    and    $01                          ; 01:5209 - E6 01
    ret    nz                           ; 01:520B - C0
@@ -12654,7 +12654,7 @@ objfunc_05_monitor_invincibility:
    jr     c, @continue_into_common_main  ; 01:5D18 - 38 0F
    set    0, (iy+var_D208-IYBASE)      ; 01:5D1A - FD CB 08 C6
    ld     a, $F0                       ; 01:5D1E - 3E F0
-   ld     (var_D28D), a                ; 01:5D20 - 32 8D D2
+   ld     (g_invincibility_countdown_timer), a  ; 01:5D20 - 32 8D D2
    ld     a, $08                       ; 01:5D23 - 3E 08
    rst    $18                          ; 01:5D25 - DF
    jp     monitor_common_destroy_after_hit  ; 01:5D26 - C3 29 5B
@@ -15481,7 +15481,7 @@ objfunc_55_thrown_ring_on_sonic_damage:
    ld     a, (hl)                      ; 01:7BB6 - 7E
    ld     (ix+15), e                   ; 01:7BB7 - DD 73 0F
    ld     (ix+16), d                   ; 01:7BBA - DD 72 10
-   ld     (var_D302), a                ; 01:7BBD - 32 02 D3
+   ld     (g_sonic_sprite_index_override), a  ; 01:7BBD - 32 02 D3
    jr     @tick_mod_2_was_not_0        ; 01:7BC0 - 18 06
 
 @tick_mod_2_is_0:
