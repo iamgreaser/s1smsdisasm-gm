@@ -306,7 +306,7 @@ var_D40B dw   ; D40B
 var_D40D dw   ; D40D
 var_D40F db   ; D40F
 var_D410 db   ; D410
-var_D411 db   ; D411
+sonic_speed_shoes_countdown_timer db   ; D411
 var_D412 db   ; D412
 .  dsb 1
 var_D414 db   ; D414
@@ -10051,7 +10051,7 @@ objfunc_00_sonic:
    call   nz, @fn_TODO_529C            ; 01:4925 - C4 9C 52
    bit    4, (ix+24)                   ; 01:4928 - DD CB 18 66
    jp     z, @TODO_494F                ; 01:492C - CA 4F 49
-   ld     hl, objfunc_00_sonic@TODO_UNK_4DDD  ; 01:492F - 21 DD 4D
+   ld     hl, objfunc_00_sonic@sonic_physics_underwater  ; 01:492F - 21 DD 4D
    ld     de, var_D20E                 ; 01:4932 - 11 0E D2
    ld     bc, $0009                    ; 01:4935 - 01 09 00
    ldir                                ; 01:4938 - ED B0
@@ -10071,7 +10071,7 @@ objfunc_00_sonic:
    jr     nz, @TODO_4981               ; 01:4959 - 20 26
 
 @TODO_495B:
-   ld     hl, objfunc_00_sonic@TODO_UNK_4DCB  ; 01:495B - 21 CB 4D
+   ld     hl, objfunc_00_sonic@sonic_physics_main  ; 01:495B - 21 CB 4D
    ld     de, var_D20E                 ; 01:495E - 11 0E D2
    ld     bc, $0009                    ; 01:4961 - 01 09 00
    ldir                                ; 01:4964 - ED B0
@@ -10088,7 +10088,7 @@ objfunc_00_sonic:
 @TODO_4981:
    bit    7, (ix+24)                   ; 01:4981 - DD CB 18 7E
    jr     nz, @TODO_495B               ; 01:4985 - 20 D4
-   ld     hl, objfunc_00_sonic@TODO_UNK_4DD4  ; 01:4987 - 21 D4 4D
+   ld     hl, objfunc_00_sonic@sonic_physics_UNK_4DD4  ; 01:4987 - 21 D4 4D
    ld     de, var_D20E                 ; 01:498A - 11 0E D2
    ld     bc, $0009                    ; 01:498D - 01 09 00
    ldir                                ; 01:4990 - ED B0
@@ -10103,7 +10103,7 @@ objfunc_00_sonic:
    jp     @TODO_49D9                   ; 01:49AA - C3 D9 49
 
 @TODO_49AD:
-   ld     hl, objfunc_00_sonic@TODO_UNK_4DE6  ; 01:49AD - 21 E6 4D
+   ld     hl, objfunc_00_sonic@sonic_physics_speed_shoes  ; 01:49AD - 21 E6 4D
    ld     de, var_D20E                 ; 01:49B0 - 11 0E D2
    ld     bc, $0009                    ; 01:49B3 - 01 09 00
    ldir                                ; 01:49B6 - ED B0
@@ -10118,7 +10118,7 @@ objfunc_00_sonic:
    ld     (var_DC0A), hl               ; 01:49CE - 22 0A DC
    ld     a, (g_global_tick_counter)   ; 01:49D1 - 3A 23 D2
    and    $03                          ; 01:49D4 - E6 03
-   call   z, @fn_TODO_4FEC             ; 01:49D6 - CC EC 4F
+   call   z, @fn_handle_speed_shoes_timer  ; 01:49D6 - CC EC 4F
 
 @TODO_49D9:
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49D9 - FD CB 03 4E
@@ -10698,17 +10698,21 @@ objfunc_00_sonic:
    ld     (var_D40F), a                ; 01:4DC7 - 32 0F D4
    ret                                 ; 01:4DCA - C9
 
-@TODO_UNK_4DCB:
-.db $10, $00, $30, $00, $08, $00, $00, $08, $02                                     ; 01:4DCB
+@sonic_physics_main:
+.dw $0010, $0030, $0008, $0800                                                      ; 01:4DCB
+.db $02                                                                             ; 01:4DD3
 
-@TODO_UNK_4DD4:
-.db $10, $00, $30, $00, $02, $00, $00, $08, $02                                     ; 01:4DD4
+@sonic_physics_UNK_4DD4:
+.dw $0010, $0030, $0002, $0800                                                      ; 01:4DD4
+.db $02                                                                             ; 01:4DDC
 
-@TODO_UNK_4DDD:
-.db $04, $00, $0C, $00, $02, $00, $00, $02, $01                                     ; 01:4DDD
+@sonic_physics_underwater:
+.dw $0004, $000C, $0002, $0200                                                      ; 01:4DDD
+.db $01                                                                             ; 01:4DE5
 
-@TODO_UNK_4DE6:
-.db $10, $00, $30, $00, $08, $00, $00, $08, $02                                     ; 01:4DE6
+@sonic_physics_speed_shoes:
+.dw $0010, $0030, $0008, $0800                                                      ; 01:4DE6
+.db $02                                                                             ; 01:4DEE
 
 @fn_try_collect_ring_in_ring_tile:
    ex     de, hl                       ; 01:4DEF - EB
@@ -11028,7 +11032,7 @@ objfunc_00_sonic:
    ld     (var_D2B7), hl               ; 01:4FE8 - 22 B7 D2
    ret                                 ; 01:4FEB - C9
 
-@fn_TODO_4FEC:
+@fn_handle_speed_shoes_timer:
    dec    (ix+21)                      ; 01:4FEC - DD 35 15
    ret                                 ; 01:4FEF - C9
 
@@ -12507,7 +12511,7 @@ objfunc_02_monitor_speed_shoes:
    call   addr_05DEB                   ; 01:5BEF - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5BF2 - 38 0B
    ld     a, $F0                       ; 01:5BF4 - 3E F0
-   ld     (var_D411), a                ; 01:5BF6 - 32 11 D4
+   ld     (sonic_speed_shoes_countdown_timer), a  ; 01:5BF6 - 32 11 D4
    ld     a, $02                       ; 01:5BF9 - 3E 02
    rst    $28                          ; 01:5BFB - EF
    jp     monitor_common_destroy_after_hit  ; 01:5BFC - C3 29 5B
