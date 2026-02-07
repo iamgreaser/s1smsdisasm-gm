@@ -142,12 +142,12 @@ g_lives db   ; D246
 g_water_irq_line_state db   ; D247
 g_water_onscreen_y db   ; D248
 .  dsb 6
-var_D24F dw   ; D24F
+g_level_tilemap_ptr dw   ; D24F
 g_vdp_scroll_x db   ; D251
 g_vdp_scroll_y db   ; D252
 .  dsb 4
-var_D257 db   ; D257
-var_D258 db   ; D258
+g_level_scroll_tile_x db   ; D257
+g_level_scroll_tile_y db   ; D258
 g_level_scroll_x_sub db   ; D259
 g_level_scroll_x_pix_lo db   ; D25A
 g_level_scroll_x_pix_hi db   ; D25B
@@ -230,7 +230,7 @@ g_time_mins db   ; D2CE
 g_time_secs_BCD db   ; D2CF
 g_time_subsecs db   ; D2D0
 .  dsb 1
-var_D2D2 db   ; D2D2
+g_current_music db   ; D2D2
 var_D2D3 db   ; D2D3
 g_tile_flags_index db   ; D2D4
 var_D2D5 dw   ; D2D5
@@ -258,7 +258,7 @@ var_D2F3 db   ; D2F3 (auto)
 var_D2F7 db   ; D2F7 (auto)
 .  dsb 3
 var_D2FB db   ; D2FB
-var_D2FC db   ; D2FC
+g_level_music db   ; D2FC
 var_D2FD db   ; D2FD
 var_D2FE db   ; D2FE (auto)
 var_D2FF db   ; D2FF
@@ -278,8 +278,8 @@ var_D31F dw   ; D31F
 var_D321 db   ; D321
 var_D322 db   ; D322 (auto)
 .  dsb 11
-var_D32E db   ; D32E (auto)
-.  dsb 37
+g_per_level_checkpoint_positions dw   ; D32E
+.  dsb 36
 g_level_header_copy db   ; D354
 .  dsb 39
 g_object_ptrs dw   ; D37C
@@ -854,7 +854,7 @@ di_call_s1_b03_4012_a_DI:
    ld     a, $03                       ; 00:02D9 - 3E 03
    ld     (rompage_1), a               ; 00:02DB - 32 FE FF
    pop    af                           ; 00:02DE - F1
-   ld     (var_D2D2), a                ; 00:02DF - 32 D2 D2
+   ld     (g_current_music), a         ; 00:02DF - 32 D2 D2
    call   snddrv_play_music            ; 00:02E2 - CD 12 40
    ld     a, (g_committed_rompage_1)   ; 00:02E5 - 3A 35 D2
    ld     (rompage_1), a               ; 00:02E8 - 32 FE FF
@@ -1859,7 +1859,7 @@ addr_00688:
    ; SAVING: 9 bytes (and 15 cycles)
    .ENDIF
    ld     b, h                         ; 00:06AB - 44
-   ld     (var_D257), bc               ; 00:06AC - ED 43 57 D2
+   ld     (g_level_scroll_tile_x), bc  ; 00:06AC - ED 43 57 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:06B0 - 2A 5A D2
    ld     (var_D26F), hl               ; 00:06B3 - 22 6F D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:06B6 - 2A 5D D2
@@ -1996,7 +1996,7 @@ addr_00733:
    and    $10                          ; 00:074B - E6 10
    ld     hl, (var_D20E)               ; 00:074D - 2A 0E D2
    add    hl, bc                       ; 00:0750 - 09
-   ld     bc, (var_D24F)               ; 00:0751 - ED 4B 4F D2
+   ld     bc, (g_level_tilemap_ptr)    ; 00:0751 - ED 4B 4F D2
    add    hl, bc                       ; 00:0755 - 09
    ld     bc, $0004                    ; 00:0756 - 01 04 00
    ldi                                 ; 00:0759 - ED A0
@@ -2084,7 +2084,7 @@ addr_007A3:
    and    $10                          ; 00:07BB - E6 10
    ld     hl, (var_D20E)               ; 00:07BD - 2A 0E D2
    add    hl, bc                       ; 00:07C0 - 09
-   ld     bc, (var_D24F)               ; 00:07C1 - ED 4B 4F D2
+   ld     bc, (g_level_tilemap_ptr)    ; 00:07C1 - ED 4B 4F D2
    add    hl, bc                       ; 00:07C5 - 09
    ldi                                 ; 00:07C6 - ED A0
    ld     (de), a                      ; 00:07C8 - 12
@@ -2378,13 +2378,13 @@ get_screen_tile_ptr_in_ram:
    jp     @width_256                   ; 00:08E4 - C3 57 09
 
 @width_128:
-   ld     a, (var_D258)                ; 00:08E7 - 3A 58 D2
+   ld     a, (g_level_scroll_tile_y)   ; 00:08E7 - 3A 58 D2
    add    a, b                         ; 00:08EA - 80
    ld     e, $00                       ; 00:08EB - 1E 00
    srl    a                            ; 00:08ED - CB 3F
    rr     e                            ; 00:08EF - CB 1B
    ld     d, a                         ; 00:08F1 - 57
-   ld     a, (var_D257)                ; 00:08F2 - 3A 57 D2
+   ld     a, (g_level_scroll_tile_x)   ; 00:08F2 - 3A 57 D2
    add    a, c                         ; 00:08F5 - 81
    add    a, e                         ; 00:08F6 - 83
    ld     e, a                         ; 00:08F7 - 5F
@@ -2393,7 +2393,7 @@ get_screen_tile_ptr_in_ram:
    ret                                 ; 00:08FC - C9
 
 @width_64:
-   ld     a, (var_D258)                ; 00:08FD - 3A 58 D2
+   ld     a, (g_level_scroll_tile_y)   ; 00:08FD - 3A 58 D2
    add    a, b                         ; 00:0900 - 80
    ld     e, $00                       ; 00:0901 - 1E 00
    srl    a                            ; 00:0903 - CB 3F
@@ -2401,7 +2401,7 @@ get_screen_tile_ptr_in_ram:
    srl    a                            ; 00:0907 - CB 3F
    rr     e                            ; 00:0909 - CB 1B
    ld     d, a                         ; 00:090B - 57
-   ld     a, (var_D257)                ; 00:090C - 3A 57 D2
+   ld     a, (g_level_scroll_tile_x)   ; 00:090C - 3A 57 D2
    add    a, c                         ; 00:090F - 81
    add    a, e                         ; 00:0910 - 83
    ld     e, a                         ; 00:0911 - 5F
@@ -2410,7 +2410,7 @@ get_screen_tile_ptr_in_ram:
    ret                                 ; 00:0916 - C9
 
 @width_32:
-   ld     a, (var_D258)                ; 00:0917 - 3A 58 D2
+   ld     a, (g_level_scroll_tile_y)   ; 00:0917 - 3A 58 D2
    add    a, b                         ; 00:091A - 80
    ld     e, $00                       ; 00:091B - 1E 00
    srl    a                            ; 00:091D - CB 3F
@@ -2420,7 +2420,7 @@ get_screen_tile_ptr_in_ram:
    srl    a                            ; 00:0925 - CB 3F
    rr     e                            ; 00:0927 - CB 1B
    ld     d, a                         ; 00:0929 - 57
-   ld     a, (var_D257)                ; 00:092A - 3A 57 D2
+   ld     a, (g_level_scroll_tile_x)   ; 00:092A - 3A 57 D2
    add    a, c                         ; 00:092D - 81
    add    a, e                         ; 00:092E - 83
    ld     e, a                         ; 00:092F - 5F
@@ -2429,7 +2429,7 @@ get_screen_tile_ptr_in_ram:
    ret                                 ; 00:0934 - C9
 
 @width_16:
-   ld     a, (var_D258)                ; 00:0935 - 3A 58 D2
+   ld     a, (g_level_scroll_tile_y)   ; 00:0935 - 3A 58 D2
    add    a, b                         ; 00:0938 - 80
    ld     e, $00                       ; 00:0939 - 1E 00
    srl    a                            ; 00:093B - CB 3F
@@ -2441,7 +2441,7 @@ get_screen_tile_ptr_in_ram:
    srl    a                            ; 00:0947 - CB 3F
    rr     e                            ; 00:0949 - CB 1B
    ld     d, a                         ; 00:094B - 57
-   ld     a, (var_D257)                ; 00:094C - 3A 57 D2
+   ld     a, (g_level_scroll_tile_x)   ; 00:094C - 3A 57 D2
    add    a, c                         ; 00:094F - 81
    add    a, e                         ; 00:0950 - 83
    ld     e, a                         ; 00:0951 - 5F
@@ -2450,10 +2450,10 @@ get_screen_tile_ptr_in_ram:
    ret                                 ; 00:0956 - C9
 
 @width_256:
-   ld     a, (var_D258)                ; 00:0957 - 3A 58 D2
+   ld     a, (g_level_scroll_tile_y)   ; 00:0957 - 3A 58 D2
    add    a, b                         ; 00:095A - 80
    ld     d, a                         ; 00:095B - 57
-   ld     a, (var_D257)                ; 00:095C - 3A 57 D2
+   ld     a, (g_level_scroll_tile_x)   ; 00:095C - 3A 57 D2
    add    a, c                         ; 00:095F - 81
    ld     e, a                         ; 00:0960 - 5F
    ld     hl, var_C000                 ; 00:0961 - 21 00 C0
@@ -2464,7 +2464,7 @@ get_screen_tile_ptr_in_ram:
    ;;
    ;; New code
    ;;
-   ld hl, var_D258
+   ld hl, g_level_scroll_tile_y
    ld a, (hl)
    add a, b
    ld d, a
@@ -2480,7 +2480,7 @@ get_screen_tile_ptr_in_ram:
       jp nc, -
    +:
    add a, c
-   dec l  ; HL = var_D257
+   dec l  ; HL = g_level_scroll_tile_x
    add a, (hl)
    ld e, a
    ld hl, var_C000
@@ -2551,7 +2551,7 @@ addr_00987:
    add    hl, hl                       ; 00:09AB - 29
    add    hl, hl                       ; 00:09AC - 29
    add    hl, hl                       ; 00:09AD - 29
-   ld     bc, (var_D24F)               ; 00:09AE - ED 4B 4F D2
+   ld     bc, (g_level_tilemap_ptr)    ; 00:09AE - ED 4B 4F D2
    add    hl, bc                       ; 00:09B2 - 09
    ex     de, hl                       ; 00:09B3 - EB
    ld     b, $04                       ; 00:09B4 - 06 04
@@ -6148,7 +6148,7 @@ addr_02172:
    add    a, a                         ; 00:21BC - 87
    ld     e, a                         ; 00:21BD - 5F
    ld     d, $00                       ; 00:21BE - 16 00
-   ld     hl, var_D32E                 ; 00:21C0 - 21 2E D3
+   ld     hl, g_per_level_checkpoint_positions  ; 00:21C0 - 21 2E D3
    add    hl, de                       ; 00:21C3 - 19
 
 addr_021C4:
@@ -6159,7 +6159,7 @@ addr_021C4:
    xor    a                            ; 00:21CC - AF
 
 addr_021CD:
-   ld     (var_D257), a                ; 00:21CD - 32 57 D2
+   ld     (g_level_scroll_tile_x), a   ; 00:21CD - 32 57 D2
    ld     e, $00                       ; 00:21D0 - 1E 00
    rrca                                ; 00:21D2 - 0F
    rr     e                            ; 00:21D3 - CB 1B
@@ -6178,7 +6178,7 @@ addr_021CD:
    xor    a                            ; 00:21EC - AF
 
 addr_021ED:
-   ld     (var_D258), a                ; 00:21ED - 32 58 D2
+   ld     (g_level_scroll_tile_y), a   ; 00:21ED - 32 58 D2
    ld     e, $00                       ; 00:21F0 - 1E 00
    rrca                                ; 00:21F2 - 0F
    rr     e                            ; 00:21F3 - CB 1B
@@ -6262,7 +6262,7 @@ addr_0223E:
    ex     de, hl                       ; 00:224B - EB
    ld     bc, $4000                    ; 00:224C - 01 00 40
    add    hl, bc                       ; 00:224F - 09
-   ld     (var_D24F), hl               ; 00:2250 - 22 4F D2
+   ld     (g_level_tilemap_ptr), hl    ; 00:2250 - 22 4F D2
    ex     de, hl                       ; 00:2253 - EB
    ;; Load VRAM $0000 art from bank $0C
    ld     e, (hl)                      ; 00:2254 - 5E
@@ -6420,13 +6420,13 @@ addr_0223E:
    ldir
    ; SAVING: 10 bytes
    .ENDIF
-   ld     a, (var_D2D2)                ; 00:2306 - 3A D2 D2
+   ld     a, (g_current_music)         ; 00:2306 - 3A D2 D2
    cp     (hl)                         ; 00:2309 - BE
    jr     z, addr_02315                ; 00:230A - 28 09
    ld     a, (hl)                      ; 00:230C - 7E
    and    a                            ; 00:230D - A7
    jp     m, addr_02315                ; 00:230E - FA 15 23
-   ld     (var_D2FC), a                ; 00:2311 - 32 FC D2
+   ld     (g_level_music), a           ; 00:2311 - 32 FC D2
    rst    $18                          ; 00:2314 - DF
 
 addr_02315:
@@ -11044,7 +11044,7 @@ objfunc_00_sonic:
    dec    (hl)                         ; 01:4FFE - 35
    ret    nz                           ; 01:4FFF - C0
    res    0, (iy+var_D208-IYBASE)      ; 01:5000 - FD CB 08 86
-   ld     a, (var_D2FC)                ; 01:5004 - 3A FC D2
+   ld     a, (g_level_music)           ; 01:5004 - 3A FC D2
    rst    $18                          ; 01:5007 - DF
    ret                                 ; 01:5008 - C9
 
@@ -11400,7 +11400,7 @@ objfunc_00_sonic:
    dec    a                            ; 01:5285 - 3D
    ld     (var_D28B), a                ; 01:5286 - 32 8B D2
    ret    nz                           ; 01:5289 - C0
-   ld     a, (var_D2FC)                ; 01:528A - 3A FC D2
+   ld     a, (g_level_music)           ; 01:528A - 3A FC D2
    rst    $18                          ; 01:528D - DF
    ld     c, (iy+g_sprite_count-IYBASE)  ; 01:528E - FD 4E 0A
    res    0, (iy+var_D200-IYBASE)      ; 01:5291 - FD CB 00 86
@@ -12681,7 +12681,7 @@ objfunc_51_monitor_checkpoint:
    add    a, a                         ; 01:5D56 - 87
    ld     e, a                         ; 01:5D57 - 5F
    ld     d, $00                       ; 01:5D58 - 16 00
-   ld     hl, var_D32E                 ; 01:5D5A - 21 2E D3
+   ld     hl, g_per_level_checkpoint_positions  ; 01:5D5A - 21 2E D3
    add    hl, de                       ; 01:5D5D - 19
    ex     de, hl                       ; 01:5D5E - EB
    ld     l, (ix+2)                    ; 01:5D5F - DD 6E 02
@@ -15227,7 +15227,7 @@ addr_078A1:
 addr_078AB:
    jr     nz, addr_078C0               ; 01:78AB - 20 13
    ld     (hl), $5B                    ; 01:78AD - 36 5B
-   ld     a, (var_D2FC)                ; 01:78AF - 3A FC D2
+   ld     a, (g_level_music)           ; 01:78AF - 3A FC D2
    rst    $18                          ; 01:78B2 - DF
    ld     a, (iy+g_sprite_count-IYBASE)  ; 01:78B3 - FD 7E 0A
    res    0, (iy+var_D200-IYBASE)      ; 01:78B6 - FD CB 00 86
