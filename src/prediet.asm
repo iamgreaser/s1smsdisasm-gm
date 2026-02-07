@@ -82,7 +82,7 @@ g_level_height dw   ; D23A
 var_D23C dw   ; D23C
 g_level db   ; D23E
 g_next_bonus_level db   ; D23F
-var_D240 dw   ; D240
+g_sonic_x_speed_cap_subpx dw   ; D240
 var_D242 dw   ; D242
 var_D244 dw   ; D244
 g_lives db   ; D246
@@ -129,7 +129,7 @@ g_level_restart_countdown_timer db   ; D287
 g_current_signpost db   ; D288
 g_signpost_tickdown_counter db   ; D289
 var_D28A db   ; D28A
-var_D28B db   ; D28B
+g_chaos_emerald_music_countdown_timer db   ; D28B
 g_directional_input_suppression_timer db   ; D28C
 g_invincibility_countdown_timer db   ; D28D
 var_D28E db   ; D28E
@@ -252,7 +252,7 @@ sonic_size_y db   ; D40A
 sonic_spritemap_ix_15 dw   ; D40B
 sonic_ix_17 dw   ; D40D
 sonic_ix_19 db   ; D40F
-sonic_ix_20 db   ; D410
+sonic_sprite_index_ix_20 db   ; D410
 sonic_speed_shoes_countdown_timer_ix_21 db   ; D411
 sonic_brake_sound_cooldown_timer_ix_22 db   ; D412
 sonic_ix_23 db   ; D413
@@ -7989,9 +7989,9 @@ objfunc_00_sonic:
    call   nz, @fn_handle_invincibility  ; 01:4902 - C4 F5 4F
    bit    4, (ix+24)                   ; 01:4905 - DD CB 18 66
    call   nz, @fn_handle_air_timer_and_drowning  ; 01:4909 - C4 09 50
-   ld     a, (var_D28B)                ; 01:490C - 3A 8B D2
+   ld     a, (g_chaos_emerald_music_countdown_timer)  ; 01:490C - 3A 8B D2
    and    a                            ; 01:490F - A7
-   call   nz, @fn_TODO_5285            ; 01:4910 - C4 85 52
+   call   nz, @fn_handle_chaos_emerald_music_countdown_timer  ; 01:4910 - C4 85 52
    ld     a, (var_D28A)                ; 01:4913 - 3A 8A D2
    and    a                            ; 01:4916 - A7
    jp     nz, @TODO_5117               ; 01:4917 - C2 17 51
@@ -8006,7 +8006,7 @@ objfunc_00_sonic:
    ld     bc, $0009                    ; 01:4935 - 01 09 00
    ldir                                ; 01:4938 - ED B0
    ld     hl, $0100                    ; 01:493A - 21 00 01
-   ld     (var_D240), hl               ; 01:493D - 22 40 D2
+   ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:493D - 22 40 D2
    ld     hl, $FD80                    ; 01:4940 - 21 80 FD
    ld     (var_D242), hl               ; 01:4943 - 22 42 D2
    ld     hl, $0010                    ; 01:4946 - 21 10 00
@@ -8026,7 +8026,7 @@ objfunc_00_sonic:
    ld     bc, $0009                    ; 01:4961 - 01 09 00
    ldir                                ; 01:4964 - ED B0
    ld     hl, $0300                    ; 01:4966 - 21 00 03
-   ld     (var_D240), hl               ; 01:4969 - 22 40 D2
+   ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:4969 - 22 40 D2
    ld     hl, $FC80                    ; 01:496C - 21 80 FC
    ld     (var_D242), hl               ; 01:496F - 22 42 D2
    ld     hl, $0038                    ; 01:4972 - 21 38 00
@@ -8043,7 +8043,7 @@ objfunc_00_sonic:
    ld     bc, $0009                    ; 01:498D - 01 09 00
    ldir                                ; 01:4990 - ED B0
    ld     hl, $0C00                    ; 01:4992 - 21 00 0C
-   ld     (var_D240), hl               ; 01:4995 - 22 40 D2
+   ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:4995 - 22 40 D2
    ld     hl, $FC80                    ; 01:4998 - 21 80 FC
    ld     (var_D242), hl               ; 01:499B - 22 42 D2
    ld     hl, $0038                    ; 01:499E - 21 38 00
@@ -8058,7 +8058,7 @@ objfunc_00_sonic:
    ld     bc, $0009                    ; 01:49B3 - 01 09 00
    ldir                                ; 01:49B6 - ED B0
    ld     hl, $0600                    ; 01:49B8 - 21 00 06
-   ld     (var_D240), hl               ; 01:49BB - 22 40 D2
+   ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:49BB - 22 40 D2
    ld     hl, $FC80                    ; 01:49BE - 21 80 FC
    ld     (var_D242), hl               ; 01:49C1 - 22 42 D2
    ld     hl, $0038                    ; 01:49C4 - 21 38 00
@@ -8173,13 +8173,13 @@ objfunc_00_sonic:
    ld     e, c                         ; 01:4AAA - 59
    ld     d, c                         ; 01:4AAB - 51
    bit    3, (iy+g_inputs_player_1-IYBASE)  ; 01:4AAC - FD CB 03 5E
-   jp     z, @TODO_4F01                ; 01:4AB0 - CA 01 4F
+   jp     z, @handle_right_input       ; 01:4AB0 - CA 01 4F
    bit    2, (iy+g_inputs_player_1-IYBASE)  ; 01:4AB3 - FD CB 03 56
-   jp     z, @TODO_4F5C                ; 01:4AB7 - CA 5C 4F
+   jp     z, @handle_left_input        ; 01:4AB7 - CA 5C 4F
    ld     a, h                         ; 01:4ABA - 7C
    or     l                            ; 01:4ABB - B5
    or     b                            ; 01:4ABC - B0
-   jr     z, @TODO_4B1B                ; 01:4ABD - 28 5C
+   jr     z, @update_x_velocity_from_basic_movement  ; 01:4ABD - 28 5C
    ld     (ix+20), $01                 ; 01:4ABF - DD 36 14 01
    bit    7, b                         ; 01:4AC3 - CB 78
    jr     nz, @TODO_4AF7               ; 01:4AC5 - 20 30
@@ -8194,12 +8194,12 @@ objfunc_00_sonic:
    ld     c, $FF                       ; 01:4AD2 - 0E FF
    push   hl                           ; 01:4AD4 - E5
    push   de                           ; 01:4AD5 - D5
-   ld     de, (var_D240)               ; 01:4AD6 - ED 5B 40 D2
+   ld     de, (g_sonic_x_speed_cap_subpx)  ; 01:4AD6 - ED 5B 40 D2
    xor    a                            ; 01:4ADA - AF
    sbc    hl, de                       ; 01:4ADB - ED 52
    pop    de                           ; 01:4ADD - D1
    pop    hl                           ; 01:4ADE - E1
-   jr     c, @TODO_4B1B                ; 01:4ADF - 38 3A
+   jr     c, @update_x_velocity_from_basic_movement  ; 01:4ADF - 38 3A
    ld     de, (var_D20E)               ; 01:4AE1 - ED 5B 0E D2
    ld     a, e                         ; 01:4AE5 - 7B
    cpl                                 ; 01:4AE6 - 2F
@@ -8211,7 +8211,7 @@ objfunc_00_sonic:
    ld     c, $FF                       ; 01:4AEC - 0E FF
    ld     a, (var_D216)                ; 01:4AEE - 3A 16 D2
    ld     (ix+20), a                   ; 01:4AF1 - DD 77 14
-   jp     @TODO_4B1B                   ; 01:4AF4 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:4AF4 - C3 1B 4B
 
 @TODO_4AF7:
    ld     de, (var_D212)               ; 01:4AF7 - ED 5B 12 D2
@@ -8225,17 +8225,17 @@ objfunc_00_sonic:
    cpl                                 ; 01:4B03 - 2F
    ld     h, a                         ; 01:4B04 - 67
    inc    hl                           ; 01:4B05 - 23
-   ld     de, (var_D240)               ; 01:4B06 - ED 5B 40 D2
+   ld     de, (g_sonic_x_speed_cap_subpx)  ; 01:4B06 - ED 5B 40 D2
    xor    a                            ; 01:4B0A - AF
    sbc    hl, de                       ; 01:4B0B - ED 52
    pop    de                           ; 01:4B0D - D1
    pop    hl                           ; 01:4B0E - E1
-   jr     c, @TODO_4B1B                ; 01:4B0F - 38 0A
+   jr     c, @update_x_velocity_from_basic_movement  ; 01:4B0F - 38 0A
    ld     de, (var_D20E)               ; 01:4B11 - ED 5B 0E D2
    ld     a, (var_D216)                ; 01:4B15 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4B18 - DD 77 14
 
-@TODO_4B1B:
+@update_x_velocity_from_basic_movement:
    ld     a, b                         ; 01:4B1B - 78
    and    a                            ; 01:4B1C - A7
    jp     m, @TODO_4B38                ; 01:4B1D - FA 38 4B
@@ -8415,7 +8415,7 @@ objfunc_00_sonic:
    call   nz, @fn_handle_damage_stun_animation_and_deactivation  ; 01:4C44 - C4 BC 51
    bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
    call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
-   ld     a, (sonic_ix_20)             ; 01:4C4E - 3A 10 D4
+   ld     a, (sonic_sprite_index_ix_20)  ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
    call   z, @fn_throttled_play_brake_sound_effect  ; 01:4C53 - CC F3 51
    ld     l, (ix+20)                   ; 01:4C56 - DD 6E 14
@@ -8474,7 +8474,7 @@ objfunc_00_sonic:
    ld     hl, SPRITEMAP_sonic_normal   ; 01:4CAF - 21 1D 59
    bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
    call   nz, @fn_TODO_520F            ; 01:4CB6 - C4 0F 52
-   ld     a, (sonic_ix_20)             ; 01:4CB9 - 3A 10 D4
+   ld     a, (sonic_sprite_index_ix_20)  ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
    call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
    ld     a, (g_sonic_sprite_index_override)  ; 01:4CC1 - 3A 02 D3
@@ -8578,7 +8578,7 @@ objfunc_00_sonic:
 @TODO_4D81:
    ld     a, (sonic_flags_ix_24)       ; 01:4D81 - 3A 14 D4
    ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
-   ld     a, (sonic_ix_20)             ; 01:4D87 - 3A 10 D4
+   ld     a, (sonic_sprite_index_ix_20)  ; 01:4D87 - 3A 10 D4
    ld     (var_D2DF), a                ; 01:4D8A - 32 DF D2
    ld     d, $01                       ; 01:4D8D - 16 01
    ld     c, $30                       ; 01:4D8F - 0E 30
@@ -8796,7 +8796,7 @@ objfunc_00_sonic:
    ld     (var_D2B7), de               ; 01:4EFC - ED 53 B7 D2
    ret                                 ; 01:4F00 - C9
 
-@TODO_4F01:
+@handle_right_input:
    res    1, (ix+24)                   ; 01:4F01 - DD CB 18 8E
    bit    7, b                         ; 01:4F05 - CB 78
    jr     nz, @left_brake_to_right     ; 01:4F07 - 20 28
@@ -8806,19 +8806,19 @@ objfunc_00_sonic:
    push   hl                           ; 01:4F13 - E5
    exx                                 ; 01:4F14 - D9
    pop    hl                           ; 01:4F15 - E1
-   ld     de, (var_D240)               ; 01:4F16 - ED 5B 40 D2
+   ld     de, (g_sonic_x_speed_cap_subpx)  ; 01:4F16 - ED 5B 40 D2
    xor    a                            ; 01:4F1A - AF
    sbc    hl, de                       ; 01:4F1B - ED 52
    exx                                 ; 01:4F1D - D9
-   jp     c, @TODO_4B1B                ; 01:4F1E - DA 1B 4B
+   jp     c, @update_x_velocity_from_basic_movement  ; 01:4F1E - DA 1B 4B
    ld     b, a                         ; 01:4F21 - 47
    ld     e, a                         ; 01:4F22 - 5F
    ld     d, a                         ; 01:4F23 - 57
    ld     c, a                         ; 01:4F24 - 4F
-   ld     hl, (var_D240)               ; 01:4F25 - 2A 40 D2
+   ld     hl, (g_sonic_x_speed_cap_subpx)  ; 01:4F25 - 2A 40 D2
    ld     a, (var_D216)                ; 01:4F28 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4F2B - DD 77 14
-   jp     @TODO_4B1B                   ; 01:4F2E - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:4F2E - C3 1B 4B
 
 @left_brake_to_right:
    set    1, (ix+24)                   ; 01:4F31 - DD CB 18 CE
@@ -8837,20 +8837,20 @@ objfunc_00_sonic:
    pop    hl                           ; 01:4F47 - E1
    ld     de, (var_D210)               ; 01:4F48 - ED 5B 10 D2
    ld     c, $00                       ; 01:4F4C - 0E 00
-   jp     nc, @TODO_4B1B               ; 01:4F4E - D2 1B 4B
+   jp     nc, @update_x_velocity_from_basic_movement  ; 01:4F4E - D2 1B 4B
    res    1, (ix+24)                   ; 01:4F51 - DD CB 18 8E
    ld     (ix+20), $01                 ; 01:4F55 - DD 36 14 01
-   jp     @TODO_4B1B                   ; 01:4F59 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:4F59 - C3 1B 4B
 
-@TODO_4F5C:
+@handle_left_input:
    set    1, (ix+24)                   ; 01:4F5C - DD CB 18 CE
    ld     a, l                         ; 01:4F60 - 7D
    or     h                            ; 01:4F61 - B4
-   jr     z, @TODO_4F68                ; 01:4F62 - 28 04
+   jr     z, @skip_right_brake_to_left_check  ; 01:4F62 - 28 04
    bit    7, b                         ; 01:4F64 - CB 78
    jr     z, @right_brake_to_left      ; 01:4F66 - 28 3E
 
-@TODO_4F68:
+@skip_right_brake_to_left_check:
    ld     de, (var_D20E)               ; 01:4F68 - ED 5B 0E D2
    ld     a, e                         ; 01:4F6C - 7B
    cpl                                 ; 01:4F6D - 2F
@@ -8871,15 +8871,15 @@ objfunc_00_sonic:
    cpl                                 ; 01:4F80 - 2F
    ld     h, a                         ; 01:4F81 - 67
    inc    hl                           ; 01:4F82 - 23
-   ld     de, (var_D240)               ; 01:4F83 - ED 5B 40 D2
+   ld     de, (g_sonic_x_speed_cap_subpx)  ; 01:4F83 - ED 5B 40 D2
    xor    a                            ; 01:4F87 - AF
    sbc    hl, de                       ; 01:4F88 - ED 52
    exx                                 ; 01:4F8A - D9
-   jp     c, @TODO_4B1B                ; 01:4F8B - DA 1B 4B
+   jp     c, @update_x_velocity_from_basic_movement  ; 01:4F8B - DA 1B 4B
    ld     e, a                         ; 01:4F8E - 5F
    ld     d, a                         ; 01:4F8F - 57
    ld     c, a                         ; 01:4F90 - 4F
-   ld     hl, (var_D240)               ; 01:4F91 - 2A 40 D2
+   ld     hl, (g_sonic_x_speed_cap_subpx)  ; 01:4F91 - 2A 40 D2
    ld     a, l                         ; 01:4F94 - 7D
    cpl                                 ; 01:4F95 - 2F
    ld     l, a                         ; 01:4F96 - 6F
@@ -8890,7 +8890,7 @@ objfunc_00_sonic:
    ld     b, $FF                       ; 01:4F9B - 06 FF
    ld     a, (var_D216)                ; 01:4F9D - 3A 16 D2
    ld     (ix+20), a                   ; 01:4FA0 - DD 77 14
-   jp     @TODO_4B1B                   ; 01:4FA3 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:4FA3 - C3 1B 4B
 
 @right_brake_to_left:
    res    1, (ix+24)                   ; 01:4FA6 - DD CB 18 8E
@@ -8911,10 +8911,10 @@ objfunc_00_sonic:
    and    a                            ; 01:4FC1 - A7
    sbc    hl, bc                       ; 01:4FC2 - ED 42
    exx                                 ; 01:4FC4 - D9
-   jp     nc, @TODO_4B1B               ; 01:4FC5 - D2 1B 4B
+   jp     nc, @update_x_velocity_from_basic_movement  ; 01:4FC5 - D2 1B 4B
    set    1, (ix+24)                   ; 01:4FC8 - DD CB 18 CE
    ld     (ix+20), $01                 ; 01:4FCC - DD 36 14 01
-   jp     @TODO_4B1B                   ; 01:4FD0 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:4FD0 - C3 1B 4B
 
 @fn_TODO_4FD3:
    bit    0, (ix+24)                   ; 01:4FD3 - DD CB 18 46
@@ -9303,9 +9303,9 @@ objfunc_00_sonic:
    ld     (ix+20), $09                 ; 01:5280 - DD 36 14 09
    ret                                 ; 01:5284 - C9
 
-@fn_TODO_5285:
+@fn_handle_chaos_emerald_music_countdown_timer:
    dec    a                            ; 01:5285 - 3D
-   ld     (var_D28B), a                ; 01:5286 - 32 8B D2
+   ld     (g_chaos_emerald_music_countdown_timer), a  ; 01:5286 - 32 8B D2
    ret    nz                           ; 01:5289 - C0
    ld     a, (g_level_music)           ; 01:528A - 3A FC D2
    rst    $18                          ; 01:528D - DF
@@ -9416,7 +9416,7 @@ objfunc_00_sonic:
 @TODO_5379:
    ld     de, $FFF0                    ; 01:5379 - 11 F0 FF
    ld     c, $FF                       ; 01:537C - 0E FF
-   jp     @TODO_4B1B                   ; 01:537E - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:537E - C3 1B 4B
 
 @TODO_5381:
    bit    3, (iy+g_inputs_player_1-IYBASE)  ; 01:5381 - FD CB 03 5E
@@ -9433,17 +9433,17 @@ objfunc_00_sonic:
 @TODO_539F:
    ld     de, $0010                    ; 01:539F - 11 10 00
    ld     c, $00                       ; 01:53A2 - 0E 00
-   jp     @TODO_4B1B                   ; 01:53A4 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:53A4 - C3 1B 4B
 
 @TODO_53A7:
    ld     de, $0004                    ; 01:53A7 - 11 04 00
    ld     c, $00                       ; 01:53AA - 0E 00
    ld     a, b                         ; 01:53AC - 78
    and    a                            ; 01:53AD - A7
-   jp     m, @TODO_4B1B                ; 01:53AE - FA 1B 4B
+   jp     m, @update_x_velocity_from_basic_movement  ; 01:53AE - FA 1B 4B
    ld     de, $FFFC                    ; 01:53B1 - 11 FC FF
    ld     c, $FF                       ; 01:53B4 - 0E FF
-   jp     @TODO_4B1B                   ; 01:53B6 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:53B6 - C3 1B 4B
 
 @TODO_53B9:
    bit    7, (ix+24)                   ; 01:53B9 - DD CB 18 7E
@@ -9478,17 +9478,17 @@ objfunc_00_sonic:
    inc    hl                           ; 01:53F0 - 23
 
 @TODO_53F1:
-   ld     de, (var_D240)               ; 01:53F1 - ED 5B 40 D2
+   ld     de, (g_sonic_x_speed_cap_subpx)  ; 01:53F1 - ED 5B 40 D2
    xor    a                            ; 01:53F5 - AF
    sbc    hl, de                       ; 01:53F6 - ED 52
    pop    hl                           ; 01:53F8 - E1
    pop    de                           ; 01:53F9 - D1
-   jp     c, @TODO_4B1B                ; 01:53FA - DA 1B 4B
+   jp     c, @update_x_velocity_from_basic_movement  ; 01:53FA - DA 1B 4B
    ld     c, a                         ; 01:53FD - 4F
    ld     e, c                         ; 01:53FE - 59
    ld     d, c                         ; 01:53FF - 51
    ld     (ix+20), $09                 ; 01:5400 - DD 36 14 09
-   jp     @TODO_4B1B                   ; 01:5404 - C3 1B 4B
+   jp     @update_x_velocity_from_basic_movement  ; 01:5404 - C3 1B 4B
 
 @TODO_5407:
    bit    7, (ix+24)                   ; 01:5407 - DD CB 18 7E
@@ -10757,7 +10757,7 @@ objfunc_06_chaos_emerald:
    ld     hl, g_chaos_emeralds_collected  ; 01:5ED2 - 21 7F D2
    inc    (hl)                         ; 01:5ED5 - 34
    ld     a, $FE                       ; 01:5ED6 - 3E FE
-   ld     (var_D28B), a                ; 01:5ED8 - 32 8B D2
+   ld     (g_chaos_emerald_music_countdown_timer), a  ; 01:5ED8 - 32 8B D2
    ld     a, $14                       ; 01:5EDB - 3E 14
    rst    $18                          ; 01:5EDD - DF
 
