@@ -162,7 +162,7 @@ var_D2B2 db   ; D2B2
 var_D2B3 db   ; D2B3
 g_prev_sprite_count db   ; D2B4
 g_demo_next_input_relptr dw   ; D2B5
-var_D2B7 dw   ; D2B7
+g_camera_y_look_up_offset_px dw   ; D2B7
 var_D2B9 db   ; D2B9
 var_D2BA db   ; D2BA (auto)
 .  dsb 2
@@ -4725,7 +4725,7 @@ addr_020CB:
    ld     (g_vdp_scroll_y), a          ; 00:20FD - 32 52 D2
    ld     (var_D27B), hl               ; 00:2100 - 22 7B D2
    ld     (var_D27D), hl               ; 00:2103 - 22 7D D2
-   ld     (var_D2B7), hl               ; 00:2106 - 22 B7 D2
+   ld     (g_camera_y_look_up_offset_px), hl  ; 00:2106 - 22 B7 D2
    ld     (g_water_irq_line_state), a  ; 00:2109 - 32 47 D2
    ld     (g_water_onscreen_y), a      ; 00:210C - 32 48 D2
    ld     hl, g_level_restart_countdown_timer  ; 00:210F - 21 87 D2
@@ -6315,7 +6315,7 @@ UNUSED_031D7:
 addr_031DB:
    bit    6, (iy+var_D205-IYBASE)      ; 00:31DB - FD CB 05 76
    ret    nz                           ; 00:31DF - C0
-   ld     bc, (var_D2B7)               ; 00:31E0 - ED 4B B7 D2
+   ld     bc, (g_camera_y_look_up_offset_px)  ; 00:31E0 - ED 4B B7 D2
    add    hl, bc                       ; 00:31E4 - 09
    ret                                 ; 00:31E5 - C9
 
@@ -8151,20 +8151,20 @@ objfunc_00_sonic:
    call   nc, @fn_handle_sonic_bored_anim  ; 01:4A70 - D4 05 51
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A73 - FD 7E 03
    cp     $FE                          ; 01:4A76 - FE FE
-   call   z, @fn_TODO_4EDD             ; 01:4A78 - CC DD 4E
+   call   z, @fn_camera_look_up        ; 01:4A78 - CC DD 4E
    bit    0, (iy+g_inputs_player_1-IYBASE)  ; 01:4A7B - FD CB 03 46
-   call   nz, @fn_TODO_4FD3            ; 01:4A7F - C4 D3 4F
+   call   nz, @fn_restore_camera_look  ; 01:4A7F - C4 D3 4F
    bit    0, (ix+24)                   ; 01:4A82 - DD CB 18 46
-   jp     nz, @TODO_532E               ; 01:4A86 - C2 2E 53
+   jp     nz, @sonic_is_rolling        ; 01:4A86 - C2 2E 53
    ld     a, (ix+14)                   ; 01:4A89 - DD 7E 0E
    cp     $20                          ; 01:4A8C - FE 20
-   jr     z, @TODO_4A9A                ; 01:4A8E - 28 0A
+   jr     z, @skip_adjust_y_pos_before_roll  ; 01:4A8E - 28 0A
    ld     hl, (sonic_y)                ; 01:4A90 - 2A 01 D4
    ld     de, $FFF8                    ; 01:4A93 - 11 F8 FF
    add    hl, de                       ; 01:4A96 - 19
    ld     (sonic_y), hl                ; 01:4A97 - 22 01 D4
 
-@TODO_4A9A:
+@skip_adjust_y_pos_before_roll:
    ld     (ix+13), $18                 ; 01:4A9A - DD 36 0D 18
    ld     (ix+14), $20                 ; 01:4A9E - DD 36 0E 20
    ld     hl, (sonic_vel_x_sub)        ; 01:4AA2 - 2A 03 D4
@@ -8774,7 +8774,7 @@ objfunc_00_sonic:
    djnz   @TODO_4ECE                   ; 01:4EDA - 10 F2
    ret                                 ; 01:4EDC - C9
 
-@fn_TODO_4EDD:
+@fn_camera_look_up:
    ld     hl, (sonic_vel_x_sub)        ; 01:4EDD - 2A 03 D4
    ld     a, h                         ; 01:4EE0 - 7C
    or     l                            ; 01:4EE1 - B5
@@ -8783,17 +8783,17 @@ objfunc_00_sonic:
    rlca                                ; 01:4EE6 - 07
    ret    nc                           ; 01:4EE7 - D0
    ld     (ix+20), $0C                 ; 01:4EE8 - DD 36 14 0C
-   ld     de, (var_D2B7)               ; 01:4EEC - ED 5B B7 D2
+   ld     de, (g_camera_y_look_up_offset_px)  ; 01:4EEC - ED 5B B7 D2
    bit    7, d                         ; 01:4EF0 - CB 7A
-   jr     nz, @TODO_4EFB               ; 01:4EF2 - 20 07
+   jr     nz, @looking_down_immediate_look_up  ; 01:4EF2 - 20 07
    ld     hl, $002C                    ; 01:4EF4 - 21 2C 00
    and    a                            ; 01:4EF7 - A7
    sbc    hl, de                       ; 01:4EF8 - ED 52
    ret    c                            ; 01:4EFA - D8
 
-@TODO_4EFB:
+@looking_down_immediate_look_up:
    inc    de                           ; 01:4EFB - 13
-   ld     (var_D2B7), de               ; 01:4EFC - ED 53 B7 D2
+   ld     (g_camera_y_look_up_offset_px), de  ; 01:4EFC - ED 53 B7 D2
    ret                                 ; 01:4F00 - C9
 
 @handle_right_input:
@@ -8916,22 +8916,22 @@ objfunc_00_sonic:
    ld     (ix+20), $01                 ; 01:4FCC - DD 36 14 01
    jp     @update_x_velocity_from_basic_movement  ; 01:4FD0 - C3 1B 4B
 
-@fn_TODO_4FD3:
+@fn_restore_camera_look:
    bit    0, (ix+24)                   ; 01:4FD3 - DD CB 18 46
    ret    nz                           ; 01:4FD7 - C0
-   ld     hl, (var_D2B7)               ; 01:4FD8 - 2A B7 D2
+   ld     hl, (g_camera_y_look_up_offset_px)  ; 01:4FD8 - 2A B7 D2
    ld     a, h                         ; 01:4FDB - 7C
    or     l                            ; 01:4FDC - B5
    ret    z                            ; 01:4FDD - C8
    bit    7, h                         ; 01:4FDE - CB 7C
-   jr     z, @fn_TODO_4FE7             ; 01:4FE0 - 28 05
+   jr     z, @restore_from_look_up     ; 01:4FE0 - 28 05
    inc    hl                           ; 01:4FE2 - 23
-   ld     (var_D2B7), hl               ; 01:4FE3 - 22 B7 D2
+   ld     (g_camera_y_look_up_offset_px), hl  ; 01:4FE3 - 22 B7 D2
    ret                                 ; 01:4FE6 - C9
 
-@fn_TODO_4FE7:
+@restore_from_look_up:
    dec    hl                           ; 01:4FE7 - 2B
-   ld     (var_D2B7), hl               ; 01:4FE8 - 22 B7 D2
+   ld     (g_camera_y_look_up_offset_px), hl  ; 01:4FE8 - 22 B7 D2
    ret                                 ; 01:4FEB - C9
 
 @fn_handle_speed_shoes_timer:
@@ -9380,16 +9380,16 @@ objfunc_00_sonic:
    ld     (ix+20), $19                 ; 01:5327 - DD 36 14 19
    jp     @TODO_4C39                   ; 01:532B - C3 39 4C
 
-@TODO_532E:
+@sonic_is_rolling:
    ld     a, (ix+14)                   ; 01:532E - DD 7E 0E
    cp     $18                          ; 01:5331 - FE 18
-   jr     z, @TODO_533F                ; 01:5333 - 28 0A
+   jr     z, @skip_adjust_y_pos_after_roll  ; 01:5333 - 28 0A
    ld     hl, (sonic_y)                ; 01:5335 - 2A 01 D4
    ld     de, $0008                    ; 01:5338 - 11 08 00
    add    hl, de                       ; 01:533B - 19
    ld     (sonic_y), hl                ; 01:533C - 22 01 D4
 
-@TODO_533F:
+@skip_adjust_y_pos_after_roll:
    ld     (ix+13), $18                 ; 01:533F - DD 36 0D 18
    ld     (ix+14), $18                 ; 01:5343 - DD 36 0E 18
    ld     hl, (sonic_vel_x_sub)        ; 01:5347 - 2A 03 D4
@@ -9400,7 +9400,7 @@ objfunc_00_sonic:
    ld     a, h                         ; 01:5351 - 7C
    or     l                            ; 01:5352 - B5
    or     b                            ; 01:5353 - B0
-   jp     z, @TODO_53B9                ; 01:5354 - CA B9 53
+   jp     z, @consider_camera_look_down  ; 01:5354 - CA B9 53
    ld     (ix+20), $09                 ; 01:5357 - DD 36 14 09
    bit    2, (iy+g_inputs_player_1-IYBASE)  ; 01:535B - FD CB 03 56
    jr     nz, @TODO_5381               ; 01:535F - 20 20
@@ -9445,25 +9445,25 @@ objfunc_00_sonic:
    ld     c, $FF                       ; 01:53B4 - 0E FF
    jp     @update_x_velocity_from_basic_movement  ; 01:53B6 - C3 1B 4B
 
-@TODO_53B9:
+@consider_camera_look_down:
    bit    7, (ix+24)                   ; 01:53B9 - DD CB 18 7E
-   jr     z, @TODO_53E0                ; 01:53BD - 28 21
+   jr     z, @skip_camera_look_down    ; 01:53BD - 28 21
    ld     (ix+20), $07                 ; 01:53BF - DD 36 14 07
    res    0, (ix+24)                   ; 01:53C3 - DD CB 18 86
-   ld     de, (var_D2B7)               ; 01:53C7 - ED 5B B7 D2
+   ld     de, (g_camera_y_look_up_offset_px)  ; 01:53C7 - ED 5B B7 D2
    bit    7, d                         ; 01:53CB - CB 7A
-   jr     z, @TODO_53D8                ; 01:53CD - 28 09
+   jr     z, @looking_up_immediate_look_down  ; 01:53CD - 28 09
    ld     hl, $FFB0                    ; 01:53CF - 21 B0 FF
    and    a                            ; 01:53D2 - A7
    sbc    hl, de                       ; 01:53D3 - ED 52
    jp     nc, @TODO_4B49               ; 01:53D5 - D2 49 4B
 
-@TODO_53D8:
+@looking_up_immediate_look_down:
    dec    de                           ; 01:53D8 - 1B
-   ld     (var_D2B7), de               ; 01:53D9 - ED 53 B7 D2
+   ld     (g_camera_y_look_up_offset_px), de  ; 01:53D9 - ED 53 B7 D2
    jp     @TODO_4B49                   ; 01:53DD - C3 49 4B
 
-@TODO_53E0:
+@skip_camera_look_down:
    ld     (ix+20), $09                 ; 01:53E0 - DD 36 14 09
    push   de                           ; 01:53E4 - D5
    push   hl                           ; 01:53E5 - E5
