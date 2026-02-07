@@ -254,7 +254,7 @@ sonic_ix_17 dw   ; D40D
 sonic_ix_19 db   ; D40F
 sonic_ix_20 db   ; D410
 sonic_speed_shoes_countdown_timer_ix_21 db   ; D411
-sonic_ix_22 db   ; D412
+sonic_brake_sound_cooldown_timer_ix_22 db   ; D412
 sonic_ix_23 db   ; D413
 sonic_flags_ix_24 db   ; D414
 .  dsb 1
@@ -7974,9 +7974,9 @@ objfunc_00_sonic:
    set    7, (iy+var_D207-IYBASE)      ; 01:48D3 - FD CB 07 FE
    bit    0, (iy+var_D205-IYBASE)      ; 01:48D7 - FD CB 05 46
    jp     nz, @sonic_is_dying          ; 01:48DB - C2 3C 54
-   ld     a, (sonic_ix_22)             ; 01:48DE - 3A 12 D4
+   ld     a, (sonic_brake_sound_cooldown_timer_ix_22)  ; 01:48DE - 3A 12 D4
    and    a                            ; 01:48E1 - A7
-   call   nz, @fn_TODO_4FF0            ; 01:48E2 - C4 F0 4F
+   call   nz, @fn_handle_brake_sound_cooldown_timer  ; 01:48E2 - C4 F0 4F
    res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
    bit    6, (iy+var_D206-IYBASE)      ; 01:48E9 - FD CB 06 76
    call   nz, @fn_handle_damage_stun_and_input_suppression  ; 01:48ED - C4 0A 51
@@ -8417,7 +8417,7 @@ objfunc_00_sonic:
    call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
    ld     a, (sonic_ix_20)             ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
-   call   z, @fn_TODO_51F3             ; 01:4C53 - CC F3 51
+   call   z, @fn_throttled_play_brake_sound_effect  ; 01:4C53 - CC F3 51
    ld     l, (ix+20)                   ; 01:4C56 - DD 6E 14
    ld     c, l                         ; 01:4C59 - 4D
    ld     h, $00                       ; 01:4C5A - 26 00
@@ -8799,7 +8799,7 @@ objfunc_00_sonic:
 @TODO_4F01:
    res    1, (ix+24)                   ; 01:4F01 - DD CB 18 8E
    bit    7, b                         ; 01:4F05 - CB 78
-   jr     nz, @TODO_4F31               ; 01:4F07 - 20 28
+   jr     nz, @left_brake_to_right     ; 01:4F07 - 20 28
    ld     de, (var_D20E)               ; 01:4F09 - ED 5B 0E D2
    ld     c, $00                       ; 01:4F0D - 0E 00
    ld     (ix+20), $01                 ; 01:4F0F - DD 36 14 01
@@ -8820,7 +8820,7 @@ objfunc_00_sonic:
    ld     (ix+20), a                   ; 01:4F2B - DD 77 14
    jp     @TODO_4B1B                   ; 01:4F2E - C3 1B 4B
 
-@TODO_4F31:
+@left_brake_to_right:
    set    1, (ix+24)                   ; 01:4F31 - DD CB 18 CE
    ld     (ix+20), $0A                 ; 01:4F35 - DD 36 14 0A
    push   hl                           ; 01:4F39 - E5
@@ -8848,7 +8848,7 @@ objfunc_00_sonic:
    or     h                            ; 01:4F61 - B4
    jr     z, @TODO_4F68                ; 01:4F62 - 28 04
    bit    7, b                         ; 01:4F64 - CB 78
-   jr     z, @TODO_4FA6                ; 01:4F66 - 28 3E
+   jr     z, @right_brake_to_left      ; 01:4F66 - 28 3E
 
 @TODO_4F68:
    ld     de, (var_D20E)               ; 01:4F68 - ED 5B 0E D2
@@ -8892,7 +8892,7 @@ objfunc_00_sonic:
    ld     (ix+20), a                   ; 01:4FA0 - DD 77 14
    jp     @TODO_4B1B                   ; 01:4FA3 - C3 1B 4B
 
-@TODO_4FA6:
+@right_brake_to_left:
    res    1, (ix+24)                   ; 01:4FA6 - DD CB 18 8E
    ld     (ix+20), $0A                 ; 01:4FAA - DD 36 14 0A
    ld     de, (var_D210)               ; 01:4FAE - ED 5B 10 D2
@@ -8938,9 +8938,9 @@ objfunc_00_sonic:
    dec    (ix+21)                      ; 01:4FEC - DD 35 15
    ret                                 ; 01:4FEF - C9
 
-@fn_TODO_4FF0:
+@fn_handle_brake_sound_cooldown_timer:
    dec    a                            ; 01:4FF0 - 3D
-   ld     (sonic_ix_22), a             ; 01:4FF1 - 32 12 D4
+   ld     (sonic_brake_sound_cooldown_timer_ix_22), a  ; 01:4FF1 - 32 12 D4
    ret                                 ; 01:4FF4 - C9
 
 @fn_handle_invincibility:
@@ -9221,8 +9221,8 @@ objfunc_00_sonic:
    res    2, (iy+var_D208-IYBASE)      ; 01:51EE - FD CB 08 96
    ret                                 ; 01:51F2 - C9
 
-@fn_TODO_51F3:
-   ld     a, (sonic_ix_22)             ; 01:51F3 - 3A 12 D4
+@fn_throttled_play_brake_sound_effect:
+   ld     a, (sonic_brake_sound_cooldown_timer_ix_22)  ; 01:51F3 - 3A 12 D4
    and    a                            ; 01:51F6 - A7
    ret    nz                           ; 01:51F7 - C0
    bit    7, (ix+24)                   ; 01:51F8 - DD CB 18 7E
@@ -9230,7 +9230,7 @@ objfunc_00_sonic:
    ld     a, $03                       ; 01:51FD - 3E 03
    rst    $28                          ; 01:51FF - EF
    ld     a, $3C                       ; 01:5200 - 3E 3C
-   ld     (sonic_ix_22), a             ; 01:5202 - 32 12 D4
+   ld     (sonic_brake_sound_cooldown_timer_ix_22), a  ; 01:5202 - 32 12 D4
    ret                                 ; 01:5205 - C9
 
 @fn_handle_shield_animation:
@@ -9411,7 +9411,7 @@ objfunc_00_sonic:
    bit    7, b                         ; 01:536E - CB 78
    jr     nz, @TODO_53A7               ; 01:5370 - 20 35
    res    0, (ix+24)                   ; 01:5372 - DD CB 18 86
-   jp     @TODO_4FA6                   ; 01:5376 - C3 A6 4F
+   jp     @right_brake_to_left         ; 01:5376 - C3 A6 4F
 
 @TODO_5379:
    ld     de, $FFF0                    ; 01:5379 - 11 F0 FF
@@ -9428,7 +9428,7 @@ objfunc_00_sonic:
    bit    7, b                         ; 01:5394 - CB 78
    jr     z, @TODO_53A7                ; 01:5396 - 28 0F
    res    0, (ix+24)                   ; 01:5398 - DD CB 18 86
-   jp     @TODO_4FA6                   ; 01:539C - C3 A6 4F
+   jp     @right_brake_to_left         ; 01:539C - C3 A6 4F
 
 @TODO_539F:
    ld     de, $0010                    ; 01:539F - 11 10 00
