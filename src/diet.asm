@@ -10001,38 +10001,38 @@ addr_048A8:
 objfunc_00_sonic:
    res    1, (iy+var_D208-IYBASE)      ; 01:48C8 - FD CB 08 8E
    bit    7, (ix+24)                   ; 01:48CC - DD CB 18 7E
-   call   nz, addr_04E88               ; 01:48D0 - C4 88 4E
+   call   nz, @fn_TODO_4E88            ; 01:48D0 - C4 88 4E
    set    7, (iy+var_D207-IYBASE)      ; 01:48D3 - FD CB 07 FE
    bit    0, (iy+var_D205-IYBASE)      ; 01:48D7 - FD CB 05 46
-   jp     nz, addr_0543C               ; 01:48DB - C2 3C 54
+   jp     nz, @TODO_543C               ; 01:48DB - C2 3C 54
    ld     a, (var_D412)                ; 01:48DE - 3A 12 D4
    and    a                            ; 01:48E1 - A7
-   call   nz, addr_04FF0               ; 01:48E2 - C4 F0 4F
+   call   nz, @fn_TODO_4FF0            ; 01:48E2 - C4 F0 4F
    res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
    bit    6, (iy+var_D206-IYBASE)      ; 01:48E9 - FD CB 06 76
-   call   nz, addr_0510A               ; 01:48ED - C4 0A 51
+   call   nz, @fn_TODO_510A            ; 01:48ED - C4 0A 51
    ld     a, (var_D28C)                ; 01:48F0 - 3A 8C D2
    and    a                            ; 01:48F3 - A7
-   call   nz, addr_0568F               ; 01:48F4 - C4 8F 56
+   call   nz, @fn_TODO_568F            ; 01:48F4 - C4 8F 56
    bit    0, (iy+var_D207-IYBASE)      ; 01:48F7 - FD CB 07 46
-   call   nz, addr_05100               ; 01:48FB - C4 00 51
+   call   nz, @fn_TODO_5100            ; 01:48FB - C4 00 51
    bit    0, (iy+var_D208-IYBASE)      ; 01:48FE - FD CB 08 46
-   call   nz, addr_04FF5               ; 01:4902 - C4 F5 4F
+   call   nz, @fn_TODO_4FF5            ; 01:4902 - C4 F5 4F
    bit    4, (ix+24)                   ; 01:4905 - DD CB 18 66
-   call   nz, addr_05009               ; 01:4909 - C4 09 50
+   call   nz, @fn_TODO_5009            ; 01:4909 - C4 09 50
    ld     a, (var_D28B)                ; 01:490C - 3A 8B D2
    and    a                            ; 01:490F - A7
-   call   nz, addr_05285               ; 01:4910 - C4 85 52
+   call   nz, @fn_TODO_5285            ; 01:4910 - C4 85 52
    ld     a, (var_D28A)                ; 01:4913 - 3A 8A D2
    and    a                            ; 01:4916 - A7
-   jp     nz, addr_05117               ; 01:4917 - C2 17 51
+   jp     nz, @TODO_5117               ; 01:4917 - C2 17 51
    bit    6, (iy+var_D208-IYBASE)      ; 01:491A - FD CB 08 76
-   jp     nz, addr_05193               ; 01:491E - C2 93 51
+   jp     nz, @TODO_5193               ; 01:491E - C2 93 51
    bit    7, (iy+var_D208-IYBASE)      ; 01:4921 - FD CB 08 7E
-   call   nz, addr_0529C               ; 01:4925 - C4 9C 52
+   call   nz, @fn_TODO_529C            ; 01:4925 - C4 9C 52
    bit    4, (ix+24)                   ; 01:4928 - DD CB 18 66
-   jp     z, addr_0494F                ; 01:492C - CA 4F 49
-   ld     hl, UNK_4DDD                 ; 01:492F - 21 DD 4D
+   jp     z, @TODO_494F                ; 01:492C - CA 4F 49
+   ld     hl, objfunc_00_sonic@TODO_UNK_4DDD  ; 01:492F - 21 DD 4D
    ld     de, var_D20E                 ; 01:4932 - 11 0E D2
    ld     bc, $0009                    ; 01:4935 - 01 09 00
    ldir                                ; 01:4938 - ED B0
@@ -10042,17 +10042,17 @@ objfunc_00_sonic:
    ld     (var_D242), hl               ; 01:4943 - 22 42 D2
    ld     hl, $0010                    ; 01:4946 - 21 10 00
    ld     (var_D244), hl               ; 01:4949 - 22 44 D2
-   jp     addr_049D9                   ; 01:494C - C3 D9 49
+   jp     @TODO_49D9                   ; 01:494C - C3 D9 49
 
-addr_0494F:
+@TODO_494F:
    ld     a, (ix+21)                   ; 01:494F - DD 7E 15
    and    a                            ; 01:4952 - A7
-   jr     nz, addr_049AD               ; 01:4953 - 20 58
+   jr     nz, @TODO_49AD               ; 01:4953 - 20 58
    bit    0, (iy+var_D207-IYBASE)      ; 01:4955 - FD CB 07 46
-   jr     nz, addr_04981               ; 01:4959 - 20 26
+   jr     nz, @TODO_4981               ; 01:4959 - 20 26
 
-addr_0495B:
-   ld     hl, UNK_4DCB                 ; 01:495B - 21 CB 4D
+@TODO_495B:
+   ld     hl, objfunc_00_sonic@TODO_UNK_4DCB  ; 01:495B - 21 CB 4D
    ld     de, var_D20E                 ; 01:495E - 11 0E D2
    ld     bc, $0009                    ; 01:4961 - 01 09 00
    ldir                                ; 01:4964 - ED B0
@@ -10064,12 +10064,12 @@ addr_0495B:
    ld     (var_D244), hl               ; 01:4975 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:4978 - 2A 0C DC
    ld     (var_DC0A), hl               ; 01:497B - 22 0A DC
-   jp     addr_049D9                   ; 01:497E - C3 D9 49
+   jp     @TODO_49D9                   ; 01:497E - C3 D9 49
 
-addr_04981:
+@TODO_4981:
    bit    7, (ix+24)                   ; 01:4981 - DD CB 18 7E
-   jr     nz, addr_0495B               ; 01:4985 - 20 D4
-   ld     hl, UNK_4DD4                 ; 01:4987 - 21 D4 4D
+   jr     nz, @TODO_495B               ; 01:4985 - 20 D4
+   ld     hl, objfunc_00_sonic@TODO_UNK_4DD4  ; 01:4987 - 21 D4 4D
    ld     de, var_D20E                 ; 01:498A - 11 0E D2
    ld     bc, $0009                    ; 01:498D - 01 09 00
    ldir                                ; 01:4990 - ED B0
@@ -10081,10 +10081,10 @@ addr_04981:
    ld     (var_D244), hl               ; 01:49A1 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:49A4 - 2A 0C DC
    ld     (var_DC0A), hl               ; 01:49A7 - 22 0A DC
-   jp     addr_049D9                   ; 01:49AA - C3 D9 49
+   jp     @TODO_49D9                   ; 01:49AA - C3 D9 49
 
-addr_049AD:
-   ld     hl, UNK_4DE6                 ; 01:49AD - 21 E6 4D
+@TODO_49AD:
+   ld     hl, objfunc_00_sonic@TODO_UNK_4DE6  ; 01:49AD - 21 E6 4D
    ld     de, var_D20E                 ; 01:49B0 - 11 0E D2
    ld     bc, $0009                    ; 01:49B3 - 01 09 00
    ldir                                ; 01:49B6 - ED B0
@@ -10099,13 +10099,13 @@ addr_049AD:
    ld     (var_DC0A), hl               ; 01:49CE - 22 0A DC
    ld     a, (g_global_tick_counter)   ; 01:49D1 - 3A 23 D2
    and    $03                          ; 01:49D4 - E6 03
-   call   z, addr_04FEC                ; 01:49D6 - CC EC 4F
+   call   z, @fn_TODO_4FEC             ; 01:49D6 - CC EC 4F
 
-addr_049D9:
+@TODO_49D9:
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49D9 - FD CB 03 4E
-   call   z, addr_050C1                ; 01:49DD - CC C1 50
+   call   z, @fn_TODO_50C1             ; 01:49DD - CC C1 50
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49E0 - FD CB 03 4E
-   call   nz, addr_050E3               ; 01:49E4 - C4 E3 50
+   call   nz, @fn_TODO_50E3            ; 01:49E4 - C4 E3 50
    ld     a, $0F                       ; 01:49E7 - 3E 0F
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -10133,17 +10133,17 @@ addr_049D9:
    add    hl, bc                       ; 01:4A0A - 09
    ld     a, (hl)                      ; 01:4A0B - 7E
    cp     $1C                          ; 01:4A0C - FE 1C
-   jr     nc, addr_04A28               ; 01:4A0E - 30 18
+   jr     nc, objfunc_00_sonic@return_from_tile_special  ; 01:4A0E - 30 18
    add    a, a                         ; 01:4A10 - 87
    ld     l, a                         ; 01:4A11 - 6F
    ld     h, d                         ; 01:4A12 - 62
-   ld     de, LUT_058E5                ; 01:4A13 - 11 E5 58
+   ld     de, CODEPTRTAB_sonic_tile_specials  ; 01:4A13 - 11 E5 58
    add    hl, de                       ; 01:4A16 - 19
    ld     a, (hl)                      ; 01:4A17 - 7E
    inc    hl                           ; 01:4A18 - 23
    ld     h, (hl)                      ; 01:4A19 - 66
    ld     l, a                         ; 01:4A1A - 6F
-   ld     de, addr_04A28               ; 01:4A1B - 11 28 4A
+   ld     de, objfunc_00_sonic@return_from_tile_special  ; 01:4A1B - 11 28 4A
    ld     a, $02                       ; 01:4A1E - 3E 02
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
    .IF 0
@@ -10155,7 +10155,7 @@ addr_049D9:
    push   de                           ; 01:4A26 - D5
    jp     (hl)                         ; 01:4A27 - E9
 
-addr_04A28:
+@return_from_tile_special:
    ld     hl, (sonic_y)                ; 01:4A28 - 2A 01 D4
    ld     de, $0024                    ; 01:4A2B - 11 24 00
    add    hl, de                       ; 01:4A2E - 19
@@ -10169,43 +10169,43 @@ addr_04A28:
    ld     hl, $0000                    ; 01:4A3D - 21 00 00
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A40 - FD 7E 03
    cp     $FF                          ; 01:4A43 - FE FF
-   jr     nz, addr_04A59               ; 01:4A45 - 20 12
+   jr     nz, @TODO_4A59               ; 01:4A45 - 20 12
    ld     de, (sonic_vel_x_sub)        ; 01:4A47 - ED 5B 03 D4
    ld     a, e                         ; 01:4A4B - 7B
    or     d                            ; 01:4A4C - B2
-   jr     nz, addr_04A59               ; 01:4A4D - 20 0A
+   jr     nz, @TODO_4A59               ; 01:4A4D - 20 0A
    ld     a, (var_D414)                ; 01:4A4F - 3A 14 D4
    rlca                                ; 01:4A52 - 07
-   jr     nc, addr_04A59               ; 01:4A53 - 30 04
+   jr     nc, @TODO_4A59               ; 01:4A53 - 30 04
    ld     hl, (var_D299)               ; 01:4A55 - 2A 99 D2
    inc    hl                           ; 01:4A58 - 23
 
-addr_04A59:
+@TODO_4A59:
    ld     (var_D299), hl               ; 01:4A59 - 22 99 D2
    bit    7, (iy+var_D206-IYBASE)      ; 01:4A5C - FD CB 06 7E
-   call   nz, addr_050E8               ; 01:4A60 - C4 E8 50
+   call   nz, @fn_TODO_50E8            ; 01:4A60 - C4 E8 50
    ld     (ix+20), $05                 ; 01:4A63 - DD 36 14 05
    ld     hl, (var_D299)               ; 01:4A67 - 2A 99 D2
    ld     de, $0168                    ; 01:4A6A - 11 68 01
    and    a                            ; 01:4A6D - A7
    sbc    hl, de                       ; 01:4A6E - ED 52
-   call   nc, addr_05105               ; 01:4A70 - D4 05 51
+   call   nc, @fn_TODO_5105            ; 01:4A70 - D4 05 51
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:4A73 - FD 7E 03
    cp     $FE                          ; 01:4A76 - FE FE
-   call   z, addr_04EDD                ; 01:4A78 - CC DD 4E
+   call   z, @fn_TODO_4EDD             ; 01:4A78 - CC DD 4E
    bit    0, (iy+g_inputs_player_1-IYBASE)  ; 01:4A7B - FD CB 03 46
-   call   nz, addr_04FD3               ; 01:4A7F - C4 D3 4F
+   call   nz, @fn_TODO_4FD3            ; 01:4A7F - C4 D3 4F
    bit    0, (ix+24)                   ; 01:4A82 - DD CB 18 46
-   jp     nz, addr_0532E               ; 01:4A86 - C2 2E 53
+   jp     nz, @TODO_532E               ; 01:4A86 - C2 2E 53
    ld     a, (ix+14)                   ; 01:4A89 - DD 7E 0E
    cp     $20                          ; 01:4A8C - FE 20
-   jr     z, addr_04A9A                ; 01:4A8E - 28 0A
+   jr     z, @TODO_4A9A                ; 01:4A8E - 28 0A
    ld     hl, (sonic_y)                ; 01:4A90 - 2A 01 D4
    ld     de, $FFF8                    ; 01:4A93 - 11 F8 FF
    add    hl, de                       ; 01:4A96 - 19
    ld     (sonic_y), hl                ; 01:4A97 - 22 01 D4
 
-addr_04A9A:
+@TODO_4A9A:
    ld     (ix+13), $18                 ; 01:4A9A - DD 36 0D 18
    ld     (ix+14), $20                 ; 01:4A9E - DD 36 0E 20
    ld     hl, (sonic_vel_x_sub)        ; 01:4AA2 - 2A 03 D4
@@ -10213,19 +10213,17 @@ addr_04A9A:
    ld     c, $00                       ; 01:4AA8 - 0E 00
    ld     e, c                         ; 01:4AAA - 59
    ld     d, c                         ; 01:4AAB - 51
-   ;; Is right button held?
    bit    3, (iy+g_inputs_player_1-IYBASE)  ; 01:4AAC - FD CB 03 5E
-   jp     z, addr_04F01                ; 01:4AB0 - CA 01 4F
-   ;; Is left button held?
+   jp     z, @TODO_4F01                ; 01:4AB0 - CA 01 4F
    bit    2, (iy+g_inputs_player_1-IYBASE)  ; 01:4AB3 - FD CB 03 56
-   jp     z, addr_04F5C                ; 01:4AB7 - CA 5C 4F
+   jp     z, @TODO_4F5C                ; 01:4AB7 - CA 5C 4F
    ld     a, h                         ; 01:4ABA - 7C
    or     l                            ; 01:4ABB - B5
    or     b                            ; 01:4ABC - B0
-   jr     z, addr_04B1B                ; 01:4ABD - 28 5C
+   jr     z, @TODO_4B1B                ; 01:4ABD - 28 5C
    ld     (ix+20), $01                 ; 01:4ABF - DD 36 14 01
    bit    7, b                         ; 01:4AC3 - CB 78
-   jr     nz, addr_04AF7               ; 01:4AC5 - 20 30
+   jr     nz, @TODO_4AF7               ; 01:4AC5 - 20 30
    ld     de, (var_D212)               ; 01:4AC7 - ED 5B 12 D2
    ld     a, e                         ; 01:4ACB - 7B
    cpl                                 ; 01:4ACC - 2F
@@ -10242,7 +10240,7 @@ addr_04A9A:
    sbc    hl, de                       ; 01:4ADB - ED 52
    pop    de                           ; 01:4ADD - D1
    pop    hl                           ; 01:4ADE - E1
-   jr     c, addr_04B1B                ; 01:4ADF - 38 3A
+   jr     c, @TODO_4B1B                ; 01:4ADF - 38 3A
    ld     de, (var_D20E)               ; 01:4AE1 - ED 5B 0E D2
    ld     a, e                         ; 01:4AE5 - 7B
    cpl                                 ; 01:4AE6 - 2F
@@ -10254,9 +10252,9 @@ addr_04A9A:
    ld     c, $FF                       ; 01:4AEC - 0E FF
    ld     a, (var_D216)                ; 01:4AEE - 3A 16 D2
    ld     (ix+20), a                   ; 01:4AF1 - DD 77 14
-   jp     addr_04B1B                   ; 01:4AF4 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:4AF4 - C3 1B 4B
 
-addr_04AF7:
+@TODO_4AF7:
    ld     de, (var_D212)               ; 01:4AF7 - ED 5B 12 D2
    ld     c, $00                       ; 01:4AFB - 0E 00
    push   hl                           ; 01:4AFD - E5
@@ -10273,71 +10271,70 @@ addr_04AF7:
    sbc    hl, de                       ; 01:4B0B - ED 52
    pop    de                           ; 01:4B0D - D1
    pop    hl                           ; 01:4B0E - E1
-   jr     c, addr_04B1B                ; 01:4B0F - 38 0A
+   jr     c, @TODO_4B1B                ; 01:4B0F - 38 0A
    ld     de, (var_D20E)               ; 01:4B11 - ED 5B 0E D2
    ld     a, (var_D216)                ; 01:4B15 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4B18 - DD 77 14
 
-addr_04B1B:
+@TODO_4B1B:
    ld     a, b                         ; 01:4B1B - 78
    and    a                            ; 01:4B1C - A7
-   jp     m, addr_04B38                ; 01:4B1D - FA 38 4B
+   jp     m, @TODO_4B38                ; 01:4B1D - FA 38 4B
    add    hl, de                       ; 01:4B20 - 19
    adc    a, c                         ; 01:4B21 - 89
    ld     c, a                         ; 01:4B22 - 4F
-   jp     p, addr_04B42                ; 01:4B23 - F2 42 4B
+   jp     p, @TODO_4B42                ; 01:4B23 - F2 42 4B
    ld     a, (sonic_vel_x_sub)         ; 01:4B26 - 3A 03 D4
    or     (ix+8)                       ; 01:4B29 - DD B6 08
    or     (ix+9)                       ; 01:4B2C - DD B6 09
-   jr     z, addr_04B42                ; 01:4B2F - 28 11
+   jr     z, @TODO_4B42                ; 01:4B2F - 28 11
    ld     c, $00                       ; 01:4B31 - 0E 00
    ld     l, c                         ; 01:4B33 - 69
    ld     h, c                         ; 01:4B34 - 61
-   jp     addr_04B42                   ; 01:4B35 - C3 42 4B
+   jp     @TODO_4B42                   ; 01:4B35 - C3 42 4B
 
-addr_04B38:
+@TODO_4B38:
    add    hl, de                       ; 01:4B38 - 19
    adc    a, c                         ; 01:4B39 - 89
    ld     c, a                         ; 01:4B3A - 4F
-   jp     m, addr_04B42                ; 01:4B3B - FA 42 4B
+   jp     m, @TODO_4B42                ; 01:4B3B - FA 42 4B
    ld     c, $00                       ; 01:4B3E - 0E 00
    ld     l, c                         ; 01:4B40 - 69
    ld     h, c                         ; 01:4B41 - 61
 
-addr_04B42:
-   ld     a, c                         ; 01:4B42 - 79
-   ld     (sonic_vel_x_sub), hl        ; 01:4B43 - 22 03 D4
-   ld     (sonic_vel_x_hi), a          ; 01:4B46 - 32 05 D4
+@TODO_4B42:
+    ld     a, c                         ; 01:4B42 - 79
+    ld     (sonic_vel_x_sub), hl        ; 01:4B43 - 22 03 D4
+    ld     (sonic_vel_x_hi), a          ; 01:4B46 - 32 05 D4
 
-addr_04B49:
+@TODO_4B49:
    ld     hl, (sonic_vel_y_sub)        ; 01:4B49 - 2A 06 D4
    ld     b, (ix+12)                   ; 01:4B4C - DD 46 0C
    ld     c, $00                       ; 01:4B4F - 0E 00
    ld     e, c                         ; 01:4B51 - 59
    ld     d, c                         ; 01:4B52 - 51
    bit    7, (ix+24)                   ; 01:4B53 - DD CB 18 7E
-   call   nz, addr_050AF               ; 01:4B57 - C4 AF 50
+   call   nz, @fn_TODO_50AF            ; 01:4B57 - C4 AF 50
    bit    0, (ix+24)                   ; 01:4B5A - DD CB 18 46
-   jp     nz, addr_05407               ; 01:4B5E - C2 07 54
+   jp     nz, @TODO_5407               ; 01:4B5E - C2 07 54
    ld     a, (var_D28E)                ; 01:4B61 - 3A 8E D2
    and    a                            ; 01:4B64 - A7
-   jr     nz, addr_04B79               ; 01:4B65 - 20 12
+   jr     nz, @TODO_4B79               ; 01:4B65 - 20 12
    bit    7, (ix+24)                   ; 01:4B67 - DD CB 18 7E
-   jr     z, addr_04B9D                ; 01:4B6B - 28 30
+   jr     z, @TODO_4B9D                ; 01:4B6B - 28 30
    bit    3, (ix+24)                   ; 01:4B6D - DD CB 18 5E
-   jr     nz, addr_04B79               ; 01:4B71 - 20 06
-   ;; RESEARCH NOTE: If we got here, we were landing with the jump button pressed.
+   jr     nz, @TODO_4B79               ; 01:4B71 - 20 06
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:4B73 - FD CB 03 6E
-   jr     z, addr_04B9D                ; 01:4B77 - 28 24
+   jr     z, @TODO_4B9D                ; 01:4B77 - 28 24
 
-addr_04B79:
+@TODO_4B79:
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:4B79 - FD CB 03 6E
-   jr     nz, addr_04BA4               ; 01:4B7D - 20 25
+   jr     nz, @TODO_4BA4               ; 01:4B7D - 20 25
 
-addr_04B7F:
+@TODO_4B7F:
    ld     a, (var_D28E)                ; 01:4B7F - 3A 8E D2
    and    a                            ; 01:4B82 - A7
-   call   z, addr_0509D                ; 01:4B83 - CC 9D 50
+   call   z, @fn_TODO_509D             ; 01:4B83 - CC 9D 50
    ld     hl, (var_D242)               ; 01:4B86 - 2A 42 D2
    ld     b, $FF                       ; 01:4B89 - 06 FF
    ld     c, $00                       ; 01:4B8B - 0E 00
@@ -10347,36 +10344,34 @@ addr_04B7F:
    dec    a                            ; 01:4B92 - 3D
    ld     (var_D28E), a                ; 01:4B93 - 32 8E D2
    set    2, (ix+24)                   ; 01:4B96 - DD CB 18 D6
-   jp     addr_04BBE                   ; 01:4B9A - C3 BE 4B
+   jp     @TODO_4BBE                   ; 01:4B9A - C3 BE 4B
 
-addr_04B9D:
-   ;; Suppress jumping.
+@TODO_4B9D:
    res    3, (ix+24)                   ; 01:4B9D - DD CB 18 9E
-   jp     addr_04BA8                   ; 01:4BA1 - C3 A8 4B
+   jp     @TODO_4BA8                   ; 01:4BA1 - C3 A8 4B
 
-addr_04BA4:
-   ;; Allow jumping.
+@TODO_4BA4:
    set    3, (ix+24)                   ; 01:4BA4 - DD CB 18 DE
 
-addr_04BA8:
+@TODO_4BA8:
    xor    a                            ; 01:4BA8 - AF
    ld     (var_D28E), a                ; 01:4BA9 - 32 8E D2
 
-addr_04BAC:
+@TODO_4BAC:
    bit    7, h                         ; 01:4BAC - CB 7C
-   jr     nz, addr_04BB8               ; 01:4BAE - 20 08
+   jr     nz, @TODO_4BB8               ; 01:4BAE - 20 08
    ld     a, (var_D215)                ; 01:4BB0 - 3A 15 D2
    cp     h                            ; 01:4BB3 - BC
-   jr     z, addr_04BBE                ; 01:4BB4 - 28 08
-   jr     c, addr_04BBE                ; 01:4BB6 - 38 06
+   jr     z, @TODO_4BBE                ; 01:4BB4 - 28 08
+   jr     c, @TODO_4BBE                ; 01:4BB6 - 38 06
 
-addr_04BB8:
+@TODO_4BB8:
    ld     de, (var_D244)               ; 01:4BB8 - ED 5B 44 D2
    ld     c, $00                       ; 01:4BBC - 0E 00
 
-addr_04BBE:
+@TODO_4BBE:
    bit    0, (iy+var_D206-IYBASE)      ; 01:4BBE - FD CB 06 46
-   jr     z, addr_04BD6                ; 01:4BC2 - 28 12
+   jr     z, @TODO_4BD6                ; 01:4BC2 - 28 12
    push   hl                           ; 01:4BC4 - E5
    ld     a, e                         ; 01:4BC5 - 7B
    cpl                                 ; 01:4BC6 - 2F
@@ -10393,7 +10388,7 @@ addr_04BBE:
    ld     c, a                         ; 01:4BD4 - 4F
    pop    hl                           ; 01:4BD5 - E1
 
-addr_04BD6:
+@TODO_4BD6:
    add    hl, de                       ; 01:4BD6 - 19
    ld     a, b                         ; 01:4BD7 - 78
    adc    a, c                         ; 01:4BD8 - 89
@@ -10415,10 +10410,10 @@ addr_04BD6:
    ld     (var_D2E8), a                ; 01:4BF1 - 32 E8 D2
    pop    hl                           ; 01:4BF4 - E1
    bit    2, (ix+24)                   ; 01:4BF5 - DD CB 18 56
-   call   nz, addr_05280               ; 01:4BF9 - C4 80 52
+   call   nz, @fn_TODO_5280            ; 01:4BF9 - C4 80 52
    ld     a, h                         ; 01:4BFC - 7C
    and    a                            ; 01:4BFD - A7
-   jp     p, addr_04C08                ; 01:4BFE - F2 08 4C
+   jp     p, @TODO_4C08                ; 01:4BFE - F2 08 4C
    ld     a, h                         ; 01:4C01 - 7C
    cpl                                 ; 01:4C02 - 2F
    ld     h, a                         ; 01:4C03 - 67
@@ -10427,43 +10422,43 @@ addr_04BD6:
    ld     l, a                         ; 01:4C06 - 6F
    inc    hl                           ; 01:4C07 - 23
 
-addr_04C08:
+@TODO_4C08:
    ld     de, $0100                    ; 01:4C08 - 11 00 01
    ex     de, hl                       ; 01:4C0B - EB
    and    a                            ; 01:4C0C - A7
    sbc    hl, de                       ; 01:4C0D - ED 52
-   jr     nc, addr_04C28               ; 01:4C0F - 30 17
+   jr     nc, @TODO_4C28               ; 01:4C0F - 30 17
    ld     a, (var_D414)                ; 01:4C11 - 3A 14 D4
    and    $85                          ; 01:4C14 - E6 85
-   jr     nz, addr_04C28               ; 01:4C16 - 20 10
+   jr     nz, @TODO_4C28               ; 01:4C16 - 20 10
    bit    7, (ix+12)                   ; 01:4C18 - DD CB 0C 7E
-   jr     z, addr_04C24                ; 01:4C1C - 28 06
+   jr     z, @TODO_4C24                ; 01:4C1C - 28 06
    ld     (ix+20), $13                 ; 01:4C1E - DD 36 14 13
-   jr     addr_04C28                   ; 01:4C22 - 18 04
+   jr     @TODO_4C28                   ; 01:4C22 - 18 04
 
-addr_04C24:
+@TODO_4C24:
    ld     (ix+20), $01                 ; 01:4C24 - DD 36 14 01
 
-addr_04C28:
+@TODO_4C28:
    ld     bc, $000C                    ; 01:4C28 - 01 0C 00
    ld     de, $0008                    ; 01:4C2B - 11 08 00
    call   get_obj_level_tile_ptr_in_ram  ; 01:4C2E - CD F9 36
    ld     a, (hl)                      ; 01:4C31 - 7E
    and    $7F                          ; 01:4C32 - E6 7F
    cp     $79                          ; 01:4C34 - FE 79
-   call   nc, addr_04DEF               ; 01:4C36 - D4 EF 4D
+   call   nc, @fn_try_collect_ring_in_ring_tile  ; 01:4C36 - D4 EF 4D
 
-addr_04C39:
+@TODO_4C39:
    ld     a, (var_D28C)                ; 01:4C39 - 3A 8C D2
    and    a                            ; 01:4C3C - A7
-   call   nz, addr_051B3               ; 01:4C3D - C4 B3 51
+   call   nz, @fn_TODO_51B3            ; 01:4C3D - C4 B3 51
    bit    6, (iy+var_D206-IYBASE)      ; 01:4C40 - FD CB 06 76
-   call   nz, addr_051BC               ; 01:4C44 - C4 BC 51
+   call   nz, @fn_TODO_51BC            ; 01:4C44 - C4 BC 51
    bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
-   call   nz, addr_051DD               ; 01:4C4B - C4 DD 51
+   call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
    ld     a, (var_D410)                ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
-   call   z, addr_051F3                ; 01:4C53 - CC F3 51
+   call   z, @fn_TODO_51F3             ; 01:4C53 - CC F3 51
    ld     l, (ix+20)                   ; 01:4C56 - DD 6E 14
    ld     c, l                         ; 01:4C59 - 4D
    ld     h, $00                       ; 01:4C5A - 26 00
@@ -10476,30 +10471,30 @@ addr_04C39:
    ld     (var_D40D), de               ; 01:4C64 - ED 53 0D D4
    ld     a, (var_D2DF)                ; 01:4C68 - 3A DF D2
    sub    c                            ; 01:4C6B - 91
-   call   nz, addr_0521F               ; 01:4C6C - C4 1F 52
+   call   nz, @fn_TODO_521F            ; 01:4C6C - C4 1F 52
    ld     a, (var_D40F)                ; 01:4C6F - 3A 0F D4
 
-addr_04C72:
+@TODO_4C72:
    ld     h, $00                       ; 01:4C72 - 26 00
    ld     l, a                         ; 01:4C74 - 6F
    add    hl, de                       ; 01:4C75 - 19
    ld     a, (hl)                      ; 01:4C76 - 7E
    and    a                            ; 01:4C77 - A7
-   jp     p, addr_04C83                ; 01:4C78 - F2 83 4C
+   jp     p, @TODO_4C83                ; 01:4C78 - F2 83 4C
    inc    hl                           ; 01:4C7B - 23
    ld     a, (hl)                      ; 01:4C7C - 7E
    ld     (var_D40F), a                ; 01:4C7D - 32 0F D4
-   jp     addr_04C72                   ; 01:4C80 - C3 72 4C
+   jp     @TODO_4C72                   ; 01:4C80 - C3 72 4C
 
-addr_04C83:
+@TODO_4C83:
    ld     d, a                         ; 01:4C83 - 57
    .IF !shrink_sonicuncart_interleave
    ld     bc, $4000                    ; 01:4C84 - 01 00 40
    bit    1, (ix+24)                   ; 01:4C87 - DD CB 18 4E
-   jr     z, addr_04C90                ; 01:4C8B - 28 03
+   jr     z, @TODO_4C90                ; 01:4C8B - 28 03
    ld     bc, $7000                    ; 01:4C8D - 01 00 70
 
-addr_04C90:
+@TODO_4C90:
    .ELSE
    ld bc, sonic_art
    bit 1, (ix+24)
@@ -10508,10 +10503,10 @@ addr_04C90:
    +:
    .ENDIF
    bit    5, (iy+var_D206-IYBASE)      ; 01:4C90 - FD CB 06 6E
-   call   nz, addr_05206               ; 01:4C94 - C4 06 52
+   call   nz, @fn_TODO_5206            ; 01:4C94 - C4 06 52
    ld     a, (var_D302)                ; 01:4C97 - 3A 02 D3
    and    a                            ; 01:4C9A - A7
-   call   nz, addr_04E48               ; 01:4C9B - C4 48 4E
+   call   nz, @fn_TODO_4E48            ; 01:4C9B - C4 48 4E
    ld     a, d                         ; 01:4C9E - 7A
    rrca                                ; 01:4C9F - 0F
    rrca                                ; 01:4CA0 - 0F
@@ -10530,69 +10525,69 @@ addr_04C90:
    ld     h, a                         ; 01:4CAA - 67
    add    hl, bc                       ; 01:4CAB - 09
    ld     (var_D28F), hl               ; 01:4CAC - 22 8F D2
-   ld     hl, UNK_0591D                ; 01:4CAF - 21 1D 59
+   ld     hl, SPRITEMAP_sonic_normal   ; 01:4CAF - 21 1D 59
    .IF shrink_sonicuncart_interleave
    bit 0, c
-   call nz, addr_0520F
+   call nz, @fn_TODO_520F
    .ENDIF
    bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
-   call   nz, addr_0520F               ; 01:4CB6 - C4 0F 52
+   call   nz, @fn_TODO_520F            ; 01:4CB6 - C4 0F 52
    ld     a, (var_D410)                ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
-   call   z, addr_05213                ; 01:4CBE - CC 13 52
+   call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
    ld     a, (var_D302)                ; 01:4CC1 - 3A 02 D3
    and    a                            ; 01:4CC4 - A7
-   call   nz, addr_04E4D               ; 01:4CC5 - C4 4D 4E
+   call   nz, @fn_TODO_4E4D            ; 01:4CC5 - C4 4D 4E
    ld     (var_D40B), hl               ; 01:4CC8 - 22 0B D4
    ld     c, $10                       ; 01:4CCB - 0E 10
    ld     a, (sonic_vel_x)             ; 01:4CCD - 3A 04 D4
    and    a                            ; 01:4CD0 - A7
-   jp     p, addr_04CD8                ; 01:4CD1 - F2 D8 4C
+   jp     p, @TODO_4CD8                ; 01:4CD1 - F2 D8 4C
    neg                                 ; 01:4CD4 - ED 44
    ld     c, $F0                       ; 01:4CD6 - 0E F0
 
-addr_04CD8:
+@TODO_4CD8:
    cp     $10                          ; 01:4CD8 - FE 10
-   jr     c, addr_04CE0                ; 01:4CDA - 38 04
+   jr     c, @TODO_4CE0                ; 01:4CDA - 38 04
    ld     a, c                         ; 01:4CDC - 79
    ld     (sonic_vel_x), a             ; 01:4CDD - 32 04 D4
 
-addr_04CE0:
+@TODO_4CE0:
    ld     c, $10                       ; 01:4CE0 - 0E 10
    ld     a, (sonic_vel_y)             ; 01:4CE2 - 3A 07 D4
    and    a                            ; 01:4CE5 - A7
-   jp     p, addr_04CED                ; 01:4CE6 - F2 ED 4C
+   jp     p, @TODO_4CED                ; 01:4CE6 - F2 ED 4C
    neg                                 ; 01:4CE9 - ED 44
    ld     c, $F0                       ; 01:4CEB - 0E F0
 
-addr_04CED:
+@TODO_4CED:
    cp     $10                          ; 01:4CED - FE 10
-   jr     c, addr_04CF5                ; 01:4CEF - 38 04
+   jr     c, @TODO_4CF5                ; 01:4CEF - 38 04
    ld     a, c                         ; 01:4CF1 - 79
    ld     (sonic_vel_y), a             ; 01:4CF2 - 32 07 D4
 
-addr_04CF5:
+@TODO_4CF5:
    ld     de, (sonic_y)                ; 01:4CF5 - ED 5B 01 D4
    ld     hl, $0010                    ; 01:4CF9 - 21 10 00
    and    a                            ; 01:4CFC - A7
    sbc    hl, de                       ; 01:4CFD - ED 52
-   jr     c, addr_04D05                ; 01:4CFF - 38 04
+   jr     c, @TODO_4D05                ; 01:4CFF - 38 04
    add    hl, de                       ; 01:4D01 - 19
    ld     (sonic_y), hl                ; 01:4D02 - 22 01 D4
 
-addr_04D05:
+@TODO_4D05:
    bit    7, (iy+var_D206-IYBASE)      ; 01:4D05 - FD CB 06 7E
-   call   nz, addr_05224               ; 01:4D09 - C4 24 52
+   call   nz, @fn_TODO_5224            ; 01:4D09 - C4 24 52
    bit    0, (iy+var_D208-IYBASE)      ; 01:4D0C - FD CB 08 46
-   call   nz, addr_04E8D               ; 01:4D10 - C4 8D 4E
+   call   nz, @fn_TODO_4E8D            ; 01:4D10 - C4 8D 4E
    ld     a, (var_D2E1)                ; 01:4D13 - 3A E1 D2
    and    a                            ; 01:4D16 - A7
-   call   nz, addr_05231               ; 01:4D17 - C4 31 52
+   call   nz, @fn_TODO_5231            ; 01:4D17 - C4 31 52
    ld     a, (var_D321)                ; 01:4D1A - 3A 21 D3
    and    a                            ; 01:4D1D - A7
-   call   nz, addr_04E51               ; 01:4D1E - C4 51 4E
+   call   nz, @fn_TODO_4E51            ; 01:4D1E - C4 51 4E
    bit    1, (iy+var_D206-IYBASE)      ; 01:4D21 - FD CB 06 4E
-   jr     nz, addr_04D81               ; 01:4D25 - 20 5A
+   jr     nz, @TODO_4D81               ; 01:4D25 - 20 5A
    ld     hl, (var_D273)               ; 01:4D27 - 2A 73 D2
    ld     bc, $0008                    ; 01:4D2A - 01 08 00
    add    hl, bc                       ; 01:4D2D - 09
@@ -10600,18 +10595,18 @@ addr_04D05:
    ld     hl, (sonic_x)                ; 01:4D2F - 2A FE D3
    and    a                            ; 01:4D32 - A7
    sbc    hl, de                       ; 01:4D33 - ED 52
-   jr     nc, addr_04D4F               ; 01:4D35 - 30 18
+   jr     nc, @TODO_4D4F               ; 01:4D35 - 30 18
    ld     (sonic_x), de                ; 01:4D37 - ED 53 FE D3
    ld     a, (sonic_vel_x_hi)          ; 01:4D3B - 3A 05 D4
    and    a                            ; 01:4D3E - A7
-   jp     p, addr_04D81                ; 01:4D3F - F2 81 4D
+   jp     p, @TODO_4D81                ; 01:4D3F - F2 81 4D
    xor    a                            ; 01:4D42 - AF
    ld     (sonic_vel_x_sub), a         ; 01:4D43 - 32 03 D4
    ld     (sonic_vel_x), a             ; 01:4D46 - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 01:4D49 - 32 05 D4
-   jp     addr_04D81                   ; 01:4D4C - C3 81 4D
+   jp     @TODO_4D81                   ; 01:4D4C - C3 81 4D
 
-addr_04D4F:
+@TODO_4D4F:
    ld     hl, (var_D275)               ; 01:4D4F - 2A 75 D2
    ld     de, $00F8                    ; 01:4D52 - 11 F8 00
    add    hl, de                       ; 01:4D55 - 19
@@ -10621,24 +10616,24 @@ addr_04D4F:
    add    hl, bc                       ; 01:4D5C - 09
    and    a                            ; 01:4D5D - A7
    sbc    hl, de                       ; 01:4D5E - ED 52
-   jr     c, addr_04D81                ; 01:4D60 - 38 1F
+   jr     c, @TODO_4D81                ; 01:4D60 - 38 1F
    ex     de, hl                       ; 01:4D62 - EB
    scf                                 ; 01:4D63 - 37
    sbc    hl, bc                       ; 01:4D64 - ED 42
    ld     (sonic_x), hl                ; 01:4D66 - 22 FE D3
    ld     a, (sonic_vel_x_hi)          ; 01:4D69 - 3A 05 D4
    and    a                            ; 01:4D6C - A7
-   jp     m, addr_04D81                ; 01:4D6D - FA 81 4D
+   jp     m, @TODO_4D81                ; 01:4D6D - FA 81 4D
    ld     hl, (sonic_vel_x)            ; 01:4D70 - 2A 04 D4
    or     h                            ; 01:4D73 - B4
    or     l                            ; 01:4D74 - B5
-   jr     z, addr_04D81                ; 01:4D75 - 28 0A
+   jr     z, @TODO_4D81                ; 01:4D75 - 28 0A
    xor    a                            ; 01:4D77 - AF
    ld     (sonic_vel_x_sub), a         ; 01:4D78 - 32 03 D4
    ld     (sonic_vel_x), a             ; 01:4D7B - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 01:4D7E - 32 05 D4
 
-addr_04D81:
+@TODO_4D81:
    ld     a, (var_D414)                ; 01:4D81 - 3A 14 D4
    ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
    ld     a, (var_D410)                ; 01:4D87 - 3A 10 D4
@@ -10646,20 +10641,20 @@ addr_04D81:
    ld     d, $01                       ; 01:4D8D - 16 01
    ld     c, $30                       ; 01:4D8F - 0E 30
    cp     $01                          ; 01:4D91 - FE 01
-   jr     z, addr_04DA1                ; 01:4D93 - 28 0C
+   jr     z, @TODO_4DA1                ; 01:4D93 - 28 0C
    ld     d, $06                       ; 01:4D95 - 16 06
    ld     c, $50                       ; 01:4D97 - 0E 50
    cp     $09                          ; 01:4D99 - FE 09
-   jr     z, addr_04DA1                ; 01:4D9B - 28 04
+   jr     z, @TODO_4DA1                ; 01:4D9B - 28 04
    inc    (ix+19)                      ; 01:4D9D - DD 34 13
    ret                                 ; 01:4DA0 - C9
 
-addr_04DA1:
+@TODO_4DA1:
    ld     a, (var_D2E0)                ; 01:4DA1 - 3A E0 D2
    ld     b, a                         ; 01:4DA4 - 47
    ld     hl, (sonic_vel_x_sub)        ; 01:4DA5 - 2A 03 D4
    bit    7, h                         ; 01:4DA8 - CB 7C
-   jr     z, addr_04DB3                ; 01:4DAA - 28 07
+   jr     z, @TODO_4DB3                ; 01:4DAA - 28 07
    ld     a, l                         ; 01:4DAC - 7D
    cpl                                 ; 01:4DAD - 2F
    ld     l, a                         ; 01:4DAE - 6F
@@ -10668,7 +10663,7 @@ addr_04DA1:
    ld     h, a                         ; 01:4DB1 - 67
    inc    hl                           ; 01:4DB2 - 23
 
-addr_04DB3:
+@TODO_4DB3:
    srl    h                            ; 01:4DB3 - CB 3C
    rr     l                            ; 01:4DB5 - CB 1D
    ld     a, l                         ; 01:4DB7 - 7D
@@ -10684,19 +10679,19 @@ addr_04DB3:
    ld     (var_D40F), a                ; 01:4DC7 - 32 0F D4
    ret                                 ; 01:4DCA - C9
 
-UNK_4DCB:
+@TODO_UNK_4DCB:
 .db $10, $00, $30, $00, $08, $00, $00, $08, $02                                     ; 01:4DCB
 
-UNK_4DD4:
+@TODO_UNK_4DD4:
 .db $10, $00, $30, $00, $02, $00, $00, $08, $02                                     ; 01:4DD4
 
-UNK_4DDD:
+@TODO_UNK_4DDD:
 .db $04, $00, $0C, $00, $02, $00, $00, $02, $01                                     ; 01:4DDD
 
-UNK_4DE6:
+@TODO_UNK_4DE6:
 .db $10, $00, $30, $00, $08, $00, $00, $08, $02                                     ; 01:4DE6
 
-addr_04DEF:
+@fn_try_collect_ring_in_ring_tile:
    ex     de, hl                       ; 01:4DEF - EB
    ld     hl, (sonic_y)                ; 01:4DF0 - 2A 01 D4
    ld     bc, (g_level_scroll_y_pix_lo)  ; 01:4DF3 - ED 4B 5D D2
@@ -10748,7 +10743,7 @@ addr_04DEF:
    call   add_A_rings                  ; 01:4E44 - CD AC 39
    ret                                 ; 01:4E47 - C9
 
-addr_04E48:
+@fn_TODO_4E48:
    ld     d, a                         ; 01:4E48 - 57
    .IF !shrink_sonicuncart_interleave
    ld     bc, $7000                    ; 01:4E49 - 01 00 70
@@ -10758,11 +10753,11 @@ addr_04E48:
    .ENDIF
    ret                                 ; 01:4E4C - C9
 
-addr_04E4D:
+@fn_TODO_4E4D:
    ld     hl, $0000                    ; 01:4E4D - 21 00 00
    ret                                 ; 01:4E50 - C9
 
-addr_04E51:
+@fn_TODO_4E51:
    dec    a                            ; 01:4E51 - 3D
    ld     (var_D321), a                ; 01:4E52 - 32 21 D3
    ld     hl, (var_D31D)               ; 01:4E55 - 2A 1D D3
@@ -10774,7 +10769,7 @@ addr_04E51:
    ld     hl, $FFFE                    ; 01:4E67 - 21 FE FF
    ld     (var_D214), hl               ; 01:4E6A - 22 14 D2
    cp     $03                          ; 01:4E6D - FE 03
-   jr     c, addr_04E82                ; 01:4E6F - 38 11
+   jr     c, @TODO_4E82                ; 01:4E6F - 38 11
    ld     a, $B2                       ; 01:4E71 - 3E B2
    call   draw_sprite                  ; 01:4E73 - CD 81 35
    ld     hl, $0008                    ; 01:4E76 - 21 08 00
@@ -10782,16 +10777,16 @@ addr_04E51:
    ld     hl, $0002                    ; 01:4E7C - 21 02 00
    ld     (var_D214), hl               ; 01:4E7F - 22 14 D2
 
-addr_04E82:
+@TODO_4E82:
    ld     a, $5A                       ; 01:4E82 - 3E 5A
    call   draw_sprite                  ; 01:4E84 - CD 81 35
    ret                                 ; 01:4E87 - C9
 
-addr_04E88:
+@fn_TODO_4E88:
    set    1, (iy+var_D208-IYBASE)      ; 01:4E88 - FD CB 08 CE
    ret                                 ; 01:4E8C - C9
 
-addr_04E8D:
+@fn_TODO_4E8D:
    ld     hl, (sonic_x)                ; 01:4E8D - 2A FE D3
    ld     (var_D20E), hl               ; 01:4E90 - 22 0E D2
    ld     hl, (sonic_y)                ; 01:4E93 - 2A 01 D4
@@ -10800,10 +10795,10 @@ addr_04E8D:
    ld     a, (g_global_tick_counter)   ; 01:4E9C - 3A 23 D2
    rrca                                ; 01:4E9F - 0F
    rrca                                ; 01:4EA0 - 0F
-   jr     nc, addr_04EA6               ; 01:4EA1 - 30 03
+   jr     nc, @TODO_4EA6               ; 01:4EA1 - 30 03
    ld     hl, var_D2F7                 ; 01:4EA3 - 21 F7 D2
 
-addr_04EA6:
+@TODO_4EA6:
    ld     de, var_D212                 ; 01:4EA6 - 11 12 D2
    ldi                                 ; 01:4EA9 - ED A0
    ldi                                 ; 01:4EAB - ED A0
@@ -10811,10 +10806,10 @@ addr_04EA6:
    ldi                                 ; 01:4EAF - ED A0
    rrca                                ; 01:4EB1 - 0F
    ld     a, $94                       ; 01:4EB2 - 3E 94
-   jr     nc, addr_04EB8               ; 01:4EB4 - 30 02
+   jr     nc, @TODO_4EB8               ; 01:4EB4 - 30 02
    ld     a, $96                       ; 01:4EB6 - 3E 96
 
-addr_04EB8:
+@TODO_4EB8:
    call   draw_sprite                  ; 01:4EB8 - CD 81 35
    ld     a, (g_global_tick_counter)   ; 01:4EBB - 3A 23 D2
    ld     c, a                         ; 01:4EBE - 4F
@@ -10823,10 +10818,10 @@ addr_04EB8:
    ld     b, $02                       ; 01:4EC2 - 06 02
    ld     hl, var_D2F3                 ; 01:4EC4 - 21 F3 D2
    bit    3, c                         ; 01:4EC7 - CB 59
-   jr     z, addr_04ECE                ; 01:4EC9 - 28 03
+   jr     z, @TODO_4ECE                ; 01:4EC9 - 28 03
    ld     hl, var_D2F7                 ; 01:4ECB - 21 F7 D2
 
-addr_04ECE:
+@TODO_4ECE:
    push   hl                           ; 01:4ECE - E5
    call   random_A                     ; 01:4ECF - CD 25 06
    pop    hl                           ; 01:4ED2 - E1
@@ -10835,10 +10830,10 @@ addr_04ECE:
    inc    hl                           ; 01:4ED6 - 23
    ld     (hl), $00                    ; 01:4ED7 - 36 00
    inc    hl                           ; 01:4ED9 - 23
-   djnz   addr_04ECE                   ; 01:4EDA - 10 F2
+   djnz   @TODO_4ECE                   ; 01:4EDA - 10 F2
    ret                                 ; 01:4EDC - C9
 
-addr_04EDD:
+@fn_TODO_4EDD:
    ld     hl, (sonic_vel_x_sub)        ; 01:4EDD - 2A 03 D4
    ld     a, h                         ; 01:4EE0 - 7C
    or     l                            ; 01:4EE1 - B5
@@ -10849,25 +10844,23 @@ addr_04EDD:
    ld     (ix+20), $0C                 ; 01:4EE8 - DD 36 14 0C
    ld     de, (var_D2B7)               ; 01:4EEC - ED 5B B7 D2
    bit    7, d                         ; 01:4EF0 - CB 7A
-   jr     nz, addr_04EFB               ; 01:4EF2 - 20 07
+   jr     nz, @TODO_4EFB               ; 01:4EF2 - 20 07
    ld     hl, $002C                    ; 01:4EF4 - 21 2C 00
    and    a                            ; 01:4EF7 - A7
    sbc    hl, de                       ; 01:4EF8 - ED 52
    ret    c                            ; 01:4EFA - D8
 
-addr_04EFB:
+@TODO_4EFB:
    inc    de                           ; 01:4EFB - 13
    ld     (var_D2B7), de               ; 01:4EFC - ED 53 B7 D2
    ret                                 ; 01:4F00 - C9
 
-addr_04F01:
+@TODO_4F01:
    res    1, (ix+24)                   ; 01:4F01 - DD CB 18 8E
-   ;; Are we moving left?
    bit    7, b                         ; 01:4F05 - CB 78
-   jr     nz, addr_04F31               ; 01:4F07 - 20 28
+   jr     nz, @TODO_4F31               ; 01:4F07 - 20 28
    ld     de, (var_D20E)               ; 01:4F09 - ED 5B 0E D2
    ld     c, $00                       ; 01:4F0D - 0E 00
-   ;; Start walking animation.
    ld     (ix+20), $01                 ; 01:4F0F - DD 36 14 01
    push   hl                           ; 01:4F13 - E5
    exx                                 ; 01:4F14 - D9
@@ -10878,9 +10871,9 @@ addr_04F01:
    exx                                 ; 01:4F1D - D9
    ;; Are we below the speed cap?
    .IF cht_inverse_speed_cap
-   jp nc, addr_04B1B
+   jp nc, @TODO_4B1B
    .ELSE
-   jp     c, addr_04B1B                ; 01:4F1E - DA 1B 4B
+   jp     c, @TODO_4B1B                ; 01:4F1E - DA 1B 4B
    .ENDIF
    .IF cht_no_speed_cap
    .ELSE
@@ -10892,10 +10885,9 @@ addr_04F01:
    .ENDIF
    ld     a, (var_D216)                ; 01:4F28 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4F2B - DD 77 14
-   jp     addr_04B1B                   ; 01:4F2E - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:4F2E - C3 1B 4B
 
-addr_04F31:
-   ;; Holding right while moving left - start braking.
+@TODO_4F31:
    set    1, (ix+24)                   ; 01:4F31 - DD CB 18 CE
    ld     (ix+20), $0A                 ; 01:4F35 - DD 36 14 0A
    push   hl                           ; 01:4F39 - E5
@@ -10912,21 +10904,20 @@ addr_04F31:
    pop    hl                           ; 01:4F47 - E1
    ld     de, (var_D210)               ; 01:4F48 - ED 5B 10 D2
    ld     c, $00                       ; 01:4F4C - 0E 00
-   jp     nc, addr_04B1B               ; 01:4F4E - D2 1B 4B
+   jp     nc, @TODO_4B1B               ; 01:4F4E - D2 1B 4B
    res    1, (ix+24)                   ; 01:4F51 - DD CB 18 8E
    ld     (ix+20), $01                 ; 01:4F55 - DD 36 14 01
-   jp     addr_04B1B                   ; 01:4F59 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:4F59 - C3 1B 4B
 
-addr_04F5C:
+@TODO_4F5C:
    set    1, (ix+24)                   ; 01:4F5C - DD CB 18 CE
    ld     a, l                         ; 01:4F60 - 7D
    or     h                            ; 01:4F61 - B4
-   jr     z, addr_04F68                ; 01:4F62 - 28 04
-   ;; Are we moving right?
+   jr     z, @TODO_4F68                ; 01:4F62 - 28 04
    bit    7, b                         ; 01:4F64 - CB 78
-   jr     z, addr_04FA6                ; 01:4F66 - 28 3E
+   jr     z, @TODO_4FA6                ; 01:4F66 - 28 3E
 
-addr_04F68:
+@TODO_4F68:
    ld     de, (var_D20E)               ; 01:4F68 - ED 5B 0E D2
    ld     a, e                         ; 01:4F6C - 7B
    cpl                                 ; 01:4F6D - 2F
@@ -10936,7 +10927,6 @@ addr_04F68:
    ld     d, a                         ; 01:4F71 - 57
    inc    de                           ; 01:4F72 - 13
    ld     c, $FF                       ; 01:4F73 - 0E FF
-   ;; Start walking animation.
    ld     (ix+20), $01                 ; 01:4F75 - DD 36 14 01
    push   hl                           ; 01:4F79 - E5
    exx                                 ; 01:4F7A - D9
@@ -10954,9 +10944,9 @@ addr_04F68:
    exx                                 ; 01:4F8A - D9
    ;; Are we below the speed cap?
    .IF cht_inverse_speed_cap
-   jp nc, addr_04B1B
+   jp nc, @TODO_4B1B
    .ELSE
-   jp     c, addr_04B1B                ; 01:4F8B - DA 1B 4B
+   jp     c, @TODO_4B1B                ; 01:4F8B - DA 1B 4B
    .ENDIF
    .IF cht_no_speed_cap
    .ELSE
@@ -10975,10 +10965,9 @@ addr_04F68:
    .ENDIF
    ld     a, (var_D216)                ; 01:4F9D - 3A 16 D2
    ld     (ix+20), a                   ; 01:4FA0 - DD 77 14
-   jp     addr_04B1B                   ; 01:4FA3 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:4FA3 - C3 1B 4B
 
-addr_04FA6:
-   ;; Holding left while moving right - start braking.
+@TODO_4FA6:
    res    1, (ix+24)                   ; 01:4FA6 - DD CB 18 8E
    ld     (ix+20), $0A                 ; 01:4FAA - DD 36 14 0A
    ld     de, (var_D210)               ; 01:4FAE - ED 5B 10 D2
@@ -10997,12 +10986,12 @@ addr_04FA6:
    and    a                            ; 01:4FC1 - A7
    sbc    hl, bc                       ; 01:4FC2 - ED 42
    exx                                 ; 01:4FC4 - D9
-   jp     nc, addr_04B1B               ; 01:4FC5 - D2 1B 4B
+   jp     nc, @TODO_4B1B               ; 01:4FC5 - D2 1B 4B
    set    1, (ix+24)                   ; 01:4FC8 - DD CB 18 CE
    ld     (ix+20), $01                 ; 01:4FCC - DD 36 14 01
-   jp     addr_04B1B                   ; 01:4FD0 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:4FD0 - C3 1B 4B
 
-addr_04FD3:
+@fn_TODO_4FD3:
    bit    0, (ix+24)                   ; 01:4FD3 - DD CB 18 46
    ret    nz                           ; 01:4FD7 - C0
    ld     hl, (var_D2B7)               ; 01:4FD8 - 2A B7 D2
@@ -11010,26 +10999,26 @@ addr_04FD3:
    or     l                            ; 01:4FDC - B5
    ret    z                            ; 01:4FDD - C8
    bit    7, h                         ; 01:4FDE - CB 7C
-   jr     z, addr_04FE7                ; 01:4FE0 - 28 05
+   jr     z, @fn_TODO_4FE7             ; 01:4FE0 - 28 05
    inc    hl                           ; 01:4FE2 - 23
    ld     (var_D2B7), hl               ; 01:4FE3 - 22 B7 D2
    ret                                 ; 01:4FE6 - C9
 
-addr_04FE7:
+@fn_TODO_4FE7:
    dec    hl                           ; 01:4FE7 - 2B
    ld     (var_D2B7), hl               ; 01:4FE8 - 22 B7 D2
    ret                                 ; 01:4FEB - C9
 
-addr_04FEC:
+@fn_TODO_4FEC:
    dec    (ix+21)                      ; 01:4FEC - DD 35 15
    ret                                 ; 01:4FEF - C9
 
-addr_04FF0:
+@fn_TODO_4FF0:
    dec    a                            ; 01:4FF0 - 3D
    ld     (var_D412), a                ; 01:4FF1 - 32 12 D4
    ret                                 ; 01:4FF4 - C9
 
-addr_04FF5:
+@fn_TODO_4FF5:
    ld     a, (g_global_tick_counter)   ; 01:4FF5 - 3A 23 D2
    and    $03                          ; 01:4FF8 - E6 03
    ret    nz                           ; 01:4FFA - C0
@@ -11041,7 +11030,7 @@ addr_04FF5:
    rst    $18                          ; 01:5007 - DF
    ret                                 ; 01:5008 - C9
 
-addr_05009:
+@fn_TODO_5009:
    ld     a, (g_tile_flags_index)      ; 01:5009 - 3A D4 D2
    cp     $03                          ; 01:500C - FE 03
    ret    nz                           ; 01:500E - C0
@@ -11057,7 +11046,7 @@ addr_05009:
    ret    c                            ; 01:5022 - D8
    ld     a, $05                       ; 01:5023 - 3E 05
    sub    h                            ; 01:5025 - 94
-   jr     nc, addr_05051               ; 01:5026 - 30 29
+   jr     nc, @TODO_5051               ; 01:5026 - 30 29
    res    5, (iy+var_D206-IYBASE)      ; 01:5028 - FD CB 06 AE
    res    6, (iy+var_D206-IYBASE)      ; 01:502C - FD CB 06 B6
    res    0, (iy+var_D208-IYBASE)      ; 01:5030 - FD CB 08 86
@@ -11073,7 +11062,7 @@ addr_05009:
    call   UNK_091EB                    ; 01:504D - CD EB 91
    xor    a                            ; 01:5050 - AF
 
-addr_05051:
+@TODO_5051:
    ld     e, a                         ; 01:5051 - 5F
    add    a, a                         ; 01:5052 - 87
    add    a, $80                       ; 01:5053 - C6 80
@@ -11081,15 +11070,15 @@ addr_05051:
    ld     a, $FF                       ; 01:5058 - 3E FF
    ld     (var_D2BF), a                ; 01:505A - 32 BF D2
    ld     d, $00                       ; 01:505D - 16 00
-   ld     hl, UNK_05097                ; 01:505F - 21 97 50
+   ld     hl, objfunc_00_sonic@TODO_UNK_05097  ; 01:505F - 21 97 50
    add    hl, de                       ; 01:5062 - 19
    ld     a, (g_global_tick_counter)   ; 01:5063 - 3A 23 D2
    and    (hl)                         ; 01:5066 - A6
-   jr     nz, addr_0506C               ; 01:5067 - 20 03
+   jr     nz, @TODO_506C               ; 01:5067 - 20 03
    ld     a, $1A                       ; 01:5069 - 3E 1A
    rst    $28                          ; 01:506B - EF
 
-addr_0506C:
+@TODO_506C:
    ld     a, (g_global_tick_counter)   ; 01:506C - 3A 23 D2
    rrca                                ; 01:506F - 0F
    ret    nc                           ; 01:5070 - D0
@@ -11112,18 +11101,23 @@ addr_0506C:
    call   draw_sprite_text             ; 01:5093 - CD CC 35
    ret                                 ; 01:5096 - C9
 
-UNK_05097:
+@TODO_UNK_05097:
 .db $01, $07, $0F, $1F, $3F, $7F                                                    ; 01:5097
 
-addr_0509D:
+@fn_TODO_509D:
    ld     a, $10                       ; 01:509D - 3E 10
    ld     (var_D28E), a                ; 01:509F - 32 8E D2
    ld     a, $00                       ; 01:50A2 - 3E 00
    rst    $28                          ; 01:50A4 - EF
    ret                                 ; 01:50A5 - C9
-.db $AF, $32, $FD, $D3, $ED, $53, $FE, $D3, $C9                                     ; 01:50A6
 
-addr_050AF:
+@fn_UNUSED_50A6:
+   xor    a                            ; 01:50A6 - AF
+   ld     (sonic_x_sub), a             ; 01:50A7 - 32 FD D3
+   ld     (sonic_x), de                ; 01:50AA - ED 53 FE D3
+   ret                                 ; 01:50AE - C9
+
+@fn_TODO_50AF:
    exx                                 ; 01:50AF - D9
    ld     hl, (sonic_y)                ; 01:50B0 - 2A 01 D4
    ld     (var_D2D9), hl               ; 01:50B3 - 22 D9 D2
@@ -11133,7 +11127,7 @@ addr_050AF:
    res    2, (ix+24)                   ; 01:50BC - DD CB 18 96
    ret                                 ; 01:50C0 - C9
 
-addr_050C1:
+@fn_TODO_50C1:
    bit    2, (ix+24)                   ; 01:50C1 - DD CB 18 56
    ret    nz                           ; 01:50C5 - C0
    bit    0, (ix+24)                   ; 01:50C6 - DD CB 18 46
@@ -11144,50 +11138,50 @@ addr_050C1:
    ld     hl, (sonic_vel_x_sub)        ; 01:50D4 - 2A 03 D4
    ld     a, l                         ; 01:50D7 - 7D
    or     h                            ; 01:50D8 - B4
-   jr     z, addr_050DE                ; 01:50D9 - 28 03
+   jr     z, @TODO_50DE                ; 01:50D9 - 28 03
    ld     a, $06                       ; 01:50DB - 3E 06
    rst    $28                          ; 01:50DD - EF
 
-addr_050DE:
+@TODO_50DE:
    set    2, (iy+var_D207-IYBASE)      ; 01:50DE - FD CB 07 D6
    ret                                 ; 01:50E2 - C9
 
-addr_050E3:
+@fn_TODO_50E3:
    res    2, (iy+var_D207-IYBASE)      ; 01:50E3 - FD CB 07 96
    ret                                 ; 01:50E7 - C9
 
-addr_050E8:
+@fn_TODO_50E8:
    ld     hl, (var_D2DC)               ; 01:50E8 - 2A DC D2
    ld     de, (sonic_y)                ; 01:50EB - ED 5B 01 D4
    and    a                            ; 01:50EF - A7
    sbc    hl, de                       ; 01:50F0 - ED 52
-   jp     c, addr_055A8                ; 01:50F2 - DA A8 55
+   jp     c, objfunc_00_sonic@special_08  ; 01:50F2 - DA A8 55
    ld     hl, $0000                    ; 01:50F5 - 21 00 00
    ld     (var_D29B), hl               ; 01:50F8 - 22 9B D2
    res    4, (ix+24)                   ; 01:50FB - DD CB 18 A6
    ret                                 ; 01:50FF - C9
 
-addr_05100:
+@fn_TODO_5100:
    set    2, (ix+24)                   ; 01:5100 - DD CB 18 D6
    ret                                 ; 01:5104 - C9
 
-addr_05105:
+@fn_TODO_5105:
    ld     (ix+20), $0D                 ; 01:5105 - DD 36 14 0D
    ret                                 ; 01:5109 - C9
 
-addr_0510A:
+@fn_TODO_510A:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:510A - FD 36 03 FF
    ld     a, (var_D414)                ; 01:510E - 3A 14 D4
    and    $FA                          ; 01:5111 - E6 FA
    ld     (var_D414), a                ; 01:5113 - 32 14 D4
    ret                                 ; 01:5116 - C9
 
-addr_05117:
+@TODO_5117:
    dec    a                            ; 01:5117 - 3D
    ld     (var_D28A), a                ; 01:5118 - 32 8A D2
-   jr     z, addr_05142                ; 01:511B - 28 25
+   jr     z, @TODO_5142                ; 01:511B - 28 25
    cp     $14                          ; 01:511D - FE 14
-   jr     c, addr_05137                ; 01:511F - 38 16
+   jr     c, @TODO_5137                ; 01:511F - 38 16
    xor    a                            ; 01:5121 - AF
    ld     l, a                         ; 01:5122 - 6F
    ld     h, a                         ; 01:5123 - 67
@@ -11196,14 +11190,14 @@ addr_05117:
    ld     (sonic_vel_y_sub), a         ; 01:512A - 32 06 D4
    ld     (sonic_vel_y), hl            ; 01:512D - 22 07 D4
    ld     (ix+20), $0F                 ; 01:5130 - DD 36 14 0F
-   jp     addr_04C39                   ; 01:5134 - C3 39 4C
+   jp     @TODO_4C39                   ; 01:5134 - C3 39 4C
 
-addr_05137:
+@TODO_5137:
    res    1, (ix+24)                   ; 01:5137 - DD CB 18 8E
    ld     (ix+20), $0E                 ; 01:513B - DD 36 14 0E
-   jp     addr_04C39                   ; 01:513F - C3 39 4C
+   jp     @TODO_4C39                   ; 01:513F - C3 39 4C
 
-addr_05142:
+@TODO_5142:
    ld     hl, (var_D2D5)               ; 01:5142 - 2A D5 D2
    ld     b, (hl)                      ; 01:5145 - 46
    inc    hl                           ; 01:5146 - 23
@@ -11211,29 +11205,29 @@ addr_05142:
    inc    hl                           ; 01:5148 - 23
    ld     a, (hl)                      ; 01:5149 - 7E
    and    a                            ; 01:514A - A7
-   jr     z, addr_05163                ; 01:514B - 28 16
-   jp     m, addr_05159                ; 01:514D - FA 59 51
+   jr     z, @TODO_5163                ; 01:514B - 28 16
+   jp     m, @TODO_5159                ; 01:514D - FA 59 51
    ld     (var_D2D3), a                ; 01:5150 - 32 D3 D2
    set    4, (iy+var_D206-IYBASE)      ; 01:5153 - FD CB 06 E6
-   jr     addr_0515D                   ; 01:5157 - 18 04
+   jr     @TODO_515D                   ; 01:5157 - 18 04
 
-addr_05159:
+@TODO_5159:
    set    2, (iy+var_D20D-IYBASE)      ; 01:5159 - FD CB 0D D6
 
-addr_0515D:
+@TODO_515D:
    ld     a, $01                       ; 01:515D - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 01:515F - 32 89 D2
    ret                                 ; 01:5162 - C9
 
-addr_05163:
+@TODO_5163:
    ld     a, b                         ; 01:5163 - 78
    ld     h, $00                       ; 01:5164 - 26 00
    ld     b, $05                       ; 01:5166 - 06 05
 
-addr_05168:
+@TODO_5168:
    add    a, a                         ; 01:5168 - 87
    rl     h                            ; 01:5169 - CB 14
-   djnz   addr_05168                   ; 01:516B - 10 FB
+   djnz   @TODO_5168                   ; 01:516B - 10 FB
    ld     l, a                         ; 01:516D - 6F
    ld     de, $0008                    ; 01:516E - 11 08 00
    add    hl, de                       ; 01:5171 - 19
@@ -11257,7 +11251,7 @@ addr_05168:
    ld     (sonic_y_sub), a             ; 01:518F - 32 00 D4
    ret                                 ; 01:5192 - C9
 
-addr_05193:
+@TODO_5193:
    xor    a                            ; 01:5193 - AF
    ld     l, a                         ; 01:5194 - 6F
    ld     h, a                         ; 01:5195 - 67
@@ -11266,18 +11260,18 @@ addr_05193:
    ld     (ix+20), $16                 ; 01:519C - DD 36 14 16
    ld     a, (var_D40F)                ; 01:51A0 - 3A 0F D4
    cp     $12                          ; 01:51A3 - FE 12
-   jp     c, addr_04C39                ; 01:51A5 - DA 39 4C
+   jp     c, @TODO_4C39                ; 01:51A5 - DA 39 4C
    res    6, (iy+var_D208-IYBASE)      ; 01:51A8 - FD CB 08 B6
    set    2, (ix+24)                   ; 01:51AC - DD CB 18 D6
-   jp     addr_04C39                   ; 01:51B0 - C3 39 4C
+   jp     @TODO_4C39                   ; 01:51B0 - C3 39 4C
 
-addr_051B3:
+@fn_TODO_51B3:
    dec    a                            ; 01:51B3 - 3D
    ld     (var_D28C), a                ; 01:51B4 - 32 8C D2
    ld     (ix+20), $11                 ; 01:51B7 - DD 36 14 11
    ret                                 ; 01:51BB - C9
 
-addr_051BC:
+@fn_TODO_51BC:
    ld     (ix+13), $1C                 ; 01:51BC - DD 36 0D 1C
    ld     (ix+20), $10                 ; 01:51C0 - DD 36 14 10
    bit    7, (ix+12)                   ; 01:51C4 - DD CB 0C 7E
@@ -11291,7 +11285,7 @@ addr_051BC:
    ld     (sonic_vel_x_hi), a          ; 01:51D9 - 32 05 D4
    ret                                 ; 01:51DC - C9
 
-addr_051DD:
+@fn_TODO_51DD:
    ld     a, (var_D414)                ; 01:51DD - 3A 14 D4
    and    $FA                          ; 01:51E0 - E6 FA
    ld     (var_D414), a                ; 01:51E2 - 32 14 D4
@@ -11302,7 +11296,7 @@ addr_051DD:
    res    2, (iy+var_D208-IYBASE)      ; 01:51EE - FD CB 08 96
    ret                                 ; 01:51F2 - C9
 
-addr_051F3:
+@fn_TODO_51F3:
    ld     a, (var_D412)                ; 01:51F3 - 3A 12 D4
    and    a                            ; 01:51F6 - A7
    ret    nz                           ; 01:51F7 - C0
@@ -11314,29 +11308,29 @@ addr_051F3:
    ld     (var_D412), a                ; 01:5202 - 32 12 D4
    ret                                 ; 01:5205 - C9
 
-addr_05206:
+@fn_TODO_5206:
    ld     a, (g_global_tick_counter)   ; 01:5206 - 3A 23 D2
    and    $01                          ; 01:5209 - E6 01
    ret    nz                           ; 01:520B - C0
    ld     d, $18                       ; 01:520C - 16 18
    ret                                 ; 01:520E - C9
 
-addr_0520F:
-   ld     hl, UNK_0592B                ; 01:520F - 21 2B 59
+@fn_TODO_520F:
+   ld     hl, SPRITEMAP_sonic_hflip    ; 01:520F - 21 2B 59
    ret                                 ; 01:5212 - C9
 
-addr_05213:
-   ld     hl, UNK_05939                ; 01:5213 - 21 39 59
+@fn_TODO_5213:
+   ld     hl, SPRITEMAP_sonic_upspring_right  ; 01:5213 - 21 39 59
    bit    1, (ix+24)                   ; 01:5216 - DD CB 18 4E
    ret    z                            ; 01:521A - C8
-   ld     hl, UNK_0594B                ; 01:521B - 21 4B 59
+   ld     hl, SPRITEMAP_sonic_upspring_left  ; 01:521B - 21 4B 59
    ret                                 ; 01:521E - C9
 
-addr_0521F:
+@fn_TODO_521F:
    ld     (ix+19), $00                 ; 01:521F - DD 36 13 00
    ret                                 ; 01:5223 - C9
 
-addr_05224:
+@fn_TODO_5224:
    bit    4, (ix+24)                   ; 01:5224 - DD CB 18 66
    ret    z                            ; 01:5228 - C8
    ld     a, (g_global_tick_counter)   ; 01:5229 - 3A 23 D2
@@ -11344,15 +11338,15 @@ addr_05224:
    call   z, UNK_091EB                 ; 01:522D - CC EB 91
    ret                                 ; 01:5230 - C9
 
-addr_05231:
+@fn_TODO_5231:
    dec    a                            ; 01:5231 - 3D
    ld     (var_D2E1), a                ; 01:5232 - 32 E1 D2
    cp     $06                          ; 01:5235 - FE 06
-   jr     c, addr_0523C                ; 01:5237 - 38 03
+   jr     c, @TODO_523C                ; 01:5237 - 38 03
    cp     $0A                          ; 01:5239 - FE 0A
    ret    c                            ; 01:523B - D8
 
-addr_0523C:
+@TODO_523C:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 01:523C - FD 7E 0A
    ld     hl, (var_D23C)               ; 01:523F - 2A 3C D2
    push   af                           ; 01:5242 - F5
@@ -11368,7 +11362,7 @@ addr_0523C:
    ld     hl, (var_D2E2)               ; 01:5259 - 2A E2 D2
    and    a                            ; 01:525C - A7
    sbc    hl, bc                       ; 01:525D - ED 42
-   ld     bc, UNK_0526E                ; 01:525F - 01 6E 52
+   ld     bc, objfunc_00_sonic@TODO_UNK_0526E  ; 01:525F - 01 6E 52
    call   draw_sprite_string           ; 01:5262 - CD 0F 35
    pop    hl                           ; 01:5265 - E1
    pop    af                           ; 01:5266 - F1
@@ -11376,15 +11370,15 @@ addr_0523C:
    ld     (iy+g_sprite_count-IYBASE), a  ; 01:526A - FD 77 0A
    ret                                 ; 01:526D - C9
 
-UNK_0526E:
+@TODO_UNK_0526E:
 .db $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:526E
 .db $FF, $FF                                                                        ; 01:527E
 
-addr_05280:
+@fn_TODO_5280:
    ld     (ix+20), $09                 ; 01:5280 - DD 36 14 09
    ret                                 ; 01:5284 - C9
 
-addr_05285:
+@fn_TODO_5285:
    dec    a                            ; 01:5285 - 3D
    ld     (var_D28B), a                ; 01:5286 - 32 8B D2
    ret    nz                           ; 01:5289 - C0
@@ -11396,7 +11390,7 @@ addr_05285:
    ld     (iy+g_sprite_count-IYBASE), c  ; 01:5298 - FD 71 0A
    ret                                 ; 01:529B - C9
 
-addr_0529C:
+@fn_TODO_529C:
    ld     (iy+g_inputs_player_1-IYBASE), $FB  ; 01:529C - FD 36 03 FB
    ld     hl, (sonic_x)                ; 01:52A0 - 2A FE D3
    ld     de, $1B60                    ; 01:52A3 - 11 60 1B
@@ -11414,10 +11408,10 @@ addr_0529C:
    ld     (ix+20), $18                 ; 01:52BD - DD 36 14 18
    ld     hl, var_D2FE                 ; 01:52C1 - 21 FE D2
    bit    0, (iy+var_D20D-IYBASE)      ; 01:52C4 - FD CB 0D 46
-   jr     nz, addr_0530B               ; 01:52C8 - 20 41
+   jr     nz, @TODO_530B               ; 01:52C8 - 20 41
    ld     (hl), $50                    ; 01:52CA - 36 50
    call   spawn_object                 ; 01:52CC - CD 7B 7C
-   jp     c, addr_04C39                ; 01:52CF - DA 39 4C
+   jp     c, @TODO_4C39                ; 01:52CF - DA 39 4C
    push   ix                           ; 01:52D2 - DD E5
    push   hl                           ; 01:52D4 - E5
    pop    ix                           ; 01:52D5 - DD E1
@@ -11439,38 +11433,38 @@ addr_0529C:
    ld     (ix+6), h                    ; 01:52FF - DD 74 06
    pop    ix                           ; 01:5302 - DD E1
    set    0, (iy+var_D20D-IYBASE)      ; 01:5304 - FD CB 0D C6
-   jp     addr_04C39                   ; 01:5308 - C3 39 4C
+   jp     @TODO_4C39                   ; 01:5308 - C3 39 4C
 
-addr_0530B:
+@TODO_530B:
    bit    1, (iy+var_D20D-IYBASE)      ; 01:530B - FD CB 0D 4E
-   jr     nz, addr_0531B               ; 01:530F - 20 0A
+   jr     nz, @TODO_531B               ; 01:530F - 20 0A
    dec    (hl)                         ; 01:5311 - 35
-   jp     nz, addr_04C39               ; 01:5312 - C2 39 4C
+   jp     nz, @TODO_4C39               ; 01:5312 - C2 39 4C
    set    1, (iy+var_D20D-IYBASE)      ; 01:5315 - FD CB 0D CE
    ld     (hl), $8C                    ; 01:5319 - 36 8C
 
-addr_0531B:
+@TODO_531B:
    ld     (ix+20), $17                 ; 01:531B - DD 36 14 17
    ld     a, (hl)                      ; 01:531F - 7E
    and    a                            ; 01:5320 - A7
-   jr     z, addr_05327                ; 01:5321 - 28 04
+   jr     z, @TODO_5327                ; 01:5321 - 28 04
    dec    (hl)                         ; 01:5323 - 35
-   jp     addr_04C39                   ; 01:5324 - C3 39 4C
+   jp     @TODO_4C39                   ; 01:5324 - C3 39 4C
 
-addr_05327:
+@TODO_5327:
    ld     (ix+20), $19                 ; 01:5327 - DD 36 14 19
-   jp     addr_04C39                   ; 01:532B - C3 39 4C
+   jp     @TODO_4C39                   ; 01:532B - C3 39 4C
 
-addr_0532E:
+@TODO_532E:
    ld     a, (ix+14)                   ; 01:532E - DD 7E 0E
    cp     $18                          ; 01:5331 - FE 18
-   jr     z, addr_0533F                ; 01:5333 - 28 0A
+   jr     z, @TODO_533F                ; 01:5333 - 28 0A
    ld     hl, (sonic_y)                ; 01:5335 - 2A 01 D4
    ld     de, $0008                    ; 01:5338 - 11 08 00
    add    hl, de                       ; 01:533B - 19
    ld     (sonic_y), hl                ; 01:533C - 22 01 D4
 
-addr_0533F:
+@TODO_533F:
    ld     (ix+13), $18                 ; 01:533F - DD 36 0D 18
    ld     (ix+14), $18                 ; 01:5343 - DD 36 0E 18
    ld     hl, (sonic_vel_x_sub)        ; 01:5347 - 2A 03 D4
@@ -11481,75 +11475,75 @@ addr_0533F:
    ld     a, h                         ; 01:5351 - 7C
    or     l                            ; 01:5352 - B5
    or     b                            ; 01:5353 - B0
-   jp     z, addr_053B9                ; 01:5354 - CA B9 53
+   jp     z, @TODO_53B9                ; 01:5354 - CA B9 53
    ld     (ix+20), $09                 ; 01:5357 - DD 36 14 09
    bit    2, (iy+g_inputs_player_1-IYBASE)  ; 01:535B - FD CB 03 56
-   jr     nz, addr_05381               ; 01:535F - 20 20
+   jr     nz, @TODO_5381               ; 01:535F - 20 20
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:5361 - FD CB 03 4E
-   jr     z, addr_05381                ; 01:5365 - 28 1A
+   jr     z, @TODO_5381                ; 01:5365 - 28 1A
    bit    7, (ix+24)                   ; 01:5367 - DD CB 18 7E
-   jp     z, addr_05379                ; 01:536B - CA 79 53
+   jp     z, @TODO_5379                ; 01:536B - CA 79 53
    bit    7, b                         ; 01:536E - CB 78
-   jr     nz, addr_053A7               ; 01:5370 - 20 35
+   jr     nz, @TODO_53A7               ; 01:5370 - 20 35
    res    0, (ix+24)                   ; 01:5372 - DD CB 18 86
-   jp     addr_04FA6                   ; 01:5376 - C3 A6 4F
+   jp     @TODO_4FA6                   ; 01:5376 - C3 A6 4F
 
-addr_05379:
+@TODO_5379:
    ld     de, $FFF0                    ; 01:5379 - 11 F0 FF
    ld     c, $FF                       ; 01:537C - 0E FF
-   jp     addr_04B1B                   ; 01:537E - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:537E - C3 1B 4B
 
-addr_05381:
+@TODO_5381:
    bit    3, (iy+g_inputs_player_1-IYBASE)  ; 01:5381 - FD CB 03 5E
-   jr     nz, addr_053A7               ; 01:5385 - 20 20
+   jr     nz, @TODO_53A7               ; 01:5385 - 20 20
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:5387 - FD CB 03 4E
-   jr     z, addr_053A7                ; 01:538B - 28 1A
+   jr     z, @TODO_53A7                ; 01:538B - 28 1A
    bit    7, (ix+24)                   ; 01:538D - DD CB 18 7E
-   jp     z, addr_0539F                ; 01:5391 - CA 9F 53
+   jp     z, @TODO_539F                ; 01:5391 - CA 9F 53
    bit    7, b                         ; 01:5394 - CB 78
-   jr     z, addr_053A7                ; 01:5396 - 28 0F
+   jr     z, @TODO_53A7                ; 01:5396 - 28 0F
    res    0, (ix+24)                   ; 01:5398 - DD CB 18 86
-   jp     addr_04FA6                   ; 01:539C - C3 A6 4F
+   jp     @TODO_4FA6                   ; 01:539C - C3 A6 4F
 
-addr_0539F:
+@TODO_539F:
    ld     de, $0010                    ; 01:539F - 11 10 00
    ld     c, $00                       ; 01:53A2 - 0E 00
-   jp     addr_04B1B                   ; 01:53A4 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:53A4 - C3 1B 4B
 
-addr_053A7:
+@TODO_53A7:
    ld     de, $0004                    ; 01:53A7 - 11 04 00
    ld     c, $00                       ; 01:53AA - 0E 00
    ld     a, b                         ; 01:53AC - 78
    and    a                            ; 01:53AD - A7
-   jp     m, addr_04B1B                ; 01:53AE - FA 1B 4B
+   jp     m, @TODO_4B1B                ; 01:53AE - FA 1B 4B
    ld     de, $FFFC                    ; 01:53B1 - 11 FC FF
    ld     c, $FF                       ; 01:53B4 - 0E FF
-   jp     addr_04B1B                   ; 01:53B6 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:53B6 - C3 1B 4B
 
-addr_053B9:
+@TODO_53B9:
    bit    7, (ix+24)                   ; 01:53B9 - DD CB 18 7E
-   jr     z, addr_053E0                ; 01:53BD - 28 21
+   jr     z, @TODO_53E0                ; 01:53BD - 28 21
    ld     (ix+20), $07                 ; 01:53BF - DD 36 14 07
    res    0, (ix+24)                   ; 01:53C3 - DD CB 18 86
    ld     de, (var_D2B7)               ; 01:53C7 - ED 5B B7 D2
    bit    7, d                         ; 01:53CB - CB 7A
-   jr     z, addr_053D8                ; 01:53CD - 28 09
+   jr     z, @TODO_53D8                ; 01:53CD - 28 09
    ld     hl, $FFB0                    ; 01:53CF - 21 B0 FF
    and    a                            ; 01:53D2 - A7
    sbc    hl, de                       ; 01:53D3 - ED 52
-   jp     nc, addr_04B49               ; 01:53D5 - D2 49 4B
+   jp     nc, @TODO_4B49               ; 01:53D5 - D2 49 4B
 
-addr_053D8:
+@TODO_53D8:
    dec    de                           ; 01:53D8 - 1B
    ld     (var_D2B7), de               ; 01:53D9 - ED 53 B7 D2
-   jp     addr_04B49                   ; 01:53DD - C3 49 4B
+   jp     @TODO_4B49                   ; 01:53DD - C3 49 4B
 
-addr_053E0:
+@TODO_53E0:
    ld     (ix+20), $09                 ; 01:53E0 - DD 36 14 09
    push   de                           ; 01:53E4 - D5
    push   hl                           ; 01:53E5 - E5
    bit    7, b                         ; 01:53E6 - CB 78
-   jr     z, addr_053F1                ; 01:53E8 - 28 07
+   jr     z, @TODO_53F1                ; 01:53E8 - 28 07
    ld     a, l                         ; 01:53EA - 7D
    cpl                                 ; 01:53EB - 2F
    ld     l, a                         ; 01:53EC - 6F
@@ -11558,127 +11552,125 @@ addr_053E0:
    ld     h, a                         ; 01:53EF - 67
    inc    hl                           ; 01:53F0 - 23
 
-addr_053F1:
+@TODO_53F1:
    ld     de, (var_D240)               ; 01:53F1 - ED 5B 40 D2
    xor    a                            ; 01:53F5 - AF
    sbc    hl, de                       ; 01:53F6 - ED 52
    pop    hl                           ; 01:53F8 - E1
    pop    de                           ; 01:53F9 - D1
-   jp     c, addr_04B1B                ; 01:53FA - DA 1B 4B
+   jp     c, @TODO_4B1B                ; 01:53FA - DA 1B 4B
    ld     c, a                         ; 01:53FD - 4F
    ld     e, c                         ; 01:53FE - 59
    ld     d, c                         ; 01:53FF - 51
    ld     (ix+20), $09                 ; 01:5400 - DD 36 14 09
-   jp     addr_04B1B                   ; 01:5404 - C3 1B 4B
+   jp     @TODO_4B1B                   ; 01:5404 - C3 1B 4B
 
-addr_05407:
+@TODO_5407:
    bit    7, (ix+24)                   ; 01:5407 - DD CB 18 7E
-   jr     z, addr_0542E                ; 01:540B - 28 21
+   jr     z, @TODO_542E                ; 01:540B - 28 21
    bit    3, (ix+24)                   ; 01:540D - DD CB 18 5E
-   jr     nz, addr_05419               ; 01:5411 - 20 06
+   jr     nz, @TODO_5419               ; 01:5411 - 20 06
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:5413 - FD CB 03 6E
-   jr     z, addr_0542E                ; 01:5417 - 28 15
+   jr     z, @TODO_542E                ; 01:5417 - 28 15
 
-addr_05419:
+@TODO_5419:
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:5419 - FD CB 03 6E
-   jr     nz, addr_05435               ; 01:541D - 20 16
+   jr     nz, @TODO_5435               ; 01:541D - 20 16
    res    0, (ix+24)                   ; 01:541F - DD CB 18 86
    ld     a, (sonic_vel_x_sub)         ; 01:5423 - 3A 03 D4
    and    $F8                          ; 01:5426 - E6 F8
    ld     (sonic_vel_x_sub), a         ; 01:5428 - 32 03 D4
-   jp     addr_04B7F                   ; 01:542B - C3 7F 4B
+   jp     @TODO_4B7F                   ; 01:542B - C3 7F 4B
 
-addr_0542E:
-   ;; Suppress jumping.
+@TODO_542E:
    res    3, (ix+24)                   ; 01:542E - DD CB 18 9E
-   jp     addr_04BAC                   ; 01:5432 - C3 AC 4B
+   jp     @TODO_4BAC                   ; 01:5432 - C3 AC 4B
 
-addr_05435:
-   ;; Allow jumping.
+@TODO_5435:
    set    3, (ix+24)                   ; 01:5435 - DD CB 18 DE
-   jp     addr_04BAC                   ; 01:5439 - C3 AC 4B
+   jp     @TODO_4BAC                   ; 01:5439 - C3 AC 4B
 
-addr_0543C:
+@TODO_543C:
    set    5, (ix+24)                   ; 01:543C - DD CB 18 EE
    ld     a, (var_D287)                ; 01:5440 - 3A 87 D2
    cp     $60                          ; 01:5443 - FE 60
-   jr     z, addr_054AA                ; 01:5445 - 28 63
+   jr     z, @TODO_54AA                ; 01:5445 - 28 63
    ld     hl, (g_level_scroll_y_pix_lo)  ; 01:5447 - 2A 5D D2
    ld     de, $00C0                    ; 01:544A - 11 C0 00
    add    hl, de                       ; 01:544D - 19
    ld     de, (sonic_y)                ; 01:544E - ED 5B 01 D4
    sbc    hl, de                       ; 01:5452 - ED 52
-   jr     nc, addr_0546C               ; 01:5454 - 30 16
+   jr     nc, @TODO_546C               ; 01:5454 - 30 16
    bit    2, (iy+var_D206-IYBASE)      ; 01:5456 - FD CB 06 56
-   jr     nz, addr_0546C               ; 01:545A - 20 10
+   jr     nz, @TODO_546C               ; 01:545A - 20 10
    ld     a, $01                       ; 01:545C - 3E 01
    ld     (var_D283), a                ; 01:545E - 32 83 D2
    ld     hl, g_lives                  ; 01:5461 - 21 46 D2
    dec    (hl)                         ; 01:5464 - 35
    set    2, (iy+var_D206-IYBASE)      ; 01:5465 - FD CB 06 D6
-   jp     addr_054AA                   ; 01:5469 - C3 AA 54
+   jp     @TODO_54AA                   ; 01:5469 - C3 AA 54
 
-addr_0546C:
+@TODO_546C:
    xor    a                            ; 01:546C - AF
    ld     hl, $0080                    ; 01:546D - 21 80 00
    bit    3, (iy+var_D208-IYBASE)      ; 01:5470 - FD CB 08 5E
-   jr     nz, addr_0549B               ; 01:5474 - 20 25
+   jr     nz, @TODO_549B               ; 01:5474 - 20 25
    ld     de, (sonic_vel_y_sub)        ; 01:5476 - ED 5B 06 D4
    bit    7, d                         ; 01:547A - CB 7A
-   jr     nz, addr_05486               ; 01:547C - 20 08
+   jr     nz, @TODO_5486               ; 01:547C - 20 08
    ld     hl, $0600                    ; 01:547E - 21 00 06
    and    a                            ; 01:5481 - A7
    sbc    hl, de                       ; 01:5482 - ED 52
-   jr     c, addr_054A1                ; 01:5484 - 38 1B
+   jr     c, @TODO_54A1                ; 01:5484 - 38 1B
 
-addr_05486:
+@TODO_5486:
    ex     de, hl                       ; 01:5486 - EB
    ld     b, (ix+12)                   ; 01:5487 - DD 46 0C
    ld     a, h                         ; 01:548A - 7C
    cp     $80                          ; 01:548B - FE 80
-   jr     nc, addr_05493               ; 01:548D - 30 04
+   jr     nc, @TODO_5493               ; 01:548D - 30 04
    cp     $08                          ; 01:548F - FE 08
-   jr     nc, addr_05498               ; 01:5491 - 30 05
+   jr     nc, @TODO_5498               ; 01:5491 - 30 05
 
-addr_05493:
+@TODO_5493:
    ld     de, $0030                    ; 01:5493 - 11 30 00
    ld     c, $00                       ; 01:5496 - 0E 00
 
-addr_05498:
+@TODO_5498:
    add    hl, de                       ; 01:5498 - 19
    ld     a, b                         ; 01:5499 - 78
    adc    a, c                         ; 01:549A - 89
 
-addr_0549B:
+@TODO_549B:
    ld     (sonic_vel_y_sub), hl        ; 01:549B - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:549E - 32 08 D4
 
-addr_054A1:
+@TODO_54A1:
    xor    a                            ; 01:54A1 - AF
    ld     l, a                         ; 01:54A2 - 6F
    ld     h, a                         ; 01:54A3 - 67
    ld     (sonic_vel_x_sub), hl        ; 01:54A4 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:54A7 - 32 05 D4
 
-addr_054AA:
+@TODO_54AA:
    ld     (ix+20), $0B                 ; 01:54AA - DD 36 14 0B
    bit    3, (iy+var_D208-IYBASE)      ; 01:54AE - FD CB 08 5E
-   jp     z, addr_04C39                ; 01:54B2 - CA 39 4C
+   jp     z, @TODO_4C39                ; 01:54B2 - CA 39 4C
    ld     (ix+20), $15                 ; 01:54B5 - DD 36 14 15
-   jp     addr_04C39                   ; 01:54B9 - C3 39 4C
+   jp     @TODO_4C39                   ; 01:54B9 - C3 39 4C
 
-addr_054BC:
+@special_00:
    bit    7, (iy+var_D206-IYBASE)      ; 01:54BC - FD CB 06 7E
    ret    nz                           ; 01:54C0 - C0
    res    4, (ix+24)                   ; 01:54C1 - DD CB 18 A6
    ret                                 ; 01:54C5 - C9
 
-addr_054C6:
+@special_01:
    bit    0, (iy+var_D205-IYBASE)      ; 01:54C6 - FD CB 05 46
    jp     z, damage_sonic              ; 01:54CA - CA FD 35
    ret                                 ; 01:54CD - C9
 
-addr_054CE:
+@special_02:
    ld     a, (ix+2)                    ; 01:54CE - DD 7E 02
    add    a, $0C                       ; 01:54D1 - C6 0C
    and    $1F                          ; 01:54D3 - E6 1F
@@ -11686,11 +11678,11 @@ addr_054CE:
    ret    c                            ; 01:54D7 - D8
    ld     a, (var_D414)                ; 01:54D8 - 3A 14 D4
    rrca                                ; 01:54DB - 0F
-   jr     c, addr_054E1                ; 01:54DC - 38 03
+   jr     c, @TODO_54E1                ; 01:54DC - 38 03
    and    $02                          ; 01:54DE - E6 02
    ret    z                            ; 01:54E0 - C8
 
-addr_054E1:
+@TODO_54E1:
    ld     l, (ix+7)                    ; 01:54E1 - DD 6E 07
    ld     h, (ix+8)                    ; 01:54E4 - DD 66 08
    bit    7, (ix+9)                    ; 01:54E7 - DD CB 09 7E
@@ -11716,7 +11708,7 @@ addr_054E1:
    rst    $28                          ; 01:550D - EF
    ret                                 ; 01:550E - C9
 
-addr_0550F:
+@special_03:
    ld     a, (ix+2)                    ; 01:550F - DD 7E 02
    add    a, $0C                       ; 01:5512 - C6 0C
    and    $1F                          ; 01:5514 - E6 1F
@@ -11730,7 +11722,7 @@ addr_0550F:
    rst    $28                          ; 01:552B - EF
    ret                                 ; 01:552C - C9
 
-addr_0552D:
+@special_04:
    ld     a, (ix+2)                    ; 01:552D - DD 7E 02
    add    a, $0C                       ; 01:5530 - C6 0C
    and    $1F                          ; 01:5532 - E6 1F
@@ -11749,7 +11741,7 @@ addr_0552D:
    rst    $28                          ; 01:5554 - EF
    ret                                 ; 01:5555 - C9
 
-addr_05556:
+@special_05:
    ld     a, (ix+2)                    ; 01:5556 - DD 7E 02
    add    a, $0C                       ; 01:5559 - C6 0C
    and    $1F                          ; 01:555B - E6 1F
@@ -11764,7 +11756,7 @@ addr_05556:
    rst    $28                          ; 01:5576 - EF
    ret                                 ; 01:5577 - C9
 
-addr_05578:
+@special_06:
    bit    7, (ix+24)                   ; 01:5578 - DD CB 18 7E
    ret    z                            ; 01:557C - C8
    ld     hl, (sonic_x_sub)            ; 01:557D - 2A FD D3
@@ -11776,7 +11768,7 @@ addr_05578:
    ld     (var_D3FF), a                ; 01:558C - 32 FF D3
    ret                                 ; 01:558F - C9
 
-addr_05590:
+@special_07:
    bit    7, (ix+24)                   ; 01:5590 - DD CB 18 7E
    ret    z                            ; 01:5594 - C8
    ld     hl, (sonic_x_sub)            ; 01:5595 - 2A FD D3
@@ -11788,17 +11780,17 @@ addr_05590:
    ld     (var_D3FF), a                ; 01:55A4 - 32 FF D3
    ret                                 ; 01:55A7 - C9
 
-addr_055A8:
+@special_08:
    bit    4, (ix+24)                   ; 01:55A8 - DD CB 18 66
-   jr     nz, addr_055B1               ; 01:55AC - 20 03
+   jr     nz, @TODO_55B1               ; 01:55AC - 20 03
    ld     a, $12                       ; 01:55AE - 3E 12
    rst    $28                          ; 01:55B0 - EF
 
-addr_055B1:
+@TODO_55B1:
    set    4, (ix+24)                   ; 01:55B1 - DD CB 18 E6
    ret                                 ; 01:55B5 - C9
 
-addr_055B6:
+@special_09:
    ld     a, (ix+2)                    ; 01:55B6 - DD 7E 02
    add    a, $0C                       ; 01:55B9 - C6 0C
    and    $1F                          ; 01:55BB - E6 1F
@@ -11819,14 +11811,14 @@ addr_055B6:
    rst    $28                          ; 01:55E0 - EF
    ret                                 ; 01:55E1 - C9
 
-addr_055E2:
+@special_0A:
    bit    7, (ix+12)                   ; 01:55E2 - DD CB 0C 7E
    ret    nz                           ; 01:55E6 - C0
    ld     a, $05                       ; 01:55E7 - 3E 05
    rst    $28                          ; 01:55E9 - EF
    ret                                 ; 01:55EA - C9
 
-addr_055EB:
+@special_0B:
    bit    4, (iy+var_D206-IYBASE)      ; 01:55EB - FD CB 06 66
    ret    nz                           ; 01:55EF - C0
    ld     a, (sonic_x)                 ; 01:55F0 - 3A FE D3
@@ -11858,17 +11850,17 @@ addr_055EB:
    add    a, a                         ; 01:561D - 87
    rl     h                            ; 01:561E - CB 14
    ld     d, h                         ; 01:5620 - 54
-   ld     hl, UNK_05643                ; 01:5621 - 21 43 56
+   ld     hl, objfunc_00_sonic@special_0B_teleport_specs  ; 01:5621 - 21 43 56
    ld     b, $05                       ; 01:5624 - 06 05
 
-addr_05626:
+@TODO_5626:
    ld     a, (hl)                      ; 01:5626 - 7E
    inc    hl                           ; 01:5627 - 23
    cp     e                            ; 01:5628 - BB
-   jr     nz, addr_0563C               ; 01:5629 - 20 11
+   jr     nz, @TODO_563C               ; 01:5629 - 20 11
    ld     a, (hl)                      ; 01:562B - 7E
    cp     d                            ; 01:562C - BA
-   jr     nz, addr_0563C               ; 01:562D - 20 0D
+   jr     nz, @TODO_563C               ; 01:562D - 20 0D
    inc    hl                           ; 01:562F - 23
    ld     (var_D2D5), hl               ; 01:5630 - 22 D5 D2
    ld     a, $50                       ; 01:5633 - 3E 50
@@ -11877,19 +11869,19 @@ addr_05626:
    rst    $28                          ; 01:563A - EF
    ret                                 ; 01:563B - C9
 
-addr_0563C:
+@TODO_563C:
    inc    hl                           ; 01:563C - 23
    inc    hl                           ; 01:563D - 23
    inc    hl                           ; 01:563E - 23
    inc    hl                           ; 01:563F - 23
-   djnz   addr_05626                   ; 01:5640 - 10 E4
+   djnz   @TODO_5626                   ; 01:5640 - 10 E4
    ret                                 ; 01:5642 - C9
 
-UNK_05643:
+@special_0B_teleport_specs:
 .db $34, $3C, $34, $2F, $00, $19, $3A, $19, $04, $00, $0E, $3A, $00, $00, $16, $1B  ; 01:5643
 .db $32, $00, $00, $17, $2F, $0C, $00, $00, $FF                                     ; 01:5653
 
-addr_0565C:
+@special_0C:
    ld     hl, (sonic_vel_x_sub)        ; 01:565C - 2A 03 D4
    ld     a, (sonic_vel_x_hi)          ; 01:565F - 3A 05 D4
    ld     de, $FFF8                    ; 01:5662 - 11 F8 FF
@@ -11898,26 +11890,26 @@ addr_0565C:
    ld     (sonic_vel_x_sub), hl        ; 01:5668 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:566B - 32 05 D4
    bit    4, (ix+24)                   ; 01:566E - DD CB 18 66
-   jr     nz, addr_05677               ; 01:5672 - 20 03
+   jr     nz, @TODO_5677               ; 01:5672 - 20 03
    ld     a, $12                       ; 01:5674 - 3E 12
    rst    $28                          ; 01:5676 - EF
 
-addr_05677:
+@TODO_5677:
    set    4, (ix+24)                   ; 01:5677 - DD CB 18 E6
    ret                                 ; 01:567B - C9
 
-addr_0567C:
+@special_0D_spring_right_5_px_t:
    xor    a                            ; 01:567C - AF
    ld     hl, $0005                    ; 01:567D - 21 05 00
    ld     (sonic_vel_x_sub), a         ; 01:5680 - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:5683 - 22 04 D4
    res    1, (ix+24)                   ; 01:5686 - DD CB 18 8E
 
-addr_0568A:
+@TODO_568A:
    ld     a, $06                       ; 01:568A - 3E 06
    ld     (var_D28C), a                ; 01:568C - 32 8C D2
 
-addr_0568F:
+@fn_TODO_568F:
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 01:568F - FD 7E 03
    or     $0F                          ; 01:5692 - F6 0F
    ld     (iy+g_inputs_player_1-IYBASE), a  ; 01:5694 - FD 77 03
@@ -11927,35 +11919,35 @@ addr_0568F:
    res    2, (ix+24)                   ; 01:56A1 - DD CB 18 96
    ret                                 ; 01:56A5 - C9
 
-addr_056A6:
+@special_0E_spring_right_6_px_t:
    xor    a                            ; 01:56A6 - AF
    ld     hl, $0006                    ; 01:56A7 - 21 06 00
    ld     (sonic_vel_x_sub), a         ; 01:56AA - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:56AD - 22 04 D4
    res    1, (ix+24)                   ; 01:56B0 - DD CB 18 8E
-   jr     addr_0568A                   ; 01:56B4 - 18 D4
+   jr     @TODO_568A                   ; 01:56B4 - 18 D4
 
-addr_056B6:
+@special_0F_spring_left_5_px_t:
    xor    a                            ; 01:56B6 - AF
    ld     hl, $FFFB                    ; 01:56B7 - 21 FB FF
    ld     (sonic_vel_x_sub), a         ; 01:56BA - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:56BD - 22 04 D4
    set    1, (ix+24)                   ; 01:56C0 - DD CB 18 CE
-   jr     addr_0568A                   ; 01:56C4 - 18 C4
+   jr     @TODO_568A                   ; 01:56C4 - 18 C4
 
-addr_056C6:
+@special_10_spring_left_6_px_t:
    xor    a                            ; 01:56C6 - AF
    ld     hl, $FFFA                    ; 01:56C7 - 21 FA FF
    ld     (sonic_vel_x_sub), a         ; 01:56CA - 32 03 D4
    ld     (sonic_vel_x), hl            ; 01:56CD - 22 04 D4
    set    1, (ix+24)                   ; 01:56D0 - DD CB 18 CE
-   jr     addr_0568A                   ; 01:56D4 - 18 B4
+   jr     @TODO_568A                   ; 01:56D4 - 18 B4
 
-addr_056D6:
+@special_11:
    ld     a, (var_D2E1)                ; 01:56D6 - 3A E1 D2
    cp     $08                          ; 01:56D9 - FE 08
    ret    nc                           ; 01:56DB - D0
-   call   addr_05727                   ; 01:56DC - CD 27 57
+   call   @fn_TODO_5727                ; 01:56DC - CD 27 57
    ld     de, $0001                    ; 01:56DF - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 01:56E2 - 2A 06 D4
    ld     a, l                         ; 01:56E5 - 7D
@@ -11969,12 +11961,12 @@ addr_056D6:
    add    hl, de                       ; 01:56EF - 19
    adc    a, $00                       ; 01:56F0 - CE 00
    and    a                            ; 01:56F2 - A7
-   jp     p, addr_056FC                ; 01:56F3 - F2 FC 56
+   jp     p, @TODO_56FC                ; 01:56F3 - F2 FC 56
    ld     de, $FFC8                    ; 01:56F6 - 11 C8 FF
    add    hl, de                       ; 01:56F9 - 19
    adc    a, $FF                       ; 01:56FA - CE FF
 
-addr_056FC:
+@TODO_56FC:
    ld     (sonic_vel_y_sub), hl        ; 01:56FC - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:56FF - 32 08 D4
    ld     bc, $000C                    ; 01:5702 - 01 0C 00
@@ -11997,7 +11989,7 @@ addr_056FC:
    rst    $28                          ; 01:5725 - EF
    ret                                 ; 01:5726 - C9
 
-addr_05727:
+@fn_TODO_5727:
    ld     hl, (sonic_vel_x_sub)        ; 01:5727 - 2A 03 D4
    ld     a, (sonic_vel_x_hi)          ; 01:572A - 3A 05 D4
    ld     c, a                         ; 01:572D - 4F
@@ -12009,7 +12001,7 @@ addr_05727:
    sub    $10                          ; 01:5738 - D6 10
    and    $80                          ; 01:573A - E6 80
    cp     b                            ; 01:573C - B8
-   jr     z, addr_05748                ; 01:573D - 28 09
+   jr     z, @TODO_5748                ; 01:573D - 28 09
    ld     a, l                         ; 01:573F - 7D
    cpl                                 ; 01:5740 - 2F
    ld     l, a                         ; 01:5741 - 6F
@@ -12020,7 +12012,7 @@ addr_05727:
    cpl                                 ; 01:5746 - 2F
    ld     c, a                         ; 01:5747 - 4F
 
-addr_05748:
+@TODO_5748:
    ld     de, $0001                    ; 01:5748 - 11 01 00
    ld     a, c                         ; 01:574B - 79
    add    hl, de                       ; 01:574C - 19
@@ -12037,7 +12029,7 @@ addr_05748:
    ld     (sonic_vel_x_hi), a          ; 01:575D - 32 05 D4
    ret                                 ; 01:5760 - C9
 
-addr_05761:
+@special_12_spring_up_10_px_t:
    ld     (ix+10), $00                 ; 01:5761 - DD 36 0A 00
    ld     (ix+11), $F6                 ; 01:5765 - DD 36 0B F6
    ld     (ix+12), $FF                 ; 01:5769 - DD 36 0C FF
@@ -12045,7 +12037,7 @@ addr_05761:
    rst    $28                          ; 01:576F - EF
    ret                                 ; 01:5770 - C9
 
-addr_05771:
+@special_13_spring_up_12_px_t:
    ld     (ix+10), $00                 ; 01:5771 - DD 36 0A 00
    ld     (ix+11), $F4                 ; 01:5775 - DD 36 0B F4
    ld     (ix+12), $FF                 ; 01:5779 - DD 36 0C FF
@@ -12053,7 +12045,7 @@ addr_05771:
    rst    $28                          ; 01:577F - EF
    ret                                 ; 01:5780 - C9
 
-addr_05781:
+@special_14_spring_up_14_px_t:
    ld     (ix+10), $00                 ; 01:5781 - DD 36 0A 00
    ld     (ix+11), $F2                 ; 01:5785 - DD 36 0B F2
    ld     (ix+12), $FF                 ; 01:5789 - DD 36 0C FF
@@ -12061,7 +12053,7 @@ addr_05781:
    rst    $28                          ; 01:578F - EF
    ret                                 ; 01:5790 - C9
 
-addr_05791:
+@special_15:
    ld     a, (var_D2B1)                ; 01:5791 - 3A B1 D2
    and    a                            ; 01:5794 - A7
    ret    nz                           ; 01:5795 - C0
@@ -12079,17 +12071,17 @@ addr_05791:
    adc    a, $00                       ; 01:57A7 - CE 00
    ld     de, $FF00                    ; 01:57A9 - 11 00 FF
    ld     c, $FF                       ; 01:57AC - 0E FF
-   jp     m, addr_057B6                ; 01:57AE - FA B6 57
+   jp     m, @TODO_57B6                ; 01:57AE - FA B6 57
    ld     de, $0100                    ; 01:57B1 - 11 00 01
    ld     c, $00                       ; 01:57B4 - 0E 00
 
-addr_057B6:
+@TODO_57B6:
    add    hl, de                       ; 01:57B6 - 19
    adc    a, c                         ; 01:57B7 - 89
    ld     (sonic_vel_x_sub), hl        ; 01:57B8 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:57BB - 32 05 D4
 
-addr_057BE:
+@TODO_57BE:
    ld     hl, var_D2B1                 ; 01:57BE - 21 B1 D2
    ld     (hl), $04                    ; 01:57C1 - 36 04
    inc    hl                           ; 01:57C3 - 23
@@ -12100,8 +12092,8 @@ addr_057BE:
    rst    $28                          ; 01:57CB - EF
    ret                                 ; 01:57CC - C9
 
-addr_057CD:
-   call   addr_05727                   ; 01:57CD - CD 27 57
+@special_16:
+   call   @fn_TODO_5727                ; 01:57CD - CD 27 57
    ld     de, $0001                    ; 01:57D0 - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 01:57D3 - 2A 06 D4
    ld     a, l                         ; 01:57D6 - 7D
@@ -12115,17 +12107,17 @@ addr_057CD:
    add    hl, de                       ; 01:57E0 - 19
    adc    a, $00                       ; 01:57E1 - CE 00
    and    a                            ; 01:57E3 - A7
-   jp     p, addr_057ED                ; 01:57E4 - F2 ED 57
+   jp     p, @TODO_57ED                ; 01:57E4 - F2 ED 57
    ld     de, $FFC8                    ; 01:57E7 - 11 C8 FF
    add    hl, de                       ; 01:57EA - 19
    adc    a, $FF                       ; 01:57EB - CE FF
 
-addr_057ED:
+@TODO_57ED:
    ld     (sonic_vel_y_sub), hl        ; 01:57ED - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:57F0 - 32 08 D4
-   jp     addr_057BE                   ; 01:57F3 - C3 BE 57
+   jp     @TODO_57BE                   ; 01:57F3 - C3 BE 57
 
-addr_057F6:
+@special_17:
    ld     hl, (var_D2E9)               ; 01:57F6 - 2A E9 D2
    ld     de, $0082                    ; 01:57F9 - 11 82 00
    and    a                            ; 01:57FC - A7
@@ -12135,7 +12127,7 @@ addr_057F6:
    jp     z, damage_sonic              ; 01:5804 - CA FD 35
    ret                                 ; 01:5807 - C9
 
-addr_05808:
+@special_18:
    ld     a, (var_D414)                ; 01:5808 - 3A 14 D4
    rlca                                ; 01:580B - 07
    ret    nc                           ; 01:580C - D0
@@ -12145,9 +12137,9 @@ addr_05808:
    ld     a, l                         ; 01:5814 - 7D
    and    $1F                          ; 01:5815 - E6 1F
    cp     $10                          ; 01:5817 - FE 10
-   jr     nc, addr_05858               ; 01:5819 - 30 3D
+   jr     nc, @TODO_5858               ; 01:5819 - 30 3D
 
-addr_0581B:
+@TODO_581B:
    ld     hl, (sonic_x)                ; 01:581B - 2A FE D3
    ld     bc, $000C                    ; 01:581E - 01 0C 00
    add    hl, bc                       ; 01:5821 - 09
@@ -12162,7 +12154,7 @@ addr_0581B:
    and    $E0                          ; 01:582F - E6 E0
    ld     e, a                         ; 01:5831 - 5F
    ld     d, h                         ; 01:5832 - 54
-   call   addr_05893                   ; 01:5833 - CD 93 58
+   call   @TODO_5893                   ; 01:5833 - CD 93 58
    ret    c                            ; 01:5836 - D8
    ld     bc, $000C                    ; 01:5837 - 01 0C 00
    ld     de, $0010                    ; 01:583A - 11 10 00
@@ -12170,14 +12162,14 @@ addr_0581B:
    ld     c, $00                       ; 01:5840 - 0E 00
    ld     a, (hl)                      ; 01:5842 - 7E
    cp     $8A                          ; 01:5843 - FE 8A
-   jr     z, addr_05849                ; 01:5845 - 28 02
+   jr     z, @TODO_5849                ; 01:5845 - 28 02
    ld     c, $89                       ; 01:5847 - 0E 89
 
-addr_05849:
+@TODO_5849:
    ld     (hl), c                      ; 01:5849 - 71
    ret                                 ; 01:584A - C9
 
-addr_0584B:
+@special_19:
    ld     hl, (sonic_x)                ; 01:584B - 2A FE D3
    ld     bc, $000C                    ; 01:584E - 01 0C 00
    add    hl, bc                       ; 01:5851 - 09
@@ -12186,7 +12178,7 @@ addr_0584B:
    cp     $10                          ; 01:5855 - FE 10
    ret    c                            ; 01:5857 - D8
 
-addr_05858:
+@TODO_5858:
    ld     a, l                         ; 01:5858 - 7D
    and    $E0                          ; 01:5859 - E6 E0
    add    a, $10                       ; 01:585B - C6 10
@@ -12199,7 +12191,7 @@ addr_05858:
    and    $E0                          ; 01:5867 - E6 E0
    ld     e, a                         ; 01:5869 - 5F
    ld     d, h                         ; 01:586A - 54
-   call   addr_05893                   ; 01:586B - CD 93 58
+   call   @TODO_5893                   ; 01:586B - CD 93 58
    ret    c                            ; 01:586E - D8
    ld     bc, $000C                    ; 01:586F - 01 0C 00
    ld     de, $0010                    ; 01:5872 - 11 10 00
@@ -12207,12 +12199,12 @@ addr_05858:
    ld     c, $00                       ; 01:5878 - 0E 00
    ld     a, (hl)                      ; 01:587A - 7E
    cp     $89                          ; 01:587B - FE 89
-   jr     z, addr_05849                ; 01:587D - 28 CA
+   jr     z, @TODO_5849                ; 01:587D - 28 CA
    ld     c, $8A                       ; 01:587F - 0E 8A
    ld     (hl), c                      ; 01:5881 - 71
    ret                                 ; 01:5882 - C9
 
-addr_05883:
+@special_1A:
    ld     hl, (sonic_x)                ; 01:5883 - 2A FE D3
    ld     bc, $000C                    ; 01:5886 - 01 0C 00
    add    hl, bc                       ; 01:5889 - 09
@@ -12220,9 +12212,9 @@ addr_05883:
    and    $1F                          ; 01:588B - E6 1F
    cp     $10                          ; 01:588D - FE 10
    ret    nc                           ; 01:588F - D0
-   jp     addr_0581B                   ; 01:5890 - C3 1B 58
+   jp     @TODO_581B                   ; 01:5890 - C3 1B 58
 
-addr_05893:
+@TODO_5893:
    push   bc                           ; 01:5893 - C5
    push   de                           ; 01:5894 - D5
    call   spawn_object                 ; 01:5895 - CD 7B 7C
@@ -12251,7 +12243,7 @@ addr_05893:
    and    a                            ; 01:58CE - A7
    ret                                 ; 01:58CF - C9
 
-addr_058D0:
+@special_1B:
    bit    7, (ix+24)                   ; 01:58D0 - DD CB 18 7E
    ret    z                            ; 01:58D4 - C8
    ld     hl, (sonic_y)                ; 01:58D5 - 2A 01 D4
@@ -12262,28 +12254,27 @@ addr_058D0:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:58E0 - FD 36 03 FF
    ret                                 ; 01:58E4 - C9
 
-LUT_058E5:
-.dw addr_054BC, addr_054C6, addr_054CE, addr_0550F, addr_0552D, addr_05556, addr_05578, addr_05590  ; 01:58E5
-.dw addr_055A8, addr_055B6, addr_055E2, addr_055EB, addr_0565C, addr_0567C, addr_056A6, addr_056B6  ; 01:58F5
-.dw addr_056C6, addr_056D6, addr_05761, addr_05771, addr_05781, addr_05791, addr_057CD, addr_057F6  ; 01:5905
-.dw addr_05808, addr_0584B, addr_05883, addr_058D0                                  ; 01:5915
+CODEPTRTAB_sonic_tile_specials:
+.dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03, objfunc_00_sonic@special_04, objfunc_00_sonic@special_05, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
+.dw objfunc_00_sonic@special_08, objfunc_00_sonic@special_09, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C, objfunc_00_sonic@special_0D_spring_right_5_px_t, objfunc_00_sonic@special_0E_spring_right_6_px_t, objfunc_00_sonic@special_0F_spring_left_5_px_t  ; 01:58F5
+.dw objfunc_00_sonic@special_10_spring_left_6_px_t, objfunc_00_sonic@special_11, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
+.dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
-UNK_0591D:
+SPRITEMAP_sonic_normal:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $FF, $FF            ; 01:591D
 
-UNK_0592B:
+SPRITEMAP_sonic_hflip:
 .db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $FF, $FF            ; 01:592B
 
-UNK_05939:
+SPRITEMAP_sonic_upspring_right:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $98, $9A, $FF, $FF  ; 01:5939
 .db $FF, $FF                                                                        ; 01:5949
 
+SPRITEMAP_sonic_upspring_left:
 .IF shrink_sonicuncart_interleave
-UNK_0594B:
 .db $B8, $B6, $B4, $FF, $FF, $FF, $BE, $BC, $BA, $FF, $FF, $FF, $FE, $9C, $9E, $FF
 .db $FF, $FF
 .ELSE
-UNK_0594B:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $FE, $9C, $9E, $FF  ; 01:594B
 .db $FF, $FF                                                                        ; 01:595B
 .ENDIF
