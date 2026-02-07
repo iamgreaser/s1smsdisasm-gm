@@ -178,7 +178,7 @@ var_D283 db   ; D283
 var_D284 db   ; D284
 var_D285 db   ; D285
 var_D286 db   ; D286
-var_D287 db   ; D287
+g_level_restart_countdown_timer db   ; D287
 g_current_signpost db   ; D288
 g_signpost_tickdown_counter db   ; D289
 var_D28A db   ; D28A
@@ -193,7 +193,8 @@ var_D295 dw   ; D295
 var_D297 db   ; D297
 var_D298 db   ; D298 (auto)
 var_D299 dw   ; D299
-var_D29B dw   ; D29B
+g_sonic_underwater_countup_timer db   ; D29B
+.  dsb 1
 var_D29D dw   ; D29D
 var_D29F dw   ; D29F
 var_D2A1 db   ; D2A1
@@ -237,7 +238,7 @@ var_D2D5 dw   ; D2D5
 g_random_seed dw   ; D2D7
 var_D2D9 dw   ; D2D9
 var_D2DB db   ; D2DB
-var_D2DC dw   ; D2DC
+g_water_level_y dw   ; D2DC
 var_D2DE db   ; D2DE
 var_D2DF db   ; D2DF
 var_D2E0 db   ; D2E0
@@ -5587,7 +5588,7 @@ addr_01DAE:
    jr     addr_01DF0                   ; 00:1DD9 - 18 15
 
 addr_01DDB:
-   ld     a, (var_D287)                ; 00:1DDB - 3A 87 D2
+   ld     a, (g_level_restart_countdown_timer)  ; 00:1DDB - 3A 87 D2
    and    a                            ; 00:1DDE - A7
    jp     nz, addr_02067               ; 00:1DDF - C2 67 20
 
@@ -5968,7 +5969,7 @@ LUT_02047_all7F:
 
 addr_02067:
    dec    a                            ; 00:2067 - 3D
-   ld     (var_D287), a                ; 00:2068 - 32 87 D2
+   ld     (g_level_restart_countdown_timer), a  ; 00:2068 - 32 87 D2
    jp     nz, addr_01DE2               ; 00:206B - C2 E2 1D
    bit    1, (iy+var_D205-IYBASE)      ; 00:206E - FD CB 05 4E
    jr     nz, addr_020B8               ; 00:2072 - 20 44
@@ -6048,7 +6049,7 @@ addr_020CB:
    ld     (var_D2B7), hl               ; 00:2106 - 22 B7 D2
    ld     (g_water_irq_line_state), a  ; 00:2109 - 32 47 D2
    ld     (g_water_onscreen_y), a      ; 00:210C - 32 48 D2
-   ld     hl, var_D287                 ; 00:210F - 21 87 D2
+   ld     hl, g_level_restart_countdown_timer  ; 00:210F - 21 87 D2
    ld     b, $1D                       ; 00:2112 - 06 1D
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:2114 - CD E8 1C
    ld     hl, g_level_has_checkpoint_mask  ; 00:2117 - 21 11 D3
@@ -6071,7 +6072,7 @@ addr_02132:
    ld     hl, $0020                    ; 00:2137 - 21 20 00
 
 addr_0213A:
-   ld     (var_D2DC), hl               ; 00:213A - 22 DC D2
+   ld     (g_water_level_y), hl        ; 00:213A - 22 DC D2
    ld     hl, $FFFE                    ; 00:213D - 21 FE FF
    ld     (var_D29F), hl               ; 00:2140 - 22 9F D2
    ld     hl, UNK_023FF                ; 00:2143 - 21 FF 23
@@ -8835,7 +8836,7 @@ kill_sonic:
    ld     (sonic_vel_y_sub), a         ; 00:3625 - 32 06 D4
    ld     (sonic_vel_y), hl            ; 00:3628 - 22 07 D4
    ld     a, $60                       ; 00:362B - 3E 60
-   ld     (var_D287), a                ; 00:362D - 32 87 D2
+   ld     (g_level_restart_countdown_timer), a  ; 00:362D - 32 87 D2
    res    6, (iy+var_D206-IYBASE)      ; 00:3630 - FD CB 06 B6
    res    5, (iy+var_D206-IYBASE)      ; 00:3634 - FD CB 06 AE
    res    6, (iy+var_D206-IYBASE)      ; 00:3638 - FD CB 06 B6
@@ -10037,7 +10038,7 @@ objfunc_00_sonic:
    bit    0, (iy+var_D208-IYBASE)      ; 01:48FE - FD CB 08 46
    call   nz, @fn_TODO_4FF5            ; 01:4902 - C4 F5 4F
    bit    4, (ix+24)                   ; 01:4905 - DD CB 18 66
-   call   nz, @fn_TODO_5009            ; 01:4909 - C4 09 50
+   call   nz, @fn_handle_air_timer_and_drowning  ; 01:4909 - C4 09 50
    ld     a, (var_D28B)                ; 01:490C - 3A 8B D2
    and    a                            ; 01:490F - A7
    call   nz, @fn_TODO_5285            ; 01:4910 - C4 85 52
@@ -10201,7 +10202,7 @@ objfunc_00_sonic:
 @TODO_4A59:
    ld     (var_D299), hl               ; 01:4A59 - 22 99 D2
    bit    7, (iy+var_D206-IYBASE)      ; 01:4A5C - FD CB 06 7E
-   call   nz, @fn_TODO_50E8            ; 01:4A60 - C4 E8 50
+   call   nz, @fn_set_underwater_state_based_on_water_level  ; 01:4A60 - C4 E8 50
    ld     (ix+20), $05                 ; 01:4A63 - DD 36 14 05
    ld     hl, (var_D299)               ; 01:4A67 - 2A 99 D2
    ld     de, $0168                    ; 01:4A6A - 11 68 01
@@ -11048,16 +11049,16 @@ objfunc_00_sonic:
    rst    $18                          ; 01:5007 - DF
    ret                                 ; 01:5008 - C9
 
-@fn_TODO_5009:
+@fn_handle_air_timer_and_drowning:
    ld     a, (g_tile_flags_index)      ; 01:5009 - 3A D4 D2
    cp     $03                          ; 01:500C - FE 03
    ret    nz                           ; 01:500E - C0
    ld     a, (g_level)                 ; 01:500F - 3A 3E D2
    cp     $0B                          ; 01:5012 - FE 0B
    ret    z                            ; 01:5014 - C8
-   ld     hl, (var_D29B)               ; 01:5015 - 2A 9B D2
+   ld     hl, (g_sonic_underwater_countup_timer)  ; 01:5015 - 2A 9B D2
    inc    hl                           ; 01:5018 - 23
-   ld     (var_D29B), hl               ; 01:5019 - 22 9B D2
+   ld     (g_sonic_underwater_countup_timer), hl  ; 01:5019 - 22 9B D2
    ld     de, $0300                    ; 01:501C - 11 00 03
    and    a                            ; 01:501F - A7
    sbc    hl, de                       ; 01:5020 - ED 52
@@ -11071,7 +11072,7 @@ objfunc_00_sonic:
    set    3, (iy+var_D208-IYBASE)      ; 01:5034 - FD CB 08 DE
    set    0, (iy+var_D205-IYBASE)      ; 01:5038 - FD CB 05 C6
    ld     a, $C0                       ; 01:503C - 3E C0
-   ld     (var_D287), a                ; 01:503E - 32 87 D2
+   ld     (g_level_restart_countdown_timer), a  ; 01:503E - 32 87 D2
    ld     a, $0A                       ; 01:5041 - 3E 0A
    rst    $18                          ; 01:5043 - DF
    call   UNK_091EB                    ; 01:5044 - CD EB 91
@@ -11168,14 +11169,14 @@ objfunc_00_sonic:
    res    2, (iy+var_D207-IYBASE)      ; 01:50E3 - FD CB 07 96
    ret                                 ; 01:50E7 - C9
 
-@fn_TODO_50E8:
-   ld     hl, (var_D2DC)               ; 01:50E8 - 2A DC D2
+@fn_set_underwater_state_based_on_water_level:
+   ld     hl, (g_water_level_y)        ; 01:50E8 - 2A DC D2
    ld     de, (sonic_y)                ; 01:50EB - ED 5B 01 D4
    and    a                            ; 01:50EF - A7
    sbc    hl, de                       ; 01:50F0 - ED 52
-   jp     c, objfunc_00_sonic@special_08  ; 01:50F2 - DA A8 55
+   jp     c, objfunc_00_sonic@special_08_underwater  ; 01:50F2 - DA A8 55
    ld     hl, $0000                    ; 01:50F5 - 21 00 00
-   ld     (var_D29B), hl               ; 01:50F8 - 22 9B D2
+   ld     (g_sonic_underwater_countup_timer), hl  ; 01:50F8 - 22 9B D2
    res    4, (ix+24)                   ; 01:50FB - DD CB 18 A6
    ret                                 ; 01:50FF - C9
 
@@ -11610,7 +11611,7 @@ objfunc_00_sonic:
 
 @sonic_is_dying:
    set    5, (ix+24)                   ; 01:543C - DD CB 18 EE
-   ld     a, (var_D287)                ; 01:5440 - 3A 87 D2
+   ld     a, (g_level_restart_countdown_timer)  ; 01:5440 - 3A 87 D2
    cp     $60                          ; 01:5443 - FE 60
    jr     z, @TODO_54AA                ; 01:5445 - 28 63
    ld     hl, (g_level_scroll_y_pix_lo)  ; 01:5447 - 2A 5D D2
@@ -11798,7 +11799,7 @@ objfunc_00_sonic:
    ld     (var_D3FF), a                ; 01:55A4 - 32 FF D3
    ret                                 ; 01:55A7 - C9
 
-@special_08:
+@special_08_underwater:
    bit    4, (ix+24)                   ; 01:55A8 - DD CB 18 66
    jr     nz, @TODO_55B1               ; 01:55AC - 20 03
    ld     a, $12                       ; 01:55AE - 3E 12
@@ -11899,7 +11900,7 @@ objfunc_00_sonic:
 .db $34, $3C, $34, $2F, $00, $19, $3A, $19, $04, $00, $0E, $3A, $00, $00, $16, $1B  ; 01:5643
 .db $32, $00, $00, $17, $2F, $0C, $00, $00, $FF                                     ; 01:5653
 
-@special_0C:
+@special_0C_underwater_accel_left_8_subpx_t2:
    ld     hl, (sonic_vel_x_sub)        ; 01:565C - 2A 03 D4
    ld     a, (sonic_vel_x_hi)          ; 01:565F - 3A 05 D4
    ld     de, $FFF8                    ; 01:5662 - 11 F8 FF
@@ -12274,7 +12275,7 @@ objfunc_00_sonic:
 
 CODEPTRTAB_sonic_tile_specials:
 .dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_left_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
-.dw objfunc_00_sonic@special_08, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
+.dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
 .dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
 .dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
@@ -17381,7 +17382,7 @@ addr_08D5E:
    ld     (ix+17), $00                 ; 02:8D86 - DD 36 11 00
 
 addr_08D8A:
-   ld     (var_D2DC), hl               ; 02:8D8A - 22 DC D2
+   ld     (g_water_level_y), hl        ; 02:8D8A - 22 DC D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:8D8D - ED 5B 5D D2
    and    a                            ; 02:8D91 - A7
    ld     a, $FF                       ; 02:8D92 - 3E FF
@@ -17567,7 +17568,7 @@ addr_08F1B:
    ld     h, (ix+6)                    ; 02:8F2F - DD 66 06
    ld     (var_D210), hl               ; 02:8F32 - 22 10 D2
    ex     de, hl                       ; 02:8F35 - EB
-   ld     hl, (var_D2DC)               ; 02:8F36 - 2A DC D2
+   ld     hl, (g_water_level_y)        ; 02:8F36 - 2A DC D2
    and    a                            ; 02:8F39 - A7
    sbc    hl, de                       ; 02:8F3A - ED 52
    jr     nc, addr_08F56               ; 02:8F3C - 30 18
@@ -18553,7 +18554,7 @@ addr_09797:
    ld     (sonic_vel_y_sub), hl        ; 02:97C7 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:97CA - 32 08 D4
    ld     (var_D28E), a                ; 02:97CD - 32 8E D2
-   ld     (var_D29B), hl               ; 02:97D0 - 22 9B D2
+   ld     (g_sonic_underwater_countup_timer), hl  ; 02:97D0 - 22 9B D2
    set    2, (iy+var_D208-IYBASE)      ; 02:97D3 - FD CB 08 D6
    ld     a, $20                       ; 02:97D7 - 3E 20
    ld     (var_D2FB), a                ; 02:97D9 - 32 FB D2
@@ -18607,7 +18608,7 @@ addr_09826:
    ld     l, (ix+5)                    ; 02:9837 - DD 6E 05
    ld     h, (ix+6)                    ; 02:983A - DD 66 06
    ex     de, hl                       ; 02:983D - EB
-   ld     hl, (var_D2DC)               ; 02:983E - 2A DC D2
+   ld     hl, (g_water_level_y)        ; 02:983E - 2A DC D2
    and    a                            ; 02:9841 - A7
    sbc    hl, de                       ; 02:9842 - ED 52
    jr     nc, addr_0985E               ; 02:9844 - 30 18
