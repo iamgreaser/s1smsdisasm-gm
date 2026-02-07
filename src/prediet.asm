@@ -128,7 +128,7 @@ var_D286 db   ; D286
 g_level_restart_countdown_timer db   ; D287
 g_current_signpost db   ; D288
 g_signpost_tickdown_counter db   ; D289
-var_D28A db   ; D28A
+g_teleport_start_countdown_timer db   ; D28A
 g_chaos_emerald_music_countdown_timer db   ; D28B
 g_directional_input_suppression_timer db   ; D28C
 g_invincibility_countdown_timer db   ; D28D
@@ -179,9 +179,9 @@ g_time_secs_BCD db   ; D2CF
 g_time_subsecs db   ; D2D0
 .  dsb 1
 g_current_music db   ; D2D2
-var_D2D3 db   ; D2D3
+g_next_level_override_target db   ; D2D3
 g_tile_flags_index db   ; D2D4
-var_D2D5 dw   ; D2D5
+g_teleport_spec_dest_ptr dw   ; D2D5
 g_random_seed dw   ; D2D7
 var_D2D9 dw   ; D2D9
 var_D2DB db   ; D2DB
@@ -4209,7 +4209,7 @@ load_level_header_UNCONFIRMED:
    ld     a, (g_level)                 ; 00:1CF5 - 3A 3E D2
    bit    4, (iy+var_D206-IYBASE)      ; 00:1CF8 - FD CB 06 66
    jr     z, +                         ; 00:1CFC - 28 03
-   ld     a, (var_D2D3)                ; 00:1CFE - 3A D3 D2
+   ld     a, (g_next_level_override_target)  ; 00:1CFE - 3A D3 D2
 
 +:
    add    a, a                         ; 00:1D01 - 87
@@ -7992,9 +7992,9 @@ objfunc_00_sonic:
    ld     a, (g_chaos_emerald_music_countdown_timer)  ; 01:490C - 3A 8B D2
    and    a                            ; 01:490F - A7
    call   nz, @fn_handle_chaos_emerald_music_countdown_timer  ; 01:4910 - C4 85 52
-   ld     a, (var_D28A)                ; 01:4913 - 3A 8A D2
+   ld     a, (g_teleport_start_countdown_timer)  ; 01:4913 - 3A 8A D2
    and    a                            ; 01:4916 - A7
-   jp     nz, @TODO_5117               ; 01:4917 - C2 17 51
+   jp     nz, @handle_teleport_start   ; 01:4917 - C2 17 51
    bit    6, (iy+var_D208-IYBASE)      ; 01:491A - FD CB 08 76
    jp     nz, @TODO_5193               ; 01:491E - C2 93 51
    bit    7, (iy+var_D208-IYBASE)      ; 01:4921 - FD CB 08 7E
@@ -9101,10 +9101,10 @@ objfunc_00_sonic:
    ld     (sonic_flags_ix_24), a       ; 01:5113 - 32 14 D4
    ret                                 ; 01:5116 - C9
 
-@TODO_5117:
+@handle_teleport_start:
    dec    a                            ; 01:5117 - 3D
-   ld     (var_D28A), a                ; 01:5118 - 32 8A D2
-   jr     z, @TODO_5142                ; 01:511B - 28 25
+   ld     (g_teleport_start_countdown_timer), a  ; 01:5118 - 32 8A D2
+   jr     z, @do_teleport              ; 01:511B - 28 25
    cp     $14                          ; 01:511D - FE 14
    jr     c, @TODO_5137                ; 01:511F - 38 16
    xor    a                            ; 01:5121 - AF
@@ -9122,37 +9122,37 @@ objfunc_00_sonic:
    ld     (ix+20), $0E                 ; 01:513B - DD 36 14 0E
    jp     @TODO_4C39                   ; 01:513F - C3 39 4C
 
-@TODO_5142:
-   ld     hl, (var_D2D5)               ; 01:5142 - 2A D5 D2
+@do_teleport:
+   ld     hl, (g_teleport_spec_dest_ptr)  ; 01:5142 - 2A D5 D2
    ld     b, (hl)                      ; 01:5145 - 46
    inc    hl                           ; 01:5146 - 23
    ld     c, (hl)                      ; 01:5147 - 4E
    inc    hl                           ; 01:5148 - 23
    ld     a, (hl)                      ; 01:5149 - 7E
    and    a                            ; 01:514A - A7
-   jr     z, @TODO_5163                ; 01:514B - 28 16
-   jp     m, @TODO_5159                ; 01:514D - FA 59 51
-   ld     (var_D2D3), a                ; 01:5150 - 32 D3 D2
+   jr     z, @teleport_is_in_same_level  ; 01:514B - 28 16
+   jp     m, @teleport_advance_to_next_level  ; 01:514D - FA 59 51
+   ld     (g_next_level_override_target), a  ; 01:5150 - 32 D3 D2
    set    4, (iy+var_D206-IYBASE)      ; 01:5153 - FD CB 06 E6
-   jr     @TODO_515D                   ; 01:5157 - 18 04
+   jr     @teleport_did_want_specific_level  ; 01:5157 - 18 04
 
-@TODO_5159:
+@teleport_advance_to_next_level:
    set    2, (iy+var_D20D-IYBASE)      ; 01:5159 - FD CB 0D D6
 
-@TODO_515D:
+@teleport_did_want_specific_level:
    ld     a, $01                       ; 01:515D - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 01:515F - 32 89 D2
    ret                                 ; 01:5162 - C9
 
-@TODO_5163:
+@teleport_is_in_same_level:
    ld     a, b                         ; 01:5163 - 78
    ld     h, $00                       ; 01:5164 - 26 00
    ld     b, $05                       ; 01:5166 - 06 05
 
-@TODO_5168:
+@teleport_x_pos_shift_left_by_5_loop:
    add    a, a                         ; 01:5168 - 87
    rl     h                            ; 01:5169 - CB 14
-   djnz   @TODO_5168                   ; 01:516B - 10 FB
+   djnz   @teleport_x_pos_shift_left_by_5_loop  ; 01:516B - 10 FB
    ld     l, a                         ; 01:516D - 6F
    ld     de, $0008                    ; 01:516E - 11 08 00
    add    hl, de                       ; 01:5171 - 19
@@ -9778,28 +9778,28 @@ objfunc_00_sonic:
    ld     hl, objfunc_00_sonic@special_0B_teleport_specs  ; 01:5621 - 21 43 56
    ld     b, $05                       ; 01:5624 - 06 05
 
-@TODO_5626:
+@find_teleport_region:
    ld     a, (hl)                      ; 01:5626 - 7E
    inc    hl                           ; 01:5627 - 23
    cp     e                            ; 01:5628 - BB
-   jr     nz, @TODO_563C               ; 01:5629 - 20 11
+   jr     nz, @not_this_teleport_region  ; 01:5629 - 20 11
    ld     a, (hl)                      ; 01:562B - 7E
    cp     d                            ; 01:562C - BA
-   jr     nz, @TODO_563C               ; 01:562D - 20 0D
+   jr     nz, @not_this_teleport_region  ; 01:562D - 20 0D
    inc    hl                           ; 01:562F - 23
-   ld     (var_D2D5), hl               ; 01:5630 - 22 D5 D2
+   ld     (g_teleport_spec_dest_ptr), hl  ; 01:5630 - 22 D5 D2
    ld     a, $50                       ; 01:5633 - 3E 50
-   ld     (var_D28A), a                ; 01:5635 - 32 8A D2
+   ld     (g_teleport_start_countdown_timer), a  ; 01:5635 - 32 8A D2
    ld     a, $06                       ; 01:5638 - 3E 06
    rst    $28                          ; 01:563A - EF
    ret                                 ; 01:563B - C9
 
-@TODO_563C:
+@not_this_teleport_region:
    inc    hl                           ; 01:563C - 23
    inc    hl                           ; 01:563D - 23
    inc    hl                           ; 01:563E - 23
    inc    hl                           ; 01:563F - 23
-   djnz   @TODO_5626                   ; 01:5640 - 10 E4
+   djnz   @find_teleport_region        ; 01:5640 - 10 E4
    ret                                 ; 01:5642 - C9
 
 @special_0B_teleport_specs:
@@ -16652,7 +16652,7 @@ addr_09BB3:
    jr     nz, addr_09BCD               ; 02:9BBA - 20 11
    inc    hl                           ; 02:9BBC - 23
    ld     a, (hl)                      ; 02:9BBD - 7E
-   ld     (var_D2D3), a                ; 02:9BBE - 32 D3 D2
+   ld     (g_next_level_override_target), a  ; 02:9BBE - 32 D3 D2
    ld     a, $01                       ; 02:9BC1 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 02:9BC3 - 32 89 D2
    set    4, (iy+var_D206-IYBASE)      ; 02:9BC6 - FD CB 06 E6
