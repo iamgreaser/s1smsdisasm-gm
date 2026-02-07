@@ -208,7 +208,7 @@ var_D2F7 db   ; D2F7 (auto)
 var_D2FB db   ; D2FB
 g_level_music db   ; D2FC
 var_D2FD db   ; D2FD
-var_D2FE db   ; D2FE (auto)
+g_good_ending_emerald_anim_countdown_timer db   ; D2FE
 var_D2FF db   ; D2FF
 .  dsb 2
 g_sonic_sprite_index_override db   ; D302
@@ -7996,11 +7996,11 @@ objfunc_00_sonic:
    and    a                            ; 01:4916 - A7
    jp     nz, @handle_teleport_start   ; 01:4917 - C2 17 51
    bit    6, (iy+var_D208-IYBASE)      ; 01:491A - FD CB 08 76
-   jp     nz, @TODO_5193               ; 01:491E - C2 93 51
+   jp     nz, @handle_ending_animation_teleport_in  ; 01:491E - C2 93 51
    bit    7, (iy+var_D208-IYBASE)      ; 01:4921 - FD CB 08 7E
-   call   nz, @fn_TODO_529C            ; 01:4925 - C4 9C 52
+   call   nz, @fn_handle_good_ending_sequence  ; 01:4925 - C4 9C 52
    bit    4, (ix+24)                   ; 01:4928 - DD CB 18 66
-   jp     z, @TODO_494F                ; 01:492C - CA 4F 49
+   jp     z, @not_underwater_physics   ; 01:492C - CA 4F 49
    ld     hl, objfunc_00_sonic@sonic_physics_underwater  ; 01:492F - 21 DD 4D
    ld     de, var_D20E                 ; 01:4932 - 11 0E D2
    ld     bc, $0009                    ; 01:4935 - 01 09 00
@@ -8011,16 +8011,16 @@ objfunc_00_sonic:
    ld     (var_D242), hl               ; 01:4943 - 22 42 D2
    ld     hl, $0010                    ; 01:4946 - 21 10 00
    ld     (var_D244), hl               ; 01:4949 - 22 44 D2
-   jp     @TODO_49D9                   ; 01:494C - C3 D9 49
+   jp     @physics_selected            ; 01:494C - C3 D9 49
 
-@TODO_494F:
+@not_underwater_physics:
    ld     a, (ix+21)                   ; 01:494F - DD 7E 15
    and    a                            ; 01:4952 - A7
-   jr     nz, @TODO_49AD               ; 01:4953 - 20 58
+   jr     nz, @is_speed_shoes_physics  ; 01:4953 - 20 58
    bit    0, (iy+var_D207-IYBASE)      ; 01:4955 - FD CB 07 46
    jr     nz, @TODO_4981               ; 01:4959 - 20 26
 
-@TODO_495B:
+@is_normal_physics:
    ld     hl, objfunc_00_sonic@sonic_physics_main  ; 01:495B - 21 CB 4D
    ld     de, var_D20E                 ; 01:495E - 11 0E D2
    ld     bc, $0009                    ; 01:4961 - 01 09 00
@@ -8033,11 +8033,11 @@ objfunc_00_sonic:
    ld     (var_D244), hl               ; 01:4975 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:4978 - 2A 0C DC
    ld     (var_DC0A), hl               ; 01:497B - 22 0A DC
-   jp     @TODO_49D9                   ; 01:497E - C3 D9 49
+   jp     @physics_selected            ; 01:497E - C3 D9 49
 
 @TODO_4981:
    bit    7, (ix+24)                   ; 01:4981 - DD CB 18 7E
-   jr     nz, @TODO_495B               ; 01:4985 - 20 D4
+   jr     nz, @is_normal_physics       ; 01:4985 - 20 D4
    ld     hl, objfunc_00_sonic@sonic_physics_UNK_4DD4  ; 01:4987 - 21 D4 4D
    ld     de, var_D20E                 ; 01:498A - 11 0E D2
    ld     bc, $0009                    ; 01:498D - 01 09 00
@@ -8050,9 +8050,9 @@ objfunc_00_sonic:
    ld     (var_D244), hl               ; 01:49A1 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:49A4 - 2A 0C DC
    ld     (var_DC0A), hl               ; 01:49A7 - 22 0A DC
-   jp     @TODO_49D9                   ; 01:49AA - C3 D9 49
+   jp     @physics_selected            ; 01:49AA - C3 D9 49
 
-@TODO_49AD:
+@is_speed_shoes_physics:
    ld     hl, objfunc_00_sonic@sonic_physics_speed_shoes  ; 01:49AD - 21 E6 4D
    ld     de, var_D20E                 ; 01:49B0 - 11 0E D2
    ld     bc, $0009                    ; 01:49B3 - 01 09 00
@@ -8070,7 +8070,7 @@ objfunc_00_sonic:
    and    $03                          ; 01:49D4 - E6 03
    call   z, @fn_handle_speed_shoes_timer  ; 01:49D6 - CC EC 4F
 
-@TODO_49D9:
+@physics_selected:
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49D9 - FD CB 03 4E
    call   z, @fn_TODO_50C1             ; 01:49DD - CC C1 50
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49E0 - FD CB 03 4E
@@ -9176,7 +9176,7 @@ objfunc_00_sonic:
    ld     (sonic_y_sub), a             ; 01:518F - 32 00 D4
    ret                                 ; 01:5192 - C9
 
-@TODO_5193:
+@handle_ending_animation_teleport_in:
    xor    a                            ; 01:5193 - AF
    ld     l, a                         ; 01:5194 - 6F
    ld     h, a                         ; 01:5195 - 67
@@ -9315,7 +9315,7 @@ objfunc_00_sonic:
    ld     (iy+g_sprite_count-IYBASE), c  ; 01:5298 - FD 71 0A
    ret                                 ; 01:529B - C9
 
-@fn_TODO_529C:
+@fn_handle_good_ending_sequence:
    ld     (iy+g_inputs_player_1-IYBASE), $FB  ; 01:529C - FD 36 03 FB
    ld     hl, (sonic_x)                ; 01:52A0 - 2A FE D3
    ld     de, $1B60                    ; 01:52A3 - 11 60 1B
@@ -9331,9 +9331,9 @@ objfunc_00_sonic:
    pop    hl                           ; 01:52B8 - E1
    set    1, (ix+24)                   ; 01:52B9 - DD CB 18 CE
    ld     (ix+20), $18                 ; 01:52BD - DD 36 14 18
-   ld     hl, var_D2FE                 ; 01:52C1 - 21 FE D2
+   ld     hl, g_good_ending_emerald_anim_countdown_timer  ; 01:52C1 - 21 FE D2
    bit    0, (iy+var_D20D-IYBASE)      ; 01:52C4 - FD CB 0D 46
-   jr     nz, @TODO_530B               ; 01:52C8 - 20 41
+   jr     nz, @good_ending_emeralds_already_spawned  ; 01:52C8 - 20 41
    ld     (hl), $50                    ; 01:52CA - 36 50
    call   spawn_object                 ; 01:52CC - CD 7B 7C
    jp     c, @TODO_4C39                ; 01:52CF - DA 39 4C
@@ -9360,23 +9360,23 @@ objfunc_00_sonic:
    set    0, (iy+var_D20D-IYBASE)      ; 01:5304 - FD CB 0D C6
    jp     @TODO_4C39                   ; 01:5308 - C3 39 4C
 
-@TODO_530B:
+@good_ending_emeralds_already_spawned:
    bit    1, (iy+var_D20D-IYBASE)      ; 01:530B - FD CB 0D 4E
-   jr     nz, @TODO_531B               ; 01:530F - 20 0A
+   jr     nz, @good_ending_emerald_anim_0_already_done  ; 01:530F - 20 0A
    dec    (hl)                         ; 01:5311 - 35
    jp     nz, @TODO_4C39               ; 01:5312 - C2 39 4C
    set    1, (iy+var_D20D-IYBASE)      ; 01:5315 - FD CB 0D CE
    ld     (hl), $8C                    ; 01:5319 - 36 8C
 
-@TODO_531B:
+@good_ending_emerald_anim_0_already_done:
    ld     (ix+20), $17                 ; 01:531B - DD 36 14 17
    ld     a, (hl)                      ; 01:531F - 7E
    and    a                            ; 01:5320 - A7
-   jr     z, @TODO_5327                ; 01:5321 - 28 04
+   jr     z, @good_ending_emerald_anim_1_already_done  ; 01:5321 - 28 04
    dec    (hl)                         ; 01:5323 - 35
    jp     @TODO_4C39                   ; 01:5324 - C3 39 4C
 
-@TODO_5327:
+@good_ending_emerald_anim_1_already_done:
    ld     (ix+20), $19                 ; 01:5327 - DD 36 14 19
    jp     @TODO_4C39                   ; 01:532B - C3 39 4C
 
