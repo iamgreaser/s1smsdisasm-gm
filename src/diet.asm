@@ -10552,48 +10552,48 @@ objfunc_00_sonic:
    call   nz, @fn_use_hflipped_in_upside_down_mode_VESTIGIAL  ; 01:4CB6 - C4 0F 52
    ld     a, (sonic_anim_index_ix_20)  ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
-   call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
+   call   z, @fn_use_upspring_sprites  ; 01:4CBE - CC 13 52
    ld     a, (g_sonic_sprite_index_override)  ; 01:4CC1 - 3A 02 D3
    and    a                            ; 01:4CC4 - A7
-   call   nz, @fn_TODO_4E4D            ; 01:4CC5 - C4 4D 4E
+   call   nz, @fn_suppress_sprite_rendering  ; 01:4CC5 - C4 4D 4E
    ld     (sonic_spritemap_ix_15), hl  ; 01:4CC8 - 22 0B D4
    ld     c, $10                       ; 01:4CCB - 0E 10
    ld     a, (sonic_vel_x)             ; 01:4CCD - 3A 04 D4
    and    a                            ; 01:4CD0 - A7
-   jp     p, @TODO_4CD8                ; 01:4CD1 - F2 D8 4C
+   jp     p, @hard_cap_x_vel_was_positive  ; 01:4CD1 - F2 D8 4C
    neg                                 ; 01:4CD4 - ED 44
    ld     c, $F0                       ; 01:4CD6 - 0E F0
 
-@TODO_4CD8:
+@hard_cap_x_vel_was_positive:
    cp     $10                          ; 01:4CD8 - FE 10
-   jr     c, @TODO_4CE0                ; 01:4CDA - 38 04
+   jr     c, @skip_hard_cap_x_vel      ; 01:4CDA - 38 04
    ld     a, c                         ; 01:4CDC - 79
    ld     (sonic_vel_x), a             ; 01:4CDD - 32 04 D4
 
-@TODO_4CE0:
+@skip_hard_cap_x_vel:
    ld     c, $10                       ; 01:4CE0 - 0E 10
    ld     a, (sonic_vel_y)             ; 01:4CE2 - 3A 07 D4
    and    a                            ; 01:4CE5 - A7
-   jp     p, @TODO_4CED                ; 01:4CE6 - F2 ED 4C
+   jp     p, @hard_cap_y_vel_was_positive  ; 01:4CE6 - F2 ED 4C
    neg                                 ; 01:4CE9 - ED 44
    ld     c, $F0                       ; 01:4CEB - 0E F0
 
-@TODO_4CED:
+@hard_cap_y_vel_was_positive:
    cp     $10                          ; 01:4CED - FE 10
-   jr     c, @TODO_4CF5                ; 01:4CEF - 38 04
+   jr     c, @skip_hard_cap_y_vel      ; 01:4CEF - 38 04
    ld     a, c                         ; 01:4CF1 - 79
    ld     (sonic_vel_y), a             ; 01:4CF2 - 32 07 D4
 
-@TODO_4CF5:
+@skip_hard_cap_y_vel:
    ld     de, (sonic_y)                ; 01:4CF5 - ED 5B 01 D4
    ld     hl, $0010                    ; 01:4CF9 - 21 10 00
    and    a                            ; 01:4CFC - A7
    sbc    hl, de                       ; 01:4CFD - ED 52
-   jr     c, @TODO_4D05                ; 01:4CFF - 38 04
+   jr     c, @skip_clamp_sonic_y_pos_top  ; 01:4CFF - 38 04
    add    hl, de                       ; 01:4D01 - 19
    ld     (sonic_y), hl                ; 01:4D02 - 22 01 D4
 
-@TODO_4D05:
+@skip_clamp_sonic_y_pos_top:
    bit    7, (iy+var_D206-IYBASE)      ; 01:4D05 - FD CB 06 7E
    call   nz, @fn_TODO_5224            ; 01:4D09 - C4 24 52
    bit    0, (iy+var_D208-IYBASE)      ; 01:4D0C - FD CB 08 46
@@ -10775,7 +10775,7 @@ objfunc_00_sonic:
    .ENDIF
    ret                                 ; 01:4E4C - C9
 
-@fn_TODO_4E4D:
+@fn_suppress_sprite_rendering:
    ld     hl, $0000                    ; 01:4E4D - 21 00 00
    ret                                 ; 01:4E50 - C9
 
@@ -11342,7 +11342,7 @@ objfunc_00_sonic:
    ld     hl, SPRITEMAP_sonic_hflip    ; 01:520F - 21 2B 59
    ret                                 ; 01:5212 - C9
 
-@fn_TODO_5213:
+@fn_use_upspring_sprites:
    ld     hl, SPRITEMAP_sonic_upspring_right  ; 01:5213 - 21 39 59
    bit    1, (ix+24)                   ; 01:5216 - DD CB 18 4E
    ret    z                            ; 01:521A - C8
@@ -12308,7 +12308,7 @@ UNK_0595D:
 LUT_sonic_anim_ptrs:
 .dw sonic_anim_00_01_walking, sonic_anim_00_01_walking, sonic_anim_02, sonic_anim_03_EMPTY_ANIM_HANGS_GAME, sonic_anim_04, sonic_anim_05, sonic_anim_06, sonic_anim_07_look_down  ; 01:5965
 .dw sonic_anim_08, sonic_anim_09_rolling, sonic_anim_0A_braking, sonic_anim_0B, sonic_anim_0C_look_up, sonic_anim_0D_bored, sonic_anim_0E, sonic_anim_0F  ; 01:5975
-.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17_dropped_rings_00_03  ; 01:5985
+.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13_upspring, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17_dropped_rings_00_03  ; 01:5985
 .dw sonic_anim_18_dropped_rings_01_04, sonic_anim_19_dropped_rings_02_05            ; 01:5995
 
 sonic_anim_00_01_walking:
@@ -12381,7 +12381,7 @@ sonic_anim_11:
 sonic_anim_12:
 .db $00, $FF, $00                                                                   ; 01:5ADE
 
-sonic_anim_13:
+sonic_anim_13_upspring:
 .db $26, $FF, $00                                                                   ; 01:5AE1
 
 sonic_anim_14:
