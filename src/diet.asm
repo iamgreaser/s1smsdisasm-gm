@@ -11135,11 +11135,13 @@ objfunc_00_sonic:
    rst    $28                          ; 01:50A4 - EF
    ret                                 ; 01:50A5 - C9
 
+.IF 0
 @fn_UNUSED_50A6:
    xor    a                            ; 01:50A6 - AF
    ld     (sonic_x_sub), a             ; 01:50A7 - 32 FD D3
    ld     (sonic_x), de                ; 01:50AA - ED 53 FE D3
    ret                                 ; 01:50AE - C9
+.ENDIF
 
 @fn_handle_sonic_landing_SEMIVESTIGIAL:
    exx                                 ; 01:50AF - D9
