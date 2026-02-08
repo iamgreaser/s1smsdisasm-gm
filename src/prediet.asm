@@ -188,7 +188,7 @@ var_D2DB db   ; D2DB
 g_water_level_y dw   ; D2DC
 var_D2DE db   ; D2DE
 var_D2DF db   ; D2DF
-var_D2E0 db   ; D2E0
+g_sonic_x_speed_dependent_anim_subframe db   ; D2E0
 var_D2E1 db   ; D2E1
 var_D2E2 dw   ; D2E2
 var_D2E4 dw   ; D2E4
@@ -8529,7 +8529,7 @@ objfunc_00_sonic:
    and    a                            ; 01:4D1D - A7
    call   nz, @fn_TODO_4E51            ; 01:4D1E - C4 51 4E
    bit    1, (iy+var_D206-IYBASE)      ; 01:4D21 - FD CB 06 4E
-   jr     nz, @TODO_4D81               ; 01:4D25 - 20 5A
+   jr     nz, @continue_past_clamp_sonic_x_pos_right  ; 01:4D25 - 20 5A
    ld     hl, (g_level_limit_x0)       ; 01:4D27 - 2A 73 D2
    ld     bc, $0008                    ; 01:4D2A - 01 08 00
    add    hl, bc                       ; 01:4D2D - 09
@@ -8537,18 +8537,18 @@ objfunc_00_sonic:
    ld     hl, (sonic_x)                ; 01:4D2F - 2A FE D3
    and    a                            ; 01:4D32 - A7
    sbc    hl, de                       ; 01:4D33 - ED 52
-   jr     nc, @TODO_4D4F               ; 01:4D35 - 30 18
+   jr     nc, @skip_clamp_sonic_x_pos_left  ; 01:4D35 - 30 18
    ld     (sonic_x), de                ; 01:4D37 - ED 53 FE D3
    ld     a, (sonic_vel_x_hi)          ; 01:4D3B - 3A 05 D4
    and    a                            ; 01:4D3E - A7
-   jp     p, @TODO_4D81                ; 01:4D3F - F2 81 4D
+   jp     p, @continue_past_clamp_sonic_x_pos_right  ; 01:4D3F - F2 81 4D
    xor    a                            ; 01:4D42 - AF
    ld     (sonic_vel_x_sub), a         ; 01:4D43 - 32 03 D4
    ld     (sonic_vel_x), a             ; 01:4D46 - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 01:4D49 - 32 05 D4
-   jp     @TODO_4D81                   ; 01:4D4C - C3 81 4D
+   jp     @continue_past_clamp_sonic_x_pos_right  ; 01:4D4C - C3 81 4D
 
-@TODO_4D4F:
+@skip_clamp_sonic_x_pos_left:
    ld     hl, (g_level_limit_x1)       ; 01:4D4F - 2A 75 D2
    ld     de, $00F8                    ; 01:4D52 - 11 F8 00
    add    hl, de                       ; 01:4D55 - 19
@@ -8558,24 +8558,24 @@ objfunc_00_sonic:
    add    hl, bc                       ; 01:4D5C - 09
    and    a                            ; 01:4D5D - A7
    sbc    hl, de                       ; 01:4D5E - ED 52
-   jr     c, @TODO_4D81                ; 01:4D60 - 38 1F
+   jr     c, @continue_past_clamp_sonic_x_pos_right  ; 01:4D60 - 38 1F
    ex     de, hl                       ; 01:4D62 - EB
    scf                                 ; 01:4D63 - 37
    sbc    hl, bc                       ; 01:4D64 - ED 42
    ld     (sonic_x), hl                ; 01:4D66 - 22 FE D3
    ld     a, (sonic_vel_x_hi)          ; 01:4D69 - 3A 05 D4
    and    a                            ; 01:4D6C - A7
-   jp     m, @TODO_4D81                ; 01:4D6D - FA 81 4D
+   jp     m, @continue_past_clamp_sonic_x_pos_right  ; 01:4D6D - FA 81 4D
    ld     hl, (sonic_vel_x)            ; 01:4D70 - 2A 04 D4
    or     h                            ; 01:4D73 - B4
    or     l                            ; 01:4D74 - B5
-   jr     z, @TODO_4D81                ; 01:4D75 - 28 0A
+   jr     z, @continue_past_clamp_sonic_x_pos_right  ; 01:4D75 - 28 0A
    xor    a                            ; 01:4D77 - AF
    ld     (sonic_vel_x_sub), a         ; 01:4D78 - 32 03 D4
    ld     (sonic_vel_x), a             ; 01:4D7B - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 01:4D7E - 32 05 D4
 
-@TODO_4D81:
+@continue_past_clamp_sonic_x_pos_right:
    ld     a, (sonic_flags_ix_24)       ; 01:4D81 - 3A 14 D4
    ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
    ld     a, (sonic_anim_index_ix_20)  ; 01:4D87 - 3A 10 D4
@@ -8583,20 +8583,20 @@ objfunc_00_sonic:
    ld     d, $01                       ; 01:4D8D - 16 01
    ld     c, $30                       ; 01:4D8F - 0E 30
    cp     $01                          ; 01:4D91 - FE 01
-   jr     z, @TODO_4DA1                ; 01:4D93 - 28 0C
+   jr     z, @handle_x_speed_dependent_anim  ; 01:4D93 - 28 0C
    ld     d, $06                       ; 01:4D95 - 16 06
    ld     c, $50                       ; 01:4D97 - 0E 50
    cp     $09                          ; 01:4D99 - FE 09
-   jr     z, @TODO_4DA1                ; 01:4D9B - 28 04
+   jr     z, @handle_x_speed_dependent_anim  ; 01:4D9B - 28 04
    inc    (ix+19)                      ; 01:4D9D - DD 34 13
    ret                                 ; 01:4DA0 - C9
 
-@TODO_4DA1:
-   ld     a, (var_D2E0)                ; 01:4DA1 - 3A E0 D2
+@handle_x_speed_dependent_anim:
+   ld     a, (g_sonic_x_speed_dependent_anim_subframe)  ; 01:4DA1 - 3A E0 D2
    ld     b, a                         ; 01:4DA4 - 47
    ld     hl, (sonic_vel_x_sub)        ; 01:4DA5 - 2A 03 D4
    bit    7, h                         ; 01:4DA8 - CB 7C
-   jr     z, @TODO_4DB3                ; 01:4DAA - 28 07
+   jr     z, @x_speed_anim_speed_was_not_negative  ; 01:4DAA - 28 07
    ld     a, l                         ; 01:4DAC - 7D
    cpl                                 ; 01:4DAD - 2F
    ld     l, a                         ; 01:4DAE - 6F
@@ -8605,12 +8605,12 @@ objfunc_00_sonic:
    ld     h, a                         ; 01:4DB1 - 67
    inc    hl                           ; 01:4DB2 - 23
 
-@TODO_4DB3:
+@x_speed_anim_speed_was_not_negative:
    srl    h                            ; 01:4DB3 - CB 3C
    rr     l                            ; 01:4DB5 - CB 1D
    ld     a, l                         ; 01:4DB7 - 7D
    add    a, b                         ; 01:4DB8 - 80
-   ld     (var_D2E0), a                ; 01:4DB9 - 32 E0 D2
+   ld     (g_sonic_x_speed_dependent_anim_subframe), a  ; 01:4DB9 - 32 E0 D2
    ld     a, h                         ; 01:4DBC - 7C
    adc    a, d                         ; 01:4DBD - 8A
    adc    a, (ix+19)                   ; 01:4DBE - DD 8E 13
