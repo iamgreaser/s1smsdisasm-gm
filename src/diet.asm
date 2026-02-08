@@ -10123,7 +10123,7 @@ objfunc_00_sonic:
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49D9 - FD CB 03 4E
    call   z, @fn_try_to_roll           ; 01:49DD - CC C1 50
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49E0 - FD CB 03 4E
-   call   nz, @fn_clear_extra_rolling_flag_SEMIVESTIGAL  ; 01:49E4 - C4 E3 50
+   call   nz, @fn_clear_extra_rolling_flag_SEMIVESTIGIAL  ; 01:49E4 - C4 E3 50
    ld     a, $0F                       ; 01:49E7 - 3E 0F
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -10332,7 +10332,7 @@ objfunc_00_sonic:
    ld     e, c                         ; 01:4B51 - 59
    ld     d, c                         ; 01:4B52 - 51
    bit    7, (ix+24)                   ; 01:4B53 - DD CB 18 7E
-   call   nz, @fn_handle_sonic_landing_SEMIVESTIGAL  ; 01:4B57 - C4 AF 50
+   call   nz, @fn_handle_sonic_landing_SEMIVESTIGIAL  ; 01:4B57 - C4 AF 50
    bit    0, (ix+24)                   ; 01:4B5A - DD CB 18 46
    jp     nz, @update_y_velocity_for_rolling  ; 01:4B5E - C2 07 54
    ld     a, (g_sonic_jump_countdown_timer)  ; 01:4B61 - 3A 8E D2
@@ -10389,7 +10389,7 @@ objfunc_00_sonic:
 
 @TODO_4BBE:
    bit    0, (iy+var_D206-IYBASE)      ; 01:4BBE - FD CB 06 46
-   jr     z, @TODO_4BD6                ; 01:4BC2 - 28 12
+   jr     z, @skip_upside_down_gravity_VESTIGIAL  ; 01:4BC2 - 28 12
    push   hl                           ; 01:4BC4 - E5
    ld     a, e                         ; 01:4BC5 - 7B
    cpl                                 ; 01:4BC6 - 2F
@@ -10406,7 +10406,7 @@ objfunc_00_sonic:
    ld     c, a                         ; 01:4BD4 - 4F
    pop    hl                           ; 01:4BD5 - E1
 
-@TODO_4BD6:
+@skip_upside_down_gravity_VESTIGIAL:
    add    hl, de                       ; 01:4BD6 - 19
    ld     a, b                         ; 01:4BD7 - 78
    adc    a, c                         ; 01:4BD8 - 89
@@ -10546,10 +10546,10 @@ objfunc_00_sonic:
    ld     hl, SPRITEMAP_sonic_normal   ; 01:4CAF - 21 1D 59
    .IF shrink_sonicuncart_interleave
    bit 0, c
-   call nz, @fn_TODO_520F
+   call nz, @fn_use_hflipped_in_upside_down_mode_VESTIGIAL
    .ENDIF
    bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
-   call   nz, @fn_TODO_520F            ; 01:4CB6 - C4 0F 52
+   call   nz, @fn_use_hflipped_in_upside_down_mode_VESTIGIAL  ; 01:4CB6 - C4 0F 52
    ld     a, (sonic_sprite_index_ix_20)  ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
    call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
@@ -11139,7 +11139,7 @@ objfunc_00_sonic:
    ld     (sonic_x), de                ; 01:50AA - ED 53 FE D3
    ret                                 ; 01:50AE - C9
 
-@fn_handle_sonic_landing_SEMIVESTIGAL:
+@fn_handle_sonic_landing_SEMIVESTIGIAL:
    exx                                 ; 01:50AF - D9
    ld     hl, (sonic_y)                ; 01:50B0 - 2A 01 D4
    ld     (g_UNUSED_last_sonic_ground_y), hl  ; 01:50B3 - 22 D9 D2
@@ -11168,7 +11168,7 @@ objfunc_00_sonic:
    set    2, (iy+var_D207-IYBASE)      ; 01:50DE - FD CB 07 D6
    ret                                 ; 01:50E2 - C9
 
-@fn_clear_extra_rolling_flag_SEMIVESTIGAL:
+@fn_clear_extra_rolling_flag_SEMIVESTIGIAL:
    res    2, (iy+var_D207-IYBASE)      ; 01:50E3 - FD CB 07 96
    ret                                 ; 01:50E7 - C9
 
@@ -11337,7 +11337,8 @@ objfunc_00_sonic:
    ld     d, $18                       ; 01:520C - 16 18
    ret                                 ; 01:520E - C9
 
-@fn_TODO_520F:
+;; Here we actually hflip the sprites when walking left.
+@fn_use_hflipped_in_upside_down_mode_VESTIGIAL:
    ld     hl, SPRITEMAP_sonic_hflip    ; 01:520F - 21 2B 59
    ret                                 ; 01:5212 - C9
 
