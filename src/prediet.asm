@@ -183,7 +183,7 @@ g_next_level_override_target db   ; D2D3
 g_tile_flags_index db   ; D2D4
 g_teleport_spec_dest_ptr dw   ; D2D5
 g_random_seed dw   ; D2D7
-var_D2D9 dw   ; D2D9
+g_UNUSED_last_sonic_ground_y dw   ; D2D9
 var_D2DB db   ; D2DB
 g_water_level_y dw   ; D2DC
 var_D2DE db   ; D2DE
@@ -7984,7 +7984,7 @@ objfunc_00_sonic:
    and    a                            ; 01:48F3 - A7
    call   nz, @fn_enforce_directional_input_suppression  ; 01:48F4 - C4 8F 56
    bit    0, (iy+var_D207-IYBASE)      ; 01:48F7 - FD CB 07 46
-   call   nz, @fn_TODO_5100            ; 01:48FB - C4 00 51
+   call   nz, @fn_forbid_rolling_in_special_stage  ; 01:48FB - C4 00 51
    bit    0, (iy+var_D208-IYBASE)      ; 01:48FE - FD CB 08 46
    call   nz, @fn_handle_invincibility  ; 01:4902 - C4 F5 4F
    bit    4, (ix+24)                   ; 01:4905 - DD CB 18 66
@@ -8072,9 +8072,9 @@ objfunc_00_sonic:
 
 @physics_selected:
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49D9 - FD CB 03 4E
-   call   z, @fn_TODO_50C1             ; 01:49DD - CC C1 50
+   call   z, @fn_try_to_roll           ; 01:49DD - CC C1 50
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:49E0 - FD CB 03 4E
-   call   nz, @fn_TODO_50E3            ; 01:49E4 - C4 E3 50
+   call   nz, @fn_clear_extra_rolling_flag_SEMIVESTIGAL  ; 01:49E4 - C4 E3 50
    ld     a, $0F                       ; 01:49E7 - 3E 0F
    ld     (rompage_2), a               ; 01:49E9 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 01:49EC - 32 36 D2
@@ -8273,9 +8273,9 @@ objfunc_00_sonic:
    ld     e, c                         ; 01:4B51 - 59
    ld     d, c                         ; 01:4B52 - 51
    bit    7, (ix+24)                   ; 01:4B53 - DD CB 18 7E
-   call   nz, @fn_TODO_50AF            ; 01:4B57 - C4 AF 50
+   call   nz, @fn_handle_sonic_landing_SEMIVESTIGAL  ; 01:4B57 - C4 AF 50
    bit    0, (ix+24)                   ; 01:4B5A - DD CB 18 46
-   jp     nz, @TODO_5407               ; 01:4B5E - C2 07 54
+   jp     nz, @update_y_velocity_for_rolling  ; 01:4B5E - C2 07 54
    ld     a, (var_D28E)                ; 01:4B61 - 3A 8E D2
    and    a                            ; 01:4B64 - A7
    jr     nz, @TODO_4B79               ; 01:4B65 - 20 12
@@ -9042,17 +9042,17 @@ objfunc_00_sonic:
    ld     (sonic_x), de                ; 01:50AA - ED 53 FE D3
    ret                                 ; 01:50AE - C9
 
-@fn_TODO_50AF:
+@fn_handle_sonic_landing_SEMIVESTIGAL:
    exx                                 ; 01:50AF - D9
    ld     hl, (sonic_y)                ; 01:50B0 - 2A 01 D4
-   ld     (var_D2D9), hl               ; 01:50B3 - 22 D9 D2
+   ld     (g_UNUSED_last_sonic_ground_y), hl  ; 01:50B3 - 22 D9 D2
    exx                                 ; 01:50B6 - D9
    bit    2, (ix+24)                   ; 01:50B7 - DD CB 18 56
    ret    z                            ; 01:50BB - C8
    res    2, (ix+24)                   ; 01:50BC - DD CB 18 96
    ret                                 ; 01:50C0 - C9
 
-@fn_TODO_50C1:
+@fn_try_to_roll:
    bit    2, (ix+24)                   ; 01:50C1 - DD CB 18 56
    ret    nz                           ; 01:50C5 - C0
    bit    0, (ix+24)                   ; 01:50C6 - DD CB 18 46
@@ -9063,15 +9063,15 @@ objfunc_00_sonic:
    ld     hl, (sonic_vel_x_sub)        ; 01:50D4 - 2A 03 D4
    ld     a, l                         ; 01:50D7 - 7D
    or     h                            ; 01:50D8 - B4
-   jr     z, @TODO_50DE                ; 01:50D9 - 28 03
+   jr     z, @skip_rolling_sound_effect  ; 01:50D9 - 28 03
    ld     a, $06                       ; 01:50DB - 3E 06
    rst    $28                          ; 01:50DD - EF
 
-@TODO_50DE:
+@skip_rolling_sound_effect:
    set    2, (iy+var_D207-IYBASE)      ; 01:50DE - FD CB 07 D6
    ret                                 ; 01:50E2 - C9
 
-@fn_TODO_50E3:
+@fn_clear_extra_rolling_flag_SEMIVESTIGAL:
    res    2, (iy+var_D207-IYBASE)      ; 01:50E3 - FD CB 07 96
    ret                                 ; 01:50E7 - C9
 
@@ -9086,7 +9086,7 @@ objfunc_00_sonic:
    res    4, (ix+24)                   ; 01:50FB - DD CB 18 A6
    ret                                 ; 01:50FF - C9
 
-@fn_TODO_5100:
+@fn_forbid_rolling_in_special_stage:
    set    2, (ix+24)                   ; 01:5100 - DD CB 18 D6
    ret                                 ; 01:5104 - C9
 
@@ -9490,7 +9490,7 @@ objfunc_00_sonic:
    ld     (ix+20), $09                 ; 01:5400 - DD 36 14 09
    jp     @update_x_velocity_from_basic_movement  ; 01:5404 - C3 1B 4B
 
-@TODO_5407:
+@update_y_velocity_for_rolling:
    bit    7, (ix+24)                   ; 01:5407 - DD CB 18 7E
    jr     z, @TODO_542E                ; 01:540B - 28 21
    bit    3, (ix+24)                   ; 01:540D - DD CB 18 5E
