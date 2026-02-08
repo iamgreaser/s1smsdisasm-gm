@@ -8422,7 +8422,7 @@ objfunc_00_sonic:
    ld     c, l                         ; 01:4C59 - 4D
    ld     h, $00                       ; 01:4C5A - 26 00
    add    hl, hl                       ; 01:4C5C - 29
-   ld     de, LUT_UNK_05965            ; 01:4C5D - 11 65 59
+   ld     de, LUT_sonic_anim_ptrs      ; 01:4C5D - 11 65 59
    add    hl, de                       ; 01:4C60 - 19
    ld     e, (hl)                      ; 01:4C61 - 5E
    inc    hl                           ; 01:4C62 - 23
@@ -10202,42 +10202,42 @@ SPRITEMAP_sonic_upspring_left:
 UNK_0595D:
 .db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 01:595D
 
-LUT_UNK_05965:
-.dw addr_05999, addr_05999, addr_059CB, addr_059DD, addr_059DF, addr_059E2, addr_059E5, addr_059FB  ; 01:5965
-.dw addr_059FE, addr_05A01, addr_05A53, addr_05A65, addr_05A68, addr_05A6B, addr_05AAF, addr_05AC5  ; 01:5975
-.dw addr_05ACC, addr_05AD0, addr_05ADE, addr_05AE1, addr_05AE4, addr_05AE7, addr_05AEA, addr_05B00  ; 01:5985
-.dw addr_05B03, addr_05B06                                                          ; 01:5995
+LUT_sonic_anim_ptrs:
+.dw sonic_anim_00_01, sonic_anim_00_01, sonic_anim_02, sonic_anim_03, sonic_anim_04, sonic_anim_05, sonic_anim_06, sonic_anim_07  ; 01:5965
+.dw sonic_anim_08, sonic_anim_09, sonic_anim_0A_brake, sonic_anim_0B, sonic_anim_0C, sonic_anim_0D, sonic_anim_0E, sonic_anim_0F  ; 01:5975
+.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17  ; 01:5985
+.dw sonic_anim_18, sonic_anim_19                                                    ; 01:5995
 
-addr_05999:
+sonic_anim_00_01:
 .db $00, $00, $00, $00, $00, $00, $00, $00, $01, $01, $01, $01, $01, $01, $01, $01  ; 01:5999
 .db $02, $02, $02, $02, $02, $02, $02, $02, $03, $03, $03, $03, $03, $03, $03, $03  ; 01:59A9
 .db $04, $04, $04, $04, $04, $04, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05  ; 01:59B9
 .db $FF, $00                                                                        ; 01:59C9
 
-addr_059CB:
+sonic_anim_02:
 .db $0D, $0D, $0D, $0D, $0E, $0E, $0E, $0E, $0F, $0F, $0F, $0F, $10, $10, $10, $10  ; 01:59CB
 .db $FF, $00                                                                        ; 01:59DB
 
-addr_059DD:
+sonic_anim_03:
 .db $FF, $00                                                                        ; 01:59DD
 
-addr_059DF:
+sonic_anim_04:
 .db $13, $FF, $00                                                                   ; 01:59DF
 
-addr_059E2:
+sonic_anim_05:
 .db $06, $FF, $00                                                                   ; 01:59E2
 
-addr_059E5:
+sonic_anim_06:
 .db $08, $08, $08, $08, $09, $09, $09, $09, $0A, $0A, $0A, $0A, $0B, $0B, $0B, $0B  ; 01:59E5
 .db $0C, $0C, $0C, $0C, $FF, $00                                                    ; 01:59F5
 
-addr_059FB:
+sonic_anim_07:
 .db $07, $FF, $00                                                                   ; 01:59FB
 
-addr_059FE:
+sonic_anim_08:
 .db $00, $FF, $00                                                                   ; 01:59FE
 
-addr_05A01:
+sonic_anim_09:
 .db $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C  ; 01:5A01
 .db $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08  ; 01:5A11
 .db $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09  ; 01:5A21
@@ -10245,59 +10245,59 @@ addr_05A01:
 .db $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B  ; 01:5A41
 .db $FF, $00                                                                        ; 01:5A51
 
-addr_05A53:
+sonic_anim_0A_brake:
 .db $13, $13, $13, $13, $13, $13, $13, $13, $25, $25, $25, $25, $25, $25, $25, $25  ; 01:5A53
 .db $FF, $00                                                                        ; 01:5A63
 
-addr_05A65:
+sonic_anim_0B:
 .db $11, $FF, $00                                                                   ; 01:5A65
 
-addr_05A68:
+sonic_anim_0C:
 .db $14, $FF, $00                                                                   ; 01:5A68
 
-addr_05A6B:
+sonic_anim_0D:
 .db $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16  ; 01:5A6B
 .db $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15  ; 01:5A7B
 .db $15, $15, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16  ; 01:5A8B
 .db $16, $16, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17  ; 01:5A9B
 .db $17, $17, $FF, $22                                                              ; 01:5AAB
 
-addr_05AAF:
+sonic_anim_0E:
 .db $19, $19, $19, $19, $1A, $1A, $1B, $1B, $1C, $1C, $1D, $1D, $1E, $1E, $1F, $1F  ; 01:5AAF
 .db $20, $20, $21, $21, $FF, $12                                                    ; 01:5ABF
 
-addr_05AC5:
+sonic_anim_0F:
 .db $0C, $08, $09, $0A, $0B, $FF, $00                                               ; 01:5AC5
 
-addr_05ACC:
+sonic_anim_10:
 .db $12, $12, $FF, $00                                                              ; 01:5ACC
 
-addr_05AD0:
+sonic_anim_11:
 .db $12, $12, $12, $12, $12, $12, $24, $24, $24, $24, $24, $24, $FF, $00            ; 01:5AD0
 
-addr_05ADE:
+sonic_anim_12:
 .db $00, $FF, $00                                                                   ; 01:5ADE
 
-addr_05AE1:
+sonic_anim_13:
 .db $26, $FF, $00                                                                   ; 01:5AE1
 
-addr_05AE4:
+sonic_anim_14:
 .db $22, $FF, $00                                                                   ; 01:5AE4
 
-addr_05AE7:
+sonic_anim_15:
 .db $23, $FF, $00                                                                   ; 01:5AE7
 
-addr_05AEA:
+sonic_anim_16:
 .db $21, $21, $20, $20, $1F, $1F, $1E, $1E, $1D, $1D, $1C, $1C, $1B, $1B, $1A, $1A  ; 01:5AEA
 .db $19, $19, $19, $19, $FF, $12                                                    ; 01:5AFA
 
-addr_05B00:
+sonic_anim_17:
 .db $19, $FF, $00                                                                   ; 01:5B00
 
-addr_05B03:
+sonic_anim_18:
 .db $1A, $FF, $00                                                                   ; 01:5B03
 
-addr_05B06:
+sonic_anim_19:
 .db $1B, $FF, $00                                                                   ; 01:5B06
 
 objfunc_01_monitor_rings:
