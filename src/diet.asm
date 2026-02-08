@@ -303,9 +303,9 @@ sonic_vel_y_hi db   ; D408
 sonic_size_x db   ; D409
 sonic_size_y db   ; D40A
 sonic_spritemap_ix_15 dw   ; D40B
-sonic_ix_17 dw   ; D40D
+sonic_anim_sprite_subindex_ix_17 dw   ; D40D
 sonic_ix_19 db   ; D40F
-sonic_sprite_index_ix_20 db   ; D410
+sonic_anim_index_ix_20 db   ; D410
 sonic_speed_shoes_countdown_timer_ix_21 db   ; D411
 sonic_brake_sound_cooldown_timer_ix_22 db   ; D412
 sonic_ix_23 db   ; D413
@@ -10474,7 +10474,7 @@ objfunc_00_sonic:
    call   nz, @fn_handle_damage_stun_animation_and_deactivation  ; 01:4C44 - C4 BC 51
    bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
    call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
-   ld     a, (sonic_sprite_index_ix_20)  ; 01:4C4E - 3A 10 D4
+   ld     a, (sonic_anim_index_ix_20)  ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
    call   z, @fn_throttled_play_brake_sound_effect  ; 01:4C53 - CC F3 51
    ld     l, (ix+20)                   ; 01:4C56 - DD 6E 14
@@ -10486,7 +10486,7 @@ objfunc_00_sonic:
    ld     e, (hl)                      ; 01:4C61 - 5E
    inc    hl                           ; 01:4C62 - 23
    ld     d, (hl)                      ; 01:4C63 - 56
-   ld     (sonic_ix_17), de            ; 01:4C64 - ED 53 0D D4
+   ld     (sonic_anim_sprite_subindex_ix_17), de  ; 01:4C64 - ED 53 0D D4
    ld     a, (var_D2DF)                ; 01:4C68 - 3A DF D2
    sub    c                            ; 01:4C6B - 91
    call   nz, @fn_TODO_521F            ; 01:4C6C - C4 1F 52
@@ -10550,7 +10550,7 @@ objfunc_00_sonic:
    .ENDIF
    bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
    call   nz, @fn_use_hflipped_in_upside_down_mode_VESTIGIAL  ; 01:4CB6 - C4 0F 52
-   ld     a, (sonic_sprite_index_ix_20)  ; 01:4CB9 - 3A 10 D4
+   ld     a, (sonic_anim_index_ix_20)  ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
    call   z, @fn_TODO_5213             ; 01:4CBE - CC 13 52
    ld     a, (g_sonic_sprite_index_override)  ; 01:4CC1 - 3A 02 D3
@@ -10654,7 +10654,7 @@ objfunc_00_sonic:
 @TODO_4D81:
    ld     a, (sonic_flags_ix_24)       ; 01:4D81 - 3A 14 D4
    ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
-   ld     a, (sonic_sprite_index_ix_20)  ; 01:4D87 - 3A 10 D4
+   ld     a, (sonic_anim_index_ix_20)  ; 01:4D87 - 3A 10 D4
    ld     (var_D2DF), a                ; 01:4D8A - 32 DF D2
    ld     d, $01                       ; 01:4D8D - 16 01
    ld     c, $30                       ; 01:4D8F - 0E 30
@@ -12306,12 +12306,12 @@ UNK_0595D:
 .db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 01:595D
 
 LUT_sonic_anim_ptrs:
-.dw sonic_anim_00_01, sonic_anim_00_01, sonic_anim_02, sonic_anim_03, sonic_anim_04, sonic_anim_05, sonic_anim_06, sonic_anim_07  ; 01:5965
-.dw sonic_anim_08, sonic_anim_09, sonic_anim_0A_brake, sonic_anim_0B, sonic_anim_0C, sonic_anim_0D, sonic_anim_0E, sonic_anim_0F  ; 01:5975
-.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17  ; 01:5985
-.dw sonic_anim_18, sonic_anim_19                                                    ; 01:5995
+.dw sonic_anim_00_01_walking, sonic_anim_00_01_walking, sonic_anim_02, sonic_anim_03_EMPTY_ANIM_HANGS_GAME, sonic_anim_04, sonic_anim_05, sonic_anim_06, sonic_anim_07_look_down  ; 01:5965
+.dw sonic_anim_08, sonic_anim_09_rolling, sonic_anim_0A_braking, sonic_anim_0B, sonic_anim_0C_look_up, sonic_anim_0D_bored, sonic_anim_0E, sonic_anim_0F  ; 01:5975
+.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17_dropped_rings_00_03  ; 01:5985
+.dw sonic_anim_18_dropped_rings_01_04, sonic_anim_19_dropped_rings_02_05            ; 01:5995
 
-sonic_anim_00_01:
+sonic_anim_00_01_walking:
 .db $00, $00, $00, $00, $00, $00, $00, $00, $01, $01, $01, $01, $01, $01, $01, $01  ; 01:5999
 .db $02, $02, $02, $02, $02, $02, $02, $02, $03, $03, $03, $03, $03, $03, $03, $03  ; 01:59A9
 .db $04, $04, $04, $04, $04, $04, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05  ; 01:59B9
@@ -12321,7 +12321,7 @@ sonic_anim_02:
 .db $0D, $0D, $0D, $0D, $0E, $0E, $0E, $0E, $0F, $0F, $0F, $0F, $10, $10, $10, $10  ; 01:59CB
 .db $FF, $00                                                                        ; 01:59DB
 
-sonic_anim_03:
+sonic_anim_03_EMPTY_ANIM_HANGS_GAME:
 .db $FF, $00                                                                        ; 01:59DD
 
 sonic_anim_04:
@@ -12334,13 +12334,13 @@ sonic_anim_06:
 .db $08, $08, $08, $08, $09, $09, $09, $09, $0A, $0A, $0A, $0A, $0B, $0B, $0B, $0B  ; 01:59E5
 .db $0C, $0C, $0C, $0C, $FF, $00                                                    ; 01:59F5
 
-sonic_anim_07:
+sonic_anim_07_look_down:
 .db $07, $FF, $00                                                                   ; 01:59FB
 
 sonic_anim_08:
 .db $00, $FF, $00                                                                   ; 01:59FE
 
-sonic_anim_09:
+sonic_anim_09_rolling:
 .db $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C, $0C  ; 01:5A01
 .db $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08  ; 01:5A11
 .db $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09  ; 01:5A21
@@ -12348,17 +12348,17 @@ sonic_anim_09:
 .db $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B  ; 01:5A41
 .db $FF, $00                                                                        ; 01:5A51
 
-sonic_anim_0A_brake:
+sonic_anim_0A_braking:
 .db $13, $13, $13, $13, $13, $13, $13, $13, $25, $25, $25, $25, $25, $25, $25, $25  ; 01:5A53
 .db $FF, $00                                                                        ; 01:5A63
 
 sonic_anim_0B:
 .db $11, $FF, $00                                                                   ; 01:5A65
 
-sonic_anim_0C:
+sonic_anim_0C_look_up:
 .db $14, $FF, $00                                                                   ; 01:5A68
 
-sonic_anim_0D:
+sonic_anim_0D_bored:
 .db $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16  ; 01:5A6B
 .db $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15, $15  ; 01:5A7B
 .db $15, $15, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16, $16  ; 01:5A8B
@@ -12395,21 +12395,21 @@ sonic_anim_16:
 .db $19, $19, $19, $19, $FF, $12                                                    ; 01:5AFA
 
 .IF shrink_sonicuncart_interleave
-sonic_anim_17:
+sonic_anim_17_dropped_rings_00_03:
 .db $19+($27-$19), $FF, $00
-sonic_anim_18:
+sonic_anim_18_dropped_rings_01_04:
 .db $1A+($27-$19), $FF, $00
-sonic_anim_19:
+sonic_anim_19_dropped_rings_02_05:
 .db $1B+($27-$19), $FF, $00
 
 .ELSE
-sonic_anim_17:
+sonic_anim_17_dropped_rings_00_03:
 .db $19, $FF, $00                                                                   ; 01:5B00
 
-sonic_anim_18:
+sonic_anim_18_dropped_rings_01_04:
 .db $1A, $FF, $00                                                                   ; 01:5B03
 
-sonic_anim_19:
+sonic_anim_19_dropped_rings_02_05:
 .db $1B, $FF, $00                                                                   ; 01:5B06
 .ENDIF
 
