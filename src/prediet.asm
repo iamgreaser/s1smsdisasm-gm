@@ -201,10 +201,10 @@ var_D2ED db   ; D2ED (auto)
 var_D2EE db   ; D2EE
 .  dsb 3
 g_object_count db   ; D2F2
-var_D2F3 db   ; D2F3 (auto)
-.  dsb 3
-var_D2F7 db   ; D2F7 (auto)
-.  dsb 3
+g_invincibility_sparkle_position_buffer_0 dw   ; D2F3
+.  dsb 2
+g_invincibility_sparkle_position_buffer_1 dw   ; D2F7
+.  dsb 2
 var_D2FB db   ; D2FB
 g_level_music db   ; D2FC
 var_D2FD db   ; D2FD
@@ -8523,13 +8523,13 @@ objfunc_00_sonic:
    bit    7, (iy+var_D206-IYBASE)      ; 01:4D05 - FD CB 06 7E
    call   nz, @fn_TODO_5224            ; 01:4D09 - C4 24 52
    bit    0, (iy+var_D208-IYBASE)      ; 01:4D0C - FD CB 08 46
-   call   nz, @fn_TODO_4E8D            ; 01:4D10 - C4 8D 4E
+   call   nz, @fn_handle_invincibility_sparkle_sprite  ; 01:4D10 - C4 8D 4E
    ld     a, (var_D2E1)                ; 01:4D13 - 3A E1 D2
    and    a                            ; 01:4D16 - A7
    call   nz, @fn_TODO_5231            ; 01:4D17 - C4 31 52
    ld     a, (g_ring_sparkle_sprite_countdown_timer)  ; 01:4D1A - 3A 21 D3
    and    a                            ; 01:4D1D - A7
-   call   nz, @fn_handle_ring_sparkle_sprite  ; 01:4D1E - C4 51 4E
+   call   nz, @fn_handle_ring_sparkle_sprites  ; 01:4D1E - C4 51 4E
    bit    1, (iy+var_D206-IYBASE)      ; 01:4D21 - FD CB 06 4E
    jr     nz, @continue_past_clamp_sonic_x_pos_right  ; 01:4D25 - 20 5A
    ld     hl, (g_level_limit_x0)       ; 01:4D27 - 2A 73 D2
@@ -8700,7 +8700,7 @@ objfunc_00_sonic:
    ld     hl, $0000                    ; 01:4E4D - 21 00 00
    ret                                 ; 01:4E50 - C9
 
-@fn_handle_ring_sparkle_sprite:
+@fn_handle_ring_sparkle_sprites:
    dec    a                            ; 01:4E51 - 3D
    ld     (g_ring_sparkle_sprite_countdown_timer), a  ; 01:4E52 - 32 21 D3
    ld     hl, (g_ring_sparkle_sprite_x)  ; 01:4E55 - 2A 1D D3
@@ -8729,19 +8729,19 @@ objfunc_00_sonic:
    set    1, (iy+var_D208-IYBASE)      ; 01:4E88 - FD CB 08 CE
    ret                                 ; 01:4E8C - C9
 
-@fn_TODO_4E8D:
+@fn_handle_invincibility_sparkle_sprite:
    ld     hl, (sonic_x)                ; 01:4E8D - 2A FE D3
    ld     (var_D20E), hl               ; 01:4E90 - 22 0E D2
    ld     hl, (sonic_y)                ; 01:4E93 - 2A 01 D4
    ld     (var_D210), hl               ; 01:4E96 - 22 10 D2
-   ld     hl, var_D2F3                 ; 01:4E99 - 21 F3 D2
+   ld     hl, g_invincibility_sparkle_position_buffer_0  ; 01:4E99 - 21 F3 D2
    ld     a, (g_global_tick_counter)   ; 01:4E9C - 3A 23 D2
    rrca                                ; 01:4E9F - 0F
    rrca                                ; 01:4EA0 - 0F
-   jr     nc, @TODO_4EA6               ; 01:4EA1 - 30 03
-   ld     hl, var_D2F7                 ; 01:4EA3 - 21 F7 D2
+   jr     nc, @update_first_invisibility_sparkle_pos  ; 01:4EA1 - 30 03
+   ld     hl, g_invincibility_sparkle_position_buffer_1  ; 01:4EA3 - 21 F7 D2
 
-@TODO_4EA6:
+@update_first_invisibility_sparkle_pos:
    ld     de, var_D212                 ; 01:4EA6 - 11 12 D2
    ldi                                 ; 01:4EA9 - ED A0
    ldi                                 ; 01:4EAB - ED A0
@@ -8749,22 +8749,22 @@ objfunc_00_sonic:
    ldi                                 ; 01:4EAF - ED A0
    rrca                                ; 01:4EB1 - 0F
    ld     a, $94                       ; 01:4EB2 - 3E 94
-   jr     nc, @TODO_4EB8               ; 01:4EB4 - 30 02
+   jr     nc, @use_first_invisibility_sparkle_sprite_graphic  ; 01:4EB4 - 30 02
    ld     a, $96                       ; 01:4EB6 - 3E 96
 
-@TODO_4EB8:
+@use_first_invisibility_sparkle_sprite_graphic:
    call   draw_sprite                  ; 01:4EB8 - CD 81 35
    ld     a, (g_global_tick_counter)   ; 01:4EBB - 3A 23 D2
    ld     c, a                         ; 01:4EBE - 4F
    and    $07                          ; 01:4EBF - E6 07
    ret    nz                           ; 01:4EC1 - C0
    ld     b, $02                       ; 01:4EC2 - 06 02
-   ld     hl, var_D2F3                 ; 01:4EC4 - 21 F3 D2
+   ld     hl, g_invincibility_sparkle_position_buffer_0  ; 01:4EC4 - 21 F3 D2
    bit    3, c                         ; 01:4EC7 - CB 59
-   jr     z, @TODO_4ECE                ; 01:4EC9 - 28 03
-   ld     hl, var_D2F7                 ; 01:4ECB - 21 F7 D2
+   jr     z, @each_invincibility_sparkle_coordinate  ; 01:4EC9 - 28 03
+   ld     hl, g_invincibility_sparkle_position_buffer_1  ; 01:4ECB - 21 F7 D2
 
-@TODO_4ECE:
+@each_invincibility_sparkle_coordinate:
    push   hl                           ; 01:4ECE - E5
    call   random_A                     ; 01:4ECF - CD 25 06
    pop    hl                           ; 01:4ED2 - E1
@@ -8773,7 +8773,7 @@ objfunc_00_sonic:
    inc    hl                           ; 01:4ED6 - 23
    ld     (hl), $00                    ; 01:4ED7 - 36 00
    inc    hl                           ; 01:4ED9 - 23
-   djnz   @TODO_4ECE                   ; 01:4EDA - 10 F2
+   djnz   @each_invincibility_sparkle_coordinate  ; 01:4EDA - 10 F2
    ret                                 ; 01:4EDC - C9
 
 @fn_camera_look_up:
