@@ -84,7 +84,7 @@ g_level db   ; D23E
 g_next_bonus_level db   ; D23F
 g_sonic_x_speed_cap_subpx dw   ; D240
 g_sonic_y_jump_velocity dw   ; D242
-var_D244 dw   ; D244
+g_sonic_y_gravity_acceleration dw   ; D244
 g_lives db   ; D246
 g_water_irq_line_state db   ; D247
 g_water_onscreen_y db   ; D248
@@ -8010,7 +8010,7 @@ objfunc_00_sonic:
    ld     hl, $FD80                    ; 01:4940 - 21 80 FD
    ld     (g_sonic_y_jump_velocity), hl  ; 01:4943 - 22 42 D2
    ld     hl, $0010                    ; 01:4946 - 21 10 00
-   ld     (var_D244), hl               ; 01:4949 - 22 44 D2
+   ld     (g_sonic_y_gravity_acceleration), hl  ; 01:4949 - 22 44 D2
    jp     @physics_selected            ; 01:494C - C3 D9 49
 
 @not_underwater_physics:
@@ -8030,7 +8030,7 @@ objfunc_00_sonic:
    ld     hl, $FC80                    ; 01:496C - 21 80 FC
    ld     (g_sonic_y_jump_velocity), hl  ; 01:496F - 22 42 D2
    ld     hl, $0038                    ; 01:4972 - 21 38 00
-   ld     (var_D244), hl               ; 01:4975 - 22 44 D2
+   ld     (g_sonic_y_gravity_acceleration), hl  ; 01:4975 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:4978 - 2A 0C DC
    ld     (var_DC0A), hl               ; 01:497B - 22 0A DC
    jp     @physics_selected            ; 01:497E - C3 D9 49
@@ -8047,7 +8047,7 @@ objfunc_00_sonic:
    ld     hl, $FC80                    ; 01:4998 - 21 80 FC
    ld     (g_sonic_y_jump_velocity), hl  ; 01:499B - 22 42 D2
    ld     hl, $0038                    ; 01:499E - 21 38 00
-   ld     (var_D244), hl               ; 01:49A1 - 22 44 D2
+   ld     (g_sonic_y_gravity_acceleration), hl  ; 01:49A1 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:49A4 - 2A 0C DC
    ld     (var_DC0A), hl               ; 01:49A7 - 22 0A DC
    jp     @physics_selected            ; 01:49AA - C3 D9 49
@@ -8062,7 +8062,7 @@ objfunc_00_sonic:
    ld     hl, $FC80                    ; 01:49BE - 21 80 FC
    ld     (g_sonic_y_jump_velocity), hl  ; 01:49C1 - 22 42 D2
    ld     hl, $0038                    ; 01:49C4 - 21 38 00
-   ld     (var_D244), hl               ; 01:49C7 - 22 44 D2
+   ld     (g_sonic_y_gravity_acceleration), hl  ; 01:49C7 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:49CA - 2A 0C DC
    inc    hl                           ; 01:49CD - 23
    ld     (var_DC0A), hl               ; 01:49CE - 22 0A DC
@@ -8325,7 +8325,7 @@ objfunc_00_sonic:
    jr     c, @TODO_4BBE                ; 01:4BB6 - 38 06
 
 @TODO_4BB8:
-   ld     de, (var_D244)               ; 01:4BB8 - ED 5B 44 D2
+   ld     de, (g_sonic_y_gravity_acceleration)  ; 01:4BB8 - ED 5B 44 D2
    ld     c, $00                       ; 01:4BBC - 0E 00
 
 @TODO_4BBE:
