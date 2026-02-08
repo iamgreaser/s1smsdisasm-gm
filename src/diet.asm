@@ -136,7 +136,7 @@ var_D23C dw   ; D23C
 g_level db   ; D23E
 g_next_bonus_level db   ; D23F
 g_sonic_x_speed_cap_subpx dw   ; D240
-var_D242 dw   ; D242
+g_sonic_y_jump_velocity dw   ; D242
 var_D244 dw   ; D244
 g_lives db   ; D246
 g_water_irq_line_state db   ; D247
@@ -10057,7 +10057,7 @@ objfunc_00_sonic:
    ld     hl, $0100                    ; 01:493A - 21 00 01
    ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:493D - 22 40 D2
    ld     hl, $FD80                    ; 01:4940 - 21 80 FD
-   ld     (var_D242), hl               ; 01:4943 - 22 42 D2
+   ld     (g_sonic_y_jump_velocity), hl  ; 01:4943 - 22 42 D2
    ld     hl, $0010                    ; 01:4946 - 21 10 00
    ld     (var_D244), hl               ; 01:4949 - 22 44 D2
    jp     @physics_selected            ; 01:494C - C3 D9 49
@@ -10077,7 +10077,7 @@ objfunc_00_sonic:
    ld     hl, $0300                    ; 01:4966 - 21 00 03
    ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:4969 - 22 40 D2
    ld     hl, $FC80                    ; 01:496C - 21 80 FC
-   ld     (var_D242), hl               ; 01:496F - 22 42 D2
+   ld     (g_sonic_y_jump_velocity), hl  ; 01:496F - 22 42 D2
    ld     hl, $0038                    ; 01:4972 - 21 38 00
    ld     (var_D244), hl               ; 01:4975 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:4978 - 2A 0C DC
@@ -10094,7 +10094,7 @@ objfunc_00_sonic:
    ld     hl, $0C00                    ; 01:4992 - 21 00 0C
    ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:4995 - 22 40 D2
    ld     hl, $FC80                    ; 01:4998 - 21 80 FC
-   ld     (var_D242), hl               ; 01:499B - 22 42 D2
+   ld     (g_sonic_y_jump_velocity), hl  ; 01:499B - 22 42 D2
    ld     hl, $0038                    ; 01:499E - 21 38 00
    ld     (var_D244), hl               ; 01:49A1 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:49A4 - 2A 0C DC
@@ -10109,7 +10109,7 @@ objfunc_00_sonic:
    ld     hl, $0600                    ; 01:49B8 - 21 00 06
    ld     (g_sonic_x_speed_cap_subpx), hl  ; 01:49BB - 22 40 D2
    ld     hl, $FC80                    ; 01:49BE - 21 80 FC
-   ld     (var_D242), hl               ; 01:49C1 - 22 42 D2
+   ld     (g_sonic_y_jump_velocity), hl  ; 01:49C1 - 22 42 D2
    ld     hl, $0038                    ; 01:49C4 - 21 38 00
    ld     (var_D244), hl               ; 01:49C7 - 22 44 D2
    ld     hl, (var_DC0C)               ; 01:49CA - 2A 0C DC
@@ -10353,7 +10353,7 @@ objfunc_00_sonic:
    ld     a, (g_sonic_jump_countdown_timer)  ; 01:4B7F - 3A 8E D2
    and    a                            ; 01:4B82 - A7
    call   z, @fn_start_jump_timer      ; 01:4B83 - CC 9D 50
-   ld     hl, (var_D242)               ; 01:4B86 - 2A 42 D2
+   ld     hl, (g_sonic_y_jump_velocity)  ; 01:4B86 - 2A 42 D2
    ld     b, $FF                       ; 01:4B89 - 06 FF
    ld     c, $00                       ; 01:4B8B - 0E 00
    ld     e, c                         ; 01:4B8D - 59
