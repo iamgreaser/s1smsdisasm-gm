@@ -55,6 +55,10 @@
 ;; Get objects from a freelist instead of searching the list every time.
 .DEF opt_object_freelist 1
 
+;; Don't show the world map between levels.
+;; CURRENT SAVING: 1528 bytes in bank $00
+.DEF mod_skip_world_map 1
+
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
 SLOT 1 START $4000 SIZE $4000
@@ -3197,6 +3201,7 @@ write_partial_monitor_art:
    ei                                  ; 00:0C50 - FB
    ret                                 ; 00:0C51 - C9
 
+.IF !mod_skip_world_map
 addr_00C52:
    xor    a                            ; 00:0C52 - AF
    ld     (g_vdp_scroll_x), a          ; 00:0C53 - 32 51 D2
@@ -3497,6 +3502,7 @@ LUT_00E7E:
 LUT_00E82:
 .dw addr_01183                                                                      ; 00:0E82
 .db $04, $00                                                                        ; 00:0E84
+.ENDIF  ; IF !mod_skip_world_map
 
 .IF 0
 .ELSE
@@ -3518,6 +3524,7 @@ calc_lives_output:
    ; SAVING: 61 bytes
 .ENDIF
 
+.IF !mod_skip_world_map
 addr_00E86:
    push   hl                           ; 00:0E86 - E5
    push   de                           ; 00:0E87 - D5
@@ -3905,6 +3912,8 @@ addr_01269:
 
 addr_01278:
 .db $10, $13, $AE, $6E, $DE, $EB, $1F, $1E, $AE, $3E, $EB, $EB, $EB, $EB, $FF       ; 00:1278
+
+.ENDIF  ; IF !mod_skip_world_map
 
 run_title_screen:
    ;; Display off (blanked)
@@ -5413,7 +5422,16 @@ addr_01C9F:
    res    0, (iy+var_D202-IYBASE)      ; 00:1CA6 - FD CB 02 86
    res    1, (iy+var_D202-IYBASE)      ; 00:1CAA - FD CB 02 8E
    call   clear_sprite_table           ; 00:1CAE - CD E2 05
+.IF mod_skip_world_map
+   ;; Work around a bug that occurs here:
+   ;; Without this, if you end a level such that the next level has the same music,
+   ;; then when the music is stopped, the music does not get restarted.
+   ;; Typically happens on GHZ1 where the invincibility runs out after the signpost is spun.
+   ld a, $FF
+   ld (g_current_music), a
+.ELSE
    call   addr_00C52                   ; 00:1CB1 - CD 52 0C
+.ENDIF
    bit    1, (iy+var_D205-IYBASE)      ; 00:1CB4 - FD CB 05 4E
    jr     z, addr_01CBD                ; 00:1CB8 - 28 03
    .IF 0
