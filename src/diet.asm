@@ -11070,7 +11070,7 @@ objfunc_00_sonic:
    ret    c                            ; 01:5022 - D8
    ld     a, $05                       ; 01:5023 - 3E 05
    sub    h                            ; 01:5025 - 94
-   jr     nc, @TODO_5051               ; 01:5026 - 30 29
+   jr     nc, @dont_drown_yet          ; 01:5026 - 30 29
    res    5, (iy+var_D206-IYBASE)      ; 01:5028 - FD CB 06 AE
    res    6, (iy+var_D206-IYBASE)      ; 01:502C - FD CB 06 B6
    res    0, (iy+var_D208-IYBASE)      ; 01:5030 - FD CB 08 86
@@ -11086,7 +11086,7 @@ objfunc_00_sonic:
    call   spawn_bubble                 ; 01:504D - CD EB 91
    xor    a                            ; 01:5050 - AF
 
-@TODO_5051:
+@dont_drown_yet:
    ld     e, a                         ; 01:5051 - 5F
    add    a, a                         ; 01:5052 - 87
    add    a, $80                       ; 01:5053 - C6 80
@@ -11094,15 +11094,15 @@ objfunc_00_sonic:
    ld     a, $FF                       ; 01:5058 - 3E FF
    ld     (var_D2BF), a                ; 01:505A - 32 BF D2
    ld     d, $00                       ; 01:505D - 16 00
-   ld     hl, objfunc_00_sonic@TODO_UNK_05097  ; 01:505F - 21 97 50
+   ld     hl, objfunc_00_sonic@beep_period_masks_per_air_countdown  ; 01:505F - 21 97 50
    add    hl, de                       ; 01:5062 - 19
    ld     a, (g_global_tick_counter)   ; 01:5063 - 3A 23 D2
    and    (hl)                         ; 01:5066 - A6
-   jr     nz, @TODO_506C               ; 01:5067 - 20 03
+   jr     nz, @skip_beep_sound         ; 01:5067 - 20 03
    ld     a, $1A                       ; 01:5069 - 3E 1A
    rst    $28                          ; 01:506B - EF
 
-@TODO_506C:
+@skip_beep_sound:
    ld     a, (g_global_tick_counter)   ; 01:506C - 3A 23 D2
    rrca                                ; 01:506F - 0F
    ret    nc                           ; 01:5070 - D0
@@ -11125,7 +11125,7 @@ objfunc_00_sonic:
    call   draw_sprite_text             ; 01:5093 - CD CC 35
    ret                                 ; 01:5096 - C9
 
-@TODO_UNK_05097:
+@beep_period_masks_per_air_countdown:
 .db $01, $07, $0F, $1F, $3F, $7F                                                    ; 01:5097
 
 @fn_start_jump_timer:
