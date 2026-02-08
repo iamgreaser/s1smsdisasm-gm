@@ -59,6 +59,13 @@
 ;; CURRENT SAVING: 1528 bytes in bank $00
 .DEF mod_skip_world_map 1
 
+;; Don't show the score tally between levels.
+;; CURRENT SAVING: 404 bytes in bank $00
+;; FIXME: This does a fade-to-black followed by another fade (either fade-to-black or fade-to-white depending on if it's a special stage).
+;; Commenting out the call to 00:0A40 at 00:1FC4 results in at least one of those fades having a borked palette.
+;; I need to find a solution for the double-fade. --GM
+.DEF mod_skip_score_tally 1
+
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
 SLOT 1 START $4000 SIZE $4000
@@ -4313,6 +4320,7 @@ LUT_time_bonus_scores:
 .dw addr_0151E, addr_01522, addr_01526, addr_0152A, addr_0152E, addr_01532, addr_01536, addr_0153A  ; 00:154E
 
 handle_level_score_screen:
+.IF !mod_skip_score_tally
    ld     a, (g_level)                 ; 00:155E - 3A 3E D2
    cp     $13                          ; 00:1561 - FE 13
    jp     z, _handle_level_score_screen_13  ; 00:1563 - CA 2F 17
@@ -4514,6 +4522,7 @@ _handle_level_score_screen_UNK_01658:
 
 +:
    ret                                 ; 00:16D8 - C9
+.ENDIF  ; IF !mod_skip_score_tally
 
 addr_016D9:
    ld     b, a                         ; 00:16D9 - 47
@@ -4551,6 +4560,7 @@ addr_016F6:
    djnz   addr_016F6                   ; 00:170E - 10 E6
    ret                                 ; 00:1710 - C9
 
+.IF !mod_skip_score_tally
 LUT_01711:
 .db $14, $AD, $AE, $FF, $15, $BD, $BE, $FF                                          ; 00:1711
 
@@ -4568,6 +4578,7 @@ addr_01726:
    ret                                 ; 00:172E - C9
 
 _handle_level_score_screen_13:
+.ENDIF  ; IF !mod_skip_score_tally
    ld     a, $FF                       ; 00:172F - 3E FF
    ld     (var_D2FD), a                ; 00:1731 - 32 FD D2
    ld     c, $00                       ; 00:1734 - 0E 00
@@ -5917,7 +5928,9 @@ update_signpost_timer:
    bit    7, (iy+var_D206-IYBASE)      ; 00:1FD9 - FD CB 06 7E
    call   nz, addr_020A4               ; 00:1FDD - C4 A4 20
    call   clear_sprite_table           ; 00:1FE0 - CD E2 05
+   .IF !mod_skip_score_tally
    call   handle_level_score_screen    ; 00:1FE3 - CD 5E 15
+   .ENDIF
    ld     a, (g_level)                 ; 00:1FE6 - 3A 3E D2
    cp     $1A                          ; 00:1FE9 - FE 1A
    jr     nc, @level_was_bonus         ; 00:1FEB - 30 28
