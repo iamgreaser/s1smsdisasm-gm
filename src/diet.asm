@@ -10597,7 +10597,7 @@ objfunc_00_sonic:
 
 @skip_clamp_sonic_y_pos_top:
    bit    7, (iy+var_D206-IYBASE)      ; 01:4D05 - FD CB 06 7E
-   call   nz, @fn_TODO_5224            ; 01:4D09 - C4 24 52
+   call   nz, @fn_blow_a_bubble_periodically  ; 01:4D09 - C4 24 52
    bit    0, (iy+var_D208-IYBASE)      ; 01:4D0C - FD CB 08 46
    call   nz, @fn_handle_invincibility_sparkle_sprite  ; 01:4D10 - C4 8D 4E
    ld     a, (var_D2E1)                ; 01:4D13 - 3A E1 D2
@@ -11080,10 +11080,10 @@ objfunc_00_sonic:
    ld     (g_level_restart_countdown_timer), a  ; 01:503E - 32 87 D2
    ld     a, $0A                       ; 01:5041 - 3E 0A
    rst    $18                          ; 01:5043 - DF
-   call   UNK_091EB                    ; 01:5044 - CD EB 91
-   call   UNK_091EB                    ; 01:5047 - CD EB 91
-   call   UNK_091EB                    ; 01:504A - CD EB 91
-   call   UNK_091EB                    ; 01:504D - CD EB 91
+   call   spawn_bubble                 ; 01:5044 - CD EB 91
+   call   spawn_bubble                 ; 01:5047 - CD EB 91
+   call   spawn_bubble                 ; 01:504A - CD EB 91
+   call   spawn_bubble                 ; 01:504D - CD EB 91
    xor    a                            ; 01:5050 - AF
 
 @TODO_5051:
@@ -11357,12 +11357,12 @@ objfunc_00_sonic:
    ld     (ix+19), $00                 ; 01:521F - DD 36 13 00
    ret                                 ; 01:5223 - C9
 
-@fn_TODO_5224:
+@fn_blow_a_bubble_periodically:
    bit    4, (ix+24)                   ; 01:5224 - DD CB 18 66
    ret    z                            ; 01:5228 - C8
    ld     a, (g_global_tick_counter)   ; 01:5229 - 3A 23 D2
    and    a                            ; 01:522C - A7
-   call   z, UNK_091EB                 ; 01:522D - CC EB 91
+   call   z, spawn_bubble              ; 01:522D - CC EB 91
    ret                                 ; 01:5230 - C9
 
 @fn_TODO_5231:
@@ -16993,7 +16993,7 @@ addr_088A2:
    inc    (ix+17)                      ; 02:88A8 - DD 34 11
    call   random_A                     ; 02:88AB - CD 25 06
    and    $1E                          ; 02:88AE - E6 1E
-   call   z, UNK_091EB                 ; 02:88B0 - CC EB 91
+   call   z, spawn_bubble              ; 02:88B0 - CC EB 91
    ret                                 ; 02:88B3 - C9
 
 UNK_088B4:
@@ -17485,7 +17485,7 @@ objfunc_41_UNKNOWN:
    ld     hl, UNK_08EC2                ; 02:8E69 - 21 C2 8E
    add    hl, de                       ; 02:8E6C - 19
    bit    0, (hl)                      ; 02:8E6D - CB 46
-   call   nz, UNK_091EB                ; 02:8E6F - C4 EB 91
+   call   nz, spawn_bubble             ; 02:8E6F - C4 EB 91
 
 addr_08E72:
    ld     l, (ix+2)                    ; 02:8E72 - DD 6E 02
@@ -17863,24 +17863,24 @@ addr_091D1:
 UNK_091DE:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $16, $18, $1A, $1C, $FF, $FF, $FF                 ; 02:91DE
 
-UNK_091EB:
+spawn_bubble:
    call   spawn_object                 ; 02:91EB - CD 7B 7C
    ret    c                            ; 02:91EE - D8
    ld     c, $42                       ; 02:91EF - 0E 42
    ld     a, (ix+0)                    ; 02:91F1 - DD 7E 00
    cp     $41                          ; 02:91F4 - FE 41
-   jr     nz, addr_09207               ; 02:91F6 - 20 0F
+   jr     nz, @not_type_41             ; 02:91F6 - 20 0F
    push   hl                           ; 02:91F8 - E5
    call   random_A                     ; 02:91F9 - CD 25 06
    and    $0F                          ; 02:91FC - E6 0F
    ld     e, a                         ; 02:91FE - 5F
    ld     d, $00                       ; 02:91FF - 16 00
-   ld     hl, UNK_09257                ; 02:9201 - 21 57 92
+   ld     hl, $9257                    ; 02:9201 - 21 57 92
    add    hl, de                       ; 02:9204 - 19
    ld     c, (hl)                      ; 02:9205 - 4E
    pop    hl                           ; 02:9206 - E1
 
-addr_09207:
+@not_type_41:
    ld     a, c                         ; 02:9207 - 79
    ld     e, (ix+2)                    ; 02:9208 - DD 5E 02
    ld     d, (ix+3)                    ; 02:920B - DD 56 03
@@ -17917,7 +17917,7 @@ addr_09207:
    pop    ix                           ; 02:9254 - DD E1
    ret                                 ; 02:9256 - C9
 
-UNK_09257:
+@LUT_bubble_type_select:
 .db $42, $20, $20, $20, $42, $20, $20, $20, $42, $20, $20, $20, $42, $20, $20, $20  ; 02:9257
 
 objfunc_49_UNKNOWN:
