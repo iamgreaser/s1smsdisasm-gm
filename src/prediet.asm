@@ -15589,7 +15589,7 @@ spawn_bubble:
    and    $0F                          ; 02:91FC - E6 0F
    ld     e, a                         ; 02:91FE - 5F
    ld     d, $00                       ; 02:91FF - 16 00
-   ld     hl, $9257                    ; 02:9201 - 21 57 92
+   ld     hl, spawn_bubble@LUT_bubble_type_select  ; 02:9201 - 21 57 92
    add    hl, de                       ; 02:9204 - 19
    ld     c, (hl)                      ; 02:9205 - 4E
    pop    hl                           ; 02:9206 - E1
