@@ -185,7 +185,7 @@ g_teleport_start_countdown_timer db   ; D28A
 g_chaos_emerald_music_countdown_timer db   ; D28B
 g_directional_input_suppression_timer db   ; D28C
 g_invincibility_countdown_timer db   ; D28D
-var_D28E db   ; D28E
+g_sonic_jump_countdown_timer db   ; D28E
 var_D28F dw   ; D28F
 var_D291 dw   ; D291
 var_D293 dw   ; D293
@@ -10335,47 +10335,47 @@ objfunc_00_sonic:
    call   nz, @fn_handle_sonic_landing_SEMIVESTIGAL  ; 01:4B57 - C4 AF 50
    bit    0, (ix+24)                   ; 01:4B5A - DD CB 18 46
    jp     nz, @update_y_velocity_for_rolling  ; 01:4B5E - C2 07 54
-   ld     a, (var_D28E)                ; 01:4B61 - 3A 8E D2
+   ld     a, (g_sonic_jump_countdown_timer)  ; 01:4B61 - 3A 8E D2
    and    a                            ; 01:4B64 - A7
-   jr     nz, @TODO_4B79               ; 01:4B65 - 20 12
+   jr     nz, @jump_continue_or_await_release  ; 01:4B65 - 20 12
    bit    7, (ix+24)                   ; 01:4B67 - DD CB 18 7E
-   jr     z, @TODO_4B9D                ; 01:4B6B - 28 30
+   jr     z, @suppress_jump_button     ; 01:4B6B - 28 30
    bit    3, (ix+24)                   ; 01:4B6D - DD CB 18 5E
-   jr     nz, @TODO_4B79               ; 01:4B71 - 20 06
+   jr     nz, @jump_continue_or_await_release  ; 01:4B71 - 20 06
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:4B73 - FD CB 03 6E
-   jr     z, @TODO_4B9D                ; 01:4B77 - 28 24
+   jr     z, @suppress_jump_button     ; 01:4B77 - 28 24
 
-@TODO_4B79:
+@jump_continue_or_await_release:
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:4B79 - FD CB 03 6E
-   jr     nz, @TODO_4BA4               ; 01:4B7D - 20 25
+   jr     nz, @unsuppress_jump_button  ; 01:4B7D - 20 25
 
-@TODO_4B7F:
-   ld     a, (var_D28E)                ; 01:4B7F - 3A 8E D2
+@continue_jump_processing_from_rolling:
+   ld     a, (g_sonic_jump_countdown_timer)  ; 01:4B7F - 3A 8E D2
    and    a                            ; 01:4B82 - A7
-   call   z, @fn_TODO_509D             ; 01:4B83 - CC 9D 50
+   call   z, @fn_start_jump_timer      ; 01:4B83 - CC 9D 50
    ld     hl, (var_D242)               ; 01:4B86 - 2A 42 D2
    ld     b, $FF                       ; 01:4B89 - 06 FF
    ld     c, $00                       ; 01:4B8B - 0E 00
    ld     e, c                         ; 01:4B8D - 59
    ld     d, c                         ; 01:4B8E - 51
-   ld     a, (var_D28E)                ; 01:4B8F - 3A 8E D2
+   ld     a, (g_sonic_jump_countdown_timer)  ; 01:4B8F - 3A 8E D2
    dec    a                            ; 01:4B92 - 3D
-   ld     (var_D28E), a                ; 01:4B93 - 32 8E D2
+   ld     (g_sonic_jump_countdown_timer), a  ; 01:4B93 - 32 8E D2
    set    2, (ix+24)                   ; 01:4B96 - DD CB 18 D6
    jp     @TODO_4BBE                   ; 01:4B9A - C3 BE 4B
 
-@TODO_4B9D:
+@suppress_jump_button:
    res    3, (ix+24)                   ; 01:4B9D - DD CB 18 9E
-   jp     @TODO_4BA8                   ; 01:4BA1 - C3 A8 4B
+   jp     @stop_jump_timer             ; 01:4BA1 - C3 A8 4B
 
-@TODO_4BA4:
+@unsuppress_jump_button:
    set    3, (ix+24)                   ; 01:4BA4 - DD CB 18 DE
 
-@TODO_4BA8:
+@stop_jump_timer:
    xor    a                            ; 01:4BA8 - AF
-   ld     (var_D28E), a                ; 01:4BA9 - 32 8E D2
+   ld     (g_sonic_jump_countdown_timer), a  ; 01:4BA9 - 32 8E D2
 
-@TODO_4BAC:
+@continue_without_jumping_from_rolling:
    bit    7, h                         ; 01:4BAC - CB 7C
    jr     nz, @TODO_4BB8               ; 01:4BAE - 20 08
    ld     a, (var_D215)                ; 01:4BB0 - 3A 15 D2
@@ -11126,9 +11126,9 @@ objfunc_00_sonic:
 @TODO_UNK_05097:
 .db $01, $07, $0F, $1F, $3F, $7F                                                    ; 01:5097
 
-@fn_TODO_509D:
+@fn_start_jump_timer:
    ld     a, $10                       ; 01:509D - 3E 10
-   ld     (var_D28E), a                ; 01:509F - 32 8E D2
+   ld     (g_sonic_jump_countdown_timer), a  ; 01:509F - 32 8E D2
    ld     a, $00                       ; 01:50A2 - 3E 00
    rst    $28                          ; 01:50A4 - EF
    ret                                 ; 01:50A5 - C9
@@ -11589,28 +11589,28 @@ objfunc_00_sonic:
 
 @update_y_velocity_for_rolling:
    bit    7, (ix+24)                   ; 01:5407 - DD CB 18 7E
-   jr     z, @TODO_542E                ; 01:540B - 28 21
+   jr     z, @suppress_jump_button_loc2  ; 01:540B - 28 21
    bit    3, (ix+24)                   ; 01:540D - DD CB 18 5E
-   jr     nz, @TODO_5419               ; 01:5411 - 20 06
+   jr     nz, @jump_continue_or_await_release_loc2  ; 01:5411 - 20 06
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:5413 - FD CB 03 6E
-   jr     z, @TODO_542E                ; 01:5417 - 28 15
+   jr     z, @suppress_jump_button_loc2  ; 01:5417 - 28 15
 
-@TODO_5419:
+@jump_continue_or_await_release_loc2:
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 01:5419 - FD CB 03 6E
-   jr     nz, @TODO_5435               ; 01:541D - 20 16
+   jr     nz, @unsuppress_jump_button_loc2  ; 01:541D - 20 16
    res    0, (ix+24)                   ; 01:541F - DD CB 18 86
    ld     a, (sonic_vel_x_sub)         ; 01:5423 - 3A 03 D4
    and    $F8                          ; 01:5426 - E6 F8
    ld     (sonic_vel_x_sub), a         ; 01:5428 - 32 03 D4
-   jp     @TODO_4B7F                   ; 01:542B - C3 7F 4B
+   jp     @continue_jump_processing_from_rolling  ; 01:542B - C3 7F 4B
 
-@TODO_542E:
+@suppress_jump_button_loc2:
    res    3, (ix+24)                   ; 01:542E - DD CB 18 9E
-   jp     @TODO_4BAC                   ; 01:5432 - C3 AC 4B
+   jp     @continue_without_jumping_from_rolling  ; 01:5432 - C3 AC 4B
 
-@TODO_5435:
+@unsuppress_jump_button_loc2:
    set    3, (ix+24)                   ; 01:5435 - DD CB 18 DE
-   jp     @TODO_4BAC                   ; 01:5439 - C3 AC 4B
+   jp     @continue_without_jumping_from_rolling  ; 01:5439 - C3 AC 4B
 
 @sonic_is_dying:
    set    5, (ix+24)                   ; 01:543C - DD CB 18 EE
@@ -12791,7 +12791,7 @@ addr_05DEB:
    ld     b, a                         ; 01:5E26 - 47
    sbc    hl, bc                       ; 01:5E27 - ED 42
    ld     (sonic_y), hl                ; 01:5E29 - 22 01 D4
-   ld     (var_D28E), a                ; 01:5E2C - 32 8E D2
+   ld     (g_sonic_jump_countdown_timer), a  ; 01:5E2C - 32 8E D2
    ld     a, (var_D2E8)                ; 01:5E2F - 3A E8 D2
    ld     hl, (var_D2E6)               ; 01:5E32 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:5E35 - 22 06 D4
@@ -12819,7 +12819,7 @@ addr_05E4E:
    xor    a                            ; 01:5E5D - AF
    ld     (sonic_vel_y_sub), hl        ; 01:5E5E - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:5E61 - 32 08 D4
-   ld     (var_D28E), a                ; 01:5E64 - 32 8E D2
+   ld     (g_sonic_jump_countdown_timer), a  ; 01:5E64 - 32 8E D2
    set    1, (ix+24)                   ; 01:5E67 - DD CB 18 CE
    scf                                 ; 01:5E6B - 37
    ret                                 ; 01:5E6C - C9
@@ -18556,7 +18556,7 @@ addr_09797:
    ld     h, a                         ; 02:97C6 - 67
    ld     (sonic_vel_y_sub), hl        ; 02:97C7 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:97CA - 32 08 D4
-   ld     (var_D28E), a                ; 02:97CD - 32 8E D2
+   ld     (g_sonic_jump_countdown_timer), a  ; 02:97CD - 32 8E D2
    ld     (g_sonic_underwater_countup_timer), hl  ; 02:97D0 - 22 9B D2
    set    2, (iy+var_D208-IYBASE)      ; 02:97D3 - FD CB 08 D6
    ld     a, $20                       ; 02:97D7 - 3E 20
