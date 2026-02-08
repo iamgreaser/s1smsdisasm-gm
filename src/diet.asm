@@ -245,8 +245,8 @@ var_D2E0 db   ; D2E0
 var_D2E1 db   ; D2E1
 var_D2E2 dw   ; D2E2
 var_D2E4 dw   ; D2E4
-var_D2E6 dw   ; D2E6
-var_D2E8 db   ; D2E8
+g_sonic_bounce_vel_y_sub dw   ; D2E6
+g_sonic_bounce_vel_y_pix_hi db   ; D2E8
 var_D2E9 dw   ; D2E9
 .  dsb 1
 var_D2EC db   ; D2EC
@@ -10424,11 +10424,11 @@ objfunc_00_sonic:
    ld     de, $0001                    ; 01:4BE8 - 11 01 00
    add    hl, de                       ; 01:4BEB - 19
    adc    a, $00                       ; 01:4BEC - CE 00
-   ld     (var_D2E6), hl               ; 01:4BEE - 22 E6 D2
-   ld     (var_D2E8), a                ; 01:4BF1 - 32 E8 D2
+   ld     (g_sonic_bounce_vel_y_sub), hl  ; 01:4BEE - 22 E6 D2
+   ld     (g_sonic_bounce_vel_y_pix_hi), a  ; 01:4BF1 - 32 E8 D2
    pop    hl                           ; 01:4BF4 - E1
    bit    2, (ix+24)                   ; 01:4BF5 - DD CB 18 56
-   call   nz, @fn_TODO_5280            ; 01:4BF9 - C4 80 52
+   call   nz, @fn_set_roll_animation_for_airborne  ; 01:4BF9 - C4 80 52
    ld     a, h                         ; 01:4BFC - 7C
    and    a                            ; 01:4BFD - A7
    jp     p, @TODO_4C08                ; 01:4BFE - F2 08 4C
@@ -10466,7 +10466,7 @@ objfunc_00_sonic:
    cp     $79                          ; 01:4C34 - FE 79
    call   nc, @fn_try_collect_ring_in_ring_tile  ; 01:4C36 - D4 EF 4D
 
-@TODO_4C39:
+@continue_past_basic_movement_physics:
    ld     a, (g_directional_input_suppression_timer)  ; 01:4C39 - 3A 8C D2
    and    a                            ; 01:4C3C - A7
    call   nz, @fn_decrement_directional_input_suppression_timer  ; 01:4C3D - C4 B3 51
@@ -11212,12 +11212,12 @@ objfunc_00_sonic:
    ld     (sonic_vel_y_sub), a         ; 01:512A - 32 06 D4
    ld     (sonic_vel_y), hl            ; 01:512D - 22 07 D4
    ld     (ix+20), $0F                 ; 01:5130 - DD 36 14 0F
-   jp     @TODO_4C39                   ; 01:5134 - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:5134 - C3 39 4C
 
 @TODO_5137:
    res    1, (ix+24)                   ; 01:5137 - DD CB 18 8E
    ld     (ix+20), $0E                 ; 01:513B - DD 36 14 0E
-   jp     @TODO_4C39                   ; 01:513F - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:513F - C3 39 4C
 
 @do_teleport:
    ld     hl, (g_teleport_spec_dest_ptr)  ; 01:5142 - 2A D5 D2
@@ -11282,10 +11282,10 @@ objfunc_00_sonic:
    ld     (ix+20), $16                 ; 01:519C - DD 36 14 16
    ld     a, (sonic_ix_19)             ; 01:51A0 - 3A 0F D4
    cp     $12                          ; 01:51A3 - FE 12
-   jp     c, @TODO_4C39                ; 01:51A5 - DA 39 4C
+   jp     c, @continue_past_basic_movement_physics  ; 01:51A5 - DA 39 4C
    res    6, (iy+var_D208-IYBASE)      ; 01:51A8 - FD CB 08 B6
    set    2, (ix+24)                   ; 01:51AC - DD CB 18 D6
-   jp     @TODO_4C39                   ; 01:51B0 - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:51B0 - C3 39 4C
 
 @fn_decrement_directional_input_suppression_timer:
    dec    a                            ; 01:51B3 - 3D
@@ -11397,7 +11397,7 @@ objfunc_00_sonic:
 .db $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:526E
 .db $FF, $FF                                                                        ; 01:527E
 
-@fn_TODO_5280:
+@fn_set_roll_animation_for_airborne:
    ld     (ix+20), $09                 ; 01:5280 - DD 36 14 09
    ret                                 ; 01:5284 - C9
 
@@ -11434,7 +11434,7 @@ objfunc_00_sonic:
    jr     nz, @good_ending_emeralds_already_spawned  ; 01:52C8 - 20 41
    ld     (hl), $50                    ; 01:52CA - 36 50
    call   spawn_object                 ; 01:52CC - CD 7B 7C
-   jp     c, @TODO_4C39                ; 01:52CF - DA 39 4C
+   jp     c, @continue_past_basic_movement_physics  ; 01:52CF - DA 39 4C
    push   ix                           ; 01:52D2 - DD E5
    push   hl                           ; 01:52D4 - E5
    pop    ix                           ; 01:52D5 - DD E1
@@ -11456,13 +11456,13 @@ objfunc_00_sonic:
    ld     (ix+6), h                    ; 01:52FF - DD 74 06
    pop    ix                           ; 01:5302 - DD E1
    set    0, (iy+var_D20D-IYBASE)      ; 01:5304 - FD CB 0D C6
-   jp     @TODO_4C39                   ; 01:5308 - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:5308 - C3 39 4C
 
 @good_ending_emeralds_already_spawned:
    bit    1, (iy+var_D20D-IYBASE)      ; 01:530B - FD CB 0D 4E
    jr     nz, @good_ending_emerald_anim_0_already_done  ; 01:530F - 20 0A
    dec    (hl)                         ; 01:5311 - 35
-   jp     nz, @TODO_4C39               ; 01:5312 - C2 39 4C
+   jp     nz, @continue_past_basic_movement_physics  ; 01:5312 - C2 39 4C
    set    1, (iy+var_D20D-IYBASE)      ; 01:5315 - FD CB 0D CE
    ld     (hl), $8C                    ; 01:5319 - 36 8C
 
@@ -11472,11 +11472,11 @@ objfunc_00_sonic:
    and    a                            ; 01:5320 - A7
    jr     z, @good_ending_emerald_anim_1_already_done  ; 01:5321 - 28 04
    dec    (hl)                         ; 01:5323 - 35
-   jp     @TODO_4C39                   ; 01:5324 - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:5324 - C3 39 4C
 
 @good_ending_emerald_anim_1_already_done:
    ld     (ix+20), $19                 ; 01:5327 - DD 36 14 19
-   jp     @TODO_4C39                   ; 01:532B - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:532B - C3 39 4C
 
 @sonic_is_rolling:
    ld     a, (ix+14)                   ; 01:532E - DD 7E 0E
@@ -11678,9 +11678,9 @@ objfunc_00_sonic:
 @TODO_54AA:
    ld     (ix+20), $0B                 ; 01:54AA - DD 36 14 0B
    bit    3, (iy+var_D208-IYBASE)      ; 01:54AE - FD CB 08 5E
-   jp     z, @TODO_4C39                ; 01:54B2 - CA 39 4C
+   jp     z, @continue_past_basic_movement_physics  ; 01:54B2 - CA 39 4C
    ld     (ix+20), $15                 ; 01:54B5 - DD 36 14 15
-   jp     @TODO_4C39                   ; 01:54B9 - C3 39 4C
+   jp     @continue_past_basic_movement_physics  ; 01:54B9 - C3 39 4C
 
 @special_00:
    bit    7, (iy+var_D206-IYBASE)      ; 01:54BC - FD CB 06 7E
@@ -12793,8 +12793,8 @@ addr_05DEB:
    sbc    hl, bc                       ; 01:5E27 - ED 42
    ld     (sonic_y), hl                ; 01:5E29 - 22 01 D4
    ld     (g_sonic_jump_countdown_timer), a  ; 01:5E2C - 32 8E D2
-   ld     a, (var_D2E8)                ; 01:5E2F - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 01:5E32 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 01:5E2F - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 01:5E32 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:5E35 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:5E38 - 32 08 D4
    ld     hl, sonic_flags_ix_24        ; 01:5E3B - 21 14 D4
@@ -13610,8 +13610,8 @@ objfunc_0A_explosion:
    ld     a, (sonic_flags_ix_24)       ; 01:6965 - 3A 14 D4
    rlca                                ; 01:6968 - 07
    jr     c, @skip_sonic_bounce_off_top  ; 01:6969 - 38 22
-   ld     a, (var_D2E8)                ; 01:696B - 3A E8 D2
-   ld     de, (var_D2E6)               ; 01:696E - ED 5B E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 01:696B - 3A E8 D2
+   ld     de, (g_sonic_bounce_vel_y_sub)  ; 01:696E - ED 5B E6 D2
    inc    de                           ; 01:6972 - 13
    ld     c, a                         ; 01:6973 - 4F
    ld     hl, (sonic_vel_y_sub)        ; 01:6974 - 2A 06 D4
@@ -14772,8 +14772,8 @@ objfunc_25_animal_capsule:
    add    hl, de                       ; 01:7426 - 19
    add    hl, bc                       ; 01:7427 - 09
    ld     (sonic_y), hl                ; 01:7428 - 22 01 D4
-   ld     a, (var_D2E8)                ; 01:742B - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 01:742E - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 01:742B - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 01:742E - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:7431 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:7434 - 32 08 D4
    ld     hl, sonic_flags_ix_24        ; 01:7437 - 21 14 D4
@@ -15698,8 +15698,8 @@ put_sonic_y_pos_on_platform:
    ld     b, a                         ; 01:7CDE - 47
    sbc    hl, bc                       ; 01:7CDF - ED 42
    ld     (sonic_y), hl                ; 01:7CE1 - 22 01 D4
-   ld     a, (var_D2E8)                ; 01:7CE4 - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 01:7CE7 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 01:7CE4 - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 01:7CE7 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 01:7CEA - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:7CED - 32 08 D4
    ld     hl, sonic_flags_ix_24        ; 01:7CF0 - 21 14 D4
@@ -16770,8 +16770,8 @@ addr_086A4:
    ld     a, l                         ; 02:86CE - 7D
    or     h                            ; 02:86CF - B4
    jr     nz, addr_086E0               ; 02:86D0 - 20 0E
-   ld     a, (var_D2E8)                ; 02:86D2 - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 02:86D5 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:86D2 - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:86D5 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:86D8 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:86DB - 32 08 D4
    jr     addr_086F4                   ; 02:86DE - 18 14
@@ -16784,7 +16784,7 @@ addr_086E0:
    cpl                                 ; 02:86E4 - 2F
    ld     h, a                         ; 02:86E5 - 67
    inc    hl                           ; 02:86E6 - 23
-   ld     de, (var_D2E6)               ; 02:86E7 - ED 5B E6 D2
+   ld     de, (g_sonic_bounce_vel_y_sub)  ; 02:86E7 - ED 5B E6 D2
    add    hl, de                       ; 02:86EB - 19
    ld     (sonic_vel_y_sub), hl        ; 02:86EC - 22 06 D4
    ld     a, $FF                       ; 02:86EF - 3E FF
@@ -16902,8 +16902,8 @@ addr_087BC:
    ld     (ix+17), $1C                 ; 02:87E9 - DD 36 11 1C
 
 addr_087ED:
-   ld     a, (var_D2E8)                ; 02:87ED - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 02:87F0 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:87ED - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:87F0 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:87F3 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:87F6 - 32 08 D4
 
@@ -18673,8 +18673,8 @@ addr_09894:
    ld     bc, UNK_0999E                ; 02:98AD - 01 9E 99
    call   addr_09AAF                   ; 02:98B0 - CD AF 9A
    ret    nc                           ; 02:98B3 - D0
-   ld     a, (var_D2E8)                ; 02:98B4 - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 02:98B7 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:98B4 - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:98B7 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:98BA - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:98BD - 32 08 D4
    ld     de, $FFFC                    ; 02:98C0 - 11 FC FF
@@ -18754,8 +18754,8 @@ addr_0995E:
    ld     bc, UNK_099DE                ; 02:9978 - 01 DE 99
    call   addr_09AAF                   ; 02:997B - CD AF 9A
    ret    nc                           ; 02:997E - D0
-   ld     a, (var_D2E8)                ; 02:997F - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 02:9982 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:997F - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:9982 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:9985 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:9988 - 32 08 D4
    ld     de, $001A                    ; 02:998B - 11 1A 00
@@ -18880,8 +18880,8 @@ addr_09B2C:
    ld     (var_D214), hl               ; 02:9B38 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B3B - CD 56 39
    ret    c                            ; 02:9B3E - D8
-   ld     a, (var_D2E8)                ; 02:9B3F - 3A E8 D2
-   ld     de, (var_D2E6)               ; 02:9B42 - ED 5B E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:9B3F - 3A E8 D2
+   ld     de, (g_sonic_bounce_vel_y_sub)  ; 02:9B42 - ED 5B E6 D2
    ld     c, a                         ; 02:9B46 - 4F
    ld     hl, (sonic_vel_y_sub)        ; 02:9B47 - 2A 06 D4
    ld     a, l                         ; 02:9B4A - 7D
@@ -20248,8 +20248,8 @@ addr_0A91D:
    sbc    hl, de                       ; 02:A935 - ED 52
    ld     (sonic_y_sub), a             ; 02:A937 - 32 00 D4
    ld     (sonic_y), hl                ; 02:A93A - 22 01 D4
-   ld     a, (var_D2E8)                ; 02:A93D - 3A E8 D2
-   ld     hl, (var_D2E6)               ; 02:A940 - 2A E6 D2
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:A93D - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:A940 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:A943 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:A946 - 32 08 D4
    inc    (ix+17)                      ; 02:A949 - DD 34 11
