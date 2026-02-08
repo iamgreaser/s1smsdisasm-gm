@@ -8182,7 +8182,7 @@ objfunc_00_sonic:
    jr     z, @update_x_velocity_from_basic_movement  ; 01:4ABD - 28 5C
    ld     (ix+20), $01                 ; 01:4ABF - DD 36 14 01
    bit    7, b                         ; 01:4AC3 - CB 78
-   jr     nz, @TODO_4AF7               ; 01:4AC5 - 20 30
+   jr     nz, @consider_coasting_x_speed_cap_moving_left  ; 01:4AC5 - 20 30
    ld     de, (var_D212)               ; 01:4AC7 - ED 5B 12 D2
    ld     a, e                         ; 01:4ACB - 7B
    cpl                                 ; 01:4ACC - 2F
@@ -8213,7 +8213,7 @@ objfunc_00_sonic:
    ld     (ix+20), a                   ; 01:4AF1 - DD 77 14
    jp     @update_x_velocity_from_basic_movement  ; 01:4AF4 - C3 1B 4B
 
-@TODO_4AF7:
+@consider_coasting_x_speed_cap_moving_left:
    ld     de, (var_D212)               ; 01:4AF7 - ED 5B 12 D2
    ld     c, $00                       ; 01:4AFB - 0E 00
    push   hl                           ; 01:4AFD - E5
@@ -8238,35 +8238,35 @@ objfunc_00_sonic:
 @update_x_velocity_from_basic_movement:
    ld     a, b                         ; 01:4B1B - 78
    and    a                            ; 01:4B1C - A7
-   jp     m, @TODO_4B38                ; 01:4B1D - FA 38 4B
+   jp     m, @update_x_velocity_moving_left  ; 01:4B1D - FA 38 4B
    add    hl, de                       ; 01:4B20 - 19
    adc    a, c                         ; 01:4B21 - 89
    ld     c, a                         ; 01:4B22 - 4F
-   jp     p, @TODO_4B42                ; 01:4B23 - F2 42 4B
+   jp     p, @store_updated_x_velocity  ; 01:4B23 - F2 42 4B
    ld     a, (sonic_vel_x_sub)         ; 01:4B26 - 3A 03 D4
    or     (ix+8)                       ; 01:4B29 - DD B6 08
    or     (ix+9)                       ; 01:4B2C - DD B6 09
-   jr     z, @TODO_4B42                ; 01:4B2F - 28 11
+   jr     z, @store_updated_x_velocity  ; 01:4B2F - 28 11
    ld     c, $00                       ; 01:4B31 - 0E 00
    ld     l, c                         ; 01:4B33 - 69
    ld     h, c                         ; 01:4B34 - 61
-   jp     @TODO_4B42                   ; 01:4B35 - C3 42 4B
+   jp     @store_updated_x_velocity    ; 01:4B35 - C3 42 4B
 
-@TODO_4B38:
+@update_x_velocity_moving_left:
    add    hl, de                       ; 01:4B38 - 19
    adc    a, c                         ; 01:4B39 - 89
    ld     c, a                         ; 01:4B3A - 4F
-   jp     m, @TODO_4B42                ; 01:4B3B - FA 42 4B
+   jp     m, @store_updated_x_velocity  ; 01:4B3B - FA 42 4B
    ld     c, $00                       ; 01:4B3E - 0E 00
    ld     l, c                         ; 01:4B40 - 69
    ld     h, c                         ; 01:4B41 - 61
 
-@TODO_4B42:
+@store_updated_x_velocity:
    ld     a, c                         ; 01:4B42 - 79
    ld     (sonic_vel_x_sub), hl        ; 01:4B43 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:4B46 - 32 05 D4
 
-@TODO_4B49:
+@update_y_velocity_from_basic_movement:
    ld     hl, (sonic_vel_y_sub)        ; 01:4B49 - 2A 06 D4
    ld     b, (ix+12)                   ; 01:4B4C - DD 46 0C
    ld     c, $00                       ; 01:4B4F - 0E 00
@@ -9456,12 +9456,12 @@ objfunc_00_sonic:
    ld     hl, $FFB0                    ; 01:53CF - 21 B0 FF
    and    a                            ; 01:53D2 - A7
    sbc    hl, de                       ; 01:53D3 - ED 52
-   jp     nc, @TODO_4B49               ; 01:53D5 - D2 49 4B
+   jp     nc, @update_y_velocity_from_basic_movement  ; 01:53D5 - D2 49 4B
 
 @looking_up_immediate_look_down:
    dec    de                           ; 01:53D8 - 1B
    ld     (g_camera_y_look_up_offset_px), de  ; 01:53D9 - ED 53 B7 D2
-   jp     @TODO_4B49                   ; 01:53DD - C3 49 4B
+   jp     @update_y_velocity_from_basic_movement  ; 01:53DD - C3 49 4B
 
 @skip_camera_look_down:
    ld     (ix+20), $09                 ; 01:53E0 - DD 36 14 09
