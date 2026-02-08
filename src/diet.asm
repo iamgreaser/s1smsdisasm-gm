@@ -17870,6 +17870,7 @@ spawn_bubble:
    ld     a, (ix+0)                    ; 02:91F1 - DD 7E 00
    cp     $41                          ; 02:91F4 - FE 41
    jr     nz, @not_type_41             ; 02:91F6 - 20 0F
+   .IF 0
    push   hl                           ; 02:91F8 - E5
    call   random_A                     ; 02:91F9 - CD 25 06
    and    $0F                          ; 02:91FC - E6 0F
@@ -17879,6 +17880,15 @@ spawn_bubble:
    add    hl, de                       ; 02:9204 - 19
    ld     c, (hl)                      ; 02:9205 - 4E
    pop    hl                           ; 02:9206 - E1
+   .ELSE
+   ;; TODO: Shift this special case into objfunc $41 once that's annotated --GM
+   call random_A
+   and $03
+   jr z, @not_type_41
+   ld c, $20
+   ; SAVING: 22 bytes
+   ; (we save 6 from the code itself, and 16 from removing the table)
+   .ENDIF
 
 @not_type_41:
    ld     a, c                         ; 02:9207 - 79
@@ -17917,8 +17927,10 @@ spawn_bubble:
    pop    ix                           ; 02:9254 - DD E1
    ret                                 ; 02:9256 - C9
 
+.IF 0
 @LUT_bubble_type_select:
 .db $42, $20, $20, $20, $42, $20, $20, $20, $42, $20, $20, $20, $42, $20, $20, $20  ; 02:9257
+.ENDIF
 
 objfunc_49_UNKNOWN:
    set    5, (ix+24)                   ; 02:9267 - DD CB 18 EE
