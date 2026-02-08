@@ -153,10 +153,10 @@ g_palette_cycle_index db   ; D2A6
 g_palette_cycle_length db   ; D2A7
 g_palette_cycle_baseptr dw   ; D2A8
 g_rings_BCD db   ; D2AA
-var_D2AB db   ; D2AB
+g_screen_tile_replace_x db   ; D2AB
 var_D2AC db   ; D2AC
-var_D2AD dw   ; D2AD
-var_D2AF dw   ; D2AF
+g_screen_tile_replace_y dw   ; D2AD
+g_screen_tile_replace_data_ptr dw   ; D2AF
 var_D2B1 db   ; D2B1
 var_D2B2 db   ; D2B2
 var_D2B3 db   ; D2B3
@@ -221,9 +221,11 @@ g_level_has_checkpoint_mask db   ; D311
 .  dsb 5
 g_level_button_toggled_on_mask db   ; D317
 .  dsb 5
-var_D31D dw   ; D31D
-var_D31F dw   ; D31F
-var_D321 db   ; D321
+g_ring_sparkle_sprite_x db   ; D31D
+.  dsb 1
+g_ring_sparkle_sprite_y db   ; D31F
+.  dsb 1
+g_ring_sparkle_sprite_countdown_timer db   ; D321
 var_D322 db   ; D322 (auto)
 .  dsb 11
 g_per_level_checkpoint_positions dw   ; D32E
@@ -4717,7 +4719,7 @@ addr_020CB:
    ld     a, (iy+var_D206-IYBASE)      ; 00:20EC - FD 7E 06
    ld     (iy+var_D20C-IYBASE), a      ; 00:20EF - FD 77 0C
    ld     a, $FF                       ; 00:20F2 - 3E FF
-   ld     (var_D2AB), a                ; 00:20F4 - 32 AB D2
+   ld     (g_screen_tile_replace_x), a  ; 00:20F4 - 32 AB D2
    xor    a                            ; 00:20F7 - AF
    ld     l, a                         ; 00:20F8 - 6F
    ld     h, a                         ; 00:20F9 - 67
@@ -7353,7 +7355,7 @@ addr_03893:
    ret                                 ; 00:38AF - C9
 
 addr_038B0:
-   ld     hl, (var_D2AB)               ; 00:38B0 - 2A AB D2
+   ld     hl, (g_screen_tile_replace_x)  ; 00:38B0 - 2A AB D2
    ld     a, l                         ; 00:38B3 - 7D
    and    $F8                          ; 00:38B4 - E6 F8
    ld     l, a                         ; 00:38B6 - 6F
@@ -7384,7 +7386,7 @@ addr_038B0:
    and    $1F                          ; 00:38DE - E6 1F
    add    a, a                         ; 00:38E0 - 87
    ld     c, a                         ; 00:38E1 - 4F
-   ld     hl, (var_D2AD)               ; 00:38E2 - 2A AD D2
+   ld     hl, (g_screen_tile_replace_y)  ; 00:38E2 - 2A AD D2
    ld     a, l                         ; 00:38E5 - 7D
    and    $F8                          ; 00:38E6 - E6 F8
    ld     l, a                         ; 00:38E8 - 6F
@@ -7431,7 +7433,7 @@ addr_03917:
    add    hl, bc                       ; 00:3924 - 09
    ld     bc, $3800                    ; 00:3925 - 01 00 38
    add    hl, bc                       ; 00:3928 - 09
-   ld     de, (var_D2AF)               ; 00:3929 - ED 5B AF D2
+   ld     de, (g_screen_tile_replace_data_ptr)  ; 00:3929 - ED 5B AF D2
    ld     b, $02                       ; 00:392D - 06 02
 
 addr_0392F:
@@ -8457,7 +8459,7 @@ objfunc_00_sonic:
    call   nz, @fn_handle_shield_animation  ; 01:4C94 - C4 06 52
    ld     a, (g_sonic_sprite_index_override)  ; 01:4C97 - 3A 02 D3
    and    a                            ; 01:4C9A - A7
-   call   nz, @fn_TODO_4E48            ; 01:4C9B - C4 48 4E
+   call   nz, @fn_use_left_facing_sonic_sprites  ; 01:4C9B - C4 48 4E
    ld     a, d                         ; 01:4C9E - 7A
    rrca                                ; 01:4C9F - 0F
    rrca                                ; 01:4CA0 - 0F
@@ -8525,9 +8527,9 @@ objfunc_00_sonic:
    ld     a, (var_D2E1)                ; 01:4D13 - 3A E1 D2
    and    a                            ; 01:4D16 - A7
    call   nz, @fn_TODO_5231            ; 01:4D17 - C4 31 52
-   ld     a, (var_D321)                ; 01:4D1A - 3A 21 D3
+   ld     a, (g_ring_sparkle_sprite_countdown_timer)  ; 01:4D1A - 3A 21 D3
    and    a                            ; 01:4D1D - A7
-   call   nz, @fn_TODO_4E51            ; 01:4D1E - C4 51 4E
+   call   nz, @fn_handle_ring_sparkle_sprite  ; 01:4D1E - C4 51 4E
    bit    1, (iy+var_D206-IYBASE)      ; 01:4D21 - FD CB 06 4E
    jr     nz, @continue_past_clamp_sonic_x_pos_right  ; 01:4D25 - 20 5A
    ld     hl, (g_level_limit_x0)       ; 01:4D27 - 2A 73 D2
@@ -8667,8 +8669,8 @@ objfunc_00_sonic:
    ld     a, l                         ; 01:4E17 - 7D
    and    $F0                          ; 01:4E18 - E6 F0
    ld     l, a                         ; 01:4E1A - 6F
-   ld     (var_D2AB), hl               ; 01:4E1B - 22 AB D2
-   ld     (var_D31D), hl               ; 01:4E1E - 22 1D D3
+   ld     (g_screen_tile_replace_x), hl  ; 01:4E1B - 22 AB D2
+   ld     (g_ring_sparkle_sprite_x), hl  ; 01:4E1E - 22 1D D3
    ld     a, c                         ; 01:4E21 - 79
    xor    b                            ; 01:4E22 - A8
    ld     (de), a                      ; 01:4E23 - 12
@@ -8679,17 +8681,17 @@ objfunc_00_sonic:
    and    $E0                          ; 01:4E2C - E6 E0
    add    a, $08                       ; 01:4E2E - C6 08
    ld     l, a                         ; 01:4E30 - 6F
-   ld     (var_D2AD), hl               ; 01:4E31 - 22 AD D2
-   ld     (var_D31F), hl               ; 01:4E34 - 22 1F D3
+   ld     (g_screen_tile_replace_y), hl  ; 01:4E31 - 22 AD D2
+   ld     (g_ring_sparkle_sprite_y), hl  ; 01:4E34 - 22 1F D3
    ld     a, $06                       ; 01:4E37 - 3E 06
-   ld     (var_D321), a                ; 01:4E39 - 32 21 D3
-   ld     hl, UNK_0595D                ; 01:4E3C - 21 5D 59
-   ld     (var_D2AF), hl               ; 01:4E3F - 22 AF D2
+   ld     (g_ring_sparkle_sprite_countdown_timer), a  ; 01:4E39 - 32 21 D3
+   ld     hl, TILEREPLACE_ring_blanking  ; 01:4E3C - 21 5D 59
+   ld     (g_screen_tile_replace_data_ptr), hl  ; 01:4E3F - 22 AF D2
    ld     a, $01                       ; 01:4E42 - 3E 01
    call   add_A_rings                  ; 01:4E44 - CD AC 39
    ret                                 ; 01:4E47 - C9
 
-@fn_TODO_4E48:
+@fn_use_left_facing_sonic_sprites:
    ld     d, a                         ; 01:4E48 - 57
    ld     bc, $7000                    ; 01:4E49 - 01 00 70
    ret                                 ; 01:4E4C - C9
@@ -8698,19 +8700,19 @@ objfunc_00_sonic:
    ld     hl, $0000                    ; 01:4E4D - 21 00 00
    ret                                 ; 01:4E50 - C9
 
-@fn_TODO_4E51:
+@fn_handle_ring_sparkle_sprite:
    dec    a                            ; 01:4E51 - 3D
-   ld     (var_D321), a                ; 01:4E52 - 32 21 D3
-   ld     hl, (var_D31D)               ; 01:4E55 - 2A 1D D3
+   ld     (g_ring_sparkle_sprite_countdown_timer), a  ; 01:4E52 - 32 21 D3
+   ld     hl, (g_ring_sparkle_sprite_x)  ; 01:4E55 - 2A 1D D3
    ld     (var_D20E), hl               ; 01:4E58 - 22 0E D2
-   ld     hl, (var_D31F)               ; 01:4E5B - 2A 1F D3
+   ld     hl, (g_ring_sparkle_sprite_y)  ; 01:4E5B - 2A 1F D3
    ld     (var_D210), hl               ; 01:4E5E - 22 10 D2
    ld     hl, $0000                    ; 01:4E61 - 21 00 00
    ld     (var_D212), hl               ; 01:4E64 - 22 12 D2
    ld     hl, $FFFE                    ; 01:4E67 - 21 FE FF
    ld     (var_D214), hl               ; 01:4E6A - 22 14 D2
    cp     $03                          ; 01:4E6D - FE 03
-   jr     c, @TODO_4E82                ; 01:4E6F - 38 11
+   jr     c, @skip_ring_sparkle_second_sprite  ; 01:4E6F - 38 11
    ld     a, $B2                       ; 01:4E71 - 3E B2
    call   draw_sprite                  ; 01:4E73 - CD 81 35
    ld     hl, $0008                    ; 01:4E76 - 21 08 00
@@ -8718,7 +8720,7 @@ objfunc_00_sonic:
    ld     hl, $0002                    ; 01:4E7C - 21 02 00
    ld     (var_D214), hl               ; 01:4E7F - 22 14 D2
 
-@TODO_4E82:
+@skip_ring_sparkle_second_sprite:
    ld     a, $5A                       ; 01:4E82 - 3E 5A
    call   draw_sprite                  ; 01:4E84 - CD 81 35
    ret                                 ; 01:4E87 - C9
@@ -10199,7 +10201,7 @@ SPRITEMAP_sonic_upspring_left:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $FE, $9C, $9E, $FF  ; 01:594B
 .db $FF, $FF                                                                        ; 01:595B
 
-UNK_0595D:
+TILEREPLACE_ring_blanking:
 .db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 01:595D
 
 LUT_sonic_anim_ptrs:
@@ -12505,17 +12507,17 @@ objfunc_25_animal_capsule:
    ld     l, (ix+2)                    ; 01:736D - DD 6E 02
    ld     h, (ix+3)                    ; 01:7370 - DD 66 03
    add    hl, bc                       ; 01:7373 - 09
-   ld     (var_D2AB), hl               ; 01:7374 - 22 AB D2
+   ld     (g_screen_tile_replace_x), hl  ; 01:7374 - 22 AB D2
    ex     de, hl                       ; 01:7377 - EB
    ld     c, (hl)                      ; 01:7378 - 4E
    inc    hl                           ; 01:7379 - 23
    ld     b, (hl)                      ; 01:737A - 46
    inc    hl                           ; 01:737B - 23
-   ld     (var_D2AF), hl               ; 01:737C - 22 AF D2
+   ld     (g_screen_tile_replace_data_ptr), hl  ; 01:737C - 22 AF D2
    ld     l, (ix+5)                    ; 01:737F - DD 6E 05
    ld     h, (ix+6)                    ; 01:7382 - DD 66 06
    add    hl, bc                       ; 01:7385 - 09
-   ld     (var_D2AD), hl               ; 01:7386 - 22 AD D2
+   ld     (g_screen_tile_replace_y), hl  ; 01:7386 - 22 AD D2
    ld     hl, SPRITEMAP_animal_capsule_blink  ; 01:7389 - 21 2E 75
    ld     a, (g_global_tick_counter)   ; 01:738C - 3A 23 D2
    and    $10                          ; 01:738F - E6 10
@@ -13222,7 +13224,7 @@ objfunc_50_flower_raiser:
    ld     bc, $0000                    ; 01:7B03 - 01 00 00
    ld     l, (ix+2)                    ; 01:7B06 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7B09 - DD 66 03
-   ld     (var_D2AB), hl               ; 01:7B0C - 22 AB D2
+   ld     (g_screen_tile_replace_x), hl  ; 01:7B0C - 22 AB D2
    ld     l, (ix+5)                    ; 01:7B0F - DD 6E 05
    ld     h, (ix+6)                    ; 01:7B12 - DD 66 06
    ld     a, (g_global_tick_counter)   ; 01:7B15 - 3A 23 D2
@@ -13233,7 +13235,7 @@ objfunc_50_flower_raiser:
    inc    bc                           ; 01:7B1F - 03
 
 @tick_mod_2_was_not_0:
-   ld     (var_D2AD), hl               ; 01:7B20 - 22 AD D2
+   ld     (g_screen_tile_replace_y), hl  ; 01:7B20 - 22 AD D2
    ld     a, (ix+18)                   ; 01:7B23 - DD 7E 12
    add    a, a                         ; 01:7B26 - 87
    add    a, a                         ; 01:7B27 - 87
@@ -13251,7 +13253,7 @@ objfunc_50_flower_raiser:
    ld     d, $00                       ; 01:7B36 - 16 00
    ld     hl, UNK_07B5D                ; 01:7B38 - 21 5D 7B
    add    hl, de                       ; 01:7B3B - 19
-   ld     (var_D2AF), hl               ; 01:7B3C - 22 AF D2
+   ld     (g_screen_tile_replace_data_ptr), hl  ; 01:7B3C - 22 AF D2
    pop    hl                           ; 01:7B3F - E1
    inc    hl                           ; 01:7B40 - 23
    inc    hl                           ; 01:7B41 - 23
@@ -14170,14 +14172,14 @@ addr_083F2:
    jp     z, addr_08467                ; 02:8401 - CA 67 84
    ld     l, (ix+2)                    ; 02:8404 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8407 - DD 66 03
-   ld     (var_D2AB), hl               ; 02:840A - 22 AB D2
+   ld     (g_screen_tile_replace_x), hl  ; 02:840A - 22 AB D2
    ld     l, (ix+5)                    ; 02:840D - DD 6E 05
    ld     h, (ix+6)                    ; 02:8410 - DD 66 06
    ld     de, $000E                    ; 02:8413 - 11 0E 00
    add    hl, de                       ; 02:8416 - 19
-   ld     (var_D2AD), hl               ; 02:8417 - 22 AD D2
+   ld     (g_screen_tile_replace_y), hl  ; 02:8417 - 22 AD D2
    ld     hl, UNK_0848E                ; 02:841A - 21 8E 84
-   ld     (var_D2AF), hl               ; 02:841D - 22 AF D2
+   ld     (g_screen_tile_replace_data_ptr), hl  ; 02:841D - 22 AF D2
    set    0, (ix+24)                   ; 02:8420 - DD CB 18 C6
    ld     a, $20                       ; 02:8424 - 3E 20
    rst    $28                          ; 02:8426 - EF
@@ -19512,13 +19514,13 @@ addr_0B821:
    inc    hl                           ; 02:B840 - 23
    ld     d, (hl)                      ; 02:B841 - 56
    inc    hl                           ; 02:B842 - 23
-   ld     (var_D2AB), de               ; 02:B843 - ED 53 AB D2
+   ld     (g_screen_tile_replace_x), de  ; 02:B843 - ED 53 AB D2
    ld     e, (hl)                      ; 02:B847 - 5E
    inc    hl                           ; 02:B848 - 23
    ld     d, (hl)                      ; 02:B849 - 56
    inc    hl                           ; 02:B84A - 23
-   ld     (var_D2AD), de               ; 02:B84B - ED 53 AD D2
-   ld     (var_D2AF), hl               ; 02:B84F - 22 AF D2
+   ld     (g_screen_tile_replace_y), de  ; 02:B84B - ED 53 AD D2
+   ld     (g_screen_tile_replace_data_ptr), hl  ; 02:B84F - 22 AF D2
    inc    (ix+17)                      ; 02:B852 - DD 34 11
    ld     a, (ix+17)                   ; 02:B855 - DD 7E 11
    cp     $0F                          ; 02:B858 - FE 0F
