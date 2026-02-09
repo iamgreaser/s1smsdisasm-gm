@@ -325,8 +325,8 @@ sonic_vel_y_hi db   ; D408
 sonic_size_x db   ; D409
 sonic_size_y db   ; D40A
 sonic_spritemap_ix_15 dw   ; D40B
-sonic_anim_sprite_subindex_ix_17 dw   ; D40D
-sonic_ix_19 db   ; D40F
+sonic_anim_ptr_ix_17 dw   ; D40D
+sonic_anim_sprite_subindex_ix_19 db   ; D40F
 sonic_anim_index_ix_20 db   ; D410
 sonic_speed_shoes_countdown_timer_ix_21 db   ; D411
 sonic_brake_sound_cooldown_timer_ix_22 db   ; D412
@@ -10408,7 +10408,7 @@ objfunc_00_sonic:
    dec    a                            ; 01:4B92 - 3D
    ld     (g_sonic_jump_countdown_timer), a  ; 01:4B93 - 32 8E D2
    set    2, (ix+24)                   ; 01:4B96 - DD CB 18 D6
-   jp     @TODO_4BBE                   ; 01:4B9A - C3 BE 4B
+   jp     @continue_without_applying_gravity  ; 01:4B9A - C3 BE 4B
 
 @suppress_jump_button:
    res    3, (ix+24)                   ; 01:4B9D - DD CB 18 9E
@@ -10423,17 +10423,17 @@ objfunc_00_sonic:
 
 @continue_without_jumping_from_rolling:
    bit    7, h                         ; 01:4BAC - CB 7C
-   jr     nz, @TODO_4BB8               ; 01:4BAE - 20 08
+   jr     nz, @apply_gravity           ; 01:4BAE - 20 08
    ld     a, (tmp_07)                  ; 01:4BB0 - 3A 15 D2
    cp     h                            ; 01:4BB3 - BC
-   jr     z, @TODO_4BBE                ; 01:4BB4 - 28 08
-   jr     c, @TODO_4BBE                ; 01:4BB6 - 38 06
+   jr     z, @continue_without_applying_gravity  ; 01:4BB4 - 28 08
+   jr     c, @continue_without_applying_gravity  ; 01:4BB6 - 38 06
 
-@TODO_4BB8:
+@apply_gravity:
    ld     de, (g_sonic_y_gravity_acceleration)  ; 01:4BB8 - ED 5B 44 D2
    ld     c, $00                       ; 01:4BBC - 0E 00
 
-@TODO_4BBE:
+@continue_without_applying_gravity:
    bit    0, (iy+iy_06_lvflag01-IYBASE)  ; 01:4BBE - FD CB 06 46
    jr     z, @skip_upside_down_gravity_VESTIGIAL  ; 01:4BC2 - 28 12
    push   hl                           ; 01:4BC4 - E5
@@ -10477,7 +10477,7 @@ objfunc_00_sonic:
    call   nz, @fn_set_roll_animation_for_airborne  ; 01:4BF9 - C4 80 52
    ld     a, h                         ; 01:4BFC - 7C
    and    a                            ; 01:4BFD - A7
-   jp     p, @TODO_4C08                ; 01:4BFE - F2 08 4C
+   jp     p, @skip_negating_y_vel_for_absolute_value  ; 01:4BFE - F2 08 4C
    ld     a, h                         ; 01:4C01 - 7C
    cpl                                 ; 01:4C02 - 2F
    ld     h, a                         ; 01:4C03 - 67
@@ -10486,24 +10486,24 @@ objfunc_00_sonic:
    ld     l, a                         ; 01:4C06 - 6F
    inc    hl                           ; 01:4C07 - 23
 
-@TODO_4C08:
+@skip_negating_y_vel_for_absolute_value:
    ld     de, $0100                    ; 01:4C08 - 11 00 01
    ex     de, hl                       ; 01:4C0B - EB
    and    a                            ; 01:4C0C - A7
    sbc    hl, de                       ; 01:4C0D - ED 52
-   jr     nc, @TODO_4C28               ; 01:4C0F - 30 17
+   jr     nc, @continue_maybe_without_setting_animation  ; 01:4C0F - 30 17
    ld     a, (sonic_flags_ix_24)       ; 01:4C11 - 3A 14 D4
    and    $85                          ; 01:4C14 - E6 85
-   jr     nz, @TODO_4C28               ; 01:4C16 - 20 10
+   jr     nz, @continue_maybe_without_setting_animation  ; 01:4C16 - 20 10
    bit    7, (ix+12)                   ; 01:4C18 - DD CB 0C 7E
-   jr     z, @TODO_4C24                ; 01:4C1C - 28 06
+   jr     z, @select_walking_animation  ; 01:4C1C - 28 06
    ld     (ix+20), $13                 ; 01:4C1E - DD 36 14 13
-   jr     @TODO_4C28                   ; 01:4C22 - 18 04
+   jr     @continue_maybe_without_setting_animation  ; 01:4C22 - 18 04
 
-@TODO_4C24:
+@select_walking_animation:
    ld     (ix+20), $01                 ; 01:4C24 - DD 36 14 01
 
-@TODO_4C28:
+@continue_maybe_without_setting_animation:
    ld     bc, $000C                    ; 01:4C28 - 01 0C 00
    ld     de, $0008                    ; 01:4C2B - 11 08 00
    call   get_obj_level_tile_ptr_in_ram  ; 01:4C2E - CD F9 36
@@ -10532,25 +10532,25 @@ objfunc_00_sonic:
    ld     e, (hl)                      ; 01:4C61 - 5E
    inc    hl                           ; 01:4C62 - 23
    ld     d, (hl)                      ; 01:4C63 - 56
-   ld     (sonic_anim_sprite_subindex_ix_17), de  ; 01:4C64 - ED 53 0D D4
+   ld     (sonic_anim_ptr_ix_17), de   ; 01:4C64 - ED 53 0D D4
    ld     a, (var_D2DF)                ; 01:4C68 - 3A DF D2
    sub    c                            ; 01:4C6B - 91
    call   nz, @fn_TODO_521F            ; 01:4C6C - C4 1F 52
-   ld     a, (sonic_ix_19)             ; 01:4C6F - 3A 0F D4
+   ld     a, (sonic_anim_sprite_subindex_ix_19)  ; 01:4C6F - 3A 0F D4
 
-@TODO_4C72:
+@find_next_anim_frame:
    ld     h, $00                       ; 01:4C72 - 26 00
    ld     l, a                         ; 01:4C74 - 6F
    add    hl, de                       ; 01:4C75 - 19
    ld     a, (hl)                      ; 01:4C76 - 7E
    and    a                            ; 01:4C77 - A7
-   jp     p, @TODO_4C83                ; 01:4C78 - F2 83 4C
+   jp     p, @found_anim_frame         ; 01:4C78 - F2 83 4C
    inc    hl                           ; 01:4C7B - 23
    ld     a, (hl)                      ; 01:4C7C - 7E
-   ld     (sonic_ix_19), a             ; 01:4C7D - 32 0F D4
-   jp     @TODO_4C72                   ; 01:4C80 - C3 72 4C
+   ld     (sonic_anim_sprite_subindex_ix_19), a  ; 01:4C7D - 32 0F D4
+   jp     @find_next_anim_frame        ; 01:4C80 - C3 72 4C
 
-@TODO_4C83:
+@found_anim_frame:
    ld     d, a                         ; 01:4C83 - 57
    .IF !shrink_sonicuncart_interleave
    ld     bc, $4000                    ; 01:4C84 - 01 00 40
@@ -10736,11 +10736,11 @@ objfunc_00_sonic:
    ld     a, h                         ; 01:4DBC - 7C
    adc    a, d                         ; 01:4DBD - 8A
    adc    a, (ix+19)                   ; 01:4DBE - DD 8E 13
-   ld     (sonic_ix_19), a             ; 01:4DC1 - 32 0F D4
+   ld     (sonic_anim_sprite_subindex_ix_19), a  ; 01:4DC1 - 32 0F D4
    cp     c                            ; 01:4DC4 - B9
    ret    c                            ; 01:4DC5 - D8
    sub    c                            ; 01:4DC6 - 91
-   ld     (sonic_ix_19), a             ; 01:4DC7 - 32 0F D4
+   ld     (sonic_anim_sprite_subindex_ix_19), a  ; 01:4DC7 - 32 0F D4
    ret                                 ; 01:4DCA - C9
 
 @sonic_physics_main:
@@ -11328,7 +11328,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_y_sub), hl        ; 01:5196 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:5199 - 32 08 D4
    ld     (ix+20), $16                 ; 01:519C - DD 36 14 16
-   ld     a, (sonic_ix_19)             ; 01:51A0 - 3A 0F D4
+   ld     a, (sonic_anim_sprite_subindex_ix_19)  ; 01:51A0 - 3A 0F D4
    cp     $12                          ; 01:51A3 - FE 12
    jp     c, @continue_past_basic_movement_physics  ; 01:51A5 - DA 39 4C
    res    6, (iy+iy_08_lvflag03-IYBASE)  ; 01:51A8 - FD CB 08 B6
