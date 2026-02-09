@@ -124,8 +124,8 @@ g_level_limit_x0 dw   ; D273
 g_level_limit_x1 dw   ; D275
 g_level_limit_y0 dw   ; D277
 g_level_limit_y1 dw   ; D279
-var_D27B dw   ; D27B
-var_D27D dw   ; D27D
+g_level_camera_lock_towards_x dw   ; D27B
+g_level_camera_lock_towards_y dw   ; D27D
 g_chaos_emeralds_collected db   ; D27F
 g_level_lives_collected db   ; D280
 var_D281 db   ; D281
@@ -4734,8 +4734,8 @@ addr_020CB:
    ld     h, a                         ; 00:20F9 - 67
    ld     (g_vdp_scroll_x), a          ; 00:20FA - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:20FD - 32 52 D2
-   ld     (var_D27B), hl               ; 00:2100 - 22 7B D2
-   ld     (var_D27D), hl               ; 00:2103 - 22 7D D2
+   ld     (g_level_camera_lock_towards_x), hl  ; 00:2100 - 22 7B D2
+   ld     (g_level_camera_lock_towards_y), hl  ; 00:2103 - 22 7D D2
    ld     (g_camera_y_look_up_offset_px), hl  ; 00:2106 - 22 B7 D2
    ld     (g_water_irq_line_state), a  ; 00:2109 - 32 47 D2
    ld     (g_water_onscreen_y), a      ; 00:210C - 32 48 D2
@@ -5971,11 +5971,11 @@ addr_02F59:
 addr_02F66:
    bit    6, (iy+iy_07_lvflag02-IYBASE)  ; 00:2F66 - FD CB 07 76
    ret    nz                           ; 00:2F6A - C0
-   ld     hl, (var_D27B)               ; 00:2F6B - 2A 7B D2
+   ld     hl, (g_level_camera_lock_towards_x)  ; 00:2F6B - 2A 7B D2
    ld     a, l                         ; 00:2F6E - 7D
    or     h                            ; 00:2F6F - B4
    call   nz, addr_03140               ; 00:2F70 - C4 40 31
-   ld     hl, (var_D27D)               ; 00:2F73 - 2A 7D D2
+   ld     hl, (g_level_camera_lock_towards_y)  ; 00:2F73 - 2A 7D D2
    ld     a, l                         ; 00:2F76 - 7D
    or     h                            ; 00:2F77 - B4
    call   nz, addr_03122               ; 00:2F78 - C4 22 31
@@ -12171,7 +12171,7 @@ objfunc_12_GHZ_boss:
    set    5, (ix+24)                   ; 01:700C - DD CB 18 EE
    ld     (ix+13), $20                 ; 01:7010 - DD 36 0D 20
    ld     (ix+14), $1C                 ; 01:7014 - DD 36 0E 1C
-   call   addr_07CA6                   ; 01:7018 - CD A6 7C
+   call   move_locked_camera_towards_target  ; 01:7018 - CD A6 7C
    bit    0, (ix+17)                   ; 01:701B - DD CB 11 46
    jr     nz, @already_initialised     ; 01:701F - 20 42
    ld     l, (ix+5)                    ; 01:7021 - DD 6E 05
@@ -12425,7 +12425,7 @@ objfunc_12_GHZ_boss:
    ld     hl, $0012                    ; 01:7232 - 21 12 00
    ld     (tmp_08), hl                 ; 01:7235 - 22 16 D2
    call   boss_generic_update_8hp      ; 01:7238 - CD BE 77
-   call   addr_079FA                   ; 01:723B - CD FA 79
+   call   boss_render_jet_engine_flame  ; 01:723B - CD FA 79
    inc    (ix+19)                      ; 01:723E - DD 34 13
    ld     a, (ix+19)                   ; 01:7241 - DD 7E 13
    and    $0F                          ; 01:7244 - E6 0F
@@ -13083,7 +13083,7 @@ boss_generic_update_8hp:
    ld     hl, $2000                    ; 01:78F3 - 21 00 20
    ld     (g_level_limit_x1), hl       ; 01:78F6 - 22 75 D2
    ld     hl, $0000                    ; 01:78F9 - 21 00 00
-   ld     (var_D27B), hl               ; 01:78FC - 22 7B D2
+   ld     (g_level_camera_lock_towards_x), hl  ; 01:78FC - 22 7B D2
    set    5, (iy+iy_00-IYBASE)         ; 01:78FF - FD CB 00 EE
    set    0, (iy+iy_02-IYBASE)         ; 01:7903 - FD CB 02 C6
    res    1, (iy+iy_02-IYBASE)         ; 01:7907 - FD CB 02 8E
@@ -13115,7 +13115,7 @@ SPRTAB_boss_generic_fly_out:
 .db $60, $62, $64, $66, $68, $FF, $0E, $10, $12, $14, $16, $FF, $40, $42, $44, $46  ; 01:79E2
 .db $48, $FF, $60, $62, $64, $66, $68, $FF                                          ; 01:79F2
 
-addr_079FA:
+boss_render_jet_engine_flame:
    ld     a, (ix+7)                    ; 01:79FA - DD 7E 07
    or     (ix+8)                       ; 01:79FD - DD B6 08
    ret    z                            ; 01:7A00 - C8
@@ -13133,11 +13133,11 @@ addr_079FA:
    ld     de, $0010                    ; 01:7A1E - 11 10 00
    ld     c, $04                       ; 01:7A21 - 0E 04
    bit    7, (ix+9)                    ; 01:7A23 - DD CB 09 7E
-   jr     z, addr_07A2E                ; 01:7A27 - 28 05
+   jr     z, @boss_is_moving_left      ; 01:7A27 - 28 05
    ld     hl, $0028                    ; 01:7A29 - 21 28 00
    ld     c, $00                       ; 01:7A2C - 0E 00
 
-addr_07A2E:
+@boss_is_moving_left:
    ld     (tmp_04), hl                 ; 01:7A2E - 22 12 D2
    ld     (tmp_06), de                 ; 01:7A31 - ED 53 14 D2
    add    a, c                         ; 01:7A35 - 81
@@ -13427,8 +13427,8 @@ spawn_object:
    ret                                 ; 01:7C8B - C9
 
 addr_07C8C:
-   ld     (var_D27B), hl               ; 01:7C8C - 22 7B D2
-   ld     (var_D27D), de               ; 01:7C8F - ED 53 7D D2
+   ld     (g_level_camera_lock_towards_x), hl  ; 01:7C8C - 22 7B D2
+   ld     (g_level_camera_lock_towards_y), de  ; 01:7C8F - ED 53 7D D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:7C93 - 2A 5A D2
    ld     (g_level_limit_x0), hl       ; 01:7C96 - 22 73 D2
    ld     (g_level_limit_x1), hl       ; 01:7C99 - 22 75 D2
@@ -13437,13 +13437,13 @@ addr_07C8C:
    ld     (g_level_limit_y1), hl       ; 01:7CA2 - 22 79 D2
    ret                                 ; 01:7CA5 - C9
 
-addr_07CA6:
-   ld     hl, (var_D27B)               ; 01:7CA6 - 2A 7B D2
+move_locked_camera_towards_target:
+   ld     hl, (g_level_camera_lock_towards_x)  ; 01:7CA6 - 2A 7B D2
    ld     de, (g_level_scroll_x_pix_lo)  ; 01:7CA9 - ED 5B 5A D2
    and    a                            ; 01:7CAD - A7
    sbc    hl, de                       ; 01:7CAE - ED 52
    ret    nz                           ; 01:7CB0 - C0
-   ld     hl, (var_D27D)               ; 01:7CB1 - 2A 7D D2
+   ld     hl, (g_level_camera_lock_towards_y)  ; 01:7CB1 - 2A 7D D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 01:7CB4 - ED 5B 5D D2
    and    a                            ; 01:7CB8 - A7
    sbc    hl, de                       ; 01:7CB9 - ED 52
@@ -13827,7 +13827,7 @@ objfunc_2C_JUN3_boss:
    ld     (ix+13), $20                 ; 02:8057 - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:805B - DD 36 0E 1C
    bit    0, (ix+24)                   ; 02:805F - DD CB 18 46
-   jr     nz, @TODO_80B0               ; 02:8063 - 20 4B
+   jr     nz, @already_initialised     ; 02:8063 - 20 4B
    ld     hl, (sonic_y)                ; 02:8065 - 2A 01 D4
    ld     de, $00E0                    ; 02:8068 - 11 E0 00
    and    a                            ; 02:806B - A7
@@ -13854,17 +13854,17 @@ objfunc_2C_JUN3_boss:
    ld     (g_level_limit_y0), hl       ; 02:809A - 22 77 D2
    ld     (g_level_limit_y1), hl       ; 02:809D - 22 79 D2
    ld     hl, $01F0                    ; 02:80A0 - 21 F0 01
-   ld     (var_D27B), hl               ; 02:80A3 - 22 7B D2
+   ld     (g_level_camera_lock_towards_x), hl  ; 02:80A3 - 22 7B D2
    ld     hl, $0048                    ; 02:80A6 - 21 48 00
-   ld     (var_D27D), hl               ; 02:80A9 - 22 7D D2
+   ld     (g_level_camera_lock_towards_y), hl  ; 02:80A9 - 22 7D D2
    set    0, (ix+24)                   ; 02:80AC - DD CB 18 C6
 
-@TODO_80B0:
-   call   addr_07CA6                   ; 02:80B0 - CD A6 7C
+@already_initialised:
+   call   move_locked_camera_towards_target  ; 02:80B0 - CD A6 7C
    bit    0, (ix+17)                   ; 02:80B3 - DD CB 11 46
-   jr     nz, @TODO_80E7               ; 02:80B7 - 20 2E
-   ld     (ix+15), UNK_081F4&$FF       ; 02:80B9 - DD 36 0F F4
-   ld     (ix+16), UNK_081F4>>8        ; 02:80BD - DD 36 10 81
+   jr     nz, @finished_move_down_entry_animation  ; 02:80B7 - 20 2E
+   ld     (ix+15), SPRTAB_JUN3_boss_facing_left&$FF  ; 02:80B9 - DD 36 0F F4
+   ld     (ix+16), SPRTAB_JUN3_boss_facing_left>>8  ; 02:80BD - DD 36 10 81
    ld     (ix+10), $80                 ; 02:80C1 - DD 36 0A 80
    ld     (ix+11), $00                 ; 02:80C5 - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:80C9 - DD 36 0C 00
@@ -13879,16 +13879,16 @@ objfunc_2C_JUN3_boss:
    ld     (ix+12), a                   ; 02:80E0 - DD 77 0C
    set    0, (ix+17)                   ; 02:80E3 - DD CB 11 C6
 
-@TODO_80E7:
+@finished_move_down_entry_animation:
    ld     a, (ix+18)                   ; 02:80E7 - DD 7E 12
    and    a                            ; 02:80EA - A7
-   jp     nz, @TODO_814A               ; 02:80EB - C2 4A 81
+   jp     nz, @moving_vertically       ; 02:80EB - C2 4A 81
    ld     l, (ix+2)                    ; 02:80EE - DD 6E 02
    ld     h, (ix+3)                    ; 02:80F1 - DD 66 03
    bit    1, (ix+17)                   ; 02:80F4 - DD CB 11 4E
-   jr     nz, @TODO_8122               ; 02:80F8 - 20 28
-   ld     (ix+15), UNK_081F4&$FF       ; 02:80FA - DD 36 0F F4
-   ld     (ix+16), UNK_081F4>>8        ; 02:80FE - DD 36 10 81
+   jr     nz, @moving_right            ; 02:80F8 - 20 28
+   ld     (ix+15), SPRTAB_JUN3_boss_facing_left&$FF  ; 02:80FA - DD 36 0F F4
+   ld     (ix+16), SPRTAB_JUN3_boss_facing_left>>8  ; 02:80FE - DD 36 10 81
    res    1, (ix+24)                   ; 02:8102 - DD CB 18 8E
    ld     (ix+7), $00                  ; 02:8106 - DD 36 07 00
    ld     (ix+8), $FF                  ; 02:810A - DD 36 08 FF
@@ -13896,13 +13896,13 @@ objfunc_2C_JUN3_boss:
    ld     de, $021C                    ; 02:8112 - 11 1C 02
    and    a                            ; 02:8115 - A7
    sbc    hl, de                       ; 02:8116 - ED 52
-   jp     nc, @TODO_81E7               ; 02:8118 - D2 E7 81
+   jp     nc, @continue_to_common_code  ; 02:8118 - D2 E7 81
    ld     (ix+18), $67                 ; 02:811B - DD 36 12 67
-   jp     @TODO_81E7                   ; 02:811F - C3 E7 81
+   jp     @continue_to_common_code     ; 02:811F - C3 E7 81
 
-@TODO_8122:
-   ld     (ix+15), UNK_08206&$FF       ; 02:8122 - DD 36 0F 06
-   ld     (ix+16), UNK_08206>>8        ; 02:8126 - DD 36 10 82
+@moving_right:
+   ld     (ix+15), SPRTAB_JUN3_boss_facing_right&$FF  ; 02:8122 - DD 36 0F 06
+   ld     (ix+16), SPRTAB_JUN3_boss_facing_right>>8  ; 02:8126 - DD 36 10 82
    set    1, (ix+24)                   ; 02:812A - DD CB 18 CE
    ld     (ix+7), $00                  ; 02:812E - DD 36 07 00
    ld     (ix+8), $01                  ; 02:8132 - DD 36 08 01
@@ -13910,43 +13910,43 @@ objfunc_2C_JUN3_boss:
    ld     de, $02AA                    ; 02:813A - 11 AA 02
    and    a                            ; 02:813D - A7
    sbc    hl, de                       ; 02:813E - ED 52
-   jp     c, @TODO_81E7                ; 02:8140 - DA E7 81
+   jp     c, @continue_to_common_code  ; 02:8140 - DA E7 81
    ld     (ix+18), $67                 ; 02:8143 - DD 36 12 67
-   jp     @TODO_81E7                   ; 02:8147 - C3 E7 81
+   jp     @continue_to_common_code     ; 02:8147 - C3 E7 81
 
-@TODO_814A:
+@moving_vertically:
    xor    a                            ; 02:814A - AF
    ld     (ix+7), a                    ; 02:814B - DD 77 07
    ld     (ix+8), a                    ; 02:814E - DD 77 08
    ld     (ix+9), a                    ; 02:8151 - DD 77 09
    ld     hl, $0001                    ; 02:8154 - 21 01 00
    dec    (ix+18)                      ; 02:8157 - DD 35 12
-   jr     z, @TODO_816E                ; 02:815A - 28 12
+   jr     z, @y_vel_will_be_0          ; 02:815A - 28 12
    ld     a, (ix+18)                   ; 02:815C - DD 7E 12
    cp     $40                          ; 02:815F - FE 40
-   jr     nc, @TODO_8171               ; 02:8161 - 30 0E
+   jr     nc, @set_y_vel               ; 02:8161 - 30 0E
    ld     hl, $FFFF                    ; 02:8163 - 21 FF FF
    cp     $28                          ; 02:8166 - FE 28
-   jr     c, @TODO_8171                ; 02:8168 - 38 07
+   jr     c, @set_y_vel                ; 02:8168 - 38 07
    cp     $34                          ; 02:816A - FE 34
-   jr     z, @TODO_817D                ; 02:816C - 28 0F
+   jr     z, @drop_bomb                ; 02:816C - 28 0F
 
-@TODO_816E:
+@y_vel_will_be_0:
    ld     hl, $0000                    ; 02:816E - 21 00 00
 
-@TODO_8171:
+@set_y_vel:
    ld     (ix+10), $00                 ; 02:8171 - DD 36 0A 00
    ld     (ix+11), l                   ; 02:8175 - DD 75 0B
    ld     (ix+12), h                   ; 02:8178 - DD 74 0C
-   jr     @TODO_81E7                   ; 02:817B - 18 6A
+   jr     @continue_to_common_code     ; 02:817B - 18 6A
 
-@TODO_817D:
+@drop_bomb:
    ld     a, (ix+17)                   ; 02:817D - DD 7E 11
    xor    $02                          ; 02:8180 - EE 02
    ld     (ix+17), a                   ; 02:8182 - DD 77 11
    ld     a, (g_boss_hits_taken)       ; 02:8185 - 3A EC D2
    cp     $08                          ; 02:8188 - FE 08
-   jr     nc, @TODO_81E7               ; 02:818A - 30 5B
+   jr     nc, @continue_to_common_code  ; 02:818A - 30 5B
    call   spawn_object                 ; 02:818C - CD 7B 7C
    ret    c                            ; 02:818F - D8
    ld     e, (ix+2)                    ; 02:8190 - DD 5E 02
@@ -13983,18 +13983,18 @@ objfunc_2C_JUN3_boss:
    ld     (ix+18), a                   ; 02:81E2 - DD 77 12
    pop    ix                           ; 02:81E5 - DD E1
 
-@TODO_81E7:
+@continue_to_common_code:
    ld     hl, $005A                    ; 02:81E7 - 21 5A 00
    ld     (tmp_08), hl                 ; 02:81EA - 22 16 D2
    call   boss_generic_update_8hp      ; 02:81ED - CD BE 77
-   call   addr_079FA                   ; 02:81F0 - CD FA 79
+   call   boss_render_jet_engine_flame  ; 02:81F0 - CD FA 79
    ret                                 ; 02:81F3 - C9
 
-UNK_081F4:
+SPRTAB_JUN3_boss_facing_left:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $54, $56, $58  ; 02:81F4
 .db $68, $FF                                                                        ; 02:8204
 
-UNK_08206:
+SPRTAB_JUN3_boss_facing_right:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $5A, $5C, $5E  ; 02:8206
 .db $72, $FF                                                                        ; 02:8216
 
@@ -14012,11 +14012,11 @@ objfunc_2B_JUN3_boss_bomb:
    ld     de, $0002                    ; 02:8239 - 11 02 00
    ld     c, $00                       ; 02:823C - 0E 00
    and    a                            ; 02:823E - A7
-   jp     m, @TODO_8246                ; 02:823F - FA 46 82
+   jp     m, @x_vel_was_positive       ; 02:823F - FA 46 82
    dec    c                            ; 02:8242 - 0D
    ld     de, $FFFE                    ; 02:8243 - 11 FE FF
 
-@TODO_8246:
+@x_vel_was_positive:
    add    hl, de                       ; 02:8246 - 19
    adc    a, c                         ; 02:8247 - 89
    ld     (ix+7), l                    ; 02:8248 - DD 75 07
@@ -14031,11 +14031,11 @@ objfunc_2B_JUN3_boss_bomb:
    ld     c, a                         ; 02:8260 - 4F
    ld     a, h                         ; 02:8261 - 7C
    cp     $03                          ; 02:8262 - FE 03
-   jr     c, @TODO_826B                ; 02:8264 - 38 05
+   jr     c, @skip_clamp_y_vel         ; 02:8264 - 38 05
    ld     hl, $0300                    ; 02:8266 - 21 00 03
    ld     c, $00                       ; 02:8269 - 0E 00
 
-@TODO_826B:
+@skip_clamp_y_vel:
    ld     (ix+10), l                   ; 02:826B - DD 75 0A
    ld     (ix+11), h                   ; 02:826E - DD 74 0B
    ld     (ix+12), c                   ; 02:8271 - DD 71 0C
@@ -14045,14 +14045,14 @@ objfunc_2B_JUN3_boss_bomb:
    ld     (ix+17), a                   ; 02:827C - DD 77 11
    ld     a, (ix+17)                   ; 02:827F - DD 7E 11
    cp     (ix+18)                      ; 02:8282 - DD BE 12
-   jr     nc, @TODO_8291               ; 02:8285 - 30 0A
-   ld     bc, UNK_082C1                ; 02:8287 - 01 C1 82
-   ld     de, UNK_082CD                ; 02:828A - 11 CD 82
+   jr     nc, @handle_explosion        ; 02:8285 - 30 0A
+   ld     bc, LUT_JUN3_boss_bomb_anim_sequence_normal  ; 02:8287 - 01 C1 82
+   ld     de, SPRTAB_JUN3_boss_bomb    ; 02:828A - 11 CD 82
    call   do_framed_animation          ; 02:828D - CD 41 7C
    ret                                 ; 02:8290 - C9
 
-@TODO_8291:
-   jr     nz, @TODO_82A0               ; 02:8291 - 20 0D
+@handle_explosion:
+   jr     nz, @skip_explosion_sound_effect  ; 02:8291 - 20 0D
    ld     a, (g_global_tick_counter)   ; 02:8293 - 3A 23 D2
    and    $01                          ; 02:8296 - E6 01
    ret    z                            ; 02:8298 - C8
@@ -14060,12 +14060,12 @@ objfunc_2B_JUN3_boss_bomb:
    ld     a, $01                       ; 02:829D - 3E 01
    rst    $28                          ; 02:829F - EF
 
-@TODO_82A0:
+@skip_explosion_sound_effect:
    xor    a                            ; 02:82A0 - AF
    ld     (ix+7), a                    ; 02:82A1 - DD 77 07
    ld     (ix+8), a                    ; 02:82A4 - DD 77 08
    ld     (ix+9), a                    ; 02:82A7 - DD 77 09
-   ld     bc, UNK_082C6                ; 02:82AA - 01 C6 82
+   ld     bc, LUT_JUN3_boss_bomb_anim_sequence_explosion  ; 02:82AA - 01 C6 82
    ld     de, UNK_0A3BB                ; 02:82AD - 11 BB A3
    call   do_framed_animation          ; 02:82B0 - CD 41 7C
    ld     a, (ix+18)                   ; 02:82B3 - DD 7E 12
@@ -14075,13 +14075,13 @@ objfunc_2B_JUN3_boss_bomb:
    ld     (ix+0), $FF                  ; 02:82BC - DD 36 00 FF
    ret                                 ; 02:82C0 - C9
 
-UNK_082C1:
+LUT_JUN3_boss_bomb_anim_sequence_normal:
 .db $00, $04, $01, $04, $FF                                                         ; 02:82C1
 
-UNK_082C6:
+LUT_JUN3_boss_bomb_anim_sequence_explosion:
 .db $01, $0C, $02, $0C, $03, $0C, $FF                                               ; 02:82C6
 
-UNK_082CD:
+SPRTAB_JUN3_boss_bomb:
 .db $08, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:82CD
 .db $FF, $FF, $0C, $0E, $FF, $FF, $FF, $FF, $FF                                     ; 02:82DD
 
@@ -14246,7 +14246,7 @@ objfunc_48_UNKNOWN:
    set    5, (ix+24)                   ; 02:8496 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:849A - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:849E - DD 36 0E 1C
-   call   addr_07CA6                   ; 02:84A2 - CD A6 7C
+   call   move_locked_camera_towards_target  ; 02:84A2 - CD A6 7C
    ld     (ix+15), UNK_0865A&$FF       ; 02:84A5 - DD 36 0F 5A
    ld     (ix+16), UNK_0865A>>8        ; 02:84A9 - DD 36 10 86
    bit    0, (ix+24)                   ; 02:84AD - DD CB 18 46
@@ -15647,7 +15647,7 @@ objfunc_49_UNKNOWN:
    set    5, (ix+24)                   ; 02:9267 - DD CB 18 EE
    ld     (ix+13), $20                 ; 02:926B - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:926F - DD 36 0E 1C
-   call   addr_07CA6                   ; 02:9273 - CD A6 7C
+   call   move_locked_camera_towards_target  ; 02:9273 - CD A6 7C
    ld     (ix+15), UNK_09493&$FF       ; 02:9276 - DD 36 0F 93
    ld     (ix+16), UNK_09493>>8        ; 02:927A - DD 36 10 94
    bit    0, (ix+24)                   ; 02:927E - DD CB 18 46
@@ -17813,7 +17813,7 @@ objfunc_22_UNKNOWN:
    ld     (g_level_limit_y0), hl       ; 02:A80A - 22 77 D2
    ld     (g_level_limit_y1), hl       ; 02:A80D - 22 79 D2
    ld     hl, $0220                    ; 02:A810 - 21 20 02
-   ld     (var_D27D), hl               ; 02:A813 - 22 7D D2
+   ld     (g_level_camera_lock_towards_y), hl  ; 02:A813 - 22 7D D2
    ld     hl, ART_0C_EF3F              ; 02:A816 - 21 3F EF
    ld     de, $2000                    ; 02:A819 - 11 00 20
    ld     a, $0C                       ; 02:A81C - 3E 0C
@@ -19290,7 +19290,7 @@ objfunc_4A_UNKNOWN:
    set    5, (ix+24)                   ; 02:B63C - DD CB 18 EE
    bit    2, (ix+24)                   ; 02:B640 - DD CB 18 56
    jp     nz, addr_0B821               ; 02:B644 - C2 21 B8
-   call   addr_07CA6                   ; 02:B647 - CD A6 7C
+   call   move_locked_camera_towards_target  ; 02:B647 - CD A6 7C
    call   addr_0B7E6                   ; 02:B64A - CD E6 B7
    bit    0, (ix+24)                   ; 02:B64D - DD CB 18 46
    jr     nz, addr_0B697               ; 02:B651 - 20 44
@@ -20189,7 +20189,7 @@ addr_0BE96:
    rst    $28                          ; 02:BED6 - EF
 
 addr_0BED7:
-   call   addr_079FA                   ; 02:BED7 - CD FA 79
+   call   boss_render_jet_engine_flame  ; 02:BED7 - CD FA 79
    bit    0, (ix+24)                   ; 02:BEDA - DD CB 18 46
    ret    z                            ; 02:BEDE - C8
    xor    a                            ; 02:BEDF - AF
