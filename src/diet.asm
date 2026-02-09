@@ -143,8 +143,8 @@ g_unknown_UNUSED_D229 dw   ; D229
 g_SIG00b3_palette_addr dw   ; D22B
 .  dsb 2
 g_SIG00b3_palettes_present db   ; D22F
-var_D230 dw   ; D230
-var_D232 dw   ; D232
+g_current_displayed_palette_0 dw   ; D230
+g_current_displayed_palette_1 dw   ; D232
 .  dsb 1
 g_committed_rompage_1 db   ; D235
 g_committed_rompage_2 db   ; D236
@@ -1510,14 +1510,14 @@ load_palettes_IRQ:
    ; SAVING: 1 byte
    bit    0, a                         ; 00:056B - CB 47
    jr     z, +                         ; 00:056D - 28 06
-   ld     (var_D230), hl               ; 00:056F - 22 30 D2
+   ld     (g_current_displayed_palette_0), hl  ; 00:056F - 22 30 D2
    call   ++                           ; 00:0572 - CD 89 05
 
 +:
    pop    af                           ; 00:0575 - F1
    bit    1, a                         ; 00:0576 - CB 4F
    ret    z                            ; 00:0578 - C8
-   ld     (var_D232), hl               ; 00:0579 - 22 32 D2
+   ld     (g_current_displayed_palette_1), hl  ; 00:0579 - 22 32 D2
    .IF 0
    ld     b, $10                       ; 00:057C - 06 10
    ld     c, $10                       ; 00:057E - 0E 10
@@ -2769,7 +2769,7 @@ addr_00A5F:
    ;; See above, B is safe now.
    push   bc                           ; 00:0A5F - C5
    .ENDIF
-   ld     hl, (var_D230)               ; 00:0A60 - 2A 30 D2
+   ld     hl, (g_current_displayed_palette_0)  ; 00:0A60 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0A63 - 11 BC D3
    .IF 0
    .ELSE
@@ -2777,7 +2777,7 @@ addr_00A5F:
    .ENDIF
    ld     b, $10                       ; 00:0A66 - 06 10
    call   palette_fade_to_black        ; 00:0A68 - CD 90 0A
-   ld     hl, (var_D232)               ; 00:0A6B - 2A 32 D2
+   ld     hl, (g_current_displayed_palette_1)  ; 00:0A6B - 2A 32 D2
    ld     b, $10                       ; 00:0A6E - 06 10
    call   palette_fade_to_black        ; 00:0A70 - CD 90 0A
    .IF 0
@@ -2854,7 +2854,7 @@ palette_fade_to_black:
 
 addr_00AAE:
    ld     (tmp_06), hl                 ; 00:0AAE - 22 14 D2
-   ld     hl, (var_D230)               ; 00:0AB1 - 2A 30 D2
+   ld     hl, (g_current_displayed_palette_0)  ; 00:0AB1 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0AB4 - 11 BC D3
    ld     bc, $0020                    ; 00:0AB7 - 01 20 00
    ldir                                ; 00:0ABA - ED B0
@@ -3003,7 +3003,7 @@ palette_fade_up:
    ;; SAVING: 3 bytes
    .ENDIF
    ld     (tmp_06), hl                 ; 00:0B60 - 22 14 D2
-   ld     hl, (var_D230)               ; 00:0B63 - 2A 30 D2
+   ld     hl, (g_current_displayed_palette_0)  ; 00:0B63 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0B66 - 11 BC D3
    ld     bc, $0020                    ; 00:0B69 - 01 20 00
    ldir                                ; 00:0B6C - ED B0
@@ -5808,11 +5808,11 @@ addr_01F06:
    .ENDIF
    ld     e, $00                       ; 00:1F1C - 1E 00
    ld     a, (var_D2B2)                ; 00:1F1E - 3A B2 D2
-   ld     hl, (var_D230)               ; 00:1F21 - 2A 30 D2
+   ld     hl, (g_current_displayed_palette_0)  ; 00:1F21 - 2A 30 D2
    and    a                            ; 00:1F24 - A7
    jp     p, addr_01F2F                ; 00:1F25 - F2 2F 1F
    and    $7F                          ; 00:1F28 - E6 7F
-   ld     hl, (var_D232)               ; 00:1F2A - 2A 32 D2
+   ld     hl, (g_current_displayed_palette_1)  ; 00:1F2A - 2A 32 D2
    ld     e, $10                       ; 00:1F2D - 1E 10
 
 addr_01F2F:
