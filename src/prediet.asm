@@ -8169,13 +8169,13 @@ objfunc_00_sonic:
    jp     nz, @sonic_is_rolling        ; 01:4A86 - C2 2E 53
    ld     a, (ix+14)                   ; 01:4A89 - DD 7E 0E
    cp     $20                          ; 01:4A8C - FE 20
-   jr     z, @skip_adjust_y_pos_before_roll  ; 01:4A8E - 28 0A
+   jr     z, @skip_adjust_y_pos_after_roll  ; 01:4A8E - 28 0A
    ld     hl, (sonic_y)                ; 01:4A90 - 2A 01 D4
    ld     de, $FFF8                    ; 01:4A93 - 11 F8 FF
    add    hl, de                       ; 01:4A96 - 19
    ld     (sonic_y), hl                ; 01:4A97 - 22 01 D4
 
-@skip_adjust_y_pos_before_roll:
+@skip_adjust_y_pos_after_roll:
    ld     (ix+13), $18                 ; 01:4A9A - DD 36 0D 18
    ld     (ix+14), $20                 ; 01:4A9E - DD 36 0E 20
    ld     hl, (sonic_vel_x_sub)        ; 01:4AA2 - 2A 03 D4
@@ -9394,13 +9394,13 @@ objfunc_00_sonic:
 @sonic_is_rolling:
    ld     a, (ix+14)                   ; 01:532E - DD 7E 0E
    cp     $18                          ; 01:5331 - FE 18
-   jr     z, @skip_adjust_y_pos_after_roll  ; 01:5333 - 28 0A
+   jr     z, @skip_adjust_y_pos_before_roll  ; 01:5333 - 28 0A
    ld     hl, (sonic_y)                ; 01:5335 - 2A 01 D4
    ld     de, $0008                    ; 01:5338 - 11 08 00
    add    hl, de                       ; 01:533B - 19
    ld     (sonic_y), hl                ; 01:533C - 22 01 D4
 
-@skip_adjust_y_pos_after_roll:
+@skip_adjust_y_pos_before_roll:
    ld     (ix+13), $18                 ; 01:533F - DD 36 0D 18
    ld     (ix+14), $18                 ; 01:5343 - DD 36 0E 18
    ld     hl, (sonic_vel_x_sub)        ; 01:5347 - 2A 03 D4
