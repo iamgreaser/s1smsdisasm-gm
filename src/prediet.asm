@@ -206,8 +206,8 @@ g_sonic_bounce_vel_y_pix_hi db   ; D2E8
 var_D2E9 dw   ; D2E9
 .  dsb 1
 g_boss_hits_taken db   ; D2EC
-var_D2ED db   ; D2ED (auto)
-var_D2EE db   ; D2EE
+g_boss_death_next_explosion_countdown_timer db   ; D2ED
+g_boss_death_explosions_done_then_countup_timer db   ; D2EE
 .  dsb 3
 g_object_count db   ; D2F2
 g_invincibility_sparkle_position_buffer_0 dw   ; D2F3
@@ -12639,7 +12639,7 @@ objfunc_25_animal_capsule:
    cp     $14                          ; 01:746D - FE 14
    ret    c                            ; 01:746F - D8
    ld     (ix+17), $00                 ; 01:7470 - DD 36 11 00
-   call   addr_07A3A                   ; 01:7474 - CD 3A 7A
+   call   spawn_explosion              ; 01:7474 - CD 3A 7A
    inc    (ix+18)                      ; 01:7477 - DD 34 12
    ret                                 ; 01:747A - C9
 
@@ -12932,10 +12932,10 @@ SPRITEMAP_animal_0_airborne_others:
 boss_generic_update_8hp:
    ld     a, (g_boss_hits_taken)       ; 01:77BE - 3A EC D2
    cp     $08                          ; 01:77C1 - FE 08
-   jr     nc, @TODO_7841               ; 01:77C3 - 30 7C
+   jr     nc, @handle_death_sequence   ; 01:77C3 - 30 7C
    ld     a, (g_pal_flash_countdown_timer)  ; 01:77C5 - 3A B1 D2
    and    a                            ; 01:77C8 - A7
-   jp     nz, @TODO_7821               ; 01:77C9 - C2 21 78
+   jp     nz, @skip_damage_check_due_to_flashing_anim  ; 01:77C9 - C2 21 78
    ld     hl, $0C08                    ; 01:77CC - 21 08 0C
    ld     (tmp_06), hl                 ; 01:77CF - 22 14 D2
    call   check_collision_with_sonic   ; 01:77D2 - CD 56 39
@@ -12944,11 +12944,11 @@ boss_generic_update_8hp:
    ret    nz                           ; 01:77DA - C0
    ld     a, (sonic_flags_ix_24)       ; 01:77DB - 3A 14 D4
    rrca                                ; 01:77DE - 0F
-   jr     c, @TODO_77E6                ; 01:77DF - 38 05
+   jr     c, @sonic_causes_damage      ; 01:77DF - 38 05
    and    $02                          ; 01:77E1 - E6 02
    jp     z, damage_sonic              ; 01:77E3 - CA FD 35
 
-@TODO_77E6:
+@sonic_causes_damage:
    ld     de, $0001                    ; 01:77E6 - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 01:77E9 - 2A 06 D4
    ld     a, l                         ; 01:77EC - 7D
@@ -12980,9 +12980,9 @@ boss_generic_update_8hp:
    inc    a                            ; 01:781D - 3C
    ld     (g_boss_hits_taken), a       ; 01:781E - 32 EC D2
 
-@TODO_7821:
+@skip_damage_check_due_to_flashing_anim:
    ld     hl, (tmp_08)                 ; 01:7821 - 2A 16 D2
-   ld     de, UNK_07922                ; 01:7824 - 11 22 79
+   ld     de, SPRTAB_boss_generic_fly_out  ; 01:7824 - 11 22 79
    add    hl, de                       ; 01:7827 - 19
    bit    1, (ix+24)                   ; 01:7828 - DD CB 18 4E
    jr     z, @TODO_7832                ; 01:782C - 28 04
@@ -12992,13 +12992,13 @@ boss_generic_update_8hp:
 @TODO_7832:
    ld     (ix+15), l                   ; 01:7832 - DD 75 0F
    ld     (ix+16), h                   ; 01:7835 - DD 74 10
-   ld     hl, var_D2ED                 ; 01:7838 - 21 ED D2
+   ld     hl, g_boss_death_next_explosion_countdown_timer  ; 01:7838 - 21 ED D2
    ld     (hl), $18                    ; 01:783B - 36 18
    inc    hl                           ; 01:783D - 23
    ld     (hl), $00                    ; 01:783E - 36 00
    ret                                 ; 01:7840 - C9
 
-@TODO_7841:
+@handle_death_sequence:
    xor    a                            ; 01:7841 - AF
    ld     (ix+7), a                    ; 01:7842 - DD 77 07
    ld     (ix+8), a                    ; 01:7845 - DD 77 08
@@ -13014,27 +13014,27 @@ boss_generic_update_8hp:
 
 @TODO_7863:
    add    hl, de                       ; 01:7863 - 19
-   ld     de, UNK_07922                ; 01:7864 - 11 22 79
+   ld     de, SPRTAB_boss_generic_fly_out  ; 01:7864 - 11 22 79
    add    hl, de                       ; 01:7867 - 19
    ld     (ix+15), l                   ; 01:7868 - DD 75 0F
    ld     (ix+16), h                   ; 01:786B - DD 74 10
-   ld     hl, var_D2EE                 ; 01:786E - 21 EE D2
+   ld     hl, g_boss_death_explosions_done_then_countup_timer  ; 01:786E - 21 EE D2
    ld     a, (hl)                      ; 01:7871 - 7E
    cp     $0A                          ; 01:7872 - FE 0A
-   jp     nc, @TODO_7882               ; 01:7874 - D2 82 78
+   jp     nc, @already_done_10_explosions  ; 01:7874 - D2 82 78
    dec    hl                           ; 01:7877 - 2B
    dec    (hl)                         ; 01:7878 - 35
    ret    nz                           ; 01:7879 - C0
    ld     (hl), $18                    ; 01:787A - 36 18
    inc    hl                           ; 01:787C - 23
    inc    (hl)                         ; 01:787D - 34
-   call   addr_07A3A                   ; 01:787E - CD 3A 7A
+   call   spawn_explosion              ; 01:787E - CD 3A 7A
    ret                                 ; 01:7881 - C9
 
-@TODO_7882:
-   ld     a, (var_D2EE)                ; 01:7882 - 3A EE D2
+@already_done_10_explosions:
+   ld     a, (g_boss_death_explosions_done_then_countup_timer)  ; 01:7882 - 3A EE D2
    cp     $3A                          ; 01:7885 - FE 3A
-   jr     nc, @TODO_78A1               ; 01:7887 - 30 18
+   jr     nc, @already_done_downwards_movement  ; 01:7887 - 30 18
    ld     l, (ix+4)                    ; 01:7889 - DD 6E 04
    ld     h, (ix+5)                    ; 01:788C - DD 66 05
    ld     a, (ix+6)                    ; 01:788F - DD 7E 06
@@ -13045,16 +13045,16 @@ boss_generic_update_8hp:
    ld     (ix+5), h                    ; 01:789B - DD 74 05
    ld     (ix+6), a                    ; 01:789E - DD 77 06
 
-@TODO_78A1:
-   ld     hl, var_D2EE                 ; 01:78A1 - 21 EE D2
+@already_done_downwards_movement:
+   ld     hl, g_boss_death_explosions_done_then_countup_timer  ; 01:78A1 - 21 EE D2
    ld     a, (hl)                      ; 01:78A4 - 7E
    cp     $5A                          ; 01:78A5 - FE 5A
-   jr     nc, @TODO_78AB               ; 01:78A7 - 30 02
+   jr     nc, @time_to_fly_out         ; 01:78A7 - 30 02
    inc    (hl)                         ; 01:78A9 - 34
    ret                                 ; 01:78AA - C9
 
-@TODO_78AB:
-   jr     nz, @TODO_78C0               ; 01:78AB - 20 13
+@time_to_fly_out:
+   jr     nz, @already_restored_music  ; 01:78AB - 20 13
    ld     (hl), $5B                    ; 01:78AD - 36 5B
    ld     a, (g_level_music)           ; 01:78AF - 3A FC D2
    rst    $18                          ; 01:78B2 - DF
@@ -13063,15 +13063,15 @@ boss_generic_update_8hp:
    call   wait_until_irq_ticked        ; 01:78BA - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 01:78BD - FD 77 0A
 
-@TODO_78C0:
+@already_restored_music:
    ld     (ix+7), $00                  ; 01:78C0 - DD 36 07 00
    ld     (ix+8), $03                  ; 01:78C4 - DD 36 08 03
    ld     (ix+9), $00                  ; 01:78C8 - DD 36 09 00
    ld     (ix+10), $60                 ; 01:78CC - DD 36 0A 60
    ld     (ix+11), $FF                 ; 01:78D0 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 01:78D4 - DD 36 0C FF
-   ld     (ix+15), UNK_07922&$FF       ; 01:78D8 - DD 36 0F 22
-   ld     (ix+16), UNK_07922>>8        ; 01:78DC - DD 36 10 79
+   ld     (ix+15), SPRTAB_boss_generic_fly_out&$FF  ; 01:78D8 - DD 36 0F 22
+   ld     (ix+16), SPRTAB_boss_generic_fly_out>>8  ; 01:78DC - DD 36 10 79
    ld     l, (ix+2)                    ; 01:78E0 - DD 6E 02
    ld     h, (ix+3)                    ; 01:78E3 - DD 66 03
    ld     de, (g_level_scroll_x_pix_lo)  ; 01:78E6 - ED 5B 5A D2
@@ -13089,17 +13089,17 @@ boss_generic_update_8hp:
    res    1, (iy+iy_02-IYBASE)         ; 01:7907 - FD CB 02 8E
    ld     a, (g_level)                 ; 01:790B - 3A 3E D2
    cp     $0B                          ; 01:790E - FE 0B
-   jr     nz, @TODO_7916               ; 01:7910 - 20 04
+   jr     nz, @skip_special_case_LAB3  ; 01:7910 - 20 04
    set    1, (iy+iy_09-IYBASE)         ; 01:7912 - FD CB 09 CE
 
-@TODO_7916:
+@skip_special_case_LAB3:
    ld     hl, ART_0C_DA28              ; 01:7916 - 21 28 DA
    ld     de, $2000                    ; 01:7919 - 11 00 20
    ld     a, $0C                       ; 01:791C - 3E 0C
    call   load_art                     ; 01:791E - CD 05 04
    ret                                 ; 01:7921 - C9
 
-UNK_07922:
+SPRTAB_boss_generic_fly_out:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 01:7922
 .db $72, $FF, $20, $10, $12, $14, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62  ; 01:7932
 .db $64, $66, $68, $FF, $2A, $16, $18, $1A, $32, $FF, $4A, $4C, $4E, $50, $52, $FF  ; 01:7942
@@ -13144,7 +13144,7 @@ addr_07A2E:
    call   draw_sprite                  ; 01:7A36 - CD 81 35
    ret                                 ; 01:7A39 - C9
 
-addr_07A3A:
+spawn_explosion:
    call   spawn_object                 ; 01:7A3A - CD 7B 7C
    ret    c                            ; 01:7A3D - D8
    push   hl                           ; 01:7A3E - E5
@@ -20200,7 +20200,7 @@ addr_0BED7:
    ld     (ix+16), UNK_0BF33>>8        ; 02:BEEE - DD 36 10 BF
    dec    (ix+17)                      ; 02:BEF2 - DD 35 11
    ret    nz                           ; 02:BEF5 - C0
-   call   addr_07A3A                   ; 02:BEF6 - CD 3A 7A
+   call   spawn_explosion              ; 02:BEF6 - CD 3A 7A
    ld     (ix+17), $18                 ; 02:BEF9 - DD 36 11 18
    inc    (ix+19)                      ; 02:BEFD - DD 34 13
    ld     a, (ix+19)                   ; 02:BF00 - DD 7E 13
