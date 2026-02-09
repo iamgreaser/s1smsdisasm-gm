@@ -32,9 +32,9 @@ g_sprite_table_20 db   ; D03C
 .  dsb 2
 g_sprite_table_21 db   ; D03F
 .  dsb 192
-var_D100 db   ; D100 (auto)
+g_h_tile_scroll_dispatch_table db   ; D100
 .  dsb 127
-var_D180 db   ; D180 (auto)
+g_v_tile_scroll_dispatch_table db   ; D180
 .  dsb 127
 var_D200 db   ; D200 (auto)
 g_last_rle_byte db   ; D201
@@ -1439,7 +1439,7 @@ addr_00719:
    ld     b, $00                       ; 00:0722 - 06 00
    ld     (var_D20E), bc               ; 00:0724 - ED 43 0E D2
    exx                                 ; 00:0728 - D9
-   ld     de, var_D180                 ; 00:0729 - 11 80 D1
+   ld     de, g_v_tile_scroll_dispatch_table  ; 00:0729 - 11 80 D1
    exx                                 ; 00:072C - D9
    ld     de, (g_level_width)          ; 00:072D - ED 5B 38 D2
    ld     b, $07                       ; 00:0731 - 06 07
@@ -1515,7 +1515,7 @@ addr_00789:
    ld     b, $00                       ; 00:0796 - 06 00
    ld     (var_D20E), bc               ; 00:0798 - ED 43 0E D2
    exx                                 ; 00:079C - D9
-   ld     de, var_D100                 ; 00:079D - 11 00 D1
+   ld     de, g_h_tile_scroll_dispatch_table  ; 00:079D - 11 00 D1
    exx                                 ; 00:07A0 - D9
    ld     b, $09                       ; 00:07A1 - 06 09
 
@@ -1599,7 +1599,7 @@ addr_00802:
    ld     d, $7F                       ; 00:0813 - 16 7F
    ld     e, $07                       ; 00:0815 - 1E 07
    exx                                 ; 00:0817 - D9
-   ld     hl, var_D180                 ; 00:0818 - 21 80 D1
+   ld     hl, g_v_tile_scroll_dispatch_table  ; 00:0818 - 21 80 D1
    ld     a, (g_vdp_scroll_y)          ; 00:081B - 3A 52 D2
    and    $1F                          ; 00:081E - E6 1F
    srl    a                            ; 00:0820 - CB 3F
@@ -1673,7 +1673,7 @@ addr_00869:
    add    hl, bc                       ; 00:0886 - 09
    set    6, h                         ; 00:0887 - CB F4
    ex     de, hl                       ; 00:0889 - EB
-   ld     hl, var_D100                 ; 00:088A - 21 00 D1
+   ld     hl, g_h_tile_scroll_dispatch_table  ; 00:088A - 21 00 D1
    ld     a, (g_vdp_scroll_x)          ; 00:088D - 3A 51 D2
    and    $1F                          ; 00:0890 - E6 1F
    add    a, $08                       ; 00:0892 - C6 08
