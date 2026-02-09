@@ -11730,13 +11730,13 @@ objfunc_00_sonic:
    ld     (ix+20), $15                 ; 01:54B5 - DD 36 14 15
    jp     @continue_past_basic_movement_physics  ; 01:54B9 - C3 39 4C
 
-@special_00:
+@special_00_nothing:
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 01:54BC - FD CB 06 7E
    ret    nz                           ; 01:54C0 - C0
    res    4, (ix+24)                   ; 01:54C1 - DD CB 18 A6
    ret                                 ; 01:54C5 - C9
 
-@special_01:
+@special_01_spikes:
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:54C6 - FD CB 05 46
    jp     z, damage_sonic              ; 01:54CA - CA FD 35
    ret                                 ; 01:54CD - C9
@@ -12188,7 +12188,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_y_hi), a          ; 01:57F0 - 32 08 D4
    jp     @TODO_57BE                   ; 01:57F3 - C3 BE 57
 
-@special_17:
+@special_17_SKY1_lightning:
    ld     hl, (var_D2E9)               ; 01:57F6 - 2A E9 D2
    ld     de, $0082                    ; 01:57F9 - 11 82 00
    and    a                            ; 01:57FC - A7
@@ -12326,9 +12326,9 @@ objfunc_00_sonic:
    ret                                 ; 01:58E4 - C9
 
 CODEPTRTAB_sonic_tile_specials:
-.dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
+.dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
 .dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
-.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
+.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17_SKY1_lightning  ; 01:5905
 .dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
 SPRITEMAP_sonic_normal:
