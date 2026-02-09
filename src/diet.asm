@@ -230,9 +230,9 @@ g_screen_tile_replace_x db   ; D2AB
 var_D2AC db   ; D2AC
 g_screen_tile_replace_y dw   ; D2AD
 g_screen_tile_replace_data_ptr dw   ; D2AF
-var_D2B1 db   ; D2B1
-var_D2B2 db   ; D2B2
-var_D2B3 db   ; D2B3
+g_pal_flash_countdown_timer db   ; D2B1
+g_pal_flash_idx db   ; D2B2
+g_pal_flash_color_value db   ; D2B3
 g_prev_sprite_count db   ; D2B4
 g_demo_next_input_relptr dw   ; D2B5
 g_camera_y_look_up_offset_px dw   ; D2B7
@@ -5637,7 +5637,7 @@ addr_01DDB:
    jp     nz, addr_02067               ; 00:1DDF - C2 67 20
 
 addr_01DE2:
-   ld     a, (var_D2B1)                ; 00:1DE2 - 3A B1 D2
+   ld     a, (g_pal_flash_countdown_timer)  ; 00:1DE2 - 3A B1 D2
    and    a                            ; 00:1DE5 - A7
    call   nz, addr_01F06               ; 00:1DE6 - C4 06 1F
    bit    1, (iy+iy_07_lvflag02-IYBASE)  ; 00:1DE9 - FD CB 07 4E
@@ -5791,7 +5791,7 @@ addr_01EFF:
 
 addr_01F06:
    dec    a                            ; 00:1F06 - 3D
-   ld     (var_D2B1), a                ; 00:1F07 - 32 B1 D2
+   ld     (g_pal_flash_countdown_timer), a  ; 00:1F07 - 32 B1 D2
    ld     e, a                         ; 00:1F0A - 5F
    di                                  ; 00:1F0B - F3
    ld     a, $01                       ; 00:1F0C - 3E 01
@@ -5807,7 +5807,7 @@ addr_01F06:
    call set_slot_1_2
    .ENDIF
    ld     e, $00                       ; 00:1F1C - 1E 00
-   ld     a, (var_D2B2)                ; 00:1F1E - 3A B2 D2
+   ld     a, (g_pal_flash_idx)         ; 00:1F1E - 3A B2 D2
    ld     hl, (g_current_displayed_palette_0)  ; 00:1F21 - 2A 30 D2
    and    a                            ; 00:1F24 - A7
    jp     p, addr_01F2F                ; 00:1F25 - F2 2F 1F
@@ -5823,11 +5823,11 @@ addr_01F2F:
    out    ($BF), a                     ; 00:1F34 - D3 BF
    ld     a, $C0                       ; 00:1F36 - 3E C0
    out    ($BF), a                     ; 00:1F38 - D3 BF
-   ld     a, (var_D2B1)                ; 00:1F3A - 3A B1 D2
+   ld     a, (g_pal_flash_countdown_timer)  ; 00:1F3A - 3A B1 D2
    and    $01                          ; 00:1F3D - E6 01
    ld     a, (hl)                      ; 00:1F3F - 7E
    jr     z, addr_01F45                ; 00:1F40 - 28 03
-   ld     a, (var_D2B3)                ; 00:1F42 - 3A B3 D2
+   ld     a, (g_pal_flash_color_value)  ; 00:1F42 - 3A B3 D2
 
 addr_01F45:
    out    ($BE), a                     ; 00:1F45 - D3 BE
@@ -11889,7 +11889,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:55E9 - EF
    ret                                 ; 01:55EA - C9
 
-@special_0B:
+@special_0B_teleport:
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 01:55EB - FD CB 06 66
    ret    nz                           ; 01:55EF - C0
    ld     a, (sonic_x)                 ; 01:55F0 - 3A FE D3
@@ -12100,7 +12100,7 @@ objfunc_00_sonic:
    ld     (sonic_vel_x_hi), a          ; 01:575D - 32 05 D4
    ret                                 ; 01:5760 - C9
 
-@special_12_spring_up_10_px_t:
+@special_12_spring_up_10_px_t_special_stage:
    ld     (ix+10), $00                 ; 01:5761 - DD 36 0A 00
    ld     (ix+11), $F6                 ; 01:5765 - DD 36 0B F6
    ld     (ix+12), $FF                 ; 01:5769 - DD 36 0C FF
@@ -12108,7 +12108,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:576F - EF
    ret                                 ; 01:5770 - C9
 
-@special_13_spring_up_12_px_t:
+@special_13_spring_up_12_px_t_special_stage:
    ld     (ix+10), $00                 ; 01:5771 - DD 36 0A 00
    ld     (ix+11), $F4                 ; 01:5775 - DD 36 0B F4
    ld     (ix+12), $FF                 ; 01:5779 - DD 36 0C FF
@@ -12116,7 +12116,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:577F - EF
    ret                                 ; 01:5780 - C9
 
-@special_14_spring_up_14_px_t:
+@special_14_spring_up_14_px_t_special_stage:
    ld     (ix+10), $00                 ; 01:5781 - DD 36 0A 00
    ld     (ix+11), $F2                 ; 01:5785 - DD 36 0B F2
    ld     (ix+12), $FF                 ; 01:5789 - DD 36 0C FF
@@ -12124,8 +12124,8 @@ objfunc_00_sonic:
    rst    $28                          ; 01:578F - EF
    ret                                 ; 01:5790 - C9
 
-@special_15:
-   ld     a, (var_D2B1)                ; 01:5791 - 3A B1 D2
+@special_15_bouncebar_middle_special_stage:
+   ld     a, (g_pal_flash_countdown_timer)  ; 01:5791 - 3A B1 D2
    and    a                            ; 01:5794 - A7
    ret    nz                           ; 01:5795 - C0
    ld     de, $0001                    ; 01:5796 - 11 01 00
@@ -12142,18 +12142,18 @@ objfunc_00_sonic:
    adc    a, $00                       ; 01:57A7 - CE 00
    ld     de, $FF00                    ; 01:57A9 - 11 00 FF
    ld     c, $FF                       ; 01:57AC - 0E FF
-   jp     m, @TODO_57B6                ; 01:57AE - FA B6 57
+   jp     m, @bouncebar_middle_x_vel_is_negative  ; 01:57AE - FA B6 57
    ld     de, $0100                    ; 01:57B1 - 11 00 01
    ld     c, $00                       ; 01:57B4 - 0E 00
 
-@TODO_57B6:
+@bouncebar_middle_x_vel_is_negative:
    add    hl, de                       ; 01:57B6 - 19
    adc    a, c                         ; 01:57B7 - 89
    ld     (sonic_vel_x_sub), hl        ; 01:57B8 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:57BB - 32 05 D4
 
-@TODO_57BE:
-   ld     hl, var_D2B1                 ; 01:57BE - 21 B1 D2
+@continue_from_other_bouncies:
+   ld     hl, g_pal_flash_countdown_timer  ; 01:57BE - 21 B1 D2
    ld     (hl), $04                    ; 01:57C1 - 36 04
    inc    hl                           ; 01:57C3 - 23
    ld     (hl), $0E                    ; 01:57C4 - 36 0E
@@ -12186,7 +12186,7 @@ objfunc_00_sonic:
 @bouncebar_end_select_upwards_y_vel:
    ld     (sonic_vel_y_sub), hl        ; 01:57ED - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:57F0 - 32 08 D4
-   jp     @TODO_57BE                   ; 01:57F3 - C3 BE 57
+   jp     @continue_from_other_bouncies  ; 01:57F3 - C3 BE 57
 
 @special_17_SKY1_lightning:
    ld     hl, (var_D2E9)               ; 01:57F6 - 2A E9 D2
@@ -12327,8 +12327,8 @@ objfunc_00_sonic:
 
 CODEPTRTAB_sonic_tile_specials:
 .dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
-.dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
-.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16_bouncebar_end_special_stage, objfunc_00_sonic@special_17_SKY1_lightning  ; 01:5905
+.dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B_teleport, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
+.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t_special_stage, objfunc_00_sonic@special_13_spring_up_12_px_t_special_stage, objfunc_00_sonic@special_14_spring_up_14_px_t_special_stage, objfunc_00_sonic@special_15_bouncebar_middle_special_stage, objfunc_00_sonic@special_16_bouncebar_end_special_stage, objfunc_00_sonic@special_17_SKY1_lightning  ; 01:5905
 .dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
 SPRITEMAP_sonic_normal:
@@ -15157,7 +15157,7 @@ addr_077BE:
    ld     a, (var_D2EC)                ; 01:77BE - 3A EC D2
    cp     $08                          ; 01:77C1 - FE 08
    jr     nc, addr_07841               ; 01:77C3 - 30 7C
-   ld     a, (var_D2B1)                ; 01:77C5 - 3A B1 D2
+   ld     a, (g_pal_flash_countdown_timer)  ; 01:77C5 - 3A B1 D2
    and    a                            ; 01:77C8 - A7
    jp     nz, addr_07821               ; 01:77C9 - C2 21 78
    ld     hl, $0C08                    ; 01:77CC - 21 08 0C
@@ -15193,11 +15193,11 @@ addr_077E6:
    ld     (sonic_vel_x_sub), hl        ; 01:7802 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:7805 - 32 05 D4
    ld     a, $18                       ; 01:7808 - 3E 18
-   ld     (var_D2B1), a                ; 01:780A - 32 B1 D2
+   ld     (g_pal_flash_countdown_timer), a  ; 01:780A - 32 B1 D2
    ld     a, $8F                       ; 01:780D - 3E 8F
-   ld     (var_D2B2), a                ; 01:780F - 32 B2 D2
+   ld     (g_pal_flash_idx), a         ; 01:780F - 32 B2 D2
    ld     a, $3F                       ; 01:7812 - 3E 3F
-   ld     (var_D2B3), a                ; 01:7814 - 32 B3 D2
+   ld     (g_pal_flash_color_value), a  ; 01:7814 - 32 B3 D2
    ld     a, $01                       ; 01:7817 - 3E 01
    rst    $28                          ; 01:7819 - EF
    ld     a, (var_D2EC)                ; 01:781A - 3A EC D2
@@ -21852,7 +21852,7 @@ addr_0B79F:
    ret                                 ; 02:B7E5 - C9
 
 addr_0B7E6:
-   ld     a, (var_D2B1)                ; 02:B7E6 - 3A B1 D2
+   ld     a, (g_pal_flash_countdown_timer)  ; 02:B7E6 - 3A B1 D2
    and    a                            ; 02:B7E9 - A7
    ret    nz                           ; 02:B7EA - C0
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:B7EB - FD CB 05 46
@@ -21873,7 +21873,7 @@ addr_0B7F9:
    ld     a, $FF                       ; 02:B806 - 3E FF
    ld     (sonic_vel_x_sub), hl        ; 02:B808 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 02:B80B - 32 05 D4
-   ld     hl, var_D2B1                 ; 02:B80E - 21 B1 D2
+   ld     hl, g_pal_flash_countdown_timer  ; 02:B80E - 21 B1 D2
    ld     (hl), $18                    ; 02:B811 - 36 18
    inc    hl                           ; 02:B813 - 23
    ld     (hl), $0C                    ; 02:B814 - 36 0C
