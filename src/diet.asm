@@ -278,7 +278,7 @@ g_invincibility_sparkle_position_buffer_0 dw   ; D2F3
 .  dsb 2
 g_invincibility_sparkle_position_buffer_1 dw   ; D2F7
 .  dsb 2
-var_D2FB db   ; D2FB
+g_sonic_consume_air_bubble_countdown_timer db   ; D2FB
 g_level_music db   ; D2FC
 var_D2FD db   ; D2FD
 g_good_ending_emerald_anim_countdown_timer db   ; D2FE
@@ -10519,7 +10519,7 @@ objfunc_00_sonic:
    bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:4C40 - FD CB 06 76
    call   nz, @fn_handle_damage_stun_animation_and_deactivation  ; 01:4C44 - C4 BC 51
    bit    2, (iy+iy_08_lvflag03-IYBASE)  ; 01:4C47 - FD CB 08 56
-   call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
+   call   nz, @fn_handle_consuming_an_air_bubble  ; 01:4C4B - C4 DD 51
    ld     a, (sonic_anim_index_ix_20)  ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
    call   z, @fn_throttled_play_brake_sound_effect  ; 01:4C53 - CC F3 51
@@ -11251,7 +11251,7 @@ objfunc_00_sonic:
    ld     (g_teleport_start_countdown_timer), a  ; 01:5118 - 32 8A D2
    jr     z, @do_teleport              ; 01:511B - 28 25
    cp     $14                          ; 01:511D - FE 14
-   jr     c, @TODO_5137                ; 01:511F - 38 16
+   jr     c, @do_teleport_spin_effect  ; 01:511F - 38 16
    xor    a                            ; 01:5121 - AF
    ld     l, a                         ; 01:5122 - 6F
    ld     h, a                         ; 01:5123 - 67
@@ -11262,7 +11262,7 @@ objfunc_00_sonic:
    ld     (ix+20), $0F                 ; 01:5130 - DD 36 14 0F
    jp     @continue_past_basic_movement_physics  ; 01:5134 - C3 39 4C
 
-@TODO_5137:
+@do_teleport_spin_effect:
    res    1, (ix+24)                   ; 01:5137 - DD CB 18 8E
    ld     (ix+20), $0E                 ; 01:513B - DD 36 14 0E
    jp     @continue_past_basic_movement_physics  ; 01:513F - C3 39 4C
@@ -11355,12 +11355,12 @@ objfunc_00_sonic:
    ld     (sonic_vel_x_hi), a          ; 01:51D9 - 32 05 D4
    ret                                 ; 01:51DC - C9
 
-@fn_TODO_51DD:
+@fn_handle_consuming_an_air_bubble:
    ld     a, (sonic_flags_ix_24)       ; 01:51DD - 3A 14 D4
    and    $FA                          ; 01:51E0 - E6 FA
    ld     (sonic_flags_ix_24), a       ; 01:51E2 - 32 14 D4
    ld     (ix+20), $14                 ; 01:51E5 - DD 36 14 14
-   ld     hl, var_D2FB                 ; 01:51E9 - 21 FB D2
+   ld     hl, g_sonic_consume_air_bubble_countdown_timer  ; 01:51E9 - 21 FB D2
    dec    (hl)                         ; 01:51EC - 35
    ret    nz                           ; 01:51ED - C0
    res    2, (iy+iy_08_lvflag03-IYBASE)  ; 01:51EE - FD CB 08 96
@@ -12355,7 +12355,7 @@ TILEREPLACE_ring_blanking:
 
 LUT_sonic_anim_ptrs:
 .dw sonic_anim_00_01_walking, sonic_anim_00_01_walking, sonic_anim_02, sonic_anim_03_EMPTY_ANIM_HANGS_GAME, sonic_anim_04, sonic_anim_05, sonic_anim_06, sonic_anim_07_look_down  ; 01:5965
-.dw sonic_anim_08, sonic_anim_09_rolling, sonic_anim_0A_braking, sonic_anim_0B, sonic_anim_0C_look_up, sonic_anim_0D_bored, sonic_anim_0E, sonic_anim_0F  ; 01:5975
+.dw sonic_anim_08, sonic_anim_09_rolling, sonic_anim_0A_braking, sonic_anim_0B, sonic_anim_0C_look_up, sonic_anim_0D_bored, sonic_anim_0E_teleport_disappear, sonic_anim_0F_teleport_spin  ; 01:5975
 .dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13_upspring, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17_dropped_rings_00_03  ; 01:5985
 .dw sonic_anim_18_dropped_rings_01_04, sonic_anim_19_dropped_rings_02_05            ; 01:5995
 
@@ -12413,11 +12413,11 @@ sonic_anim_0D_bored:
 .db $16, $16, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17  ; 01:5A9B
 .db $17, $17, $FF, $22                                                              ; 01:5AAB
 
-sonic_anim_0E:
+sonic_anim_0E_teleport_disappear:
 .db $19, $19, $19, $19, $1A, $1A, $1B, $1B, $1C, $1C, $1D, $1D, $1E, $1E, $1F, $1F  ; 01:5AAF
 .db $20, $20, $21, $21, $FF, $12                                                    ; 01:5ABF
 
-sonic_anim_0F:
+sonic_anim_0F_teleport_spin:
 .db $0C, $08, $09, $0A, $0B, $FF, $00                                               ; 01:5AC5
 
 sonic_anim_10:
@@ -18621,7 +18621,7 @@ addr_09797:
    ld     (g_sonic_underwater_countup_timer), hl  ; 02:97D0 - 22 9B D2
    set    2, (iy+iy_08_lvflag03-IYBASE)  ; 02:97D3 - FD CB 08 D6
    ld     a, $20                       ; 02:97D7 - 3E 20
-   ld     (var_D2FB), a                ; 02:97D9 - 32 FB D2
+   ld     (g_sonic_consume_air_bubble_countdown_timer), a  ; 02:97D9 - 32 FB D2
    ld     (ix+18), $10                 ; 02:97DC - DD 36 12 10
    ld     a, $22                       ; 02:97E0 - 3E 22
    rst    $28                          ; 02:97E2 - EF
