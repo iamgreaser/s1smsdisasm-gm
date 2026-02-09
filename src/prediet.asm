@@ -9479,7 +9479,7 @@ objfunc_00_sonic:
    push   de                           ; 01:53E4 - D5
    push   hl                           ; 01:53E5 - E5
    bit    7, b                         ; 01:53E6 - CB 78
-   jr     z, @TODO_53F1                ; 01:53E8 - 28 07
+   jr     z, @skip_negating_x_vel_for_absolute_value_for_speed_cap  ; 01:53E8 - 28 07
    ld     a, l                         ; 01:53EA - 7D
    cpl                                 ; 01:53EB - 2F
    ld     l, a                         ; 01:53EC - 6F
@@ -9488,7 +9488,7 @@ objfunc_00_sonic:
    ld     h, a                         ; 01:53EF - 67
    inc    hl                           ; 01:53F0 - 23
 
-@TODO_53F1:
+@skip_negating_x_vel_for_absolute_value_for_speed_cap:
    ld     de, (g_sonic_x_speed_cap_subpx)  ; 01:53F1 - ED 5B 40 D2
    xor    a                            ; 01:53F5 - AF
    sbc    hl, de                       ; 01:53F6 - ED 52
