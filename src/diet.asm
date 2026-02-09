@@ -262,7 +262,7 @@ g_water_level_y dw   ; D2DC
 var_D2DE db   ; D2DE
 g_sonic_prev_anim_idx db   ; D2DF
 g_sonic_x_speed_dependent_anim_subframe db   ; D2E0
-var_D2E1 db   ; D2E1
+g_special_stage_round_bumper_cooldown_timer db   ; D2E1
 var_D2E2 dw   ; D2E2
 var_D2E4 dw   ; D2E4
 g_sonic_bounce_vel_y_sub dw   ; D2E6
@@ -10644,9 +10644,9 @@ objfunc_00_sonic:
    call   nz, @fn_blow_a_bubble_periodically  ; 01:4D09 - C4 24 52
    bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:4D0C - FD CB 08 46
    call   nz, @fn_handle_invincibility_sparkle_sprite  ; 01:4D10 - C4 8D 4E
-   ld     a, (var_D2E1)                ; 01:4D13 - 3A E1 D2
+   ld     a, (g_special_stage_round_bumper_cooldown_timer)  ; 01:4D13 - 3A E1 D2
    and    a                            ; 01:4D16 - A7
-   call   nz, @fn_TODO_5231            ; 01:4D17 - C4 31 52
+   call   nz, @fn_handle_round_bumper_throbbing_effect  ; 01:4D17 - C4 31 52
    ld     a, (g_ring_sparkle_sprite_countdown_timer)  ; 01:4D1A - 3A 21 D3
    and    a                            ; 01:4D1D - A7
    call   nz, @fn_handle_ring_sparkle_sprites  ; 01:4D1E - C4 51 4E
@@ -11409,15 +11409,15 @@ objfunc_00_sonic:
    call   z, spawn_bubble              ; 01:522D - CC EB 91
    ret                                 ; 01:5230 - C9
 
-@fn_TODO_5231:
+@fn_handle_round_bumper_throbbing_effect:
    dec    a                            ; 01:5231 - 3D
-   ld     (var_D2E1), a                ; 01:5232 - 32 E1 D2
+   ld     (g_special_stage_round_bumper_cooldown_timer), a  ; 01:5232 - 32 E1 D2
    cp     $06                          ; 01:5235 - FE 06
-   jr     c, @TODO_523C                ; 01:5237 - 38 03
+   jr     c, @show_round_bumper_throbbing_sprite  ; 01:5237 - 38 03
    cp     $0A                          ; 01:5239 - FE 0A
    ret    c                            ; 01:523B - D8
 
-@TODO_523C:
+@show_round_bumper_throbbing_sprite:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 01:523C - FD 7E 0A
    ld     hl, (var_D23C)               ; 01:523F - 2A 3C D2
    push   af                           ; 01:5242 - F5
@@ -11433,7 +11433,7 @@ objfunc_00_sonic:
    ld     hl, (var_D2E2)               ; 01:5259 - 2A E2 D2
    and    a                            ; 01:525C - A7
    sbc    hl, bc                       ; 01:525D - ED 42
-   ld     bc, objfunc_00_sonic@TODO_UNK_0526E  ; 01:525F - 01 6E 52
+   ld     bc, objfunc_00_sonic@SPRTAB_round_bumper_throbbing  ; 01:525F - 01 6E 52
    call   draw_sprite_string           ; 01:5262 - CD 0F 35
    pop    hl                           ; 01:5265 - E1
    pop    af                           ; 01:5266 - F1
@@ -11441,7 +11441,7 @@ objfunc_00_sonic:
    ld     (iy+g_sprite_count-IYBASE), a  ; 01:526A - FD 77 0A
    ret                                 ; 01:526D - C9
 
-@TODO_UNK_0526E:
+@SPRTAB_round_bumper_throbbing:
 .db $00, $02, $04, $06, $FF, $FF, $20, $22, $24, $26, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:526E
 .db $FF, $FF                                                                        ; 01:527E
 
@@ -11793,7 +11793,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:552B - EF
    ret                                 ; 01:552C - C9
 
-@special_04_spring_left_12_px_t:
+@special_04_spring_up_12_px_t:
    ld     a, (ix+2)                    ; 01:552D - DD 7E 02
    add    a, $0C                       ; 01:5530 - C6 0C
    and    $1F                          ; 01:5532 - E6 1F
@@ -12014,8 +12014,8 @@ objfunc_00_sonic:
    set    1, (ix+24)                   ; 01:56D0 - DD CB 18 CE
    jr     @set_directional_input_suppression  ; 01:56D4 - 18 B4
 
-@special_11:
-   ld     a, (var_D2E1)                ; 01:56D6 - 3A E1 D2
+@special_11_bumper_special_stage:
+   ld     a, (g_special_stage_round_bumper_cooldown_timer)  ; 01:56D6 - 3A E1 D2
    cp     $08                          ; 01:56D9 - FE 08
    ret    nc                           ; 01:56DB - D0
    call   @fn_TODO_5727                ; 01:56DC - CD 27 57
@@ -12055,7 +12055,7 @@ objfunc_00_sonic:
    ld     l, a                         ; 01:571A - 6F
    ld     (var_D2E4), hl               ; 01:571B - 22 E4 D2
    ld     a, $10                       ; 01:571E - 3E 10
-   ld     (var_D2E1), a                ; 01:5720 - 32 E1 D2
+   ld     (g_special_stage_round_bumper_cooldown_timer), a  ; 01:5720 - 32 E1 D2
    ld     a, $07                       ; 01:5723 - 3E 07
    rst    $28                          ; 01:5725 - EF
    ret                                 ; 01:5726 - C9
@@ -12326,9 +12326,9 @@ objfunc_00_sonic:
    ret                                 ; 01:58E4 - C9
 
 CODEPTRTAB_sonic_tile_specials:
-.dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_left_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
+.dw objfunc_00_sonic@special_00, objfunc_00_sonic@special_01, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
 .dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
-.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
+.dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t, objfunc_00_sonic@special_13_spring_up_12_px_t, objfunc_00_sonic@special_14_spring_up_14_px_t, objfunc_00_sonic@special_15, objfunc_00_sonic@special_16, objfunc_00_sonic@special_17  ; 01:5905
 .dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
 
 SPRITEMAP_sonic_normal:
