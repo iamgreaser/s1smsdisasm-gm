@@ -163,7 +163,7 @@ g_palette_cycle_length db   ; D2A7
 g_palette_cycle_baseptr dw   ; D2A8
 g_rings_BCD db   ; D2AA
 g_screen_tile_replace_x db   ; D2AB
-var_D2AC db   ; D2AC
+g_screen_tile_replace_x_hi db   ; D2AC
 g_screen_tile_replace_y dw   ; D2AD
 g_screen_tile_replace_data_ptr dw   ; D2AF
 g_pal_flash_countdown_timer db   ; D2B1
@@ -499,11 +499,11 @@ addr_000F7:
    call   nz, upload_sprite_table_IRQ  ; 00:0158 - C4 3E 03
    bit    5, (iy+iy_00-IYBASE)         ; 00:015B - FD CB 00 6E
    call   z, addr_00174                ; 00:015F - CC 74 01
-   ld     a, (var_D2AC)                ; 00:0162 - 3A AC D2
+   ld     a, (g_screen_tile_replace_x_hi)  ; 00:0162 - 3A AC D2
    and    $80                          ; 00:0165 - E6 80
    call   z, addr_038B0                ; 00:0167 - CC B0 38
    ld     a, $FF                       ; 00:016A - 3E FF
-   ld     (var_D2AC), a                ; 00:016C - 32 AC D2
+   ld     (g_screen_tile_replace_x_hi), a  ; 00:016C - 32 AC D2
    set    0, (iy+iy_00-IYBASE)         ; 00:016F - FD CB 00 C6
    ret                                 ; 00:0173 - C9
 
@@ -14176,7 +14176,7 @@ addr_083F2:
    dec    (ix+17)                      ; 02:83F2 - DD 35 11
    jp     nz, addr_08467               ; 02:83F5 - C2 67 84
    ld     (ix+17), $01                 ; 02:83F8 - DD 36 11 01
-   ld     a, (var_D2AC)                ; 02:83FC - 3A AC D2
+   ld     a, (g_screen_tile_replace_x_hi)  ; 02:83FC - 3A AC D2
    and    $80                          ; 02:83FF - E6 80
    jp     z, addr_08467                ; 02:8401 - CA 67 84
    ld     l, (ix+2)                    ; 02:8404 - DD 6E 02
