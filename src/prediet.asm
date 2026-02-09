@@ -36,20 +36,20 @@ g_h_tile_scroll_dispatch_table db   ; D100
 .  dsb 127
 g_v_tile_scroll_dispatch_table db   ; D180
 .  dsb 127
-var_D200 db   ; D200 (auto)
+iy_00 db   ; D200
 g_last_rle_byte db   ; D201
-var_D202 db   ; D202 (auto)
+iy_02 db   ; D202
 g_inputs_player_1 db   ; D203
 .  dsb 1
-var_D205 db   ; D205 (auto)
-var_D206 db   ; D206 (auto)
-var_D207 db   ; D207 (auto)
-var_D208 db   ; D208 (auto)
-var_D209 db   ; D209 (auto)
+iy_05_lvflag00 db   ; D205
+iy_06_lvflag01 db   ; D206
+iy_07_lvflag02 db   ; D207
+iy_08_lvflag03 db   ; D208
+iy_09 db   ; D209
 g_sprite_count db   ; D20A
-var_D20B db   ; D20B (auto)
-var_D20C db   ; D20C (auto)
-var_D20D db   ; D20D (auto)
+iy_0B_old_lvflag00_UNUSED db   ; D20B
+iy_0C_old_lvflag01 db   ; D20C
+iy_0D db   ; D20D
 var_D20E db   ; D20E
 var_D20F db   ; D20F
 var_D210 dw   ; D210
@@ -376,9 +376,9 @@ ENTRY_IRQ:
 ENTRY_NMI:
    di                                  ; 00:0066 - F3
    push   af                           ; 00:0067 - F5
-   ld     a, (iy+var_D207-IYBASE)      ; 00:0068 - FD 7E 07
+   ld     a, (iy+iy_07_lvflag02-IYBASE)  ; 00:0068 - FD 7E 07
    xor    $08                          ; 00:006B - EE 08
-   ld     (iy+var_D207-IYBASE), a      ; 00:006D - FD 77 07
+   ld     (iy+iy_07_lvflag02-IYBASE), a  ; 00:006D - FD 77 07
    pop    af                           ; 00:0070 - F1
    ei                                  ; 00:0071 - FB
    ret                                 ; 00:0072 - C9
@@ -390,7 +390,7 @@ irq_start:
    push   de                           ; 00:0076 - D5
    push   bc                           ; 00:0077 - C5
    in     a, ($BF)                     ; 00:0078 - DB BF
-   bit    7, (iy+var_D206-IYBASE)      ; 00:007A - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:007A - FD CB 06 7E
    jr     z, +                         ; 00:007E - 28 2C
    ld     a, (g_water_irq_line_state)  ; 00:0080 - 3A 47 D2
    and    a                            ; 00:0083 - A7
@@ -418,9 +418,9 @@ irq_start:
    push   iy                           ; 00:00AE - FD E5
    ld     hl, (g_committed_rompage_1)  ; 00:00B0 - 2A 35 D2
    push   hl                           ; 00:00B3 - E5
-   bit    0, (iy+var_D200-IYBASE)      ; 00:00B4 - FD CB 00 46
+   bit    0, (iy+iy_00-IYBASE)         ; 00:00B4 - FD CB 00 46
    call   nz, addr_001A0               ; 00:00B8 - C4 A0 01
-   bit    0, (iy+var_D200-IYBASE)      ; 00:00BB - FD CB 00 46
+   bit    0, (iy+iy_00-IYBASE)         ; 00:00BB - FD CB 00 46
    call   z, addr_000F7                ; 00:00BF - CC F7 00
    ei                                  ; 00:00C2 - FB
    ld     a, $03                       ; 00:00C3 - 3E 03
@@ -464,9 +464,9 @@ addr_000F7:
    out    ($BF), a                     ; 00:0110 - D3 BF
    ld     a, $89                       ; 00:0112 - 3E 89
    out    ($BF), a                     ; 00:0114 - D3 BF
-   bit    5, (iy+var_D200-IYBASE)      ; 00:0116 - FD CB 00 6E
+   bit    5, (iy+iy_00-IYBASE)         ; 00:0116 - FD CB 00 6E
    call   nz, addr_007DB               ; 00:011A - C4 DB 07
-   bit    5, (iy+var_D200-IYBASE)      ; 00:011D - FD CB 00 6E
+   bit    5, (iy+iy_00-IYBASE)         ; 00:011D - FD CB 00 6E
    call   nz, addr_00174               ; 00:0121 - C4 74 01
    ld     a, (g_saved_vdp_reg_01)      ; 00:0124 - 3A 19 D2
    out    ($BF), a                     ; 00:0127 - D3 BF
@@ -478,7 +478,7 @@ addr_000F7:
    ld     a, $09                       ; 00:0135 - 3E 09
    ld     (rompage_2), a               ; 00:0137 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:013A - 32 36 D2
-   bit    7, (iy+var_D207-IYBASE)      ; 00:013D - FD CB 07 7E
+   bit    7, (iy+iy_07_lvflag02-IYBASE)  ; 00:013D - FD CB 07 7E
    call   nz, addr_037E0               ; 00:0141 - C4 E0 37
    ld     a, $01                       ; 00:0144 - 3E 01
    ld     (rompage_1), a               ; 00:0146 - 32 FE FF
@@ -486,16 +486,16 @@ addr_000F7:
    ld     a, $02                       ; 00:014C - 3E 02
    ld     (rompage_2), a               ; 00:014E - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0151 - 32 36 D2
-   bit    1, (iy+var_D200-IYBASE)      ; 00:0154 - FD CB 00 4E
+   bit    1, (iy+iy_00-IYBASE)         ; 00:0154 - FD CB 00 4E
    call   nz, upload_sprite_table_IRQ  ; 00:0158 - C4 3E 03
-   bit    5, (iy+var_D200-IYBASE)      ; 00:015B - FD CB 00 6E
+   bit    5, (iy+iy_00-IYBASE)         ; 00:015B - FD CB 00 6E
    call   z, addr_00174                ; 00:015F - CC 74 01
    ld     a, (var_D2AC)                ; 00:0162 - 3A AC D2
    and    $80                          ; 00:0165 - E6 80
    call   z, addr_038B0                ; 00:0167 - CC B0 38
    ld     a, $FF                       ; 00:016A - 3E FF
    ld     (var_D2AC), a                ; 00:016C - 32 AC D2
-   set    0, (iy+var_D200-IYBASE)      ; 00:016F - FD CB 00 C6
+   set    0, (iy+iy_00-IYBASE)         ; 00:016F - FD CB 00 C6
    ret                                 ; 00:0173 - C9
 
 addr_00174:
@@ -505,13 +505,13 @@ addr_00174:
    ld     a, $02                       ; 00:017C - 3E 02
    ld     (rompage_2), a               ; 00:017E - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0181 - 32 36 D2
-   bit    7, (iy+var_D206-IYBASE)      ; 00:0184 - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:0184 - FD CB 06 7E
    jr     nz, addr_0019C               ; 00:0188 - 20 12
    ld     hl, (g_SIG00b3_palette_addr)  ; 00:018A - 2A 2B D2
    ld     a, (g_SIG00b3_palettes_present)  ; 00:018D - 3A 2F D2
-   bit    3, (iy+var_D200-IYBASE)      ; 00:0190 - FD CB 00 5E
+   bit    3, (iy+iy_00-IYBASE)         ; 00:0190 - FD CB 00 5E
    call   nz, load_palettes_IRQ        ; 00:0194 - C4 66 05
-   res    3, (iy+var_D200-IYBASE)      ; 00:0197 - FD CB 00 9E
+   res    3, (iy+iy_00-IYBASE)         ; 00:0197 - FD CB 00 9E
    ret                                 ; 00:019B - C9
 
 addr_0019C:
@@ -519,7 +519,7 @@ addr_0019C:
    ret                                 ; 00:019F - C9
 
 addr_001A0:
-   bit    7, (iy+var_D206-IYBASE)      ; 00:01A0 - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:01A0 - FD CB 06 7E
    ret    z                            ; 00:01A4 - C8
    ld     a, $01                       ; 00:01A5 - 3E 01
    ld     (rompage_1), a               ; 00:01A7 - 32 FE FF
@@ -540,7 +540,7 @@ addr_001BA:
    cp     $FF                          ; 00:01C0 - FE FF
    jr     nz, addr_001D6               ; 00:01C2 - 20 12
    ld     hl, PAL2_lv_lab_under_water  ; 00:01C4 - 21 4B 02
-   bit    4, (iy+var_D207-IYBASE)      ; 00:01C7 - FD CB 07 66
+   bit    4, (iy+iy_07_lvflag02-IYBASE)  ; 00:01C7 - FD CB 07 66
    jr     z, addr_001D0                ; 00:01CB - 28 03
    ld     hl, PAL2_lv_lab_3_under_water  ; 00:01CD - 21 6B 02
 
@@ -596,7 +596,7 @@ irq_line_state_1_load_water_palette:
    out    ($BF), a                     ; 00:021F - D3 BF
    ld     b, $10                       ; 00:0221 - 06 10
    ld     hl, PAL2_lv_lab_under_water  ; 00:0223 - 21 4B 02
-   bit    4, (iy+var_D207-IYBASE)      ; 00:0226 - FD CB 07 66
+   bit    4, (iy+iy_07_lvflag02-IYBASE)  ; 00:0226 - FD CB 07 66
    jr     z, _f                        ; 00:022A - 28 03
    ld     hl, PAL2_lv_lab_3_under_water  ; 00:022C - 21 6B 02
 
@@ -664,7 +664,7 @@ _lp_reset_init_vdp_regs:
    ld     a, $E0                       ; 00:02C8 - 3E E0
    call   fill_vram_at_hl_for_bc_bytes_with_a  ; 00:02CA - CD 95 05
    call   di_call_s1_b03_4006_DI       ; 00:02CD - CD ED 02
-   ld     iy, var_D200                 ; 00:02D0 - FD 21 00 D2
+   ld     iy, iy_00                    ; 00:02D0 - FD 21 00 D2
    jp     _reset_01C49                 ; 00:02D4 - C3 49 1C
 
 di_call_s1_b03_4012_a_DI:
@@ -706,19 +706,19 @@ TBL_reset_vdp_regs:
 .db $26, $A2, $FF, $FF, $FF, $FF, $FF, $00, $00, $00, $FF                           ; 00:0311
 
 wait_until_irq_ticked:
-   bit    0, (iy+var_D200-IYBASE)      ; 00:031C - FD CB 00 46
+   bit    0, (iy+iy_00-IYBASE)         ; 00:031C - FD CB 00 46
    jr     z, wait_until_irq_ticked     ; 00:0320 - 28 FA
    ret                                 ; 00:0322 - C9
 
 UNUSED_00323:
-   set    2, (iy+var_D200-IYBASE)      ; 00:0323 - FD CB 00 D6
+   set    2, (iy+iy_00-IYBASE)         ; 00:0323 - FD CB 00 D6
    ld     (var_D225), hl               ; 00:0327 - 22 25 D2
    ld     (var_D227), de               ; 00:032A - ED 53 27 D2
    ld     (var_D229), bc               ; 00:032E - ED 43 29 D2
    ret                                 ; 00:0332 - C9
 
 signal_load_palettes:
-   set    3, (iy+var_D200-IYBASE)      ; 00:0333 - FD CB 00 DE
+   set    3, (iy+iy_00-IYBASE)         ; 00:0333 - FD CB 00 DE
    ld     (g_SIG00b3_palettes_present), a  ; 00:0337 - 32 2F D2
    ld     (g_SIG00b3_palette_addr), hl  ; 00:033A - 22 2B D2
    ret                                 ; 00:033D - C9
@@ -902,7 +902,7 @@ load_art:
    inc    a                            ; 00:042C - 3C
    ld     (rompage_2), a               ; 00:042D - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0430 - 32 36 D2
-   bit    1, (iy+var_D209-IYBASE)      ; 00:0433 - FD CB 09 4E
+   bit    1, (iy+iy_09-IYBASE)         ; 00:0433 - FD CB 09 4E
    jr     nz, +                        ; 00:0437 - 20 01
    ei                                  ; 00:0439 - FB
 
@@ -1036,7 +1036,7 @@ load_art:
    jp     nz, --                       ; 00:04E0 - C2 66 04
 
 ++:
-   bit    1, (iy+var_D209-IYBASE)      ; 00:04E3 - FD CB 09 4E
+   bit    1, (iy+iy_09-IYBASE)         ; 00:04E3 - FD CB 09 4E
    jr     nz, +                        ; 00:04E7 - 20 01
    di                                  ; 00:04E9 - F3
 
@@ -1045,7 +1045,7 @@ load_art:
    ld     (g_committed_rompage_1), de  ; 00:04EB - ED 53 35 D2
    ld     (rompage_1), de              ; 00:04EF - ED 53 FE FF
    ei                                  ; 00:04F3 - FB
-   res    1, (iy+var_D209-IYBASE)      ; 00:04F4 - FD CB 09 8E
+   res    1, (iy+iy_09-IYBASE)         ; 00:04F4 - FD CB 09 8E
    ret                                 ; 00:04F8 - C9
 
 LUT_004F9_left_shift_bitmask:
@@ -1318,14 +1318,14 @@ addr_0063E:
    ld     a, l                         ; 00:064E - 7D
    add    a, c                         ; 00:064F - 81
    ld     c, a                         ; 00:0650 - 4F
-   res    6, (iy+var_D200-IYBASE)      ; 00:0651 - FD CB 00 B6
+   res    6, (iy+iy_00-IYBASE)         ; 00:0651 - FD CB 00 B6
    jp     addr_0065F                   ; 00:0655 - C3 5F 06
 
 addr_00658:
    ld     a, l                         ; 00:0658 - 7D
    add    a, c                         ; 00:0659 - 81
    ld     c, a                         ; 00:065A - 4F
-   set    6, (iy+var_D200-IYBASE)      ; 00:065B - FD CB 00 F6
+   set    6, (iy+iy_00-IYBASE)         ; 00:065B - FD CB 00 F6
 
 addr_0065F:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:065F - 2A 5D D2
@@ -1341,7 +1341,7 @@ addr_0065F:
 
 addr_00673:
    ld     b, a                         ; 00:0673 - 47
-   res    7, (iy+var_D200-IYBASE)      ; 00:0674 - FD CB 00 BE
+   res    7, (iy+iy_00-IYBASE)         ; 00:0674 - FD CB 00 BE
    jp     addr_00688                   ; 00:0678 - C3 88 06
 
 addr_0067B:
@@ -1353,7 +1353,7 @@ addr_0067B:
 
 addr_00683:
    ld     b, a                         ; 00:0683 - 47
-   set    7, (iy+var_D200-IYBASE)      ; 00:0684 - FD CB 00 FE
+   set    7, (iy+iy_00-IYBASE)         ; 00:0684 - FD CB 00 FE
 
 addr_00688:
    ld     (g_vdp_scroll_x), bc         ; 00:0688 - ED 43 51 D2
@@ -1381,7 +1381,7 @@ addr_00688:
    ret                                 ; 00:06BC - C9
 
 addr_006BD:
-   bit    5, (iy+var_D200-IYBASE)      ; 00:06BD - FD CB 00 6E
+   bit    5, (iy+iy_00-IYBASE)         ; 00:06BD - FD CB 00 6E
    ret    z                            ; 00:06C1 - C8
    di                                  ; 00:06C2 - F3
    ld     a, $04                       ; 00:06C3 - 3E 04
@@ -1402,9 +1402,9 @@ addr_006BD:
    ld     h, (hl)                      ; 00:06E1 - 66
    ld     l, a                         ; 00:06E2 - 6F
    ld     (var_D210), hl               ; 00:06E3 - 22 10 D2
-   bit    0, (iy+var_D202-IYBASE)      ; 00:06E6 - FD CB 02 46
+   bit    0, (iy+iy_02-IYBASE)         ; 00:06E6 - FD CB 02 46
    jp     z, addr_00772                ; 00:06EA - CA 72 07
-   bit    6, (iy+var_D200-IYBASE)      ; 00:06ED - FD CB 00 76
+   bit    6, (iy+iy_00-IYBASE)         ; 00:06ED - FD CB 00 76
    jr     nz, addr_006FA               ; 00:06F1 - 20 07
    ld     b, $00                       ; 00:06F3 - 06 00
    ld     c, $08                       ; 00:06F5 - 0E 08
@@ -1426,7 +1426,7 @@ addr_006FA:
 addr_0070B:
    call   get_screen_tile_ptr_in_ram   ; 00:070B - CD D5 08
    ld     a, (g_vdp_scroll_x)          ; 00:070E - 3A 51 D2
-   bit    6, (iy+var_D200-IYBASE)      ; 00:0711 - FD CB 00 76
+   bit    6, (iy+iy_00-IYBASE)         ; 00:0711 - FD CB 00 76
    jr     z, addr_00719                ; 00:0715 - 28 02
    add    a, $08                       ; 00:0717 - C6 08
 
@@ -1493,9 +1493,9 @@ addr_00733:
    djnz   addr_00733                   ; 00:0770 - 10 C1
 
 addr_00772:
-   bit    1, (iy+var_D202-IYBASE)      ; 00:0772 - FD CB 02 4E
+   bit    1, (iy+iy_02-IYBASE)         ; 00:0772 - FD CB 02 4E
    jp     z, addr_007DA                ; 00:0776 - CA DA 07
-   bit    7, (iy+var_D200-IYBASE)      ; 00:0779 - FD CB 00 7E
+   bit    7, (iy+iy_00-IYBASE)         ; 00:0779 - FD CB 00 7E
    jr     nz, addr_00786               ; 00:077D - 20 07
    ld     b, $06                       ; 00:077F - 06 06
    ld     c, $00                       ; 00:0781 - 0E 00
@@ -1565,7 +1565,7 @@ addr_007DA:
    ret                                 ; 00:07DA - C9
 
 addr_007DB:
-   bit    0, (iy+var_D202-IYBASE)      ; 00:07DB - FD CB 02 46
+   bit    0, (iy+iy_02-IYBASE)         ; 00:07DB - FD CB 02 46
    jp     z, addr_00849                ; 00:07DF - CA 49 08
    exx                                 ; 00:07E2 - D9
    push   hl                           ; 00:07E3 - E5
@@ -1582,7 +1582,7 @@ addr_007DB:
    rl     b                            ; 00:07F4 - CB 10
    ld     c, a                         ; 00:07F6 - 4F
    ld     a, (g_vdp_scroll_x)          ; 00:07F7 - 3A 51 D2
-   bit    6, (iy+var_D200-IYBASE)      ; 00:07FA - FD CB 00 76
+   bit    6, (iy+iy_00-IYBASE)         ; 00:07FA - FD CB 00 76
    jr     z, addr_00802                ; 00:07FE - 28 02
    add    a, $08                       ; 00:0800 - C6 08
 
@@ -1635,14 +1635,14 @@ addr_0083C:
    exx                                 ; 00:0848 - D9
 
 addr_00849:
-   bit    1, (iy+var_D202-IYBASE)      ; 00:0849 - FD CB 02 4E
+   bit    1, (iy+iy_02-IYBASE)         ; 00:0849 - FD CB 02 4E
    jp     z, addr_008CF                ; 00:084D - CA CF 08
    ld     a, (g_vdp_scroll_y)          ; 00:0850 - 3A 52 D2
    ld     b, $00                       ; 00:0853 - 06 00
    srl    a                            ; 00:0855 - CB 3F
    srl    a                            ; 00:0857 - CB 3F
    srl    a                            ; 00:0859 - CB 3F
-   bit    7, (iy+var_D200-IYBASE)      ; 00:085B - FD CB 00 7E
+   bit    7, (iy+iy_00-IYBASE)         ; 00:085B - FD CB 00 7E
    jr     nz, addr_00863               ; 00:085F - 20 02
    add    a, $18                       ; 00:0861 - C6 18
 
@@ -1996,7 +1996,7 @@ addr_00A40:
    ld     (rompage_2), a               ; 00:0A4A - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0A4D - 32 36 D2
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0A50 - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:0A53 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0A53 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0A57 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0A5A - FD 77 0A
    ld     b, $04                       ; 00:0A5D - 06 04
@@ -2017,7 +2017,7 @@ addr_00A5F:
 
 addr_00A7D:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0A7D - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:0A80 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0A80 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0A84 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0A87 - FD 77 0A
    djnz   addr_00A7D                   ; 00:0A8A - 10 F1
@@ -2073,14 +2073,14 @@ addr_00AAE:
    ld     a, (g_saved_vdp_reg_01)      ; 00:0AD7 - 3A 19 D2
    or     $40                          ; 00:0ADA - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:0ADC - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:0ADF - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0ADF - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0AE3 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:0AE6 - FD 71 0A
    ld     b, $09                       ; 00:0AE9 - 06 09
 
 addr_00AEB:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0AEB - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:0AEE - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0AEE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0AF2 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0AF5 - FD 77 0A
    djnz   addr_00AEB                   ; 00:0AF8 - 10 F1
@@ -2140,7 +2140,7 @@ addr_00B2C:
 
 addr_00B3D:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0B3D - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:0B40 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0B40 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0B44 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0B47 - FD 77 0A
    djnz   addr_00B3D                   ; 00:0B4A - 10 F1
@@ -2180,14 +2180,14 @@ _palette_fade_up_common:
    ld     a, (g_saved_vdp_reg_01)      ; 00:0B89 - 3A 19 D2
    or     $40                          ; 00:0B8C - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:0B8E - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:0B91 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0B91 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0B95 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:0B98 - FD 71 0A
    ld     b, $09                       ; 00:0B9B - 06 09
 
 -:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0B9D - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:0BA0 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0BA0 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0BA4 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0BA7 - FD 77 0A
    djnz   -                            ; 00:0BAA - 10 F1
@@ -2247,7 +2247,7 @@ _palette_fade_up_common:
 
 -:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0BEF - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:0BF2 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0BF2 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0BF6 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0BF9 - FD 77 0A
    djnz   -                            ; 00:0BFC - 10 F1
@@ -2339,7 +2339,7 @@ addr_00C6C:
    ld     a, (g_saved_vdp_reg_01)      ; 00:0C7A - 3A 19 D2
    and    $BF                          ; 00:0C7D - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:0C7F - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:0C82 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0C82 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0C86 - CD 1C 03
    ld     hl, ART_0C_0000              ; 00:0C89 - 21 00 00
    ld     de, $0000                    ; 00:0C8C - 11 00 00
@@ -2376,7 +2376,7 @@ addr_00CDC:
    ld     a, (g_saved_vdp_reg_01)      ; 00:0CDC - 3A 19 D2
    and    $BF                          ; 00:0CDF - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:0CE1 - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:0CE4 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0CE4 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0CE8 - CD 1C 03
    ld     hl, ART_0C_1801              ; 00:0CEB - 21 01 18
    ld     de, $0000                    ; 00:0CEE - 11 00 00
@@ -2615,7 +2615,7 @@ addr_00E86:
    push   bc                           ; 00:0E88 - C5
    ld     hl, (var_D20E)               ; 00:0E89 - 2A 0E D2
    push   hl                           ; 00:0E8C - E5
-   res    0, (iy+var_D200-IYBASE)      ; 00:0E8D - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:0E8D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0E91 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:0E94 - FD 36 0A 00
    ld     a, (g_lives)                 ; 00:0E98 - 3A 46 D2
@@ -2992,7 +2992,7 @@ run_title_screen:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1287 - 3A 19 D2
    and    $BF                          ; 00:128A - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:128C - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:128F - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:128F - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1293 - CD 1C 03
    ld     hl, ART_09_2000              ; 00:1296 - 21 00 20
    ld     de, $0000                    ; 00:1299 - 11 00 00
@@ -3017,7 +3017,7 @@ run_title_screen:
    ld     hl, PAL3_title_screen        ; 00:12CC - 21 E1 13
    ld     a, $03                       ; 00:12CF - 3E 03
    call   signal_load_palettes         ; 00:12D1 - CD 33 03
-   set    1, (iy+var_D200-IYBASE)      ; 00:12D4 - FD CB 00 CE
+   set    1, (iy+iy_00-IYBASE)         ; 00:12D4 - FD CB 00 CE
    ld     a, $06                       ; 00:12D8 - 3E 06
    rst    $18                          ; 00:12DA - DF
    xor    a                            ; 00:12DB - AF
@@ -3031,7 +3031,7 @@ run_title_screen:
    ld     a, (g_saved_vdp_reg_01)      ; 00:12EA - 3A 19 D2
    or     $40                          ; 00:12ED - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:12EF - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:12F2 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:12F2 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:12F6 - CD 1C 03
    ld     a, (var_D216)                ; 00:12F9 - 3A 16 D2
    inc    a                            ; 00:12FC - 3C
@@ -3157,7 +3157,7 @@ addr_01401:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1401 - 3A 19 D2
    and    $BF                          ; 00:1404 - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:1406 - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:1409 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1409 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:140D - CD 1C 03
    di                                  ; 00:1410 - F3
    ld     hl, ART_09_351F              ; 00:1411 - 21 1F 35
@@ -3186,7 +3186,7 @@ addr_01447:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1447 - 3A 19 D2
    or     $40                          ; 00:144A - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:144C - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:144F - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:144F - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1453 - CD 1C 03
    djnz   addr_01447                   ; 00:1456 - 10 EF
    ld     a, (var_D284)                ; 00:1458 - 3A 84 D2
@@ -3196,7 +3196,7 @@ addr_01447:
 
 addr_01461:
    push   bc                           ; 00:1461 - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:1462 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1462 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1466 - CD 1C 03
    pop    bc                           ; 00:1469 - C1
    dec    bc                           ; 00:146A - 0B
@@ -3224,7 +3224,7 @@ addr_01490:
 
 addr_01492:
    push   bc                           ; 00:1492 - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:1493 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1493 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1497 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:149A - FD 36 0A 00
    ld     hl, var_D216                 ; 00:149E - 21 16 D2
@@ -3316,7 +3316,7 @@ handle_level_score_screen:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1566 - 3A 19 D2
    and    $BF                          ; 00:1569 - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:156B - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:156E - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:156E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1572 - CD 1C 03
    ld     hl, ART_09_B92E              ; 00:1575 - 21 2E B9
    ld     de, $3000                    ; 00:1578 - 11 00 30
@@ -3397,7 +3397,7 @@ _handle_level_score_screen_bonus:
    jr     c, +                         ; 00:1611 - 38 12
    ld     hl, var_D281                 ; 00:1613 - 21 81 D2
    inc    (hl)                         ; 00:1616 - 34
-   bit    2, (iy+var_D209-IYBASE)      ; 00:1617 - FD CB 09 56
+   bit    2, (iy+iy_09-IYBASE)         ; 00:1617 - FD CB 09 56
    jr     nz, +                        ; 00:161B - 20 08
    ld     hl, var_D282                 ; 00:161D - 21 82 D2
    inc    (hl)                         ; 00:1620 - 34
@@ -3405,9 +3405,9 @@ _handle_level_score_screen_bonus:
    inc    (hl)                         ; 00:1624 - 34
 
 +:
-   bit    2, (iy+var_D209-IYBASE)      ; 00:1625 - FD CB 09 56
+   bit    2, (iy+iy_09-IYBASE)         ; 00:1625 - FD CB 09 56
    call   nz, addr_01719               ; 00:1629 - C4 19 17
-   bit    3, (iy+var_D209-IYBASE)      ; 00:162C - FD CB 09 5E
+   bit    3, (iy+iy_09-IYBASE)         ; 00:162C - FD CB 09 5E
    call   nz, addr_01726               ; 00:1630 - C4 26 17
    ld     hl, LUT_time_bonus_upper_bounds  ; 00:1633 - 21 3E 15
    ld     de, LUT_time_bonus_scores    ; 00:1636 - 11 4E 15
@@ -3455,7 +3455,7 @@ _handle_level_score_screen_UNK_01658:
    ldi                                 ; 00:166C - ED A0
    ldi                                 ; 00:166E - ED A0
    ldi                                 ; 00:1670 - ED A0
-   set    1, (iy+var_D200-IYBASE)      ; 00:1672 - FD CB 00 CE
+   set    1, (iy+iy_00-IYBASE)         ; 00:1672 - FD CB 00 CE
    ld     b, $78                       ; 00:1676 - 06 78
 
 @wait_before_counting:
@@ -3463,14 +3463,14 @@ _handle_level_score_screen_UNK_01658:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1679 - 3A 19 D2
    or     $40                          ; 00:167C - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:167E - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:1681 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1681 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1685 - CD 1C 03
    call   addr_01A18                   ; 00:1688 - CD 18 1A
    pop    bc                           ; 00:168B - C1
    djnz   @wait_before_counting        ; 00:168C - 10 EA
 
 -:
-   res    0, (iy+var_D200-IYBASE)      ; 00:168E - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:168E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1692 - CD 1C 03
    call   addr_01A18                   ; 00:1695 - CD 18 1A
    call   addr_019B4                   ; 00:1698 - CD B4 19
@@ -3498,7 +3498,7 @@ _handle_level_score_screen_UNK_01658:
 
 -:
    push   bc                           ; 00:16C4 - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:16C5 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:16C5 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:16C9 - CD 1C 03
    call   addr_01A18                   ; 00:16CC - CD 18 1A
    pop    bc                           ; 00:16CF - C1
@@ -3551,14 +3551,14 @@ LUT_01711:
 addr_01719:
    xor    a                            ; 00:1719 - AF
    ld     (g_rings_BCD), a             ; 00:171A - 32 AA D2
-   res    3, (iy+var_D209-IYBASE)      ; 00:171D - FD CB 09 9E
-   res    2, (iy+var_D209-IYBASE)      ; 00:1721 - FD CB 09 96
+   res    3, (iy+iy_09-IYBASE)         ; 00:171D - FD CB 09 9E
+   res    2, (iy+iy_09-IYBASE)         ; 00:1721 - FD CB 09 96
    ret                                 ; 00:1725 - C9
 
 addr_01726:
    ld     hl, var_D284                 ; 00:1726 - 21 84 D2
    inc    (hl)                         ; 00:1729 - 34
-   res    3, (iy+var_D209-IYBASE)      ; 00:172A - FD CB 09 9E
+   res    3, (iy+iy_09-IYBASE)         ; 00:172A - FD CB 09 9E
    ret                                 ; 00:172E - C9
 
 _handle_level_score_screen_13:
@@ -3729,7 +3729,7 @@ addr_01859:
 
 addr_01860:
    push   bc                           ; 00:1860 - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:1861 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1861 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1865 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1868 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:186C - 21 00 D0
@@ -4127,7 +4127,7 @@ ARRAY_demo_inputs:
 .db $FF, $FF, $00                                                                   ; 00:1C46
 
 _reset_01C49:
-   set    0, (iy+var_D200-IYBASE)      ; 00:1C49 - FD CB 00 C6
+   set    0, (iy+iy_00-IYBASE)         ; 00:1C49 - FD CB 00 C6
    ei                                  ; 00:1C4D - FB
 
 addr_01C4E:
@@ -4140,11 +4140,11 @@ addr_01C4E:
    xor    a                            ; 00:1C5D - AF
    ld     (g_level), a                 ; 00:1C5E - 32 3E D2
    ld     (g_global_tick_counter), a   ; 00:1C61 - 32 23 D2
-   ld     (iy+var_D20D-IYBASE), a      ; 00:1C64 - FD 77 0D
+   ld     (iy+iy_0D-IYBASE), a         ; 00:1C64 - FD 77 0D
    ld     hl, g_chaos_emeralds_collected  ; 00:1C67 - 21 7F D2
    ld     b, $08                       ; 00:1C6A - 06 08
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C6C - CD E8 1C
-   ld     hl, var_D200                 ; 00:1C6F - 21 00 D2
+   ld     hl, iy_00                    ; 00:1C6F - 21 00 D2
    ld     b, $0E                       ; 00:1C72 - 06 0E
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C74 - CD E8 1C
    ld     hl, var_D2BA                 ; 00:1C77 - 21 BA D2
@@ -4153,39 +4153,39 @@ addr_01C4E:
    ld     hl, g_level_lives_collected_mask  ; 00:1C7F - 21 05 D3
    ld     b, $18                       ; 00:1C82 - 06 18
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C84 - CD E8 1C
-   res    0, (iy+var_D202-IYBASE)      ; 00:1C87 - FD CB 02 86
-   res    1, (iy+var_D202-IYBASE)      ; 00:1C8B - FD CB 02 8E
+   res    0, (iy+iy_02-IYBASE)         ; 00:1C87 - FD CB 02 86
+   res    1, (iy+iy_02-IYBASE)         ; 00:1C8B - FD CB 02 8E
    call   clear_sprite_table           ; 00:1C8F - CD E2 05
    call   run_title_screen             ; 00:1C92 - CD 87 12
-   res    1, (iy+var_D205-IYBASE)      ; 00:1C95 - FD CB 05 8E
+   res    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1C95 - FD CB 05 8E
    jr     c, addr_01C9F                ; 00:1C99 - 38 04
-   set    1, (iy+var_D205-IYBASE)      ; 00:1C9B - FD CB 05 CE
+   set    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1C9B - FD CB 05 CE
 
 addr_01C9F:
    ld     a, (g_level)                 ; 00:1C9F - 3A 3E D2
    cp     $13                          ; 00:1CA2 - FE 13
    jr     nc, addr_01C4E               ; 00:1CA4 - 30 A8
-   res    0, (iy+var_D202-IYBASE)      ; 00:1CA6 - FD CB 02 86
-   res    1, (iy+var_D202-IYBASE)      ; 00:1CAA - FD CB 02 8E
+   res    0, (iy+iy_02-IYBASE)         ; 00:1CA6 - FD CB 02 86
+   res    1, (iy+iy_02-IYBASE)         ; 00:1CAA - FD CB 02 8E
    call   clear_sprite_table           ; 00:1CAE - CD E2 05
    call   addr_00C52                   ; 00:1CB1 - CD 52 0C
-   bit    1, (iy+var_D205-IYBASE)      ; 00:1CB4 - FD CB 05 4E
+   bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CB4 - FD CB 05 4E
    jr     z, addr_01CBD                ; 00:1CB8 - 28 03
    jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
 
 addr_01CBD:
    call   addr_00A40                   ; 00:1CBD - CD 40 0A
    call   clear_sprite_table           ; 00:1CC0 - CD E2 05
-   bit    0, (iy+var_D205-IYBASE)      ; 00:1CC3 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CC3 - FD CB 05 46
    jr     nz, addr_01CCF               ; 00:1CC7 - 20 06
-   bit    4, (iy+var_D206-IYBASE)      ; 00:1CC9 - FD CB 06 66
+   bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1CC9 - FD CB 06 66
    jr     nz, addr_01CDB               ; 00:1CCD - 20 0C
 
 addr_01CCF:
    ld     b, $3C                       ; 00:1CCF - 06 3C
 
 addr_01CD1:
-   res    0, (iy+var_D200-IYBASE)      ; 00:1CD1 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1CD1 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1CD5 - CD 1C 03
    djnz   addr_01CD1                   ; 00:1CD8 - 10 F7
    rst    $20                          ; 00:1CDA - E7
@@ -4209,7 +4209,7 @@ load_level_header_UNCONFIRMED:
    ld     (rompage_1), a               ; 00:1CEF - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1CF2 - 32 35 D2
    ld     a, (g_level)                 ; 00:1CF5 - 3A 3E D2
-   bit    4, (iy+var_D206-IYBASE)      ; 00:1CF8 - FD CB 06 66
+   bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1CF8 - FD CB 06 66
    jr     z, +                         ; 00:1CFC - 28 03
    ld     a, (g_next_level_override_target)  ; 00:1CFE - 3A D3 D2
 
@@ -4227,22 +4227,22 @@ load_level_header_UNCONFIRMED:
    jp     z, addr_0258B                ; 00:1D0E - CA 8B 25
    add    hl, de                       ; 00:1D11 - 19
    call   addr_020CB                   ; 00:1D12 - CD CB 20
-   set    0, (iy+var_D202-IYBASE)      ; 00:1D15 - FD CB 02 C6
-   set    1, (iy+var_D202-IYBASE)      ; 00:1D19 - FD CB 02 CE
-   set    1, (iy+var_D200-IYBASE)      ; 00:1D1D - FD CB 00 CE
-   set    3, (iy+var_D206-IYBASE)      ; 00:1D21 - FD CB 06 DE
-   res    3, (iy+var_D207-IYBASE)      ; 00:1D25 - FD CB 07 9E
-   res    0, (iy+var_D209-IYBASE)      ; 00:1D29 - FD CB 09 86
-   res    6, (iy+var_D206-IYBASE)      ; 00:1D2D - FD CB 06 B6
-   res    0, (iy+var_D208-IYBASE)      ; 00:1D31 - FD CB 08 86
-   res    6, (iy+var_D200-IYBASE)      ; 00:1D35 - FD CB 00 B6
-   bit    3, (iy+var_D205-IYBASE)      ; 00:1D39 - FD CB 05 5E
+   set    0, (iy+iy_02-IYBASE)         ; 00:1D15 - FD CB 02 C6
+   set    1, (iy+iy_02-IYBASE)         ; 00:1D19 - FD CB 02 CE
+   set    1, (iy+iy_00-IYBASE)         ; 00:1D1D - FD CB 00 CE
+   set    3, (iy+iy_06_lvflag01-IYBASE)  ; 00:1D21 - FD CB 06 DE
+   res    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1D25 - FD CB 07 9E
+   res    0, (iy+iy_09-IYBASE)         ; 00:1D29 - FD CB 09 86
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 00:1D2D - FD CB 06 B6
+   res    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:1D31 - FD CB 08 86
+   res    6, (iy+iy_00-IYBASE)         ; 00:1D35 - FD CB 00 B6
+   bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D39 - FD CB 05 5E
    call   nz, addr_01ED8               ; 00:1D3D - C4 D8 1E
    ld     b, $10                       ; 00:1D40 - 06 10
 
 addr_01D42:
    push   bc                           ; 00:1D42 - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:1D43 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1D43 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1D47 - CD 1C 03
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 00:1D4A - FD 36 03 FF
    ld     hl, (g_global_tick_counter)  ; 00:1D4E - 2A 23 D2
@@ -4251,7 +4251,7 @@ addr_01D42:
    ld     a, $0B                       ; 00:1D55 - 3E 0B
    ld     (rompage_1), a               ; 00:1D57 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1D5A - 32 35 D2
-   bit    2, (iy+var_D205-IYBASE)      ; 00:1D5D - FD CB 05 56
+   bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D5D - FD CB 05 56
    call   nz, addr_03879               ; 00:1D61 - C4 79 38
    ld     hl, $0060                    ; 00:1D64 - 21 60 00
    ld     (var_D25F), hl               ; 00:1D67 - 22 5F D2
@@ -4271,24 +4271,24 @@ addr_01D42:
    call   addr_02E5A                   ; 00:1D8F - CD 5A 2E
    call   addr_0063E                   ; 00:1D92 - CD 3E 06
    call   addr_006BD                   ; 00:1D95 - CD BD 06
-   set    5, (iy+var_D200-IYBASE)      ; 00:1D98 - FD CB 00 EE
+   set    5, (iy+iy_00-IYBASE)         ; 00:1D98 - FD CB 00 EE
    pop    bc                           ; 00:1D9C - C1
    djnz   addr_01D42                   ; 00:1D9D - 10 A3
-   bit    1, (iy+var_D205-IYBASE)      ; 00:1D9F - FD CB 05 4E
+   bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D9F - FD CB 05 4E
    jr     z, addr_01DAE                ; 00:1DA3 - 28 09
    ld     hl, $0000                    ; 00:1DA5 - 21 00 00
    ld     (g_demo_next_input_relptr), hl  ; 00:1DA8 - 22 B5 D2
    ld     (iy+g_sprite_count-IYBASE), h  ; 00:1DAB - FD 74 0A
 
 addr_01DAE:
-   res    0, (iy+var_D200-IYBASE)      ; 00:1DAE - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1DAE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1DB2 - CD 1C 03
    ld     a, $0B                       ; 00:1DB5 - 3E 0B
    ld     (rompage_1), a               ; 00:1DB7 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1DBA - 32 35 D2
-   bit    2, (iy+var_D205-IYBASE)      ; 00:1DBD - FD CB 05 56
+   bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1DBD - FD CB 05 56
    call   nz, addr_03879               ; 00:1DC1 - C4 79 38
-   bit    3, (iy+var_D206-IYBASE)      ; 00:1DC4 - FD CB 06 5E
+   bit    3, (iy+iy_06_lvflag01-IYBASE)  ; 00:1DC4 - FD CB 06 5E
    call   nz, tick_game_time           ; 00:1DC8 - C4 03 3A
    ld     a, (g_global_tick_counter)   ; 00:1DCB - 3A 23 D2
    and    $01                          ; 00:1DCE - E6 01
@@ -4307,13 +4307,13 @@ addr_01DE2:
    ld     a, (var_D2B1)                ; 00:1DE2 - 3A B1 D2
    and    a                            ; 00:1DE5 - A7
    call   nz, addr_01F06               ; 00:1DE6 - C4 06 1F
-   bit    1, (iy+var_D207-IYBASE)      ; 00:1DE9 - FD CB 07 4E
+   bit    1, (iy+iy_07_lvflag02-IYBASE)  ; 00:1DE9 - FD CB 07 4E
    call   nz, addr_01F49               ; 00:1DED - C4 49 1F
 
 addr_01DF0:
-   bit    1, (iy+var_D206-IYBASE)      ; 00:1DF0 - FD CB 06 4E
+   bit    1, (iy+iy_06_lvflag01-IYBASE)  ; 00:1DF0 - FD CB 06 4E
    call   nz, addr_01E78               ; 00:1DF4 - C4 78 1E
-   bit    1, (iy+var_D205-IYBASE)      ; 00:1DF7 - FD CB 05 4E
+   bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1DF7 - FD CB 05 4E
    jr     z, addr_01E07                ; 00:1DFB - 28 0A
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:1DFD - FD CB 03 6E
    jp     z, addr_020B8                ; 00:1E01 - CA B8 20
@@ -4323,14 +4323,14 @@ addr_01E07:
    ld     hl, (g_global_tick_counter)  ; 00:1E07 - 2A 23 D2
    inc    hl                           ; 00:1E0A - 23
    ld     (g_global_tick_counter), hl  ; 00:1E0B - 22 23 D2
-   bit    3, (iy+var_D205-IYBASE)      ; 00:1E0E - FD CB 05 5E
+   bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E0E - FD CB 05 5E
    call   nz, addr_01EE2               ; 00:1E12 - C4 E2 1E
-   bit    4, (iy+var_D205-IYBASE)      ; 00:1E15 - FD CB 05 66
+   bit    4, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E15 - FD CB 05 66
    call   nz, addr_01EF2               ; 00:1E19 - C4 F2 1E
-   bit    7, (iy+var_D205-IYBASE)      ; 00:1E1C - FD CB 05 7E
+   bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E1C - FD CB 05 7E
    call   nz, addr_01EFF               ; 00:1E20 - C4 FF 1E
    call   addr_023C9                   ; 00:1E23 - CD C9 23
-   bit    2, (iy+var_D205-IYBASE)      ; 00:1E26 - FD CB 05 56
+   bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E26 - FD CB 05 56
    call   nz, addr_0239C               ; 00:1E2A - C4 9C 23
    xor    a                            ; 00:1E2D - AF
    ld     (g_sonic_sprite_index_override), a  ; 00:1E2E - 32 02 D3
@@ -4362,7 +4362,7 @@ addr_01E48:
    call   addr_006BD                   ; 00:1E66 - CD BD 06
    ld     hl, g_saved_vdp_reg_01       ; 00:1E69 - 21 19 D2
    set    6, (hl)                      ; 00:1E6C - CB F6
-   bit    3, (iy+var_D207-IYBASE)      ; 00:1E6E - FD CB 07 5E
+   bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1E6E - FD CB 07 5E
    call   nz, addr_01E9E               ; 00:1E72 - C4 9E 1E
    jp     addr_01DAE                   ; 00:1E75 - C3 AE 1D
 
@@ -4386,23 +4386,23 @@ addr_01E78:
    ret                                 ; 00:1E9D - C9
 
 addr_01E9E:
-   bit    1, (iy+var_D205-IYBASE)      ; 00:1E9E - FD CB 05 4E
+   bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E9E - FD CB 05 4E
    ret    nz                           ; 00:1EA2 - C0
    rst    $20                          ; 00:1EA3 - E7
 
 addr_01EA4:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:1EA4 - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:1EA7 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:1EA7 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1EAB - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:1EAE - FD 77 0A
    ld     a, $0B                       ; 00:1EB1 - 3E 0B
    ld     (rompage_1), a               ; 00:1EB3 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1EB6 - 32 35 D2
-   bit    2, (iy+var_D205-IYBASE)      ; 00:1EB9 - FD CB 05 56
+   bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1EB9 - FD CB 05 56
    call   nz, addr_03879               ; 00:1EBD - C4 79 38
    call   addr_023C9                   ; 00:1EC0 - CD C9 23
    call   addr_0239C                   ; 00:1EC3 - CD 9C 23
-   bit    3, (iy+var_D207-IYBASE)      ; 00:1EC6 - FD CB 07 5E
+   bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1EC6 - FD CB 07 5E
    jr     nz, addr_01EA4               ; 00:1ECA - 20 D8
    ld     a, $03                       ; 00:1ECC - 3E 03
    ld     (rompage_1), a               ; 00:1ECE - 32 FE FF
@@ -4577,20 +4577,20 @@ update_signpost_timer:
 @go_to_next_level:
    call   addr_00A40                   ; 00:1FC4 - CD 40 0A
    pop    hl                           ; 00:1FC7 - E1
-   res    5, (iy+var_D200-IYBASE)      ; 00:1FC8 - FD CB 00 AE
-   bit    2, (iy+var_D20D-IYBASE)      ; 00:1FCC - FD CB 0D 56
+   res    5, (iy+iy_00-IYBASE)         ; 00:1FC8 - FD CB 00 AE
+   bit    2, (iy+iy_0D-IYBASE)         ; 00:1FCC - FD CB 0D 56
    jr     nz, addr_0201C               ; 00:1FD0 - 20 4A
-   bit    4, (iy+var_D206-IYBASE)      ; 00:1FD2 - FD CB 06 66
+   bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1FD2 - FD CB 06 66
    jr     nz, addr_02020               ; 00:1FD6 - 20 48
    rst    $20                          ; 00:1FD8 - E7
-   bit    7, (iy+var_D206-IYBASE)      ; 00:1FD9 - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:1FD9 - FD CB 06 7E
    call   nz, addr_020A4               ; 00:1FDD - C4 A4 20
    call   clear_sprite_table           ; 00:1FE0 - CD E2 05
    call   handle_level_score_screen    ; 00:1FE3 - CD 5E 15
    ld     a, (g_level)                 ; 00:1FE6 - 3A 3E D2
    cp     $1A                          ; 00:1FE9 - FE 1A
    jr     nc, @level_was_bonus         ; 00:1FEB - 30 28
-   bit    0, (iy+var_D207-IYBASE)      ; 00:1FED - FD CB 07 46
+   bit    0, (iy+iy_07_lvflag02-IYBASE)  ; 00:1FED - FD CB 07 46
    jr     z, @level_was_normal_no_bonus  ; 00:1FF1 - 28 1B
    ld     hl, LUT_02047_all7F          ; 00:1FF3 - 21 47 20
    call   palette_fade_up              ; 00:1FF6 - CD 60 0B
@@ -4611,7 +4611,7 @@ update_signpost_timer:
    ret                                 ; 00:2014 - C9
 
 @level_was_bonus:
-   res    0, (iy+var_D207-IYBASE)      ; 00:2015 - FD CB 07 86
+   res    0, (iy+iy_07_lvflag02-IYBASE)  ; 00:2015 - FD CB 07 86
    ld     a, $FF                       ; 00:2019 - 3E FF
    ret                                 ; 00:201B - C9
 
@@ -4646,7 +4646,7 @@ signpost_func_10_rings:
 signpost_func_bonus_stage:
    ld     a, $07                       ; 00:203F - 3E 07
    rst    $28                          ; 00:2041 - EF
-   set    0, (iy+var_D207-IYBASE)      ; 00:2042 - FD CB 07 C6
+   set    0, (iy+iy_07_lvflag02-IYBASE)  ; 00:2042 - FD CB 07 C6
    ret                                 ; 00:2046 - C9
 
 LUT_02047_all7F:
@@ -4657,14 +4657,14 @@ addr_02067:
    dec    a                            ; 00:2067 - 3D
    ld     (g_level_restart_countdown_timer), a  ; 00:2068 - 32 87 D2
    jp     nz, addr_01DE2               ; 00:206B - C2 E2 1D
-   bit    1, (iy+var_D205-IYBASE)      ; 00:206E - FD CB 05 4E
+   bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:206E - FD CB 05 4E
    jr     nz, addr_020B8               ; 00:2072 - 20 44
-   bit    4, (iy+var_D20C-IYBASE)      ; 00:2074 - FD CB 0C 66
+   bit    4, (iy+iy_0C_old_lvflag01-IYBASE)  ; 00:2074 - FD CB 0C 66
    jr     z, addr_0207E                ; 00:2078 - 28 04
-   set    4, (iy+var_D206-IYBASE)      ; 00:207A - FD CB 06 E6
+   set    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:207A - FD CB 06 E6
 
 addr_0207E:
-   bit    7, (iy+var_D206-IYBASE)      ; 00:207E - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:207E - FD CB 06 7E
    call   nz, addr_020A4               ; 00:2082 - C4 A4 20
    ld     a, (g_lives)                 ; 00:2085 - 3A 46 D2
    and    a                            ; 00:2088 - A7
@@ -4672,7 +4672,7 @@ addr_0207E:
    ret    nz                           ; 00:208B - C0
    call   addr_00A40                   ; 00:208C - CD 40 0A
    call   clear_sprite_table           ; 00:208F - CD E2 05
-   res    5, (iy+var_D200-IYBASE)      ; 00:2092 - FD CB 00 AE
+   res    5, (iy+iy_00-IYBASE)         ; 00:2092 - FD CB 00 AE
    call   addr_01401                   ; 00:2096 - CD 01 14
    ld     a, $00                       ; 00:2099 - 3E 00
    ret    nc                           ; 00:209B - D0
@@ -4686,7 +4686,7 @@ addr_020A4:
    and    a                            ; 00:20A7 - A7
    jr     nz, addr_020A4               ; 00:20A8 - 20 FA
    di                                  ; 00:20AA - F3
-   res    7, (iy+var_D206-IYBASE)      ; 00:20AB - FD CB 06 BE
+   res    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:20AB - FD CB 06 BE
    xor    a                            ; 00:20AF - AF
    ld     (g_water_onscreen_y), a      ; 00:20B0 - 32 48 D2
    ld     (var_D2DB), a                ; 00:20B3 - 32 DB D2
@@ -4707,17 +4707,17 @@ addr_020CB:
    ld     a, (g_saved_vdp_reg_01)      ; 00:20CB - 3A 19 D2
    and    $BF                          ; 00:20CE - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:20D0 - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:20D3 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:20D3 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:20D7 - CD 1C 03
    ld     de, g_level_header_copy      ; 00:20DA - 11 54 D3
    ld     bc, $0028                    ; 00:20DD - 01 28 00
    ldir                                ; 00:20E0 - ED B0
    ld     hl, g_level_header_copy      ; 00:20E2 - 21 54 D3
    push   hl                           ; 00:20E5 - E5
-   ld     a, (iy+var_D205-IYBASE)      ; 00:20E6 - FD 7E 05
-   ld     (iy+var_D20B-IYBASE), a      ; 00:20E9 - FD 77 0B
-   ld     a, (iy+var_D206-IYBASE)      ; 00:20EC - FD 7E 06
-   ld     (iy+var_D20C-IYBASE), a      ; 00:20EF - FD 77 0C
+   ld     a, (iy+iy_05_lvflag00-IYBASE)  ; 00:20E6 - FD 7E 05
+   ld     (iy+iy_0B_old_lvflag00_UNUSED-IYBASE), a  ; 00:20E9 - FD 77 0B
+   ld     a, (iy+iy_06_lvflag01-IYBASE)  ; 00:20EC - FD 7E 06
+   ld     (iy+iy_0C_old_lvflag01-IYBASE), a  ; 00:20EF - FD 77 0C
    ld     a, $FF                       ; 00:20F2 - 3E FF
    ld     (g_screen_tile_replace_x), a  ; 00:20F4 - 32 AB D2
    xor    a                            ; 00:20F7 - AF
@@ -4757,9 +4757,9 @@ addr_0213A:
    ld     hl, $FFFE                    ; 00:213D - 21 FE FF
    ld     (var_D29F), hl               ; 00:2140 - 22 9F D2
    ld     hl, UNK_023FF                ; 00:2143 - 21 FF 23
-   bit    4, (iy+var_D206-IYBASE)      ; 00:2146 - FD CB 06 66
+   bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:2146 - FD CB 06 66
    jr     z, addr_02155                ; 00:214A - 28 09
-   bit    0, (iy+var_D205-IYBASE)      ; 00:214C - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:214C - FD CB 05 46
    jr     z, addr_02172                ; 00:2150 - 28 20
    ld     hl, LUT_bonus_stage_time_limits  ; 00:2152 - 21 02 24
 
@@ -4960,7 +4960,7 @@ addr_0223E:
    ld     l, a                         ; 00:2291 - 6F
    ld     a, $03                       ; 00:2292 - 3E 03
    call   signal_load_palettes         ; 00:2294 - CD 33 03
-   res    0, (iy+var_D200-IYBASE)      ; 00:2297 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:2297 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:229B - CD 1C 03
    call   addr_00966                   ; 00:229E - CD 66 09
    pop    hl                           ; 00:22A1 - E1
@@ -5013,19 +5013,19 @@ addr_0223E:
    call   load_object_list             ; 00:22E8 - CD 2B 23
    pop    hl                           ; 00:22EB - E1
    ld     c, (hl)                      ; 00:22EC - 4E
-   ld     a, (iy+var_D205-IYBASE)      ; 00:22ED - FD 7E 05
+   ld     a, (iy+iy_05_lvflag00-IYBASE)  ; 00:22ED - FD 7E 05
    and    $02                          ; 00:22F0 - E6 02
    or     c                            ; 00:22F2 - B1
-   ld     (iy+var_D205-IYBASE), a      ; 00:22F3 - FD 77 05
+   ld     (iy+iy_05_lvflag00-IYBASE), a  ; 00:22F3 - FD 77 05
    inc    hl                           ; 00:22F6 - 23
    ld     a, (hl)                      ; 00:22F7 - 7E
-   ld     (iy+var_D206-IYBASE), a      ; 00:22F8 - FD 77 06
+   ld     (iy+iy_06_lvflag01-IYBASE), a  ; 00:22F8 - FD 77 06
    inc    hl                           ; 00:22FB - 23
    ld     a, (hl)                      ; 00:22FC - 7E
-   ld     (iy+var_D207-IYBASE), a      ; 00:22FD - FD 77 07
+   ld     (iy+iy_07_lvflag02-IYBASE), a  ; 00:22FD - FD 77 07
    inc    hl                           ; 00:2300 - 23
    ld     a, (hl)                      ; 00:2301 - 7E
-   ld     (iy+var_D208-IYBASE), a      ; 00:2302 - FD 77 08
+   ld     (iy+iy_08_lvflag03-IYBASE), a  ; 00:2302 - FD 77 08
    inc    hl                           ; 00:2305 - 23
    ld     a, (g_current_music)         ; 00:2306 - 3A D2 D2
    cp     (hl)                         ; 00:2309 - BE
@@ -5047,9 +5047,9 @@ addr_0231B:
    ld     (hl), a                      ; 00:231D - 77
    inc    hl                           ; 00:231E - 23
    djnz   addr_0231B                   ; 00:231F - 10 FA
-   bit    5, (iy+var_D20C-IYBASE)      ; 00:2321 - FD CB 0C 6E
+   bit    5, (iy+iy_0C_old_lvflag01-IYBASE)  ; 00:2321 - FD CB 0C 6E
    ret    z                            ; 00:2325 - C8
-   set    5, (iy+var_D206-IYBASE)      ; 00:2326 - FD CB 06 EE
+   set    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:2326 - FD CB 06 EE
    ret                                 ; 00:232A - C9
 
 load_object_list:
@@ -5233,7 +5233,7 @@ addr_0258B:
    ld     a, (g_saved_vdp_reg_01)      ; 00:258B - 3A 19 D2
    and    $BF                          ; 00:258E - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:2590 - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:2593 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:2593 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2597 - CD 1C 03
    xor    a                            ; 00:259A - AF
    ld     (g_vdp_scroll_x), a          ; 00:259B - 32 51 D2
@@ -5257,7 +5257,7 @@ addr_0258B:
    ld     a, (g_saved_vdp_reg_01)      ; 00:25CC - 3A 19 D2
    or     $40                          ; 00:25CF - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:25D1 - 32 19 D2
-   res    0, (iy+var_D200-IYBASE)      ; 00:25D4 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:25D4 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:25D8 - CD 1C 03
    ld     a, $01                       ; 00:25DB - 3E 01
    ld     (rompage_1), a               ; 00:25DD - 32 FE FF
@@ -5269,7 +5269,7 @@ addr_0258B:
 
 addr_025ED:
    push   bc                           ; 00:25ED - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:25EE - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:25EE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:25F2 - CD 1C 03
    ld     hl, g_sprite_table           ; 00:25F5 - 21 00 D0
    ld     c, $70                       ; 00:25F8 - 0E 70
@@ -5287,10 +5287,10 @@ addr_025ED:
 addr_02610:
    push   bc                           ; 00:2610 - C5
    ld     c, (iy+g_sprite_count-IYBASE)  ; 00:2611 - FD 4E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:2614 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:2614 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2618 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:261B - FD 71 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:261E - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:261E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2622 - CD 1C 03
    ld     de, g_sprite_table           ; 00:2625 - 11 00 D0
    ld     (var_D23C), de               ; 00:2628 - ED 53 3C D2
@@ -5422,7 +5422,7 @@ addr_02718:
 
 addr_0271C:
    push   bc                           ; 00:271C - C5
-   res    0, (iy+var_D200-IYBASE)      ; 00:271D - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:271D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2721 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2724 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:2728 - 21 00 D0
@@ -5449,7 +5449,7 @@ addr_02733:
 addr_02745:
    push   bc                           ; 00:2745 - C5
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:2746 - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 00:2749 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 00:2749 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:274D - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:2750 - FD 77 0A
    pop    bc                           ; 00:2753 - C1
@@ -5823,7 +5823,7 @@ CONST_sonic_lives_FFstr_template:
 .db $A0, $A2, $A4, $00, $FF                                                         ; 00:2E55
 
 addr_02E5A:
-   res    7, (iy+var_D207-IYBASE)      ; 00:2E5A - FD CB 07 BE
+   res    7, (iy+iy_07_lvflag02-IYBASE)  ; 00:2E5A - FD CB 07 BE
    ld     hl, CONST_sonic_lives_FFstr_template  ; 00:2E5E - 21 55 2E
    ld     de, g_HUD_FFstr_buf          ; 00:2E61 - 11 BE D2
    ld     bc, $0005                    ; 00:2E64 - 01 05 00
@@ -5843,9 +5843,9 @@ addr_02E72:
    ld     de, g_HUD_FFstr_buf          ; 00:2E7F - 11 BE D2
    call   draw_sprite_text             ; 00:2E82 - CD CC 35
    ld     (var_D23C), hl               ; 00:2E85 - 22 3C D2
-   bit    2, (iy+var_D205-IYBASE)      ; 00:2E88 - FD CB 05 56
+   bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:2E88 - FD CB 05 56
    call   nz, addr_02EE6               ; 00:2E8C - C4 E6 2E
-   bit    5, (iy+var_D207-IYBASE)      ; 00:2E8F - FD CB 07 6E
+   bit    5, (iy+iy_07_lvflag02-IYBASE)  ; 00:2E8F - FD CB 07 6E
    call   nz, draw_level_timer         ; 00:2E93 - C4 1F 2F
    ld     de, $0060                    ; 00:2E96 - 11 60 00
    ld     hl, var_D267                 ; 00:2E99 - 21 67 D2
@@ -5867,7 +5867,7 @@ addr_02E72:
    call   z, addr_0311A                ; 00:2EB3 - CC 1A 31
    inc    hl                           ; 00:2EB6 - 23
    ld     de, $0070                    ; 00:2EB7 - 11 70 00
-   bit    6, (iy+var_D205-IYBASE)      ; 00:2EBA - FD CB 05 76
+   bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:2EBA - FD CB 05 76
    jr     z, addr_02EC3                ; 00:2EBE - 28 03
    ld     de, $0080                    ; 00:2EC0 - 11 80 00
 
@@ -5876,7 +5876,7 @@ addr_02EC3:
    inc    hl                           ; 00:2EC4 - 23
    or     (hl)                         ; 00:2EC5 - B6
    call   z, addr_0311A                ; 00:2EC6 - CC 1A 31
-   bit    0, (iy+var_D205-IYBASE)      ; 00:2EC9 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:2EC9 - FD CB 05 46
    call   z, addr_02F66                ; 00:2ECD - CC 66 2F
    ld     hl, $0000                    ; 00:2ED0 - 21 00 00
    ld     (var_D267), hl               ; 00:2ED3 - 22 67 D2
@@ -5960,7 +5960,7 @@ addr_02F59:
    ret                                 ; 00:2F65 - C9
 
 addr_02F66:
-   bit    6, (iy+var_D207-IYBASE)      ; 00:2F66 - FD CB 07 76
+   bit    6, (iy+iy_07_lvflag02-IYBASE)  ; 00:2F66 - FD CB 07 76
    ret    nz                           ; 00:2F6A - C0
    ld     hl, (var_D27B)               ; 00:2F6B - 2A 7B D2
    ld     a, l                         ; 00:2F6E - 7D
@@ -6012,9 +6012,9 @@ addr_02FD9:
    ld     hl, $0008                    ; 00:2FD9 - 21 08 00
 
 addr_02FDC:
-   bit    3, (iy+var_D205-IYBASE)      ; 00:2FDC - FD CB 05 5E
+   bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:2FDC - FD CB 05 5E
    jr     nz, addr_03033               ; 00:2FE0 - 20 51
-   bit    5, (iy+var_D205-IYBASE)      ; 00:2FE2 - FD CB 05 6E
+   bit    5, (iy+iy_05_lvflag00-IYBASE)  ; 00:2FE2 - FD CB 05 6E
    jr     z, addr_02FEB                ; 00:2FE6 - 28 03
    ld     hl, $0001                    ; 00:2FE8 - 21 01 00
 
@@ -6052,9 +6052,9 @@ addr_03017:
    ld     hl, $0008                    ; 00:3017 - 21 08 00
 
 addr_0301A:
-   bit    3, (iy+var_D205-IYBASE)      ; 00:301A - FD CB 05 5E
+   bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:301A - FD CB 05 5E
    jr     nz, addr_03033               ; 00:301E - 20 13
-   bit    5, (iy+var_D205-IYBASE)      ; 00:3020 - FD CB 05 6E
+   bit    5, (iy+iy_05_lvflag00-IYBASE)  ; 00:3020 - FD CB 05 6E
    jr     z, addr_03029                ; 00:3024 - 28 03
    ld     hl, $0001                    ; 00:3026 - 21 01 00
 
@@ -6082,17 +6082,17 @@ addr_03045:
    ld     (g_level_scroll_x_pix_lo), de  ; 00:3051 - ED 53 5A D2
 
 addr_03055:
-   bit    6, (iy+var_D205-IYBASE)      ; 00:3055 - FD CB 05 76
+   bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3055 - FD CB 05 76
    call   nz, addr_03164               ; 00:3059 - C4 64 31
    ld     bc, (var_D263)               ; 00:305C - ED 4B 63 D2
    ld     de, (sonic_y)                ; 00:3060 - ED 5B 01 D4
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3064 - 2A 5D D2
-   bit    6, (iy+var_D205-IYBASE)      ; 00:3067 - FD CB 05 76
+   bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3067 - FD CB 05 76
    call   nz, addr_031CF               ; 00:306B - C4 CF 31
-   bit    7, (iy+var_D205-IYBASE)      ; 00:306E - FD CB 05 7E
+   bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:306E - FD CB 05 7E
    call   nz, addr_031D3               ; 00:3072 - C4 D3 31
    add    hl, bc                       ; 00:3075 - 09
-   bit    7, (iy+var_D205-IYBASE)      ; 00:3076 - FD CB 05 7E
+   bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:3076 - FD CB 05 7E
    call   z, addr_031DB                ; 00:307A - CC DB 31
    and    a                            ; 00:307D - A7
    sbc    hl, de                       ; 00:307E - ED 52
@@ -6101,7 +6101,7 @@ addr_03055:
    ld     a, h                         ; 00:3084 - 7C
    and    a                            ; 00:3085 - A7
    jr     nz, addr_03093               ; 00:3086 - 20 0B
-   bit    6, (iy+var_D205-IYBASE)      ; 00:3088 - FD CB 05 76
+   bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3088 - FD CB 05 76
    call   nz, addr_0311F               ; 00:308C - C4 1F 31
    ld     a, l                         ; 00:308F - 7D
    cp     c                            ; 00:3090 - B9
@@ -6113,11 +6113,11 @@ addr_03093:
    ld     h, $00                       ; 00:3095 - 26 00
 
 addr_03097:
-   bit    7, (iy+var_D205-IYBASE)      ; 00:3097 - FD CB 05 7E
+   bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:3097 - FD CB 05 7E
    jr     z, addr_030AA                ; 00:309B - 28 0D
    srl    h                            ; 00:309D - CB 3C
    rr     l                            ; 00:309F - CB 1D
-   bit    1, (iy+var_D208-IYBASE)      ; 00:30A1 - FD CB 08 4E
+   bit    1, (iy+iy_08_lvflag03-IYBASE)  ; 00:30A1 - FD CB 08 4E
    jr     nz, addr_030AA               ; 00:30A5 - 20 03
    ld     hl, $0000                    ; 00:30A7 - 21 00 00
 
@@ -6134,7 +6134,7 @@ addr_030B9:
    ld     bc, (var_D265)               ; 00:30B9 - ED 4B 65 D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30BD - 2A 5D D2
    add    hl, bc                       ; 00:30C0 - 09
-   bit    7, (iy+var_D205-IYBASE)      ; 00:30C1 - FD CB 05 7E
+   bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:30C1 - FD CB 05 7E
    call   z, addr_031DB                ; 00:30C5 - CC DB 31
    and    a                            ; 00:30C8 - A7
    sbc    hl, de                       ; 00:30C9 - ED 52
@@ -6150,7 +6150,7 @@ addr_030B9:
    ld     a, h                         ; 00:30D6 - 7C
    and    a                            ; 00:30D7 - A7
    jr     nz, addr_030E5               ; 00:30D8 - 20 0B
-   bit    6, (iy+var_D205-IYBASE)      ; 00:30DA - FD CB 05 76
+   bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:30DA - FD CB 05 76
    call   nz, addr_0311F               ; 00:30DE - C4 1F 31
    ld     a, l                         ; 00:30E1 - 7D
    cp     c                            ; 00:30E2 - B9
@@ -6162,7 +6162,7 @@ addr_030E5:
    ld     h, $00                       ; 00:30E7 - 26 00
 
 addr_030E9:
-   bit    4, (iy+var_D205-IYBASE)      ; 00:30E9 - FD CB 05 66
+   bit    4, (iy+iy_05_lvflag00-IYBASE)  ; 00:30E9 - FD CB 05 66
    jr     nz, addr_030F9               ; 00:30ED - 20 0A
    ld     de, (g_level_scroll_y_pix_lo)  ; 00:30EF - ED 5B 5D D2
    add    hl, de                       ; 00:30F3 - 19
@@ -6315,7 +6315,7 @@ UNUSED_031D7:
    ret                                 ; 00:31DA - C9
 
 addr_031DB:
-   bit    6, (iy+var_D205-IYBASE)      ; 00:31DB - FD CB 05 76
+   bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:31DB - FD CB 05 76
    ret    nz                           ; 00:31DF - C0
    ld     bc, (g_camera_y_look_up_offset_px)  ; 00:31E0 - ED 4B B7 D2
    add    hl, bc                       ; 00:31E4 - 09
@@ -6951,9 +6951,9 @@ addr_035DD:
    jp     draw_sprite_text             ; 00:35E2 - C3 CC 35
 
 enemy_touched_sonic:
-   bit    0, (iy+var_D205-IYBASE)      ; 00:35E5 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:35E5 - FD CB 05 46
    ret    nz                           ; 00:35E9 - C0
-   bit    0, (iy+var_D208-IYBASE)      ; 00:35EA - FD CB 08 46
+   bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:35EA - FD CB 08 46
    jp     nz, addr_036BE               ; 00:35EE - C2 BE 36
    ld     a, (sonic_flags_ix_24)       ; 00:35F1 - 3A 14 D4
    rrca                                ; 00:35F4 - 0F
@@ -6962,20 +6962,20 @@ enemy_touched_sonic:
    jp     nz, addr_036BE               ; 00:35FA - C2 BE 36
 
 damage_sonic:
-   bit    0, (iy+var_D209-IYBASE)      ; 00:35FD - FD CB 09 46
+   bit    0, (iy+iy_09-IYBASE)         ; 00:35FD - FD CB 09 46
    ret    nz                           ; 00:3601 - C0
-   bit    6, (iy+var_D206-IYBASE)      ; 00:3602 - FD CB 06 76
+   bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 00:3602 - FD CB 06 76
    ret    nz                           ; 00:3606 - C0
-   bit    0, (iy+var_D208-IYBASE)      ; 00:3607 - FD CB 08 46
+   bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:3607 - FD CB 08 46
    ret    nz                           ; 00:360B - C0
-   bit    5, (iy+var_D206-IYBASE)      ; 00:360C - FD CB 06 6E
+   bit    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:360C - FD CB 06 6E
    jr     nz, addr_0367E               ; 00:3610 - 20 6C
    ld     a, (g_rings_BCD)             ; 00:3612 - 3A AA D2
    and    a                            ; 00:3615 - A7
    jr     nz, addr_03644               ; 00:3616 - 20 2C
 
 kill_sonic:
-   set    0, (iy+var_D205-IYBASE)      ; 00:3618 - FD CB 05 C6
+   set    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:3618 - FD CB 05 C6
    ld     hl, sonic_flags_ix_24        ; 00:361C - 21 14 D4
    set    7, (hl)                      ; 00:361F - CB FE
    ld     hl, $FFFA                    ; 00:3621 - 21 FA FF
@@ -6984,10 +6984,10 @@ kill_sonic:
    ld     (sonic_vel_y), hl            ; 00:3628 - 22 07 D4
    ld     a, $60                       ; 00:362B - 3E 60
    ld     (g_level_restart_countdown_timer), a  ; 00:362D - 32 87 D2
-   res    6, (iy+var_D206-IYBASE)      ; 00:3630 - FD CB 06 B6
-   res    5, (iy+var_D206-IYBASE)      ; 00:3634 - FD CB 06 AE
-   res    6, (iy+var_D206-IYBASE)      ; 00:3638 - FD CB 06 B6
-   res    0, (iy+var_D208-IYBASE)      ; 00:363C - FD CB 08 86
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 00:3630 - FD CB 06 B6
+   res    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:3634 - FD CB 06 AE
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 00:3638 - FD CB 06 B6
+   res    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:363C - FD CB 08 86
    ld     a, $0A                       ; 00:3640 - 3E 0A
    rst    $18                          ; 00:3642 - DF
    ret                                 ; 00:3643 - C9
@@ -7042,8 +7042,8 @@ addr_036A1:
 addr_036A7:
    ld     (sonic_vel_x_sub), a         ; 00:36A7 - 32 03 D4
    ld     (sonic_vel_x), de            ; 00:36AA - ED 53 04 D4
-   res    5, (iy+var_D206-IYBASE)      ; 00:36AE - FD CB 06 AE
-   set    6, (iy+var_D206-IYBASE)      ; 00:36B2 - FD CB 06 F6
+   res    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:36AE - FD CB 06 AE
+   set    6, (iy+iy_06_lvflag01-IYBASE)  ; 00:36B2 - FD CB 06 F6
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 00:36B6 - FD 36 03 FF
    ld     a, $11                       ; 00:36BA - 3E 11
    rst    $28                          ; 00:36BC - EF
@@ -7234,7 +7234,7 @@ addr_037E0:
    ret    z                            ; 00:37EA - C8
    ld     hl, $3680                    ; 00:37EB - 21 80 36
    ex     de, hl                       ; 00:37EE - EB
-   bit    0, (iy+var_D206-IYBASE)      ; 00:37EF - FD CB 06 46
+   bit    0, (iy+iy_06_lvflag01-IYBASE)  ; 00:37EF - FD CB 06 46
    jp     nz, addr_0382E               ; 00:37F3 - C2 2E 38
    ld     a, e                         ; 00:37F6 - 7B
    out    ($BF), a                     ; 00:37F7 - D3 BF
@@ -7468,7 +7468,7 @@ addr_0392F:
    ret                                 ; 00:3955 - C9
 
 check_collision_with_sonic:
-   bit    0, (iy+var_D205-IYBASE)      ; 00:3956 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:3956 - FD CB 05 46
    scf                                 ; 00:395A - 37
    ret    nz                           ; 00:395B - C0
    ld     l, (ix+2)                    ; 00:395C - DD 6E 02
@@ -7581,10 +7581,10 @@ addr_039D8:
    ret                                 ; 00:3A02 - C9
 
 tick_game_time:
-   bit    0, (iy+var_D205-IYBASE)      ; 00:3A03 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:3A03 - FD CB 05 46
    ret    nz                           ; 00:3A07 - C0
    ld     hl, g_time_subsecs           ; 00:3A08 - 21 D0 D2
-   bit    0, (iy+var_D207-IYBASE)      ; 00:3A0B - FD CB 07 46
+   bit    0, (iy+iy_07_lvflag02-IYBASE)  ; 00:3A0B - FD CB 07 46
    jr     nz, @time_ticks_downwards    ; 00:3A0F - 20 26
    ld     a, (hl)                      ; 00:3A11 - 7E
    inc    a                            ; 00:3A12 - 3C
@@ -7650,7 +7650,7 @@ tick_game_time:
    jr     c, @down_time_not_expired    ; 00:3A54 - 38 0A
    ld     a, $01                       ; 00:3A56 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 00:3A58 - 32 89 D2
-   set    2, (iy+var_D209-IYBASE)      ; 00:3A5B - FD CB 09 D6
+   set    2, (iy+iy_09-IYBASE)         ; 00:3A5B - FD CB 09 D6
    xor    a                            ; 00:3A5F - AF
 
 @down_time_not_expired:
@@ -7970,24 +7970,24 @@ addr_048A8:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:48B8
 
 objfunc_00_sonic:
-   res    1, (iy+var_D208-IYBASE)      ; 01:48C8 - FD CB 08 8E
+   res    1, (iy+iy_08_lvflag03-IYBASE)  ; 01:48C8 - FD CB 08 8E
    bit    7, (ix+24)                   ; 01:48CC - DD CB 18 7E
    call   nz, @fn_set_was_on_ground_bit  ; 01:48D0 - C4 88 4E
-   set    7, (iy+var_D207-IYBASE)      ; 01:48D3 - FD CB 07 FE
-   bit    0, (iy+var_D205-IYBASE)      ; 01:48D7 - FD CB 05 46
+   set    7, (iy+iy_07_lvflag02-IYBASE)  ; 01:48D3 - FD CB 07 FE
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:48D7 - FD CB 05 46
    jp     nz, @sonic_is_dying          ; 01:48DB - C2 3C 54
    ld     a, (sonic_brake_sound_cooldown_timer_ix_22)  ; 01:48DE - 3A 12 D4
    and    a                            ; 01:48E1 - A7
    call   nz, @fn_handle_brake_sound_cooldown_timer  ; 01:48E2 - C4 F0 4F
    res    5, (ix+24)                   ; 01:48E5 - DD CB 18 AE
-   bit    6, (iy+var_D206-IYBASE)      ; 01:48E9 - FD CB 06 76
+   bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:48E9 - FD CB 06 76
    call   nz, @fn_handle_damage_stun_and_input_suppression  ; 01:48ED - C4 0A 51
    ld     a, (g_directional_input_suppression_timer)  ; 01:48F0 - 3A 8C D2
    and    a                            ; 01:48F3 - A7
    call   nz, @fn_enforce_directional_input_suppression  ; 01:48F4 - C4 8F 56
-   bit    0, (iy+var_D207-IYBASE)      ; 01:48F7 - FD CB 07 46
+   bit    0, (iy+iy_07_lvflag02-IYBASE)  ; 01:48F7 - FD CB 07 46
    call   nz, @fn_forbid_rolling_in_special_stage  ; 01:48FB - C4 00 51
-   bit    0, (iy+var_D208-IYBASE)      ; 01:48FE - FD CB 08 46
+   bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:48FE - FD CB 08 46
    call   nz, @fn_handle_invincibility  ; 01:4902 - C4 F5 4F
    bit    4, (ix+24)                   ; 01:4905 - DD CB 18 66
    call   nz, @fn_handle_air_timer_and_drowning  ; 01:4909 - C4 09 50
@@ -7997,9 +7997,9 @@ objfunc_00_sonic:
    ld     a, (g_teleport_start_countdown_timer)  ; 01:4913 - 3A 8A D2
    and    a                            ; 01:4916 - A7
    jp     nz, @handle_teleport_start   ; 01:4917 - C2 17 51
-   bit    6, (iy+var_D208-IYBASE)      ; 01:491A - FD CB 08 76
+   bit    6, (iy+iy_08_lvflag03-IYBASE)  ; 01:491A - FD CB 08 76
    jp     nz, @handle_ending_animation_teleport_in  ; 01:491E - C2 93 51
-   bit    7, (iy+var_D208-IYBASE)      ; 01:4921 - FD CB 08 7E
+   bit    7, (iy+iy_08_lvflag03-IYBASE)  ; 01:4921 - FD CB 08 7E
    call   nz, @fn_handle_good_ending_sequence  ; 01:4925 - C4 9C 52
    bit    4, (ix+24)                   ; 01:4928 - DD CB 18 66
    jp     z, @not_underwater_physics   ; 01:492C - CA 4F 49
@@ -8019,7 +8019,7 @@ objfunc_00_sonic:
    ld     a, (ix+21)                   ; 01:494F - DD 7E 15
    and    a                            ; 01:4952 - A7
    jr     nz, @is_speed_shoes_physics  ; 01:4953 - 20 58
-   bit    0, (iy+var_D207-IYBASE)      ; 01:4955 - FD CB 07 46
+   bit    0, (iy+iy_07_lvflag02-IYBASE)  ; 01:4955 - FD CB 07 46
    jr     nz, @is_special_stage_air_physics  ; 01:4959 - 20 26
 
 @is_normal_physics:
@@ -8143,7 +8143,7 @@ objfunc_00_sonic:
 
 @sonic_not_bored:
    ld     (g_sonic_bored_anim_countup_timer), hl  ; 01:4A59 - 22 99 D2
-   bit    7, (iy+var_D206-IYBASE)      ; 01:4A5C - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 01:4A5C - FD CB 06 7E
    call   nz, @fn_set_underwater_state_based_on_water_level  ; 01:4A60 - C4 E8 50
    ld     (ix+20), $05                 ; 01:4A63 - DD 36 14 05
    ld     hl, (g_sonic_bored_anim_countup_timer)  ; 01:4A67 - 2A 99 D2
@@ -8331,7 +8331,7 @@ objfunc_00_sonic:
    ld     c, $00                       ; 01:4BBC - 0E 00
 
 @TODO_4BBE:
-   bit    0, (iy+var_D206-IYBASE)      ; 01:4BBE - FD CB 06 46
+   bit    0, (iy+iy_06_lvflag01-IYBASE)  ; 01:4BBE - FD CB 06 46
    jr     z, @skip_upside_down_gravity_VESTIGIAL  ; 01:4BC2 - 28 12
    push   hl                           ; 01:4BC4 - E5
    ld     a, e                         ; 01:4BC5 - 7B
@@ -8413,9 +8413,9 @@ objfunc_00_sonic:
    ld     a, (g_directional_input_suppression_timer)  ; 01:4C39 - 3A 8C D2
    and    a                            ; 01:4C3C - A7
    call   nz, @fn_decrement_directional_input_suppression_timer  ; 01:4C3D - C4 B3 51
-   bit    6, (iy+var_D206-IYBASE)      ; 01:4C40 - FD CB 06 76
+   bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:4C40 - FD CB 06 76
    call   nz, @fn_handle_damage_stun_animation_and_deactivation  ; 01:4C44 - C4 BC 51
-   bit    2, (iy+var_D208-IYBASE)      ; 01:4C47 - FD CB 08 56
+   bit    2, (iy+iy_08_lvflag03-IYBASE)  ; 01:4C47 - FD CB 08 56
    call   nz, @fn_TODO_51DD            ; 01:4C4B - C4 DD 51
    ld     a, (sonic_anim_index_ix_20)  ; 01:4C4E - 3A 10 D4
    cp     $0A                          ; 01:4C51 - FE 0A
@@ -8455,7 +8455,7 @@ objfunc_00_sonic:
    ld     bc, $7000                    ; 01:4C8D - 01 00 70
 
 @sprite_setting_was_facing_left:
-   bit    5, (iy+var_D206-IYBASE)      ; 01:4C90 - FD CB 06 6E
+   bit    5, (iy+iy_06_lvflag01-IYBASE)  ; 01:4C90 - FD CB 06 6E
    call   nz, @fn_handle_shield_animation  ; 01:4C94 - C4 06 52
    ld     a, (g_sonic_sprite_index_override)  ; 01:4C97 - 3A 02 D3
    and    a                            ; 01:4C9A - A7
@@ -8474,7 +8474,7 @@ objfunc_00_sonic:
    add    hl, bc                       ; 01:4CAB - 09
    ld     (var_D28F), hl               ; 01:4CAC - 22 8F D2
    ld     hl, SPRITEMAP_sonic_normal   ; 01:4CAF - 21 1D 59
-   bit    0, (iy+var_D206-IYBASE)      ; 01:4CB2 - FD CB 06 46
+   bit    0, (iy+iy_06_lvflag01-IYBASE)  ; 01:4CB2 - FD CB 06 46
    call   nz, @fn_use_hflipped_in_upside_down_mode_VESTIGIAL  ; 01:4CB6 - C4 0F 52
    ld     a, (sonic_anim_index_ix_20)  ; 01:4CB9 - 3A 10 D4
    cp     $13                          ; 01:4CBC - FE 13
@@ -8520,9 +8520,9 @@ objfunc_00_sonic:
    ld     (sonic_y), hl                ; 01:4D02 - 22 01 D4
 
 @skip_clamp_sonic_y_pos_top:
-   bit    7, (iy+var_D206-IYBASE)      ; 01:4D05 - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 01:4D05 - FD CB 06 7E
    call   nz, @fn_blow_a_bubble_periodically  ; 01:4D09 - C4 24 52
-   bit    0, (iy+var_D208-IYBASE)      ; 01:4D0C - FD CB 08 46
+   bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:4D0C - FD CB 08 46
    call   nz, @fn_handle_invincibility_sparkle_sprite  ; 01:4D10 - C4 8D 4E
    ld     a, (var_D2E1)                ; 01:4D13 - 3A E1 D2
    and    a                            ; 01:4D16 - A7
@@ -8530,7 +8530,7 @@ objfunc_00_sonic:
    ld     a, (g_ring_sparkle_sprite_countdown_timer)  ; 01:4D1A - 3A 21 D3
    and    a                            ; 01:4D1D - A7
    call   nz, @fn_handle_ring_sparkle_sprites  ; 01:4D1E - C4 51 4E
-   bit    1, (iy+var_D206-IYBASE)      ; 01:4D21 - FD CB 06 4E
+   bit    1, (iy+iy_06_lvflag01-IYBASE)  ; 01:4D21 - FD CB 06 4E
    jr     nz, @continue_past_clamp_sonic_x_pos_right  ; 01:4D25 - 20 5A
    ld     hl, (g_level_limit_x0)       ; 01:4D27 - 2A 73 D2
    ld     bc, $0008                    ; 01:4D2A - 01 08 00
@@ -8726,7 +8726,7 @@ objfunc_00_sonic:
    ret                                 ; 01:4E87 - C9
 
 @fn_set_was_on_ground_bit:
-   set    1, (iy+var_D208-IYBASE)      ; 01:4E88 - FD CB 08 CE
+   set    1, (iy+iy_08_lvflag03-IYBASE)  ; 01:4E88 - FD CB 08 CE
    ret                                 ; 01:4E8C - C9
 
 @fn_handle_invincibility_sparkle_sprite:
@@ -8952,7 +8952,7 @@ objfunc_00_sonic:
    ld     hl, g_invincibility_countdown_timer  ; 01:4FFB - 21 8D D2
    dec    (hl)                         ; 01:4FFE - 35
    ret    nz                           ; 01:4FFF - C0
-   res    0, (iy+var_D208-IYBASE)      ; 01:5000 - FD CB 08 86
+   res    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:5000 - FD CB 08 86
    ld     a, (g_level_music)           ; 01:5004 - 3A FC D2
    rst    $18                          ; 01:5007 - DF
    ret                                 ; 01:5008 - C9
@@ -8974,11 +8974,11 @@ objfunc_00_sonic:
    ld     a, $05                       ; 01:5023 - 3E 05
    sub    h                            ; 01:5025 - 94
    jr     nc, @dont_drown_yet          ; 01:5026 - 30 29
-   res    5, (iy+var_D206-IYBASE)      ; 01:5028 - FD CB 06 AE
-   res    6, (iy+var_D206-IYBASE)      ; 01:502C - FD CB 06 B6
-   res    0, (iy+var_D208-IYBASE)      ; 01:5030 - FD CB 08 86
-   set    3, (iy+var_D208-IYBASE)      ; 01:5034 - FD CB 08 DE
-   set    0, (iy+var_D205-IYBASE)      ; 01:5038 - FD CB 05 C6
+   res    5, (iy+iy_06_lvflag01-IYBASE)  ; 01:5028 - FD CB 06 AE
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:502C - FD CB 06 B6
+   res    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:5030 - FD CB 08 86
+   set    3, (iy+iy_08_lvflag03-IYBASE)  ; 01:5034 - FD CB 08 DE
+   set    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:5038 - FD CB 05 C6
    ld     a, $C0                       ; 01:503C - 3E C0
    ld     (g_level_restart_countdown_timer), a  ; 01:503E - 32 87 D2
    ld     a, $0A                       ; 01:5041 - 3E 0A
@@ -9070,11 +9070,11 @@ objfunc_00_sonic:
    rst    $28                          ; 01:50DD - EF
 
 @skip_rolling_sound_effect:
-   set    2, (iy+var_D207-IYBASE)      ; 01:50DE - FD CB 07 D6
+   set    2, (iy+iy_07_lvflag02-IYBASE)  ; 01:50DE - FD CB 07 D6
    ret                                 ; 01:50E2 - C9
 
 @fn_clear_extra_rolling_flag_SEMIVESTIGIAL:
-   res    2, (iy+var_D207-IYBASE)      ; 01:50E3 - FD CB 07 96
+   res    2, (iy+iy_07_lvflag02-IYBASE)  ; 01:50E3 - FD CB 07 96
    ret                                 ; 01:50E7 - C9
 
 @fn_set_underwater_state_based_on_water_level:
@@ -9135,11 +9135,11 @@ objfunc_00_sonic:
    jr     z, @teleport_is_in_same_level  ; 01:514B - 28 16
    jp     m, @teleport_advance_to_next_level  ; 01:514D - FA 59 51
    ld     (g_next_level_override_target), a  ; 01:5150 - 32 D3 D2
-   set    4, (iy+var_D206-IYBASE)      ; 01:5153 - FD CB 06 E6
+   set    4, (iy+iy_06_lvflag01-IYBASE)  ; 01:5153 - FD CB 06 E6
    jr     @teleport_did_want_specific_level  ; 01:5157 - 18 04
 
 @teleport_advance_to_next_level:
-   set    2, (iy+var_D20D-IYBASE)      ; 01:5159 - FD CB 0D D6
+   set    2, (iy+iy_0D-IYBASE)         ; 01:5159 - FD CB 0D D6
 
 @teleport_did_want_specific_level:
    ld     a, $01                       ; 01:515D - 3E 01
@@ -9188,7 +9188,7 @@ objfunc_00_sonic:
    ld     a, (sonic_ix_19)             ; 01:51A0 - 3A 0F D4
    cp     $12                          ; 01:51A3 - FE 12
    jp     c, @continue_past_basic_movement_physics  ; 01:51A5 - DA 39 4C
-   res    6, (iy+var_D208-IYBASE)      ; 01:51A8 - FD CB 08 B6
+   res    6, (iy+iy_08_lvflag03-IYBASE)  ; 01:51A8 - FD CB 08 B6
    set    2, (ix+24)                   ; 01:51AC - DD CB 18 D6
    jp     @continue_past_basic_movement_physics  ; 01:51B0 - C3 39 4C
 
@@ -9205,7 +9205,7 @@ objfunc_00_sonic:
    ret    nz                           ; 01:51C8 - C0
    bit    7, (ix+24)                   ; 01:51C9 - DD CB 18 7E
    ret    z                            ; 01:51CD - C8
-   res    6, (iy+var_D206-IYBASE)      ; 01:51CE - FD CB 06 B6
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:51CE - FD CB 06 B6
    xor    a                            ; 01:51D2 - AF
    ld     (sonic_vel_x_sub), a         ; 01:51D3 - 32 03 D4
    ld     (sonic_vel_x), a             ; 01:51D6 - 32 04 D4
@@ -9220,7 +9220,7 @@ objfunc_00_sonic:
    ld     hl, var_D2FB                 ; 01:51E9 - 21 FB D2
    dec    (hl)                         ; 01:51EC - 35
    ret    nz                           ; 01:51ED - C0
-   res    2, (iy+var_D208-IYBASE)      ; 01:51EE - FD CB 08 96
+   res    2, (iy+iy_08_lvflag03-IYBASE)  ; 01:51EE - FD CB 08 96
    ret                                 ; 01:51F2 - C9
 
 @fn_throttled_play_brake_sound_effect:
@@ -9312,7 +9312,7 @@ objfunc_00_sonic:
    ld     a, (g_level_music)           ; 01:528A - 3A FC D2
    rst    $18                          ; 01:528D - DF
    ld     c, (iy+g_sprite_count-IYBASE)  ; 01:528E - FD 4E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 01:5291 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 01:5291 - FD CB 00 86
    call   wait_until_irq_ticked        ; 01:5295 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), c  ; 01:5298 - FD 71 0A
    ret                                 ; 01:529B - C9
@@ -9334,7 +9334,7 @@ objfunc_00_sonic:
    set    1, (ix+24)                   ; 01:52B9 - DD CB 18 CE
    ld     (ix+20), $18                 ; 01:52BD - DD 36 14 18
    ld     hl, g_good_ending_emerald_anim_countdown_timer  ; 01:52C1 - 21 FE D2
-   bit    0, (iy+var_D20D-IYBASE)      ; 01:52C4 - FD CB 0D 46
+   bit    0, (iy+iy_0D-IYBASE)         ; 01:52C4 - FD CB 0D 46
    jr     nz, @good_ending_emeralds_already_spawned  ; 01:52C8 - 20 41
    ld     (hl), $50                    ; 01:52CA - 36 50
    call   spawn_object                 ; 01:52CC - CD 7B 7C
@@ -9359,15 +9359,15 @@ objfunc_00_sonic:
    ld     (ix+5), l                    ; 01:52FC - DD 75 05
    ld     (ix+6), h                    ; 01:52FF - DD 74 06
    pop    ix                           ; 01:5302 - DD E1
-   set    0, (iy+var_D20D-IYBASE)      ; 01:5304 - FD CB 0D C6
+   set    0, (iy+iy_0D-IYBASE)         ; 01:5304 - FD CB 0D C6
    jp     @continue_past_basic_movement_physics  ; 01:5308 - C3 39 4C
 
 @good_ending_emeralds_already_spawned:
-   bit    1, (iy+var_D20D-IYBASE)      ; 01:530B - FD CB 0D 4E
+   bit    1, (iy+iy_0D-IYBASE)         ; 01:530B - FD CB 0D 4E
    jr     nz, @good_ending_emerald_anim_0_already_done  ; 01:530F - 20 0A
    dec    (hl)                         ; 01:5311 - 35
    jp     nz, @continue_past_basic_movement_physics  ; 01:5312 - C2 39 4C
-   set    1, (iy+var_D20D-IYBASE)      ; 01:5315 - FD CB 0D CE
+   set    1, (iy+iy_0D-IYBASE)         ; 01:5315 - FD CB 0D CE
    ld     (hl), $8C                    ; 01:5319 - 36 8C
 
 @good_ending_emerald_anim_0_already_done:
@@ -9528,19 +9528,19 @@ objfunc_00_sonic:
    ld     de, (sonic_y)                ; 01:544E - ED 5B 01 D4
    sbc    hl, de                       ; 01:5452 - ED 52
    jr     nc, @dont_deduct_lives       ; 01:5454 - 30 16
-   bit    2, (iy+var_D206-IYBASE)      ; 01:5456 - FD CB 06 56
+   bit    2, (iy+iy_06_lvflag01-IYBASE)  ; 01:5456 - FD CB 06 56
    jr     nz, @dont_deduct_lives       ; 01:545A - 20 10
    ld     a, $01                       ; 01:545C - 3E 01
    ld     (var_D283), a                ; 01:545E - 32 83 D2
    ld     hl, g_lives                  ; 01:5461 - 21 46 D2
    dec    (hl)                         ; 01:5464 - 35
-   set    2, (iy+var_D206-IYBASE)      ; 01:5465 - FD CB 06 D6
+   set    2, (iy+iy_06_lvflag01-IYBASE)  ; 01:5465 - FD CB 06 D6
    jp     @TODO_54AA                   ; 01:5469 - C3 AA 54
 
 @dont_deduct_lives:
    xor    a                            ; 01:546C - AF
    ld     hl, $0080                    ; 01:546D - 21 80 00
-   bit    3, (iy+var_D208-IYBASE)      ; 01:5470 - FD CB 08 5E
+   bit    3, (iy+iy_08_lvflag03-IYBASE)  ; 01:5470 - FD CB 08 5E
    jr     nz, @TODO_549B               ; 01:5474 - 20 25
    ld     de, (sonic_vel_y_sub)        ; 01:5476 - ED 5B 06 D4
    bit    7, d                         ; 01:547A - CB 7A
@@ -9581,19 +9581,19 @@ objfunc_00_sonic:
 
 @TODO_54AA:
    ld     (ix+20), $0B                 ; 01:54AA - DD 36 14 0B
-   bit    3, (iy+var_D208-IYBASE)      ; 01:54AE - FD CB 08 5E
+   bit    3, (iy+iy_08_lvflag03-IYBASE)  ; 01:54AE - FD CB 08 5E
    jp     z, @continue_past_basic_movement_physics  ; 01:54B2 - CA 39 4C
    ld     (ix+20), $15                 ; 01:54B5 - DD 36 14 15
    jp     @continue_past_basic_movement_physics  ; 01:54B9 - C3 39 4C
 
 @special_00:
-   bit    7, (iy+var_D206-IYBASE)      ; 01:54BC - FD CB 06 7E
+   bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 01:54BC - FD CB 06 7E
    ret    nz                           ; 01:54C0 - C0
    res    4, (ix+24)                   ; 01:54C1 - DD CB 18 A6
    ret                                 ; 01:54C5 - C9
 
 @special_01:
-   bit    0, (iy+var_D205-IYBASE)      ; 01:54C6 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:54C6 - FD CB 05 46
    jp     z, damage_sonic              ; 01:54CA - CA FD 35
    ret                                 ; 01:54CD - C9
 
@@ -9660,7 +9660,7 @@ objfunc_00_sonic:
    ld     a, (var_D2B9)                ; 01:553C - 3A B9 D2
    and    $80                          ; 01:553F - E6 80
    ret    nz                           ; 01:5541 - C0
-   res    6, (iy+var_D206-IYBASE)      ; 01:5542 - FD CB 06 B6
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:5542 - FD CB 06 B6
    ld     (ix+10), $00                 ; 01:5546 - DD 36 0A 00
    ld     (ix+11), $F4                 ; 01:554A - DD 36 0B F4
    ld     (ix+12), $FF                 ; 01:554E - DD 36 0C FF
@@ -9674,7 +9674,7 @@ objfunc_00_sonic:
    and    $1F                          ; 01:555B - E6 1F
    cp     $10                          ; 01:555D - FE 10
    ret    nc                           ; 01:555F - D0
-   res    6, (iy+var_D206-IYBASE)      ; 01:5560 - FD CB 06 B6
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:5560 - FD CB 06 B6
    ld     (ix+7), $00                  ; 01:5564 - DD 36 07 00
    ld     (ix+8), $08                  ; 01:5568 - DD 36 08 08
    ld     (ix+9), $00                  ; 01:556C - DD 36 09 00
@@ -9730,7 +9730,7 @@ objfunc_00_sonic:
    ld     a, (var_D2B9)                ; 01:55C8 - 3A B9 D2
    and    $80                          ; 01:55CB - E6 80
    ret    nz                           ; 01:55CD - C0
-   res    6, (iy+var_D206-IYBASE)      ; 01:55CE - FD CB 06 B6
+   res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:55CE - FD CB 06 B6
    ld     (ix+10), $00                 ; 01:55D2 - DD 36 0A 00
    ld     (ix+11), $F4                 ; 01:55D6 - DD 36 0B F4
    ld     (ix+12), $FF                 ; 01:55DA - DD 36 0C FF
@@ -9746,7 +9746,7 @@ objfunc_00_sonic:
    ret                                 ; 01:55EA - C9
 
 @special_0B:
-   bit    4, (iy+var_D206-IYBASE)      ; 01:55EB - FD CB 06 66
+   bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 01:55EB - FD CB 06 66
    ret    nz                           ; 01:55EF - C0
    ld     a, (sonic_x)                 ; 01:55F0 - 3A FE D3
    add    a, $0C                       ; 01:55F3 - C6 0C
@@ -10050,7 +10050,7 @@ objfunc_00_sonic:
    and    a                            ; 01:57FC - A7
    sbc    hl, de                       ; 01:57FD - ED 52
    ret    c                            ; 01:57FF - D8
-   bit    0, (iy+var_D205-IYBASE)      ; 01:5800 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:5800 - FD CB 05 46
    jp     z, damage_sonic              ; 01:5804 - CA FD 35
    ret                                 ; 01:5807 - C9
 
@@ -10520,7 +10520,7 @@ objfunc_04_monitor_shield:
    jr     c, @continue_into_common_main  ; 01:5CEB - 38 0C
    call   addr_05DEB                   ; 01:5CED - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5CF0 - 38 07
-   set    5, (iy+var_D206-IYBASE)      ; 01:5CF2 - FD CB 06 EE
+   set    5, (iy+iy_06_lvflag01-IYBASE)  ; 01:5CF2 - FD CB 06 EE
    jp     monitor_common_destroy_after_hit  ; 01:5CF6 - C3 29 5B
 
 @continue_into_common_main:
@@ -10537,7 +10537,7 @@ objfunc_05_monitor_invincibility:
    jr     c, @continue_into_common_main  ; 01:5D13 - 38 14
    call   addr_05DEB                   ; 01:5D15 - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5D18 - 38 0F
-   set    0, (iy+var_D208-IYBASE)      ; 01:5D1A - FD CB 08 C6
+   set    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:5D1A - FD CB 08 C6
    ld     a, $F0                       ; 01:5D1E - 3E F0
    ld     (g_invincibility_countdown_timer), a  ; 01:5D20 - 32 8D D2
    ld     a, $08                       ; 01:5D23 - 3E 08
@@ -10602,7 +10602,7 @@ objfunc_52_monitor_continue:
    jr     c, @continue_into_common_main  ; 01:5D94 - 38 0C
    call   addr_05DEB                   ; 01:5D96 - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5D99 - 38 07
-   set    3, (iy+var_D209-IYBASE)      ; 01:5D9B - FD CB 09 DE
+   set    3, (iy+iy_09-IYBASE)         ; 01:5D9B - FD CB 09 DE
    jp     monitor_common_destroy_after_hit  ; 01:5D9F - C3 29 5B
 
 @continue_into_common_main:
@@ -10796,8 +10796,8 @@ objfunc_07_signpost:
    ld     (ix+14), $30                 ; 01:5F1B - DD 36 0E 30
    bit    0, (ix+17)                   ; 01:5F1F - DD CB 11 46
    jr     nz, @art_already_loaded      ; 01:5F23 - 20 1F
-   res    7, (iy+var_D206-IYBASE)      ; 01:5F25 - FD CB 06 BE
-   res    3, (iy+var_D205-IYBASE)      ; 01:5F29 - FD CB 05 9E
+   res    7, (iy+iy_06_lvflag01-IYBASE)  ; 01:5F25 - FD CB 06 BE
+   res    3, (iy+iy_05_lvflag00-IYBASE)  ; 01:5F29 - FD CB 05 9E
    ld     hl, ART_09_4294              ; 01:5F2D - 21 94 42
    ld     de, $2000                    ; 01:5F30 - 11 00 20
    ld     a, $09                       ; 01:5F33 - 3E 09
@@ -10876,7 +10876,7 @@ objfunc_07_signpost:
    set    3, (ix+17)                   ; 01:5FD8 - DD CB 11 DE
    ld     a, $A0                       ; 01:5FDC - 3E A0
    ld     (g_signpost_tickdown_counter), a  ; 01:5FDE - 32 89 D2
-   set    1, (iy+var_D206-IYBASE)      ; 01:5FE1 - FD CB 06 CE
+   set    1, (iy+iy_06_lvflag01-IYBASE)  ; 01:5FE1 - FD CB 06 CE
    jp     @decide                      ; 01:5FE5 - C3 30 60
 
 @check_sonic_touching:
@@ -10913,7 +10913,7 @@ objfunc_07_signpost:
    ld     (ix+21), h                   ; 01:601E - DD 74 15
    ld     (ix+18), $00                 ; 01:6021 - DD 36 12 00
    set    1, (ix+17)                   ; 01:6025 - DD CB 11 CE
-   res    3, (iy+var_D206-IYBASE)      ; 01:6029 - FD CB 06 9E
+   res    3, (iy+iy_06_lvflag01-IYBASE)  ; 01:6029 - FD CB 06 9E
    ld     a, $0B                       ; 01:602D - 3E 0B
    rst    $28                          ; 01:602F - EF
 
@@ -11455,7 +11455,7 @@ objfunc_0A_explosion:
    ld     (ix+21), $AA                 ; 01:694E - DD 36 15 AA
    ld     (ix+22), a                   ; 01:6952 - DD 77 16
    ld     (ix+23), a                   ; 01:6955 - DD 77 17
-   bit    5, (iy+var_D200-IYBASE)      ; 01:6958 - FD CB 00 6E
+   bit    5, (iy+iy_00-IYBASE)         ; 01:6958 - FD CB 00 6E
    jr     z, @skip_sonic_bounce_off_top  ; 01:695C - 28 2F
    ld     a, (g_level)                 ; 01:695E - 3A 3E D2
    cp     $12                          ; 01:6961 - FE 12
@@ -12606,9 +12606,9 @@ objfunc_25_animal_capsule:
    ret    nz                           ; 01:743F - C0
    ld     (ix+15), SPRITEMAP_animal_capsule_normal&$FF  ; 01:7440 - DD 36 0F 40
    ld     (ix+16), SPRITEMAP_animal_capsule_normal>>8  ; 01:7444 - DD 36 10 75
-   bit    1, (iy+var_D206-IYBASE)      ; 01:7448 - FD CB 06 4E
+   bit    1, (iy+iy_06_lvflag01-IYBASE)  ; 01:7448 - FD CB 06 4E
    jr     nz, @spawn_8_explosions      ; 01:744C - 20 12
-   set    1, (iy+var_D206-IYBASE)      ; 01:744E - FD CB 06 CE
+   set    1, (iy+iy_06_lvflag01-IYBASE)  ; 01:744E - FD CB 06 CE
 
 @stop_sonic_x_vel:
    xor    a                            ; 01:7452 - AF
@@ -12618,7 +12618,7 @@ objfunc_25_animal_capsule:
    ld     (sonic_vel_x_hi), a          ; 01:7458 - 32 05 D4
 
 @sonic_was_not_positioned_correctly:
-   bit    1, (iy+var_D206-IYBASE)      ; 01:745B - FD CB 06 4E
+   bit    1, (iy+iy_06_lvflag01-IYBASE)  ; 01:745B - FD CB 06 4E
    ret    z                            ; 01:745F - C8
 
 @spawn_8_explosions:
@@ -12647,7 +12647,7 @@ objfunc_25_animal_capsule:
    xor    a                            ; 01:748D - AF
    ld     (ix+15), a                   ; 01:748E - DD 77 0F
    ld     (ix+16), a                   ; 01:7491 - DD 77 10
-   res    5, (iy+var_D200-IYBASE)      ; 01:7494 - FD CB 00 AE
+   res    5, (iy+iy_00-IYBASE)         ; 01:7494 - FD CB 00 AE
    ld     a, (g_global_tick_counter)   ; 01:7498 - 3A 23 D2
    and    $0F                          ; 01:749B - E6 0F
    ret    nz                           ; 01:749D - C0
@@ -12931,7 +12931,7 @@ addr_077BE:
    ld     (var_D214), hl               ; 01:77CF - 22 14 D2
    call   check_collision_with_sonic   ; 01:77D2 - CD 56 39
    ret    c                            ; 01:77D5 - D8
-   bit    0, (iy+var_D205-IYBASE)      ; 01:77D6 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:77D6 - FD CB 05 46
    ret    nz                           ; 01:77DA - C0
    ld     a, (sonic_flags_ix_24)       ; 01:77DB - 3A 14 D4
    rrca                                ; 01:77DE - 0F
@@ -13050,7 +13050,7 @@ addr_078AB:
    ld     a, (g_level_music)           ; 01:78AF - 3A FC D2
    rst    $18                          ; 01:78B2 - DF
    ld     a, (iy+g_sprite_count-IYBASE)  ; 01:78B3 - FD 7E 0A
-   res    0, (iy+var_D200-IYBASE)      ; 01:78B6 - FD CB 00 86
+   res    0, (iy+iy_00-IYBASE)         ; 01:78B6 - FD CB 00 86
    call   wait_until_irq_ticked        ; 01:78BA - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 01:78BD - FD 77 0A
 
@@ -13075,13 +13075,13 @@ addr_078C0:
    ld     (g_level_limit_x1), hl       ; 01:78F6 - 22 75 D2
    ld     hl, $0000                    ; 01:78F9 - 21 00 00
    ld     (var_D27B), hl               ; 01:78FC - 22 7B D2
-   set    5, (iy+var_D200-IYBASE)      ; 01:78FF - FD CB 00 EE
-   set    0, (iy+var_D202-IYBASE)      ; 01:7903 - FD CB 02 C6
-   res    1, (iy+var_D202-IYBASE)      ; 01:7907 - FD CB 02 8E
+   set    5, (iy+iy_00-IYBASE)         ; 01:78FF - FD CB 00 EE
+   set    0, (iy+iy_02-IYBASE)         ; 01:7903 - FD CB 02 C6
+   res    1, (iy+iy_02-IYBASE)         ; 01:7907 - FD CB 02 8E
    ld     a, (g_level)                 ; 01:790B - 3A 3E D2
    cp     $0B                          ; 01:790E - FE 0B
    jr     nz, addr_07916               ; 01:7910 - 20 04
-   set    1, (iy+var_D209-IYBASE)      ; 01:7912 - FD CB 09 CE
+   set    1, (iy+iy_09-IYBASE)         ; 01:7912 - FD CB 09 CE
 
 addr_07916:
    ld     hl, ART_0C_DA28              ; 01:7916 - 21 28 DA
@@ -13191,7 +13191,7 @@ objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    ld     (var_D214), hl               ; 01:7AB6 - 22 14 D2
    call   check_collision_with_sonic   ; 01:7AB9 - CD 56 39
    ret    c                            ; 01:7ABC - D8
-   bit    6, (iy+var_D206-IYBASE)      ; 01:7ABD - FD CB 06 76
+   bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:7ABD - FD CB 06 76
    ret    nz                           ; 01:7AC1 - C0
    ld     a, (sonic_flags_ix_24)       ; 01:7AC2 - 3A 14 D4
    and    $80                          ; 01:7AC5 - E6 80
@@ -13206,7 +13206,7 @@ objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    ld     (sonic_vel_x), hl            ; 01:7AD9 - 22 04 D4
    ld     hl, sonic_flags_ix_24        ; 01:7ADC - 21 14 D4
    res    1, (hl)                      ; 01:7ADF - CB 8E
-   set    6, (iy+var_D206-IYBASE)      ; 01:7AE1 - FD CB 06 F6
+   set    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:7AE1 - FD CB 06 F6
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 01:7AE5 - FD 36 03 FF
    ld     a, $11                       ; 01:7AE9 - 3E 11
    rst    $28                          ; 01:7AEB - EF
@@ -13281,7 +13281,7 @@ UNK_07B85:
 
 objfunc_55_thrown_ring_on_sonic_damage:
    set    5, (ix+24)                   ; 01:7B95 - DD CB 18 EE
-   set    0, (iy+var_D209-IYBASE)      ; 01:7B99 - FD CB 09 C6
+   set    0, (iy+iy_09-IYBASE)         ; 01:7B99 - FD CB 09 C6
    ld     a, (g_global_tick_counter)   ; 01:7B9D - 3A 23 D2
    and    $01                          ; 01:7BA0 - E6 01
    jp     z, @tick_mod_2_is_0          ; 01:7BA2 - CA C2 7B
@@ -13325,7 +13325,7 @@ objfunc_55_thrown_ring_on_sonic_damage:
    sbc    hl, de                       ; 01:7BEB - ED 52
    jr     nc, @skip_despawn_at_bottom_of_screen  ; 01:7BED - 30 09
    ld     (ix+0), $FF                  ; 01:7BEF - DD 36 00 FF
-   res    0, (iy+var_D209-IYBASE)      ; 01:7BF3 - FD CB 09 86
+   res    0, (iy+iy_09-IYBASE)         ; 01:7BF3 - FD CB 09 86
    ret                                 ; 01:7BF7 - C9
 
 @skip_despawn_at_bottom_of_screen:
@@ -13439,11 +13439,11 @@ addr_07CA6:
    and    a                            ; 01:7CB8 - A7
    sbc    hl, de                       ; 01:7CB9 - ED 52
    ret    nz                           ; 01:7CBB - C0
-   res    5, (iy+var_D200-IYBASE)      ; 01:7CBC - FD CB 00 AE
+   res    5, (iy+iy_00-IYBASE)         ; 01:7CBC - FD CB 00 AE
    ret                                 ; 01:7CC0 - C9
 
 put_sonic_y_pos_on_platform:
-   bit    6, (iy+var_D206-IYBASE)      ; 01:7CC1 - FD CB 06 76
+   bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:7CC1 - FD CB 06 76
    ret    nz                           ; 01:7CC5 - C0
    ld     l, (ix+4)                    ; 01:7CC6 - DD 6E 04
    ld     h, (ix+5)                    ; 01:7CC9 - DD 66 05
@@ -15646,7 +15646,7 @@ objfunc_49_UNKNOWN:
    ld     hl, $02D0                    ; 02:9284 - 21 D0 02
    ld     de, $0290                    ; 02:9287 - 11 90 02
    call   addr_07C8C                   ; 02:928A - CD 8C 7C
-   set    1, (iy+var_D209-IYBASE)      ; 02:928D - FD CB 09 CE
+   set    1, (iy+iy_09-IYBASE)         ; 02:928D - FD CB 09 CE
    ld     hl, ART_0C_E508              ; 02:9291 - 21 08 E5
    ld     de, $2000                    ; 02:9294 - 11 00 20
    ld     a, $0C                       ; 02:9297 - 3E 0C
@@ -16265,7 +16265,7 @@ addr_09797:
    ld     (sonic_vel_y_hi), a          ; 02:97CA - 32 08 D4
    ld     (g_sonic_jump_countdown_timer), a  ; 02:97CD - 32 8E D2
    ld     (g_sonic_underwater_countup_timer), hl  ; 02:97D0 - 22 9B D2
-   set    2, (iy+var_D208-IYBASE)      ; 02:97D3 - FD CB 08 D6
+   set    2, (iy+iy_08_lvflag03-IYBASE)  ; 02:97D3 - FD CB 08 D6
    ld     a, $20                       ; 02:97D7 - 3E 20
    ld     (var_D2FB), a                ; 02:97D9 - 32 FB D2
    ld     (ix+18), $10                 ; 02:97DC - DD 36 12 10
@@ -16657,7 +16657,7 @@ addr_09BB3:
    ld     (g_next_level_override_target), a  ; 02:9BBE - 32 D3 D2
    ld     a, $01                       ; 02:9BC1 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 02:9BC3 - 32 89 D2
-   set    4, (iy+var_D206-IYBASE)      ; 02:9BC6 - FD CB 06 E6
+   set    4, (iy+iy_06_lvflag01-IYBASE)  ; 02:9BC6 - FD CB 06 E6
    jp     addr_09BD1                   ; 02:9BCA - C3 D1 9B
 
 addr_09BCD:
@@ -17945,7 +17945,7 @@ addr_0A91D:
    rst    $18                          ; 02:A960 - DF
    ld     a, $A0                       ; 02:A961 - 3E A0
    ld     (g_signpost_tickdown_counter), a  ; 02:A963 - 32 89 D2
-   set    1, (iy+var_D206-IYBASE)      ; 02:A966 - FD CB 06 CE
+   set    1, (iy+iy_06_lvflag01-IYBASE)  ; 02:A966 - FD CB 06 CE
    ret                                 ; 02:A96A - C9
 
 addr_0A96B:
@@ -19308,7 +19308,7 @@ objfunc_4A_UNKNOWN:
    ld     (var_D2EC), a                ; 02:B689 - 32 EC D2
    ld     a, $0D                       ; 02:B68C - 3E 0D
    rst    $18                          ; 02:B68E - DF
-   set    4, (iy+var_D208-IYBASE)      ; 02:B68F - FD CB 08 E6
+   set    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:B68F - FD CB 08 E6
    set    0, (ix+24)                   ; 02:B693 - DD CB 18 C6
 
 addr_0B697:
@@ -19453,7 +19453,7 @@ addr_0B79F:
    ld     (ix+22), a                   ; 02:B7D1 - DD 77 16
    ld     (ix+23), a                   ; 02:B7D4 - DD 77 17
    set    2, (ix+24)                   ; 02:B7D7 - DD CB 18 D6
-   res    4, (iy+var_D208-IYBASE)      ; 02:B7DB - FD CB 08 A6
+   res    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:B7DB - FD CB 08 A6
    ld     a, $04                       ; 02:B7DF - 3E 04
    rst    $18                          ; 02:B7E1 - DF
    ld     a, $21                       ; 02:B7E2 - 3E 21
@@ -19464,7 +19464,7 @@ addr_0B7E6:
    ld     a, (var_D2B1)                ; 02:B7E6 - 3A B1 D2
    and    a                            ; 02:B7E9 - A7
    ret    nz                           ; 02:B7EA - C0
-   bit    0, (iy+var_D205-IYBASE)      ; 02:B7EB - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:B7EB - FD CB 05 46
    ret    nz                           ; 02:B7EF - C0
    ld     a, (sonic_flags_ix_24)       ; 02:B7F0 - 3A 14 D4
    rrca                                ; 02:B7F3 - 0F
@@ -19525,8 +19525,8 @@ addr_0B821:
    ld     a, (ix+17)                   ; 02:B855 - DD 7E 11
    cp     $0F                          ; 02:B858 - FE 0F
    jr     nz, addr_0B86A               ; 02:B85A - 20 0E
-   set    5, (iy+var_D200-IYBASE)      ; 02:B85C - FD CB 00 EE
-   res    1, (iy+var_D202-IYBASE)      ; 02:B860 - FD CB 02 8E
+   set    5, (iy+iy_00-IYBASE)         ; 02:B85C - FD CB 00 EE
+   res    1, (iy+iy_02-IYBASE)         ; 02:B860 - FD CB 02 8E
    ld     hl, $0550                    ; 02:B864 - 21 50 05
    ld     (g_level_limit_x1), hl       ; 02:B867 - 22 75 D2
 
@@ -19709,7 +19709,7 @@ addr_0B99F:
    ret                                 ; 02:B9D4 - C9
 
 addr_0B9D5:
-   bit    5, (iy+var_D208-IYBASE)      ; 02:B9D5 - FD CB 08 6E
+   bit    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:B9D5 - FD CB 08 6E
    ret    nz                           ; 02:B9D9 - C0
    call   spawn_object                 ; 02:B9DA - CD 7B 7C
    ret    c                            ; 02:B9DD - D8
@@ -19822,7 +19822,7 @@ addr_0BBA7:
    ld     de, $01D2                    ; 02:BBCB - 11 D2 01
    ld     hl, UNK_0BCDD                ; 02:BBCE - 21 DD BC
    call   addr_0BCA5                   ; 02:BBD1 - CD A5 BC
-   bit    4, (iy+var_D208-IYBASE)      ; 02:BBD4 - FD CB 08 66
+   bit    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:BBD4 - FD CB 08 66
    ret    z                            ; 02:BBD8 - C8
    bit    1, (ix+24)                   ; 02:BBD9 - DD CB 18 4E
    jr     z, addr_0BC2B                ; 02:BBDD - 28 4C
@@ -19866,7 +19866,7 @@ addr_0BBF3:
    and    a                            ; 02:BC1F - A7
    sbc    hl, bc                       ; 02:BC20 - ED 42
    jr     c, addr_0BC2B                ; 02:BC22 - 38 07
-   bit    0, (iy+var_D205-IYBASE)      ; 02:BC24 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:BC24 - FD CB 05 46
    call   z, damage_sonic              ; 02:BC28 - CC FD 35
 
 addr_0BC2B:
@@ -19967,12 +19967,12 @@ UNK_0BCDD:
 
 objfunc_47_UNKNOWN:
    set    5, (ix+24)                   ; 02:BCDF - DD CB 18 EE
-   set    5, (iy+var_D208-IYBASE)      ; 02:BCE3 - FD CB 08 EE
+   set    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:BCE3 - FD CB 08 EE
    ld     hl, $0202                    ; 02:BCE7 - 21 02 02
    ld     (var_D214), hl               ; 02:BCEA - 22 14 D2
    call   check_collision_with_sonic   ; 02:BCED - CD 56 39
    jr     c, addr_0BCFC                ; 02:BCF0 - 38 0A
-   bit    0, (iy+var_D205-IYBASE)      ; 02:BCF2 - FD CB 05 46
+   bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:BCF2 - FD CB 05 46
    call   z, damage_sonic              ; 02:BCF6 - CC FD 35
    jp     addr_0BDBE                   ; 02:BCF9 - C3 BE BD
 
@@ -20070,12 +20070,12 @@ addr_0BDB0:
    ld     bc, UNK_0BDC7                ; 02:BDB0 - 01 C7 BD
    ld     de, UNK_0BDCE                ; 02:BDB3 - 11 CE BD
    call   do_framed_animation          ; 02:BDB6 - CD 41 7C
-   bit    4, (iy+var_D208-IYBASE)      ; 02:BDB9 - FD CB 08 66
+   bit    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:BDB9 - FD CB 08 66
    ret    nz                           ; 02:BDBD - C0
 
 addr_0BDBE:
    ld     (ix+0), $FF                  ; 02:BDBE - DD 36 00 FF
-   res    5, (iy+var_D208-IYBASE)      ; 02:BDC2 - FD CB 08 AE
+   res    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:BDC2 - FD CB 08 AE
    ret                                 ; 02:BDC6 - C9
 
 UNK_0BDC7:
@@ -20099,7 +20099,7 @@ objfunc_53_UNKNOWN:
    ld     hl, $0000                    ; 02:BE14 - 21 00 00
    ld     (sonic_y), hl                ; 02:BE17 - 22 01 D4
    ld     (ix+18), $FF                 ; 02:BE1A - DD 36 12 FF
-   set    6, (iy+var_D207-IYBASE)      ; 02:BE1E - FD CB 07 F6
+   set    6, (iy+iy_07_lvflag02-IYBASE)  ; 02:BE1E - FD CB 07 F6
    set    1, (ix+24)                   ; 02:BE22 - DD CB 18 CE
 
 addr_0BE26:
@@ -20123,7 +20123,7 @@ addr_0BE26:
    ld     (sonic_y), hl                ; 02:BE4E - 22 01 D4
    xor    a                            ; 02:BE51 - AF
    ld     (object_list), a             ; 02:BE52 - 32 FC D3
-   set    6, (iy+var_D208-IYBASE)      ; 02:BE55 - FD CB 08 F6
+   set    6, (iy+iy_08_lvflag03-IYBASE)  ; 02:BE55 - FD CB 08 F6
    ld     a, $06                       ; 02:BE59 - 3E 06
    rst    $28                          ; 02:BE5B - EF
 
@@ -20137,7 +20137,7 @@ addr_0BE5C:
    ld     (ix+10), a                   ; 02:BE6F - DD 77 0A
    ld     (ix+11), a                   ; 02:BE72 - DD 77 0B
    ld     (ix+12), a                   ; 02:BE75 - DD 77 0C
-   bit    6, (iy+var_D207-IYBASE)      ; 02:BE78 - FD CB 07 76
+   bit    6, (iy+iy_07_lvflag02-IYBASE)  ; 02:BE78 - FD CB 07 76
    jr     z, addr_0BE96                ; 02:BE7C - 28 18
    ld     de, (g_level_scroll_x_pix_lo)  ; 02:BE7E - ED 5B 5A D2
    ld     hl, $0040                    ; 02:BE82 - 21 40 00
@@ -20173,7 +20173,7 @@ addr_0BE96:
    adc    a, $00                       ; 02:BEC0 - CE 00
    ld     (sonic_vel_y_sub), hl        ; 02:BEC2 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:BEC5 - 32 08 D4
-   res    6, (iy+var_D207-IYBASE)      ; 02:BEC8 - FD CB 07 B6
+   res    6, (iy+iy_07_lvflag02-IYBASE)  ; 02:BEC8 - FD CB 07 B6
    set    0, (ix+24)                   ; 02:BECC - DD CB 18 C6
    ld     (ix+17), $01                 ; 02:BED0 - DD 36 11 01
    ld     a, $01                       ; 02:BED4 - 3E 01
@@ -20200,7 +20200,7 @@ addr_0BED7:
    ld     a, (g_chaos_emeralds_collected)  ; 02:BF06 - 3A 7F D2
    cp     $06                          ; 02:BF09 - FE 06
    jr     c, addr_0BF12                ; 02:BF0B - 38 05
-   set    7, (iy+var_D208-IYBASE)      ; 02:BF0D - FD CB 08 FE
+   set    7, (iy+iy_08_lvflag03-IYBASE)  ; 02:BF0D - FD CB 08 FE
    ret                                 ; 02:BF11 - C9
 
 addr_0BF12:
@@ -20209,7 +20209,7 @@ addr_0BF12:
    ret    nz                           ; 02:BF16 - C0
    ld     a, $20                       ; 02:BF17 - 3E 20
    ld     (g_signpost_tickdown_counter), a  ; 02:BF19 - 32 89 D2
-   set    2, (iy+var_D20D-IYBASE)      ; 02:BF1C - FD CB 0D D6
+   set    2, (iy+iy_0D-IYBASE)         ; 02:BF1C - FD CB 0D D6
    ret                                 ; 02:BF20 - C9
 
 UNK_0BF21:
@@ -20292,7 +20292,7 @@ addr_0BFD5:
    ret    nc                           ; 02:BFE6 - D0
    ld     a, $01                       ; 02:BFE7 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 02:BFE9 - 32 89 D2
-   set    2, (iy+var_D20D-IYBASE)      ; 02:BFEC - FD CB 0D D6
+   set    2, (iy+iy_0D-IYBASE)         ; 02:BFEC - FD CB 0D D6
    ret                                 ; 02:BFF0 - C9
 
 UNK_0BFF1:
