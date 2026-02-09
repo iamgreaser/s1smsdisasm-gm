@@ -11741,7 +11741,7 @@ objfunc_00_sonic:
    jp     z, damage_sonic              ; 01:54CA - CA FD 35
    ret                                 ; 01:54CD - C9
 
-@special_02:
+@special_02_end_of_ramp_jump:
    ld     a, (ix+2)                    ; 01:54CE - DD 7E 02
    add    a, $0C                       ; 01:54D1 - C6 0C
    and    $1F                          ; 01:54D3 - E6 1F
@@ -11749,11 +11749,11 @@ objfunc_00_sonic:
    ret    c                            ; 01:54D7 - D8
    ld     a, (sonic_flags_ix_24)       ; 01:54D8 - 3A 14 D4
    rrca                                ; 01:54DB - 0F
-   jr     c, @TODO_54E1                ; 01:54DC - 38 03
+   jr     c, @continue_end_of_ramp_jump  ; 01:54DC - 38 03
    and    $02                          ; 01:54DE - E6 02
    ret    z                            ; 01:54E0 - C8
 
-@TODO_54E1:
+@continue_end_of_ramp_jump:
    ld     l, (ix+7)                    ; 01:54E1 - DD 6E 07
    ld     h, (ix+8)                    ; 01:54E4 - DD 66 08
    bit    7, (ix+9)                    ; 01:54E7 - DD CB 09 7E
@@ -11882,7 +11882,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:55E0 - EF
    ret                                 ; 01:55E1 - C9
 
-@special_0A:
+@special_0A_GHZ2_falling_sfx:
    bit    7, (ix+12)                   ; 01:55E2 - DD CB 0C 7E
    ret    nz                           ; 01:55E6 - C0
    ld     a, $05                       ; 01:55E7 - 3E 05
@@ -12326,8 +12326,8 @@ objfunc_00_sonic:
    ret                                 ; 01:58E4 - C9
 
 CODEPTRTAB_sonic_tile_specials:
-.dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06_conveyor_left, objfunc_00_sonic@special_07_conveyor_right  ; 01:58E5
-.dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B_teleport, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
+.dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02_end_of_ramp_jump, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06_conveyor_left, objfunc_00_sonic@special_07_conveyor_right  ; 01:58E5
+.dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A_GHZ2_falling_sfx, objfunc_00_sonic@special_0B_teleport, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
 .dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t_special_stage, objfunc_00_sonic@special_13_spring_up_12_px_t_special_stage, objfunc_00_sonic@special_14_spring_up_14_px_t_special_stage, objfunc_00_sonic@special_15_bouncebar_middle_special_stage, objfunc_00_sonic@special_16_bouncebar_end_special_stage, objfunc_00_sonic@special_17_SKY1_lightning  ; 01:5905
 .dw objfunc_00_sonic@special_18_collapsing_bridge_both_sides, objfunc_00_sonic@special_19_collapsing_bridge_right_only, objfunc_00_sonic@special_1A_collapsing_bridge_left_only, objfunc_00_sonic@special_1B_upwards_offscreen_input_suppressor  ; 01:5915
 
