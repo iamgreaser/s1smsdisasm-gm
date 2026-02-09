@@ -114,23 +114,32 @@ g_sprite_count db   ; D20A
 iy_0B_old_lvflag00_UNUSED db   ; D20B
 iy_0C_old_lvflag01 db   ; D20C
 iy_0D db   ; D20D
-var_D20E db   ; D20E
-var_D20F db   ; D20F
-var_D210 dw   ; D210
-var_D212 db   ; D212
-var_D213 db   ; D213
-var_D214 db   ; D214
-var_D215 db   ; D215
-var_D216 db   ; D216
-.  dsb 1
+tmp_00 db   ; D20E
+tmp_01 db   ; D20F
+tmp_02 db   ; D210
+tmp_03 db   ; D211
+tmp_04 db   ; D212
+tmp_05 db   ; D213
+tmp_06 db   ; D214
+tmp_07 db   ; D215
+tmp_08 db   ; D216
+tmp_09 db   ; D217
 g_saved_vdp_reg_00 db   ; D218
 g_saved_vdp_reg_01 db   ; D219
-.  dsb 9
+g_saved_vdp_reg_02_UNUSED db   ; D21A
+g_saved_vdp_reg_03_UNUSED db   ; D21B
+g_saved_vdp_reg_04_UNUSED db   ; D21C
+g_saved_vdp_reg_05_UNUSED db   ; D21D
+g_saved_vdp_reg_06_UNUSED db   ; D21E
+g_saved_vdp_reg_07_UNUSED db   ; D21F
+g_saved_vdp_reg_08_UNUSED db   ; D220
+g_saved_vdp_reg_09_UNUSED db   ; D221
+g_saved_vdp_reg_0A_UNUSED db   ; D222
 g_global_tick_counter db   ; D223
 .  dsb 1
-var_D225 dw   ; D225
-var_D227 dw   ; D227
-var_D229 dw   ; D229
+g_unknown_UNUSED_D225 dw   ; D225
+g_unknown_UNUSED_D227 dw   ; D227
+g_unknown_UNUSED_D229 dw   ; D229
 g_SIG00b3_palette_addr dw   ; D22B
 .  dsb 2
 g_SIG00b3_palettes_present db   ; D22F
@@ -910,9 +919,9 @@ wait_until_irq_ticked:
 ;; Also, those variable seem unused too!
 UNUSED_00323:
    set    2, (iy+iy_00-IYBASE)         ; 00:0323 - FD CB 00 D6
-   ld     (var_D225), hl               ; 00:0327 - 22 25 D2
-   ld     (var_D227), de               ; 00:032A - ED 53 27 D2
-   ld     (var_D229), bc               ; 00:032E - ED 43 29 D2
+   ld     (g_unknown_UNUSED_D225), hl  ; 00:0327 - 22 25 D2
+   ld     (g_unknown_UNUSED_D227), de  ; 00:032A - ED 53 27 D2
+   ld     (g_unknown_UNUSED_D229), bc  ; 00:032E - ED 43 29 D2
    ret                                 ; 00:0332 - C9
 ; SAVING: 16 bytes
 .ENDIF
@@ -1150,7 +1159,7 @@ load_art:
    ei                                  ; 00:0439 - FB
 +:
 
-   ld     (var_D212), hl               ; 00:043A - 22 12 D2
+   ld     (tmp_04), hl                 ; 00:043A - 22 12 D2
    inc    hl                           ; 00:043D - 23
    inc    hl                           ; 00:043E - 23
    ld     e, (hl)                      ; 00:043F - 5E
@@ -1167,15 +1176,15 @@ load_art:
    inc    hl                           ; 00:044A - 23
    ld     b, (hl)                      ; 00:044B - 46
    inc    hl                           ; 00:044C - 23
-   ld     (var_D210), bc               ; 00:044D - ED 43 10 D2
-   ld     (var_D214), hl               ; 00:0451 - 22 14 D2
+   ld     (tmp_02), bc                 ; 00:044D - ED 43 10 D2
+   ld     (tmp_06), hl                 ; 00:0451 - 22 14 D2
    exx                                 ; 00:0454 - D9
-   ld     bc, (var_D212)               ; 00:0455 - ED 4B 12 D2
+   ld     bc, (tmp_04)                 ; 00:0455 - ED 4B 12 D2
    ld     e, c                         ; 00:0459 - 59
    ld     d, b                         ; 00:045A - 50
    pop    hl                           ; 00:045B - E1
    add    hl, bc                       ; 00:045C - 09
-   ld     (var_D20E), hl               ; 00:045D - 22 0E D2
+   ld     (tmp_00), hl                 ; 00:045D - 22 0E D2
    ld     c, l                         ; 00:0460 - 4D
    ld     b, h                         ; 00:0461 - 44
    pop    hl                           ; 00:0462 - E1
@@ -1190,7 +1199,7 @@ load_art:
    ;; That way, we guarantee having 8 rotations.
 .IF 0
 --:
-   ld     hl, (var_D210)               ; 00:0466 - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 00:0466 - 2A 10 D2
    xor    a                            ; 00:0469 - AF
    sbc    hl, bc                       ; 00:046A - ED 42
    push   hl                           ; 00:046C - E5
@@ -1208,7 +1217,7 @@ load_art:
    rr     e                            ; 00:047E - CB 1B
    srl    d                            ; 00:0480 - CB 3A
    rr     e                            ; 00:0482 - CB 1B
-   ld     hl, (var_D214)               ; 00:0484 - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:0484 - 2A 14 D2
    add    hl, de                       ; 00:0487 - 19
    ld     e, a                         ; 00:0488 - 5F
    ld     a, (hl)                      ; 00:0489 - 7E
@@ -1224,10 +1233,10 @@ load_art:
    or a                                 ; 0469 1  4 - clear carry flag
    rr (iy+g_last_rle_byte-IYBASE)       ; 046A 4 23
    jr nz, +                             ; 046E 2 12/7
-      ld hl, (var_D214)                 ; 0470 3 16
+      ld hl, (tmp_06)                   ; 0470 3 16
       ld a, (hl)                        ; 0473 1  7
       inc hl                            ; 0474 1  6
-      ld (var_D214), hl                 ; 0475 3 16
+      ld (tmp_06), hl                   ; 0475 3 16
       ld (g_last_rle_byte), a           ; 0478 3 13
       scf                               ; 047B 1  4
       rr (iy+g_last_rle_byte-IYBASE)    ; 047C 4 23
@@ -1314,7 +1323,7 @@ load_art:
    ld     l, a                         ; 00:04BF - 6F
    add    hl, hl                       ; 00:04C0 - 29
    add    hl, hl                       ; 00:04C1 - 29
-   ld     de, (var_D20E)               ; 00:04C2 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 00:04C2 - ED 5B 0E D2
    add    hl, de                       ; 00:04C6 - 19
    ld     a, (hl)                      ; 00:04C7 - 7E
    out    ($BE), a                     ; 00:04C8 - D3 BE
@@ -1342,7 +1351,7 @@ load_art:
    ld l, a
    add hl, hl
    add hl, hl
-   ld de, (var_D20E)
+   ld de, (tmp_00)
    add hl, de
    ld a, (hl)
    out ($BE), a
@@ -1427,7 +1436,7 @@ unpack_art_tilemap_into_vram:
    jr     z, +++                       ; 00:0514 - 28 33
    out    ($BE), a                     ; 00:0516 - D3 BE
    ld     e, a                         ; 00:0518 - 5F
-   ld     a, (var_D20E)                ; 00:0519 - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:0519 - 3A 0E D2
    out    ($BE), a                     ; 00:051C - D3 BE
    inc    hl                           ; 00:051E - 23
    dec    bc                           ; 00:051F - 0B
@@ -1451,7 +1460,7 @@ unpack_art_tilemap_into_vram:
 -:
    out    ($BE), a                     ; 00:0534 - D3 BE
    push   af                           ; 00:0536 - F5
-   ld     a, (var_D20E)                ; 00:0537 - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:0537 - 3A 0E D2
    out    ($BE), a                     ; 00:053A - D3 BE
    pop    af                           ; 00:053C - F1
    dec    e                            ; 00:053D - 1D
@@ -1645,14 +1654,14 @@ print_positioned_FF_string:
    .IF 0
    push   af                           ; 00:05D7 - F5
    pop    af                           ; 00:05D8 - F1
-   ld     a, (var_D20E)                ; 00:05D9 - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:05D9 - 3A 0E D2
    out    ($BE), a                     ; 00:05DC - D3 BE
    inc    de                           ; 00:05DE - 13
    .ELSE
    ;; We don't have to be *that* cautious with our timings!
    ;; This repeated would be "every 30 cycles".
    inc de                          ; 05D7 1
-   ld a, (var_D20E)                ; 05D8 3
+   ld a, (tmp_00)                  ; 05D8 3
    out ($BE), a                    ; 05DB 2
    .ENDIF
    ; 05DF -> 05DD - SAVING: 2 bytes
@@ -1912,7 +1921,7 @@ addr_006BD:
    .ELSE
    call fetch_PTRLUT_level_tile_flags
    .ENDIF
-   ld     (var_D210), hl               ; 00:06E3 - 22 10 D2
+   ld     (tmp_02), hl                 ; 00:06E3 - 22 10 D2
    bit    0, (iy+iy_02-IYBASE)         ; 00:06E6 - FD CB 02 46
    jp     z, addr_00772                ; 00:06EA - CA 72 07
    bit    6, (iy+iy_00-IYBASE)         ; 00:06ED - FD CB 00 76
@@ -1980,7 +1989,7 @@ addr_00719:
    .ENDIF
    ld     c, a                         ; 00:0721 - 4F
    ld     b, $00                       ; 00:0722 - 06 00
-   ld     (var_D20E), bc               ; 00:0724 - ED 43 0E D2
+   ld     (tmp_00), bc                 ; 00:0724 - ED 43 0E D2
    exx                                 ; 00:0728 - D9
    ld     de, g_v_tile_scroll_dispatch_table  ; 00:0729 - 11 80 D1
    exx                                 ; 00:072C - D9
@@ -1992,7 +2001,7 @@ addr_00733:
    exx                                 ; 00:0734 - D9
    ld     c, a                         ; 00:0735 - 4F
    ld     b, $00                       ; 00:0736 - 06 00
-   ld     hl, (var_D210)               ; 00:0738 - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 00:0738 - 2A 10 D2
    add    hl, bc                       ; 00:073B - 09
    rlca                                ; 00:073C - 07
    rlca                                ; 00:073D - 07
@@ -2009,7 +2018,7 @@ addr_00733:
    rrca                                ; 00:0749 - 0F
    rrca                                ; 00:074A - 0F
    and    $10                          ; 00:074B - E6 10
-   ld     hl, (var_D20E)               ; 00:074D - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 00:074D - 2A 0E D2
    add    hl, bc                       ; 00:0750 - 09
    ld     bc, (g_level_tilemap_ptr)    ; 00:0751 - ED 4B 4F D2
    add    hl, bc                       ; 00:0755 - 09
@@ -2069,7 +2078,7 @@ addr_00789:
    and    $FC                          ; 00:0793 - E6 FC
    ld     c, a                         ; 00:0795 - 4F
    ld     b, $00                       ; 00:0796 - 06 00
-   ld     (var_D20E), bc               ; 00:0798 - ED 43 0E D2
+   ld     (tmp_00), bc                 ; 00:0798 - ED 43 0E D2
    exx                                 ; 00:079C - D9
    ld     de, g_h_tile_scroll_dispatch_table  ; 00:079D - 11 00 D1
    exx                                 ; 00:07A0 - D9
@@ -2080,7 +2089,7 @@ addr_007A3:
    exx                                 ; 00:07A4 - D9
    ld     c, a                         ; 00:07A5 - 4F
    ld     b, $00                       ; 00:07A6 - 06 00
-   ld     hl, (var_D210)               ; 00:07A8 - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 00:07A8 - 2A 10 D2
    add    hl, bc                       ; 00:07AB - 09
    rlca                                ; 00:07AC - 07
    rlca                                ; 00:07AD - 07
@@ -2097,7 +2106,7 @@ addr_007A3:
    rrca                                ; 00:07B9 - 0F
    rrca                                ; 00:07BA - 0F
    and    $10                          ; 00:07BB - E6 10
-   ld     hl, (var_D20E)               ; 00:07BD - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 00:07BD - 2A 0E D2
    add    hl, bc                       ; 00:07C0 - 09
    ld     bc, (g_level_tilemap_ptr)    ; 00:07C1 - ED 4B 4F D2
    add    hl, bc                       ; 00:07C5 - 09
@@ -2332,7 +2341,7 @@ addr_00869:
    .ENDIF
    ld     a, e                         ; 00:089F - 7B
    and    $C0                          ; 00:08A0 - E6 C0
-   ld     (var_D20E), a                ; 00:08A2 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:08A2 - 32 0E D2
    ld     a, e                         ; 00:08A5 - 7B
    out    ($BF), a                     ; 00:08A6 - D3 BF
    and    $3F                          ; 00:08A8 - E6 3F
@@ -2358,7 +2367,7 @@ addr_008B2:
    ret                                 ; 00:08BF - C9
 
 addr_008C0:
-   ld     a, (var_D20E)                ; 00:08C0 - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:08C0 - 3A 0E D2
    out    ($BF), a                     ; 00:08C3 - D3 BF
    ld     a, d                         ; 00:08C5 - 7A
    out    ($BF), a                     ; 00:08C6 - D3 BF
@@ -2844,7 +2853,7 @@ palette_fade_to_black:
    ret                                 ; 00:0AAD - C9
 
 addr_00AAE:
-   ld     (var_D214), hl               ; 00:0AAE - 22 14 D2
+   ld     (tmp_06), hl                 ; 00:0AAE - 22 14 D2
    ld     hl, (var_D230)               ; 00:0AB1 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0AB4 - 11 BC D3
    ld     bc, $0020                    ; 00:0AB7 - 01 20 00
@@ -2883,7 +2892,7 @@ addr_00AEB:
 
 addr_00AFC:
    push   bc                           ; 00:0AFC - C5
-   ld     hl, (var_D214)               ; 00:0AFD - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:0AFD - 2A 14 D2
    ld     de, var_D3BC                 ; 00:0B00 - 11 BC D3
    ld     b, $20                       ; 00:0B03 - 06 20
 
@@ -2968,9 +2977,9 @@ addr_00B3D:
    ret                                 ; 00:0B4F - C9
 
 palette_fade_in_banks_01_02:
-    ld     (var_D214), hl               ; 00:0B50 - 22 14 D2
-    ld     hl, var_D3BC                 ; 00:0B53 - 21 BC D3
-    ld     b, $20                       ; 00:0B56 - 06 20
+   ld     (tmp_06), hl                 ; 00:0B50 - 22 14 D2
+   ld     hl, var_D3BC                 ; 00:0B53 - 21 BC D3
+   ld     b, $20                       ; 00:0B56 - 06 20
 
 addr_00B58:
 @clear_starting_palette:
@@ -2993,7 +3002,7 @@ palette_fade_up:
    ld hl, LUT_02047_all7F
    ;; SAVING: 3 bytes
    .ENDIF
-   ld     (var_D214), hl               ; 00:0B60 - 22 14 D2
+   ld     (tmp_06), hl                 ; 00:0B60 - 22 14 D2
    ld     hl, (var_D230)               ; 00:0B63 - 2A 30 D2
    ld     de, var_D3BC                 ; 00:0B66 - 11 BC D3
    ld     bc, $0020                    ; 00:0B69 - 01 20 00
@@ -3035,7 +3044,7 @@ _palette_fade_up_common:
 addr_00BAE:
 --:
    push   bc                           ; 00:0BAE - C5
-   ld     hl, (var_D214)               ; 00:0BAF - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:0BAF - 2A 14 D2
    ld     de, var_D3BC                 ; 00:0BB2 - 11 BC D3
    ld     b, $20                       ; 00:0BB5 - 06 20
 
@@ -3215,7 +3224,7 @@ addr_00C52:
    ld     (g_vdp_scroll_x), a          ; 00:0C53 - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:0C56 - 32 52 D2
    ld     a, $FF                       ; 00:0C59 - 3E FF
-   ld     (var_D216), a                ; 00:0C5B - 32 16 D2
+   ld     (tmp_08), a                  ; 00:0C5B - 32 16 D2
    ld     c, $01                       ; 00:0C5E - 0E 01
    ld     a, (g_level)                 ; 00:0C60 - 3A 3E D2
    cp     $12                          ; 00:0C63 - FE 12
@@ -3225,11 +3234,11 @@ addr_00C52:
    ld     c, $02                       ; 00:0C6A - 0E 02
 
 addr_00C6C:
-   ld     a, (var_D216)                ; 00:0C6C - 3A 16 D2
+   ld     a, (tmp_08)                  ; 00:0C6C - 3A 16 D2
    cp     c                            ; 00:0C6F - B9
    jp     z, addr_00D3F                ; 00:0C70 - CA 3F 0D
    ld     a, c                         ; 00:0C73 - 79
-   ld     (var_D216), a                ; 00:0C74 - 32 16 D2
+   ld     (tmp_08), a                  ; 00:0C74 - 32 16 D2
    dec    a                            ; 00:0C77 - 3D
    jr     nz, addr_00CDC               ; 00:0C78 - 20 62
    ld     a, (g_saved_vdp_reg_01)      ; 00:0C7A - 3A 19 D2
@@ -3259,13 +3268,13 @@ addr_00C6C:
    ld     bc, $0178                    ; 00:0CB5 - 01 78 01
    ld     de, $3800                    ; 00:0CB8 - 11 00 38
    ld     a, $10                       ; 00:0CBB - 3E 10
-   ld     (var_D20E), a                ; 00:0CBD - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0CBD - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0CC0 - CD 01 05
    ld     hl, ARTMAP_05_63F6           ; 00:0CC3 - 21 F6 63
    ld     bc, $0145                    ; 00:0CC6 - 01 45 01
    ld     de, $3800                    ; 00:0CC9 - 11 00 38
    ld     a, $00                       ; 00:0CCC - 3E 00
-   ld     (var_D20E), a                ; 00:0CCE - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0CCE - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0CD1 - CD 01 05
    ld     hl, LUT_00F0E                ; 00:0CD4 - 21 0E 0F
    call   palette_fade_in_banks_01_02  ; 00:0CD7 - CD 50 0B
@@ -3299,13 +3308,13 @@ addr_00CDC:
    ld     bc, $0170                    ; 00:0D17 - 01 70 01
    ld     de, $3800                    ; 00:0D1A - 11 00 38
    ld     a, $10                       ; 00:0D1D - 3E 10
-   ld     (var_D20E), a                ; 00:0D1F - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0D1F - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0D22 - CD 01 05
    ld     hl, ARTMAP_05_66AB           ; 00:0D25 - 21 AB 66
    ld     bc, $0153                    ; 00:0D28 - 01 53 01
    ld     de, $3800                    ; 00:0D2B - 11 00 38
    ld     a, $00                       ; 00:0D2E - 3E 00
-   ld     (var_D20E), a                ; 00:0D30 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0D30 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0D33 - CD 01 05
    ld     hl, LUT_00F2E                ; 00:0D36 - 21 2E 0F
    call   palette_fade_in_banks_01_02  ; 00:0D39 - CD 50 0B
@@ -3327,7 +3336,7 @@ addr_00D3F:
    ld     h, (hl)                      ; 00:0D4F - 66
    ld     l, a                         ; 00:0D50 - 6F
    ld     a, $10                       ; 00:0D51 - 3E 10
-   ld     (var_D20E), a                ; 00:0D53 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0D53 - 32 0E D2
    call   print_positioned_FF_string   ; 00:0D56 - CD AF 05
    ld     a, (g_level)                 ; 00:0D59 - 3A 3E D2
    ld     c, a                         ; 00:0D5C - 4F
@@ -3341,7 +3350,7 @@ addr_00D3F:
    inc    hl                           ; 00:0D67 - 23
    ld     d, (hl)                      ; 00:0D68 - 56
    inc    hl                           ; 00:0D69 - 23
-   ld     (var_D210), de               ; 00:0D6A - ED 53 10 D2
+   ld     (tmp_02), de                 ; 00:0D6A - ED 53 10 D2
    ld     a, (hl)                      ; 00:0D6E - 7E
    and    a                            ; 00:0D6F - A7
    jr     z, addr_00D80                ; 00:0D70 - 28 0E
@@ -3359,17 +3368,17 @@ addr_00D3F:
 
 addr_00D80:
    ld     a, $01                       ; 00:0D80 - 3E 01
-   ld     (var_D20E), a                ; 00:0D82 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0D82 - 32 0E D2
    ld     bc, $012C                    ; 00:0D85 - 01 2C 01
 
 addr_00D88:
    push   bc                           ; 00:0D88 - C5
    call   addr_00E86                   ; 00:0D89 - CD 86 0E
-   ld     a, (var_D20E)                ; 00:0D8C - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:0D8C - 3A 0E D2
    dec    a                            ; 00:0D8F - 3D
-   ld     (var_D20E), a                ; 00:0D90 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0D90 - 32 0E D2
    jr     nz, addr_00DB7               ; 00:0D93 - 20 22
-   ld     hl, (var_D210)               ; 00:0D95 - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 00:0D95 - 2A 10 D2
 
 addr_00D98:
    ld     e, (hl)                      ; 00:0D98 - 5E
@@ -3380,7 +3389,7 @@ addr_00D98:
    inc    hl                           ; 00:0D9D - 23
    ld     b, (hl)                      ; 00:0D9E - 46
    inc    hl                           ; 00:0D9F - 23
-   ld     (var_D214), bc               ; 00:0DA0 - ED 43 14 D2
+   ld     (tmp_06), bc                 ; 00:0DA0 - ED 43 14 D2
    ld     a, (hl)                      ; 00:0DA4 - 7E
    inc    hl                           ; 00:0DA5 - 23
    and    a                            ; 00:0DA6 - A7
@@ -3389,20 +3398,20 @@ addr_00D98:
    jp     addr_00D98                   ; 00:0DAA - C3 98 0D
 
 addr_00DAD:
-   ld     (var_D20E), a                ; 00:0DAD - 32 0E D2
-   ld     (var_D210), hl               ; 00:0DB0 - 22 10 D2
-   ld     (var_D212), de               ; 00:0DB3 - ED 53 12 D2
+   ld     (tmp_00), a                  ; 00:0DAD - 32 0E D2
+   ld     (tmp_02), hl                 ; 00:0DB0 - 22 10 D2
+   ld     (tmp_04), de                 ; 00:0DB3 - ED 53 12 D2
 
 addr_00DB7:
-   ld     hl, (var_D214)               ; 00:0DB7 - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:0DB7 - 2A 14 D2
    push   hl                           ; 00:0DBA - E5
    ld     e, h                         ; 00:0DBB - 5C
    ld     h, $00                       ; 00:0DBC - 26 00
    ld     d, h                         ; 00:0DBE - 54
-   ld     bc, (var_D212)               ; 00:0DBF - ED 4B 12 D2
+   ld     bc, (tmp_04)                 ; 00:0DBF - ED 4B 12 D2
    call   draw_sprite_string           ; 00:0DC3 - CD 0F 35
    pop    hl                           ; 00:0DC6 - E1
-   ld     (var_D214), hl               ; 00:0DC7 - 22 14 D2
+   ld     (tmp_06), hl                 ; 00:0DC7 - 22 14 D2
    pop    bc                           ; 00:0DCA - C1
    dec    bc                           ; 00:0DCB - 0B
    ld     a, b                         ; 00:0DCC - 78
@@ -3416,7 +3425,7 @@ addr_00DB7:
 
 addr_00DD9:
    ld     hl, $0000                    ; 00:0DD9 - 21 00 00
-   ld     (var_D20E), hl               ; 00:0DDC - 22 0E D2
+   ld     (tmp_00), hl                 ; 00:0DDC - 22 0E D2
    ld     hl, $00DC                    ; 00:0DDF - 21 DC 00
    ld     de, $003C                    ; 00:0DE2 - 11 3C 00
    ld     b, $00                       ; 00:0DE5 - 06 00
@@ -3433,7 +3442,7 @@ addr_00DE7:
    dec    hl                           ; 00:0DFA - 2B
    djnz   addr_00DE7                   ; 00:0DFB - 10 EA
    ld     hl, $0000                    ; 00:0DFD - 21 00 00
-   ld     (var_D20E), hl               ; 00:0E00 - 22 0E D2
+   ld     (tmp_00), hl                 ; 00:0E00 - 22 0E D2
    ld     hl, $FFD8                    ; 00:0E03 - 21 D8 FF
    ld     de, $0058                    ; 00:0E06 - 11 58 00
    ld     b, $80                       ; 00:0E09 - 06 80
@@ -3453,7 +3462,7 @@ addr_00E0B:
 
 addr_00E24:
    ld     hl, $0000                    ; 00:0E24 - 21 00 00
-   ld     (var_D20E), hl               ; 00:0E27 - 22 0E D2
+   ld     (tmp_00), hl                 ; 00:0E27 - 22 0E D2
    ld     hl, $0080                    ; 00:0E2A - 21 80 00
    ld     de, $00C0                    ; 00:0E2D - 11 C0 00
    ld     b, $78                       ; 00:0E30 - 06 78
@@ -3473,7 +3482,7 @@ addr_00E32:
 
 addr_00E4B:
    ld     hl, $0000                    ; 00:0E4B - 21 00 00
-   ld     (var_D20E), hl               ; 00:0E4E - 22 0E D2
+   ld     (tmp_00), hl                 ; 00:0E4E - 22 0E D2
    ld     hl, $0078                    ; 00:0E51 - 21 78 00
    ld     de, $0000                    ; 00:0E54 - 11 00 00
    ld     b, $30                       ; 00:0E57 - 06 30
@@ -3537,7 +3546,7 @@ addr_00E86:
    push   hl                           ; 00:0E86 - E5
    push   de                           ; 00:0E87 - D5
    push   bc                           ; 00:0E88 - C5
-   ld     hl, (var_D20E)               ; 00:0E89 - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 00:0E89 - 2A 0E D2
    push   hl                           ; 00:0E8C - E5
    res    0, (iy+iy_00-IYBASE)         ; 00:0E8D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0E91 - CD 1C 03
@@ -3581,7 +3590,7 @@ addr_00E86:
    call   draw_sprite_text             ; 00:0ECF - CD CC 35
    ld     (var_D23C), hl               ; 00:0ED2 - 22 3C D2
    pop    hl                           ; 00:0ED5 - E1
-   ld     (var_D20E), hl               ; 00:0ED6 - 22 0E D2
+   ld     (tmp_00), hl                 ; 00:0ED6 - 22 0E D2
    pop    bc                           ; 00:0ED9 - C1
    pop    de                           ; 00:0EDA - D1
    pop    hl                           ; 00:0EDB - E1
@@ -3592,7 +3601,7 @@ addr_00EDD:
    push   de                           ; 00:0EDE - D5
    ld     l, c                         ; 00:0EDF - 69
    ld     h, b                         ; 00:0EE0 - 60
-   ld     a, (var_D20F)                ; 00:0EE1 - 3A 0F D2
+   ld     a, (tmp_01)                  ; 00:0EE1 - 3A 0F D2
    add    a, a                         ; 00:0EE4 - 87
    add    a, a                         ; 00:0EE5 - 87
    ld     e, a                         ; 00:0EE6 - 5F
@@ -3602,14 +3611,14 @@ addr_00EDD:
    inc    hl                           ; 00:0EEB - 23
    ld     b, (hl)                      ; 00:0EEC - 46
    inc    hl                           ; 00:0EED - 23
-   ld     a, (var_D20E)                ; 00:0EEE - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:0EEE - 3A 0E D2
    cp     (hl)                         ; 00:0EF1 - BE
    jr     c, addr_00EFD                ; 00:0EF2 - 38 09
    inc    hl                           ; 00:0EF4 - 23
    ld     a, (hl)                      ; 00:0EF5 - 7E
-   ld     (var_D20F), a                ; 00:0EF6 - 32 0F D2
+   ld     (tmp_01), a                  ; 00:0EF6 - 32 0F D2
    xor    a                            ; 00:0EF9 - AF
-   ld     (var_D20E), a                ; 00:0EFA - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0EFA - 32 0E D2
 
 addr_00EFD:
    pop    de                           ; 00:0EFD - D1
@@ -3617,9 +3626,9 @@ addr_00EFD:
    push   hl                           ; 00:0EFF - E5
    push   de                           ; 00:0F00 - D5
    call   draw_sprite_string           ; 00:0F01 - CD 0F 35
-   ld     a, (var_D20E)                ; 00:0F04 - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:0F04 - 3A 0E D2
    inc    a                            ; 00:0F07 - 3C
-   ld     (var_D20E), a                ; 00:0F08 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:0F08 - 32 0E D2
    pop    de                           ; 00:0F0B - D1
    pop    hl                           ; 00:0F0C - E1
    ret                                 ; 00:0F0D - C9
@@ -3950,7 +3959,7 @@ run_title_screen:
    ld     de, $3800                    ; 00:12B7 - 11 00 38
    ld     bc, $012E                    ; 00:12BA - 01 2E 01
    ld     a, $00                       ; 00:12BD - 3E 00
-   ld     (var_D20E), a                ; 00:12BF - 32 0E D2
+   ld     (tmp_00), a                  ; 00:12BF - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:12C2 - CD 01 05
 
    .IF show_diet_logo
@@ -3976,12 +3985,12 @@ run_title_screen:
    rst    $18                          ; 00:12DA - DF
    ;; Clear "PRESS BUTTON" cycle
    xor    a                            ; 00:12DB - AF
-   ld     (var_D216), a                ; 00:12DC - 32 16 D2
+   ld     (tmp_08), a                  ; 00:12DC - 32 16 D2
    ;; Set up Sonic's hand waving sprite animation
    ld     a, $01                       ; 00:12DF - 3E 01
-   ld     (var_D20F), a                ; 00:12E1 - 32 0F D2
+   ld     (tmp_01), a                  ; 00:12E1 - 32 0F D2
    ld     hl, UNK_01372                ; 00:12E4 - 21 72 13
-   ld     (var_D210), hl               ; 00:12E7 - 22 10 D2
+   ld     (tmp_02), hl                 ; 00:12E7 - 22 10 D2
 
 @mainloop:
    ;; Display on
@@ -3991,14 +4000,14 @@ run_title_screen:
    res    0, (iy+iy_00-IYBASE)         ; 00:12F2 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:12F6 - CD 1C 03
    ;; Increment "PRESS BUTTON" cycle, wrapping every 100 ticks
-   ld     a, (var_D216)                ; 00:12F9 - 3A 16 D2
+   ld     a, (tmp_08)                  ; 00:12F9 - 3A 16 D2
    inc    a                            ; 00:12FC - 3C
    cp     $64                          ; 00:12FD - FE 64
    jr     c, @skip_press_button_counter_wrap  ; 00:12FF - 38 01
    xor    a                            ; 00:1301 - AF
 
 @skip_press_button_counter_wrap:
-   ld     (var_D216), a                ; 00:1302 - 32 16 D2
+   ld     (tmp_08), a                  ; 00:1302 - 32 16 D2
    ;; Show or hide "PRESS BUTTON" text, only showing if cycle <= 64
    ld     hl, LUT_01352                ; 00:1305 - 21 52 13
    cp     $40                          ; 00:1308 - FE 40
@@ -4007,15 +4016,15 @@ run_title_screen:
 
 @skip_hide_press_button_text:
    xor    a                            ; 00:130F - AF
-   ld     (var_D20E), a                ; 00:1310 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:1310 - 32 0E D2
    call   print_positioned_FF_string   ; 00:1313 - CD AF 05
    ;; Decrement the counter for Sonic's hand animation
-   ld     a, (var_D20F)                ; 00:1316 - 3A 0F D2
+   ld     a, (tmp_01)                  ; 00:1316 - 3A 0F D2
    dec    a                            ; 00:1319 - 3D
-   ld     (var_D20F), a                ; 00:131A - 32 0F D2
+   ld     (tmp_01), a                  ; 00:131A - 32 0F D2
    jr     nz, @next_sonic_hand_animation_frame  ; 00:131D - 20 16
    ;; If the counter reached 0, load the next frame and counter
-   ld     hl, (var_D210)               ; 00:131F - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 00:131F - 2A 10 D2
    ld     e, (hl)                      ; 00:1322 - 5E
    inc    hl                           ; 00:1323 - 23
    ld     d, (hl)                      ; 00:1324 - 56
@@ -4026,16 +4035,16 @@ run_title_screen:
    ;; If the counter value is 0, move onto the demo!
    jr     z, @stop_music_and_return    ; 00:1329 - 28 25
    ;; Otherwise, store our values for animating Sonic's hand.
-   ld     (var_D20F), a                ; 00:132B - 32 0F D2
-   ld     (var_D210), hl               ; 00:132E - 22 10 D2
-   ld     (var_D212), de               ; 00:1331 - ED 53 12 D2
+   ld     (tmp_01), a                  ; 00:132B - 32 0F D2
+   ld     (tmp_02), hl                 ; 00:132E - 22 10 D2
+   ld     (tmp_04), de                 ; 00:1331 - ED 53 12 D2
 
 @next_sonic_hand_animation_frame:
    ld     hl, g_sprite_table           ; 00:1335 - 21 00 D0
    ld     (var_D23C), hl               ; 00:1338 - 22 3C D2
    ld     hl, $0080                    ; 00:133B - 21 80 00
    ld     de, $0018                    ; 00:133E - 11 18 00
-   ld     bc, (var_D212)               ; 00:1341 - ED 4B 12 D2
+   ld     bc, (tmp_04)                 ; 00:1341 - ED 4B 12 D2
    call   draw_sprite_string           ; 00:1345 - CD 0F 35
    .IF show_diet_logo
       ld hl, $0038
@@ -4182,7 +4191,7 @@ addr_01401:
    ld     bc, $0032                    ; 00:1427 - 01 32 00
    ld     de, $3800                    ; 00:142A - 11 00 38
    ld     a, $00                       ; 00:142D - 3E 00
-   ld     (var_D20E), a                ; 00:142F - 32 0E D2
+   ld     (tmp_00), a                  ; 00:142F - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:1432 - CD 01 05
    xor    a                            ; 00:1435 - AF
    ld     (g_vdp_scroll_x), a          ; 00:1436 - 32 51 D2
@@ -4228,7 +4237,7 @@ addr_01477:
    ld     hl, LUT_014F1                ; 00:1485 - 21 F1 14
    call   print_positioned_FF_string   ; 00:1488 - CD AF 05
    ld     a, $09                       ; 00:148B - 3E 09
-   ld     (var_D216), a                ; 00:148D - 32 16 D2
+   ld     (tmp_08), a                  ; 00:148D - 32 16 D2
 
 addr_01490:
    ld     b, $3C                       ; 00:1490 - 06 3C
@@ -4238,7 +4247,7 @@ addr_01492:
    res    0, (iy+iy_00-IYBASE)         ; 00:1493 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1497 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:149A - FD 36 0A 00
-   ld     hl, var_D216                 ; 00:149E - 21 16 D2
+   ld     hl, tmp_08                   ; 00:149E - 21 16 D2
    ld     de, g_HUD_FFstr_buf          ; 00:14A1 - 11 BE D2
    ld     b, $01                       ; 00:14A4 - 06 01
    call   addr_01B13                   ; 00:14A6 - CD 13 1B
@@ -4254,7 +4263,7 @@ addr_01492:
    djnz   addr_01492                   ; 00:14BE - 10 D2
    ld     a, $1A                       ; 00:14C0 - 3E 1A
    rst    $28                          ; 00:14C2 - EF
-   ld     hl, var_D216                 ; 00:14C3 - 21 16 D2
+   ld     hl, tmp_08                   ; 00:14C3 - 21 16 D2
    ld     a, (hl)                      ; 00:14C6 - 7E
    and    a                            ; 00:14C7 - A7
    ret    z                            ; 00:14C8 - C8
@@ -4356,7 +4365,7 @@ handle_level_score_screen:
 
 @artmap_not_bonus:
    xor    a                            ; 00:15AC - AF
-   ld     (var_D20E), a                ; 00:15AD - 32 0E D2
+   ld     (tmp_00), a                  ; 00:15AD - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:15B0 - CD 01 05
    ld     hl, LUT_01711                ; 00:15B3 - 21 11 17
    ld     c, $10                       ; 00:15B6 - 0E 10
@@ -4458,7 +4467,7 @@ _handle_level_score_screen_UNK_01658:
    ld     d, (hl)                      ; 00:165B - 56
 
 ++:
-   ld     hl, var_D212                 ; 00:165C - 21 12 D2
+   ld     hl, tmp_04                   ; 00:165C - 21 12 D2
    ex     de, hl                       ; 00:165F - EB
    ld     a, (g_level)                 ; 00:1660 - 3A 3E D2
    cp     $1C                          ; 00:1663 - FE 1C
@@ -4492,17 +4501,17 @@ _handle_level_score_screen_UNK_01658:
    ld     a, (g_level)                 ; 00:169B - 3A 3E D2
    cp     $1C                          ; 00:169E - FE 1C
    call   c, bonus_to_score_BCD_UNCONFIRMED  ; 00:16A0 - DC DF 19
-   ld     a, (var_D216)                ; 00:16A3 - 3A 16 D2
+   ld     a, (tmp_08)                  ; 00:16A3 - 3A 16 D2
    inc    a                            ; 00:16A6 - 3C
-   ld     (var_D216), a                ; 00:16A7 - 32 16 D2
+   ld     (tmp_08), a                  ; 00:16A7 - 32 16 D2
    and    $03                          ; 00:16AA - E6 03
    jr     nz, +                        ; 00:16AC - 20 03
    ld     a, $02                       ; 00:16AE - 3E 02
    rst    $28                          ; 00:16B0 - EF
 
 +:
-   ld     hl, (var_D212)               ; 00:16B1 - 2A 12 D2
-   ld     de, (var_D214)               ; 00:16B4 - ED 5B 14 D2
+   ld     hl, (tmp_04)                 ; 00:16B1 - 2A 12 D2
+   ld     de, (tmp_06)                 ; 00:16B4 - ED 5B 14 D2
    ld     a, (g_rings_BCD)             ; 00:16B8 - 3A AA D2
    or     h                            ; 00:16BB - B4
    or     l                            ; 00:16BC - B5
@@ -4543,7 +4552,7 @@ addr_016D9:
    ldir                                ; 00:16EF - ED B0
    pop    bc                           ; 00:16F1 - C1
    xor    a                            ; 00:16F2 - AF
-   ld     (var_D20E), a                ; 00:16F3 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:16F3 - 32 0E D2
 
 addr_016F6:
    push   bc                           ; 00:16F6 - C5
@@ -4659,7 +4668,7 @@ addr_0177B:
    ld     hl, LUT_0197E                ; 00:17AF - 21 7E 19
    call   print_positioned_FF_string   ; 00:17B2 - CD AF 05
    xor    a                            ; 00:17B5 - AF
-   ld     (var_D216), a                ; 00:17B6 - 32 16 D2
+   ld     (tmp_08), a                  ; 00:17B6 - 32 16 D2
    ld     bc, $00B4                    ; 00:17B9 - 01 B4 00
    call   addr_01860                   ; 00:17BC - CD 60 18
 
@@ -4682,7 +4691,7 @@ addr_017DD:
    ld     bc, $00B4                    ; 00:17DD - 01 B4 00
    call   addr_01860                   ; 00:17E0 - CD 60 18
    ld     a, $01                       ; 00:17E3 - 3E 01
-   ld     (var_D216), a                ; 00:17E5 - 32 16 D2
+   ld     (tmp_08), a                  ; 00:17E5 - 32 16 D2
    ld     hl, LUT_0198E                ; 00:17E8 - 21 8E 19
    call   print_positioned_FF_string   ; 00:17EB - CD AF 05
    ld     bc, $00B4                    ; 00:17EE - 01 B4 00
@@ -4707,7 +4716,7 @@ addr_01812:
    ld     bc, $00B4                    ; 00:1812 - 01 B4 00
    call   addr_01860                   ; 00:1815 - CD 60 18
    ld     a, $02                       ; 00:1818 - 3E 02
-   ld     (var_D216), a                ; 00:181A - 32 16 D2
+   ld     (tmp_08), a                  ; 00:181A - 32 16 D2
    ld     hl, LUT_0199E                ; 00:181D - 21 9E 19
    call   print_positioned_FF_string   ; 00:1820 - CD AF 05
    ld     hl, LUT_0197A                ; 00:1823 - 21 7A 19
@@ -4762,7 +4771,7 @@ addr_01860:
    ld     b, $80                       ; 00:1883 - 06 80
    call   draw_sprite_text             ; 00:1885 - CD CC 35
    ld     (var_D23C), hl               ; 00:1888 - 22 3C D2
-   ld     a, (var_D216)                ; 00:188B - 3A 16 D2
+   ld     a, (tmp_08)                  ; 00:188B - 3A 16 D2
    and    a                            ; 00:188E - A7
    jr     nz, addr_018C5               ; 00:188F - 20 34
    ld     hl, g_chaos_emeralds_collected  ; 00:1891 - 21 7F D2
@@ -4899,8 +4908,8 @@ addr_019DB:
    ret                                 ; 00:19DE - C9
 
 bonus_to_score_BCD_UNCONFIRMED:
-   ld     hl, (var_D212)               ; 00:19DF - 2A 12 D2
-   ld     de, (var_D214)               ; 00:19E2 - ED 5B 14 D2
+   ld     hl, (tmp_04)                 ; 00:19DF - 2A 12 D2
+   ld     de, (tmp_06)                 ; 00:19E2 - ED 5B 14 D2
    ld     a, h                         ; 00:19E6 - 7C
    or     l                            ; 00:19E7 - B5
    or     d                            ; 00:19E8 - B2
@@ -4910,7 +4919,7 @@ bonus_to_score_BCD_UNCONFIRMED:
    .IF 0
    ;; Original code
    ld     b, $03                       ; 00:19EB - 06 03
-   ld     hl, var_D214                 ; 00:19ED - 21 14 D2
+   ld     hl, tmp_06                   ; 00:19ED - 21 14 D2
    scf                                 ; 00:19F0 - 37
 
 addr_019F1:
@@ -4942,7 +4951,7 @@ addr_01A06:
    .ELSE
    ;; New code
    ld bc, $0300
-   ld hl, var_D214
+   ld hl, tmp_06
    ld de, $0100
    scf
    -:
@@ -5027,7 +5036,7 @@ addr_01A80:
    ld     a, (g_level)                 ; 00:1A8F - 3A 3E D2
    cp     $1C                          ; 00:1A92 - FE 1C
    jr     nc, addr_01AB0               ; 00:1A94 - 30 1A
-   ld     hl, var_D212                 ; 00:1A96 - 21 12 D2
+   ld     hl, tmp_04                   ; 00:1A96 - 21 12 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A99 - 11 BE D2
    ld     b, $04                       ; 00:1A9C - 06 04
    call   addr_01B13                   ; 00:1A9E - CD 13 1B
@@ -6190,7 +6199,7 @@ addr_02172:
    add    hl, de                       ; 00:21C3 - 19
 
 addr_021C4:
-   ld     (var_D216), hl               ; 00:21C4 - 22 16 D2
+   ld     (tmp_08), hl                 ; 00:21C4 - 22 16 D2
    ld     a, (hl)                      ; 00:21C7 - 7E
    sub    $03                          ; 00:21C8 - D6 03
    jr     nc, addr_021CD               ; 00:21CA - 30 01
@@ -6505,7 +6514,7 @@ load_object_list:
    ;; See the new version of that for the overall saving.
    .ENDIF
    ld     c, $00                       ; 00:2333 - 0E 00
-   ld     hl, (var_D216)               ; 00:2335 - 2A 16 D2
+   ld     hl, (tmp_08)                 ; 00:2335 - 2A 16 D2
    ld     a, $00                       ; 00:2338 - 3E 00
    call   load_object_from_level_spec  ; 00:233A - CD 5E 23
    pop    hl                           ; 00:233D - E1
@@ -6830,7 +6839,7 @@ addr_0258B:
    ld     bc, $0179                    ; 00:25BF - 01 79 01
    ld     de, $3800                    ; 00:25C2 - 11 00 38
    xor    a                            ; 00:25C5 - AF
-   ld     (var_D20E), a                ; 00:25C6 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:25C6 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:25C9 - CD 01 05
    ld     a, (g_saved_vdp_reg_01)      ; 00:25CC - 3A 19 D2
    or     $40                          ; 00:25CF - F6 40
@@ -6933,7 +6942,7 @@ addr_0262E:
    ld     bc, $0145                    ; 00:2680 - 01 45 01
    ld     de, $3800                    ; 00:2683 - 11 00 38
    xor    a                            ; 00:2686 - AF
-   ld     (var_D20E), a                ; 00:2687 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:2687 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:268A - CD 01 05
    ld     hl, PAL3_ending_tally        ; 00:268D - 21 28 28
    call   addr_00AAE                   ; 00:2690 - CD AE 0A
@@ -6965,7 +6974,7 @@ addr_02693:
    ld     bc, $0189                    ; 00:26CC - 01 89 01
    ld     de, $3800                    ; 00:26CF - 11 00 38
    xor    a                            ; 00:26D2 - AF
-   ld     (var_D20E), a                ; 00:26D3 - 32 0E D2
+   ld     (tmp_00), a                  ; 00:26D3 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:26D6 - CD 01 05
 
    .IF 0
@@ -7013,7 +7022,7 @@ addr_02693:
    ld     a, $0E                       ; 00:2708 - 3E 0E
    rst    $18                          ; 00:270A - DF
    xor    a                            ; 00:270B - AF
-   ld     (var_D20E), a                ; 00:270C - 32 0E D2
+   ld     (tmp_00), a                  ; 00:270C - 32 0E D2
    ld     hl, UNK_2905                 ; 00:270F - 21 05 29
    call   addr_02795                   ; 00:2712 - CD 95 27
 
@@ -8158,7 +8167,7 @@ update_some_objfunc_activation_statuses:
    inc    hl                           ; 00:321E - 23
    ld     b, (hl)                      ; 00:321F - 46
    inc    hl                           ; 00:3220 - 23
-   ld     de, var_D20E                 ; 00:3221 - 11 0E D2
+   ld     de, tmp_00                   ; 00:3221 - 11 0E D2
    ;; BUG: The left offset gets slightly shrunk due to it being decremented 6 times.
    ldi                                 ; 00:3224 - ED A0
    ldi                                 ; 00:3226 - ED A0
@@ -8179,14 +8188,14 @@ update_some_objfunc_activation_statuses:
    ld     d, (ix+3)                    ; 00:323E - DD 56 03
    sbc    hl, de                       ; 00:3241 - ED 52
    jp     nc, @disable_object          ; 00:3243 - D2 8A 32
-   ld     hl, (var_D20E)               ; 00:3246 - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 00:3246 - 2A 0E D2
    ld     bc, (g_level_scroll_x_pix_lo)  ; 00:3249 - ED 4B 5A D2
    add    hl, bc                       ; 00:324D - 09
    xor    a                            ; 00:324E - AF
    sbc    hl, de                       ; 00:324F - ED 52
    jp     c, @disable_object           ; 00:3251 - DA 8A 32
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3254 - 2A 5D D2
-   ld     bc, (var_D210)               ; 00:3257 - ED 4B 10 D2
+   ld     bc, (tmp_02)                 ; 00:3257 - ED 4B 10 D2
    sbc    hl, bc                       ; 00:325B - ED 42
    jr     nc, @skip_camera_top_clamp   ; 00:325D - 30 03
    ld     l, a                         ; 00:325F - 6F
@@ -8198,7 +8207,7 @@ update_some_objfunc_activation_statuses:
    ld     d, (ix+6)                    ; 00:3265 - DD 56 06
    sbc    hl, de                       ; 00:3268 - ED 52
    jp     nc, @disable_object          ; 00:326A - D2 8A 32
-   ld     hl, (var_D212)               ; 00:326D - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 00:326D - 2A 12 D2
    ld     bc, (g_level_scroll_y_pix_lo)  ; 00:3270 - ED 4B 5D D2
    add    hl, bc                       ; 00:3274 - 09
    xor    a                            ; 00:3275 - AF
@@ -8383,7 +8392,7 @@ return_from_objfunc:
    ld     hl, LUT_phys_tileflags_push_right  ; 00:333C - 21 20 40
 
 @obj_was_moving_left_table:
-   ld     (var_D210), bc               ; 00:333F - ED 43 10 D2
+   ld     (tmp_02), bc                 ; 00:333F - ED 43 10 D2
    res    6, (ix+24)                   ; 00:3343 - DD CB 18 B6
    push   de                           ; 00:3347 - D5
    push   hl                           ; 00:3348 - E5
@@ -8407,7 +8416,7 @@ return_from_objfunc:
    add    hl, de                       ; 00:335D - 19
    ld     a, (hl)                      ; 00:335E - 7E
    and    $3F                          ; 00:335F - E6 3F
-   ld     (var_D214), a                ; 00:3361 - 32 14 D2
+   ld     (tmp_06), a                  ; 00:3361 - 32 14 D2
    pop    hl                           ; 00:3364 - E1
    pop    de                           ; 00:3365 - D1
    .IF 0
@@ -8416,7 +8425,7 @@ return_from_objfunc:
    ; SAVING: 2 bytes
    .ENDIF
    jp     z, @skip_horizontal_clamping  ; 00:3368 - CA F6 33
-   ld     a, (var_D214)                ; 00:336B - 3A 14 D2
+   ld     a, (tmp_06)                  ; 00:336B - 3A 14 D2
    add    a, a                         ; 00:336E - 87
    ld     c, a                         ; 00:336F - 4F
    ld     b, $00                       ; 00:3370 - 06 00
@@ -8442,7 +8451,7 @@ return_from_objfunc:
 @horizontal_offset_was_positive:
    ld     l, (ix+2)                    ; 00:338D - DD 6E 02
    ld     h, (ix+3)                    ; 00:3390 - DD 66 03
-   ld     bc, (var_D210)               ; 00:3393 - ED 4B 10 D2
+   ld     bc, (tmp_02)                 ; 00:3393 - ED 4B 10 D2
    add    hl, bc                       ; 00:3397 - 09
    bit    7, (ix+9)                    ; 00:3398 - DD CB 09 7E
    jr     nz, @compare_left_movement_clamp  ; 00:339C - 20 0D
@@ -8472,7 +8481,7 @@ return_from_objfunc:
    sbc    hl, bc                       ; 00:33BF - ED 42
    ld     (ix+2), l                    ; 00:33C1 - DD 75 02
    ld     (ix+3), h                    ; 00:33C4 - DD 74 03
-   ld     a, (var_D214)                ; 00:33C7 - 3A 14 D2
+   ld     a, (tmp_06)                  ; 00:33C7 - 3A 14 D2
    ld     e, a                         ; 00:33CA - 5F
    ld     d, $00                       ; 00:33CB - 16 00
    ld     hl, LUT_3FBF                 ; 00:33CD - 21 BF 3F
@@ -8515,7 +8524,7 @@ return_from_objfunc:
    ld     hl, LUT_phys_tileflags_push_down  ; 00:3414 - 21 EC 41
 
 @obj_was_moving_down_table:
-   ld     (var_D210), de               ; 00:3417 - ED 53 10 D2
+   ld     (tmp_02), de                 ; 00:3417 - ED 53 10 D2
    res    7, (ix+24)                   ; 00:341B - DD CB 18 BE
    push   bc                           ; 00:341F - C5
    push   hl                           ; 00:3420 - E5
@@ -8539,7 +8548,7 @@ return_from_objfunc:
    add    hl, de                       ; 00:3435 - 19
    ld     a, (hl)                      ; 00:3436 - 7E
    and    $3F                          ; 00:3437 - E6 3F
-   ld     (var_D214), a                ; 00:3439 - 32 14 D2
+   ld     (tmp_06), a                  ; 00:3439 - 32 14 D2
    pop    hl                           ; 00:343C - E1
    pop    bc                           ; 00:343D - C1
    .IF 0
@@ -8548,7 +8557,7 @@ return_from_objfunc:
    ; SAVING: 2 bytes
    .ENDIF
    jp     z, @skip_vertical_and_all_clamping  ; 00:3440 - CA E6 34
-   ld     a, (var_D214)                ; 00:3443 - 3A 14 D2
+   ld     a, (tmp_06)                  ; 00:3443 - 3A 14 D2
    add    a, a                         ; 00:3446 - 87
    ld     e, a                         ; 00:3447 - 5F
    ld     d, $00                       ; 00:3448 - 16 00
@@ -8574,7 +8583,7 @@ return_from_objfunc:
 @vertical_offset_was_positive:
    ld     l, (ix+5)                    ; 00:3465 - DD 6E 05
    ld     h, (ix+6)                    ; 00:3468 - DD 66 06
-   ld     de, (var_D210)               ; 00:346B - ED 5B 10 D2
+   ld     de, (tmp_02)                 ; 00:346B - ED 5B 10 D2
    add    hl, de                       ; 00:346F - 19
    bit    7, (ix+12)                   ; 00:3470 - DD CB 0C 7E
    jr     nz, @compare_up_movement_clamp  ; 00:3474 - 20 1D
@@ -8583,7 +8592,7 @@ return_from_objfunc:
    ld     a, l                         ; 00:347A - 7D
    and    $1F                          ; 00:347B - E6 1F
    exx                                 ; 00:347D - D9
-   ld     hl, (var_D214)               ; 00:347E - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:347E - 2A 14 D2
    ld     h, $00                       ; 00:3481 - 26 00
    ld     de, LUT_3FF0                 ; 00:3483 - 11 F0 3F
    add    hl, de                       ; 00:3486 - 19
@@ -8600,7 +8609,7 @@ return_from_objfunc:
    ld     a, l                         ; 00:3497 - 7D
    and    $1F                          ; 00:3498 - E6 1F
    exx                                 ; 00:349A - D9
-   ld     hl, (var_D214)               ; 00:349B - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:349B - 2A 14 D2
    ld     h, $00                       ; 00:349E - 26 00
    ld     de, LUT_3FF0                 ; 00:34A0 - 11 F0 3F
    add    hl, de                       ; 00:34A3 - 19
@@ -8618,7 +8627,7 @@ return_from_objfunc:
    sbc    hl, de                       ; 00:34AF - ED 52
    ld     (ix+5), l                    ; 00:34B1 - DD 75 05
    ld     (ix+6), h                    ; 00:34B4 - DD 74 06
-   ld     a, (var_D214)                ; 00:34B7 - 3A 14 D2
+   ld     a, (tmp_06)                  ; 00:34B7 - 3A 14 D2
    ld     e, a                         ; 00:34BA - 5F
    ld     d, $00                       ; 00:34BB - 16 00
    ld     hl, LUT_3F90                 ; 00:34BD - 21 90 3F
@@ -8665,7 +8674,7 @@ return_from_objfunc:
    ret                                 ; 00:350E - C9
 
 draw_sprite_string:
-   ld     (var_D214), hl               ; 00:350F - 22 14 D2
+   ld     (tmp_06), hl                 ; 00:350F - 22 14 D2
    push   bc                           ; 00:3512 - C5
    exx                                 ; 00:3513 - D9
    pop    bc                           ; 00:3514 - C1
@@ -8680,7 +8689,7 @@ draw_sprite_string:
 
 @each_row:
    exx                                 ; 00:351A - D9
-   ld     hl, (var_D214)               ; 00:351B - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 00:351B - 2A 14 D2
    ld     a, (bc)                      ; 00:351E - 0A
    exx                                 ; 00:351F - D9
    .IF 0
@@ -8767,15 +8776,15 @@ draw_sprite_string:
    ret                                 ; 00:3580 - C9
 
 draw_sprite:
-   ld     hl, (var_D210)               ; 00:3581 - 2A 10 D2
-   ld     bc, (var_D214)               ; 00:3584 - ED 4B 14 D2
+   ld     hl, (tmp_02)                 ; 00:3581 - 2A 10 D2
+   ld     bc, (tmp_06)                 ; 00:3584 - ED 4B 14 D2
    add    hl, bc                       ; 00:3588 - 09
    ld     bc, (g_level_scroll_y_pix_lo)  ; 00:3589 - ED 4B 5D D2
    and    a                            ; 00:358D - A7
    sbc    hl, bc                       ; 00:358E - ED 42
    ex     de, hl                       ; 00:3590 - EB
-   ld     hl, (var_D20E)               ; 00:3591 - 2A 0E D2
-   ld     bc, (var_D212)               ; 00:3594 - ED 4B 12 D2
+   ld     hl, (tmp_00)                 ; 00:3591 - 2A 0E D2
+   ld     bc, (tmp_04)                 ; 00:3594 - ED 4B 12 D2
    add    hl, bc                       ; 00:3598 - 09
    ld     bc, (g_level_scroll_x_pix_lo)  ; 00:3599 - ED 4B 5A D2
    and    a                            ; 00:359D - A7
@@ -8941,7 +8950,7 @@ addr_036A7:
 
 addr_036BE:
    ld     (ix+0), $0A                  ; 00:36BE - DD 36 00 0A
-   ld     a, (var_D20E)                ; 00:36C2 - 3A 0E D2
+   ld     a, (tmp_00)                  ; 00:36C2 - 3A 0E D2
    ld     e, a                         ; 00:36C5 - 5F
    ld     d, $00                       ; 00:36C6 - 16 00
    ld     l, (ix+2)                    ; 00:36C8 - DD 6E 02
@@ -8949,7 +8958,7 @@ addr_036BE:
    add    hl, de                       ; 00:36CE - 19
    ld     (ix+2), l                    ; 00:36CF - DD 75 02
    ld     (ix+3), h                    ; 00:36D2 - DD 74 03
-   ld     a, (var_D20F)                ; 00:36D5 - 3A 0F D2
+   ld     a, (tmp_01)                  ; 00:36D5 - 3A 0F D2
    ld     e, a                         ; 00:36D8 - 5F
    ld     l, (ix+5)                    ; 00:36D9 - DD 6E 05
    ld     h, (ix+6)                    ; 00:36DC - DD 66 06
@@ -9514,7 +9523,7 @@ check_collision_with_sonic:
    ret    c                            ; 00:396F - D8
    ld     l, (ix+2)                    ; 00:3970 - DD 6E 02
    ld     h, (ix+3)                    ; 00:3973 - DD 66 03
-   ld     a, (var_D214)                ; 00:3976 - 3A 14 D2
+   ld     a, (tmp_06)                  ; 00:3976 - 3A 14 D2
    ld     c, a                         ; 00:3979 - 4F
    add    hl, bc                       ; 00:397A - 09
    ex     de, hl                       ; 00:397B - EB
@@ -9534,7 +9543,7 @@ check_collision_with_sonic:
    ret    c                            ; 00:3996 - D8
    ld     l, (ix+5)                    ; 00:3997 - DD 6E 05
    ld     h, (ix+6)                    ; 00:399A - DD 66 06
-   ld     a, (var_D215)                ; 00:399D - 3A 15 D2
+   ld     a, (tmp_07)                  ; 00:399D - 3A 15 D2
    ld     c, a                         ; 00:39A0 - 4F
    add    hl, bc                       ; 00:39A1 - 09
    ex     de, hl                       ; 00:39A2 - EB
@@ -10088,7 +10097,7 @@ objfunc_00_sonic:
    bit    4, (ix+24)                   ; 01:4928 - DD CB 18 66
    jp     z, @not_underwater_physics   ; 01:492C - CA 4F 49
    ld     hl, objfunc_00_sonic@sonic_physics_underwater  ; 01:492F - 21 DD 4D
-   ld     de, var_D20E                 ; 01:4932 - 11 0E D2
+   ld     de, tmp_00                   ; 01:4932 - 11 0E D2
    ld     bc, $0009                    ; 01:4935 - 01 09 00
    ldir                                ; 01:4938 - ED B0
    ld     hl, $0100                    ; 01:493A - 21 00 01
@@ -10108,7 +10117,7 @@ objfunc_00_sonic:
 
 @is_normal_physics:
    ld     hl, objfunc_00_sonic@sonic_physics_main  ; 01:495B - 21 CB 4D
-   ld     de, var_D20E                 ; 01:495E - 11 0E D2
+   ld     de, tmp_00                   ; 01:495E - 11 0E D2
    ld     bc, $0009                    ; 01:4961 - 01 09 00
    ldir                                ; 01:4964 - ED B0
    ld     hl, $0300                    ; 01:4966 - 21 00 03
@@ -10125,7 +10134,7 @@ objfunc_00_sonic:
    bit    7, (ix+24)                   ; 01:4981 - DD CB 18 7E
    jr     nz, @is_normal_physics       ; 01:4985 - 20 D4
    ld     hl, objfunc_00_sonic@sonic_physics_special_stage_airborne  ; 01:4987 - 21 D4 4D
-   ld     de, var_D20E                 ; 01:498A - 11 0E D2
+   ld     de, tmp_00                   ; 01:498A - 11 0E D2
    ld     bc, $0009                    ; 01:498D - 01 09 00
    ldir                                ; 01:4990 - ED B0
    ld     hl, $0C00                    ; 01:4992 - 21 00 0C
@@ -10140,7 +10149,7 @@ objfunc_00_sonic:
 
 @is_speed_shoes_physics:
    ld     hl, objfunc_00_sonic@sonic_physics_speed_shoes  ; 01:49AD - 21 E6 4D
-   ld     de, var_D20E                 ; 01:49B0 - 11 0E D2
+   ld     de, tmp_00                   ; 01:49B0 - 11 0E D2
    ld     bc, $0009                    ; 01:49B3 - 01 09 00
    ldir                                ; 01:49B6 - ED B0
    ld     hl, $0600                    ; 01:49B8 - 21 00 06
@@ -10279,7 +10288,7 @@ objfunc_00_sonic:
    ld     (ix+20), $01                 ; 01:4ABF - DD 36 14 01
    bit    7, b                         ; 01:4AC3 - CB 78
    jr     nz, @consider_coasting_x_speed_cap_moving_left  ; 01:4AC5 - 20 30
-   ld     de, (var_D212)               ; 01:4AC7 - ED 5B 12 D2
+   ld     de, (tmp_04)                 ; 01:4AC7 - ED 5B 12 D2
    ld     a, e                         ; 01:4ACB - 7B
    cpl                                 ; 01:4ACC - 2F
    ld     e, a                         ; 01:4ACD - 5F
@@ -10296,7 +10305,7 @@ objfunc_00_sonic:
    pop    de                           ; 01:4ADD - D1
    pop    hl                           ; 01:4ADE - E1
    jr     c, @update_x_velocity_from_basic_movement  ; 01:4ADF - 38 3A
-   ld     de, (var_D20E)               ; 01:4AE1 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 01:4AE1 - ED 5B 0E D2
    ld     a, e                         ; 01:4AE5 - 7B
    cpl                                 ; 01:4AE6 - 2F
    ld     e, a                         ; 01:4AE7 - 5F
@@ -10305,12 +10314,12 @@ objfunc_00_sonic:
    ld     d, a                         ; 01:4AEA - 57
    inc    de                           ; 01:4AEB - 13
    ld     c, $FF                       ; 01:4AEC - 0E FF
-   ld     a, (var_D216)                ; 01:4AEE - 3A 16 D2
+   ld     a, (tmp_08)                  ; 01:4AEE - 3A 16 D2
    ld     (ix+20), a                   ; 01:4AF1 - DD 77 14
    jp     @update_x_velocity_from_basic_movement  ; 01:4AF4 - C3 1B 4B
 
 @consider_coasting_x_speed_cap_moving_left:
-   ld     de, (var_D212)               ; 01:4AF7 - ED 5B 12 D2
+   ld     de, (tmp_04)                 ; 01:4AF7 - ED 5B 12 D2
    ld     c, $00                       ; 01:4AFB - 0E 00
    push   hl                           ; 01:4AFD - E5
    push   de                           ; 01:4AFE - D5
@@ -10327,8 +10336,8 @@ objfunc_00_sonic:
    pop    de                           ; 01:4B0D - D1
    pop    hl                           ; 01:4B0E - E1
    jr     c, @update_x_velocity_from_basic_movement  ; 01:4B0F - 38 0A
-   ld     de, (var_D20E)               ; 01:4B11 - ED 5B 0E D2
-   ld     a, (var_D216)                ; 01:4B15 - 3A 16 D2
+   ld     de, (tmp_00)                 ; 01:4B11 - ED 5B 0E D2
+   ld     a, (tmp_08)                  ; 01:4B15 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4B18 - DD 77 14
 
 @update_x_velocity_from_basic_movement:
@@ -10415,7 +10424,7 @@ objfunc_00_sonic:
 @continue_without_jumping_from_rolling:
    bit    7, h                         ; 01:4BAC - CB 7C
    jr     nz, @TODO_4BB8               ; 01:4BAE - 20 08
-   ld     a, (var_D215)                ; 01:4BB0 - 3A 15 D2
+   ld     a, (tmp_07)                  ; 01:4BB0 - 3A 15 D2
    cp     h                            ; 01:4BB3 - BC
    jr     z, @TODO_4BBE                ; 01:4BB4 - 28 08
    jr     c, @TODO_4BBE                ; 01:4BB6 - 38 06
@@ -10820,21 +10829,21 @@ objfunc_00_sonic:
    dec    a                            ; 01:4E51 - 3D
    ld     (g_ring_sparkle_sprite_countdown_timer), a  ; 01:4E52 - 32 21 D3
    ld     hl, (g_ring_sparkle_sprite_x)  ; 01:4E55 - 2A 1D D3
-   ld     (var_D20E), hl               ; 01:4E58 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:4E58 - 22 0E D2
    ld     hl, (g_ring_sparkle_sprite_y)  ; 01:4E5B - 2A 1F D3
-   ld     (var_D210), hl               ; 01:4E5E - 22 10 D2
+   ld     (tmp_02), hl                 ; 01:4E5E - 22 10 D2
    ld     hl, $0000                    ; 01:4E61 - 21 00 00
-   ld     (var_D212), hl               ; 01:4E64 - 22 12 D2
+   ld     (tmp_04), hl                 ; 01:4E64 - 22 12 D2
    ld     hl, $FFFE                    ; 01:4E67 - 21 FE FF
-   ld     (var_D214), hl               ; 01:4E6A - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:4E6A - 22 14 D2
    cp     $03                          ; 01:4E6D - FE 03
    jr     c, @skip_ring_sparkle_second_sprite  ; 01:4E6F - 38 11
    ld     a, $B2                       ; 01:4E71 - 3E B2
    call   draw_sprite                  ; 01:4E73 - CD 81 35
    ld     hl, $0008                    ; 01:4E76 - 21 08 00
-   ld     (var_D212), hl               ; 01:4E79 - 22 12 D2
+   ld     (tmp_04), hl                 ; 01:4E79 - 22 12 D2
    ld     hl, $0002                    ; 01:4E7C - 21 02 00
-   ld     (var_D214), hl               ; 01:4E7F - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:4E7F - 22 14 D2
 
 @skip_ring_sparkle_second_sprite:
    ld     a, $5A                       ; 01:4E82 - 3E 5A
@@ -10847,9 +10856,9 @@ objfunc_00_sonic:
 
 @fn_handle_invincibility_sparkle_sprite:
    ld     hl, (sonic_x)                ; 01:4E8D - 2A FE D3
-   ld     (var_D20E), hl               ; 01:4E90 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:4E90 - 22 0E D2
    ld     hl, (sonic_y)                ; 01:4E93 - 2A 01 D4
-   ld     (var_D210), hl               ; 01:4E96 - 22 10 D2
+   ld     (tmp_02), hl                 ; 01:4E96 - 22 10 D2
    ld     hl, g_invincibility_sparkle_position_buffer_0  ; 01:4E99 - 21 F3 D2
    ld     a, (g_global_tick_counter)   ; 01:4E9C - 3A 23 D2
    rrca                                ; 01:4E9F - 0F
@@ -10858,7 +10867,7 @@ objfunc_00_sonic:
    ld     hl, g_invincibility_sparkle_position_buffer_1  ; 01:4EA3 - 21 F7 D2
 
 @update_first_invisibility_sparkle_pos:
-   ld     de, var_D212                 ; 01:4EA6 - 11 12 D2
+   ld     de, tmp_04                   ; 01:4EA6 - 11 12 D2
    ldi                                 ; 01:4EA9 - ED A0
    ldi                                 ; 01:4EAB - ED A0
    ldi                                 ; 01:4EAD - ED A0
@@ -10918,7 +10927,7 @@ objfunc_00_sonic:
    res    1, (ix+24)                   ; 01:4F01 - DD CB 18 8E
    bit    7, b                         ; 01:4F05 - CB 78
    jr     nz, @left_brake_to_right     ; 01:4F07 - 20 28
-   ld     de, (var_D20E)               ; 01:4F09 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 01:4F09 - ED 5B 0E D2
    ld     c, $00                       ; 01:4F0D - 0E 00
    ld     (ix+20), $01                 ; 01:4F0F - DD 36 14 01
    push   hl                           ; 01:4F13 - E5
@@ -10942,7 +10951,7 @@ objfunc_00_sonic:
    ld     c, a                         ; 01:4F24 - 4F
    ld     hl, (g_sonic_x_speed_cap_subpx)  ; 01:4F25 - 2A 40 D2
    .ENDIF
-   ld     a, (var_D216)                ; 01:4F28 - 3A 16 D2
+   ld     a, (tmp_08)                  ; 01:4F28 - 3A 16 D2
    ld     (ix+20), a                   ; 01:4F2B - DD 77 14
    jp     @update_x_velocity_from_basic_movement  ; 01:4F2E - C3 1B 4B
 
@@ -10961,7 +10970,7 @@ objfunc_00_sonic:
    and    a                            ; 01:4F44 - A7
    sbc    hl, de                       ; 01:4F45 - ED 52
    pop    hl                           ; 01:4F47 - E1
-   ld     de, (var_D210)               ; 01:4F48 - ED 5B 10 D2
+   ld     de, (tmp_02)                 ; 01:4F48 - ED 5B 10 D2
    ld     c, $00                       ; 01:4F4C - 0E 00
    jp     nc, @update_x_velocity_from_basic_movement  ; 01:4F4E - D2 1B 4B
    res    1, (ix+24)                   ; 01:4F51 - DD CB 18 8E
@@ -10977,7 +10986,7 @@ objfunc_00_sonic:
    jr     z, @right_brake_to_left      ; 01:4F66 - 28 3E
 
 @skip_right_brake_to_left_check:
-   ld     de, (var_D20E)               ; 01:4F68 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 01:4F68 - ED 5B 0E D2
    ld     a, e                         ; 01:4F6C - 7B
    cpl                                 ; 01:4F6D - 2F
    ld     e, a                         ; 01:4F6E - 5F
@@ -11022,14 +11031,14 @@ objfunc_00_sonic:
    inc    hl                           ; 01:4F9A - 23
    ld     b, $FF                       ; 01:4F9B - 06 FF
    .ENDIF
-   ld     a, (var_D216)                ; 01:4F9D - 3A 16 D2
+   ld     a, (tmp_08)                  ; 01:4F9D - 3A 16 D2
    ld     (ix+20), a                   ; 01:4FA0 - DD 77 14
    jp     @update_x_velocity_from_basic_movement  ; 01:4FA3 - C3 1B 4B
 
 @right_brake_to_left:
    res    1, (ix+24)                   ; 01:4FA6 - DD CB 18 8E
    ld     (ix+20), $0A                 ; 01:4FAA - DD 36 14 0A
-   ld     de, (var_D210)               ; 01:4FAE - ED 5B 10 D2
+   ld     de, (tmp_02)                 ; 01:4FAE - ED 5B 10 D2
    ld     a, e                         ; 01:4FB2 - 7B
    cpl                                 ; 01:4FB3 - 2F
    ld     e, a                         ; 01:4FB4 - 5F
@@ -12457,7 +12466,7 @@ objfunc_01_monitor_rings:
    ld     (ix+14), $18                 ; 01:5B0D - DD 36 0E 18
    call   addr_05DA8                   ; 01:5B11 - CD A8 5D
    ld     hl, $0003                    ; 01:5B14 - 21 03 00
-   ld     (var_D214), hl               ; 01:5B17 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5B17 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5B1A - CD 56 39
    jr     c, monitor_common_set_art_and_go_to_main  ; 01:5B1D - 38 12
    call   addr_05DEB                   ; 01:5B1F - CD EB 5D
@@ -12495,7 +12504,7 @@ monitor_common_main:
    adc    a, (ix+9)                    ; 01:5B5F - DD 8E 09
    ld     l, h                         ; 01:5B62 - 6C
    ld     h, a                         ; 01:5B63 - 67
-   ld     (var_D20E), hl               ; 01:5B64 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:5B64 - 22 0E D2
    ld     l, (ix+4)                    ; 01:5B67 - DD 6E 04
    ld     h, (ix+5)                    ; 01:5B6A - DD 66 05
    ld     a, (ix+6)                    ; 01:5B6D - DD 7E 06
@@ -12509,15 +12518,15 @@ monitor_common_main:
 @skip_apply_gravity:
    ld     l, h                         ; 01:5B80 - 6C
    ld     h, a                         ; 01:5B81 - 67
-   ld     (var_D210), hl               ; 01:5B82 - 22 10 D2
+   ld     (tmp_02), hl                 ; 01:5B82 - 22 10 D2
    ld     hl, $0004                    ; 01:5B85 - 21 04 00
-   ld     (var_D212), hl               ; 01:5B88 - 22 12 D2
+   ld     (tmp_04), hl                 ; 01:5B88 - 22 12 D2
    ld     hl, $0000                    ; 01:5B8B - 21 00 00
-   ld     (var_D214), hl               ; 01:5B8E - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5B8E - 22 14 D2
    ld     a, $5C                       ; 01:5B91 - 3E 5C
    call   draw_sprite                  ; 01:5B93 - CD 81 35
    ld     hl, $000C                    ; 01:5B96 - 21 0C 00
-   ld     (var_D212), hl               ; 01:5B99 - 22 12 D2
+   ld     (tmp_04), hl                 ; 01:5B99 - 22 12 D2
    ld     a, $5E                       ; 01:5B9C - 3E 5E
    call   draw_sprite                  ; 01:5B9E - CD 81 35
    bit    1, (ix+24)                   ; 01:5BA1 - DD CB 18 4E
@@ -12544,7 +12553,7 @@ objfunc_02_monitor_speed_shoes:
    ld     (ix+14), $18                 ; 01:5BDD - DD 36 0E 18
    call   addr_05DA8                   ; 01:5BE1 - CD A8 5D
    ld     hl, $0003                    ; 01:5BE4 - 21 03 00
-   ld     (var_D214), hl               ; 01:5BE7 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5BE7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5BEA - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5BED - 38 10
    call   addr_05DEB                   ; 01:5BEF - CD EB 5D
@@ -12577,7 +12586,7 @@ objfunc_03_monitor_life:
 
 @life_not_consumed_yet:
    ld     hl, $0003                    ; 01:5C21 - 21 03 00
-   ld     (var_D214), hl               ; 01:5C24 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5C24 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5C27 - CD 56 39
    jr     c, @check_level_specific_kludges  ; 01:5C2A - 38 2E
    call   addr_05DEB                   ; 01:5C2C - CD EB 5D
@@ -12673,7 +12682,7 @@ objfunc_04_monitor_shield:
    ld     (ix+14), $18                 ; 01:5CDB - DD 36 0E 18
    call   addr_05DA8                   ; 01:5CDF - CD A8 5D
    ld     hl, $0003                    ; 01:5CE2 - 21 03 00
-   ld     (var_D214), hl               ; 01:5CE5 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5CE5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5CE8 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5CEB - 38 0C
    call   addr_05DEB                   ; 01:5CED - CD EB 5D
@@ -12690,7 +12699,7 @@ objfunc_05_monitor_invincibility:
    ld     (ix+14), $18                 ; 01:5D03 - DD 36 0E 18
    call   addr_05DA8                   ; 01:5D07 - CD A8 5D
    ld     hl, $0003                    ; 01:5D0A - 21 03 00
-   ld     (var_D214), hl               ; 01:5D0D - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5D0D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D10 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5D13 - 38 14
    call   addr_05DEB                   ; 01:5D15 - CD EB 5D
@@ -12711,7 +12720,7 @@ objfunc_51_monitor_checkpoint:
    ld     (ix+14), $18                 ; 01:5D33 - DD 36 0E 18
    call   addr_05DA8                   ; 01:5D37 - CD A8 5D
    ld     hl, $0003                    ; 01:5D3A - 21 03 00
-   ld     (var_D214), hl               ; 01:5D3D - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5D3D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D40 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5D43 - 38 35
    call   addr_05DEB                   ; 01:5D45 - CD EB 5D
@@ -12755,7 +12764,7 @@ objfunc_52_monitor_continue:
    ld     (ix+14), $18                 ; 01:5D84 - DD 36 0E 18
    call   addr_05DA8                   ; 01:5D88 - CD A8 5D
    ld     hl, $0003                    ; 01:5D8B - 21 03 00
-   ld     (var_D214), hl               ; 01:5D8E - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5D8E - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D91 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5D94 - 38 0C
    call   addr_05DEB                   ; 01:5D96 - CD EB 5D
@@ -12803,7 +12812,7 @@ addr_05DCC:
 
 addr_05DEB:
    ld     hl, $0804                    ; 01:5DEB - 21 04 08
-   ld     (var_D20E), hl               ; 01:5DEE - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:5DEE - 22 0E D2
    ld     a, (sonic_flags_ix_24)       ; 01:5DF1 - 3A 14 D4
    and    $01                          ; 01:5DF4 - E6 01
    jr     nz, addr_05E49               ; 01:5DF6 - 20 51
@@ -12906,7 +12915,7 @@ objfunc_06_chaos_emerald:
    ld     (ix+15), a                   ; 01:5EB8 - DD 77 0F
    ld     (ix+16), a                   ; 01:5EBB - DD 77 10
    ld     hl, $0202                    ; 01:5EBE - 21 02 02
-   ld     (var_D214), hl               ; 01:5EC1 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5EC1 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5EC4 - CD 56 39
    jr     c, @dont_collect_yet         ; 01:5EC7 - 38 1A
    ld     hl, g_level_has_emerald_mask  ; 01:5EC9 - 21 0B D3
@@ -13043,7 +13052,7 @@ objfunc_07_signpost:
 
 @check_sonic_touching:
    ld     hl, $0A0A                    ; 01:5FE8 - 21 0A 0A
-   ld     (var_D214), hl               ; 01:5FEB - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:5FEB - 22 14 D2
    call   check_collision_with_sonic   ; 01:5FEE - CD 56 39
    jr     c, @decide                   ; 01:5FF1 - 38 3D
    bit    7, (ix+12)                   ; 01:5FF3 - DD CB 0C 7E
@@ -13372,7 +13381,7 @@ objfunc_08_badnik_crabmeat:
 @find_next_state:
    ld     hl, LUT_crabmeat_state_sequence  ; 01:65FB - 21 C5 66
    add    hl, de                       ; 01:65FE - 19
-   ld     (var_D214), hl               ; 01:65FF - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:65FF - 22 14 D2
    ld     a, (hl)                      ; 01:6602 - 7E
    and    a                            ; 01:6603 - A7
    jr     nz, @found_state             ; 01:6604 - 20 07
@@ -13408,9 +13417,9 @@ objfunc_08_badnik_crabmeat:
    cp     $20                          ; 01:6630 - FE 20
    jp     nz, @continue                ; 01:6632 - C2 78 66
    ld     hl, $FFFF                    ; 01:6635 - 21 FF FF
-   ld     (var_D212), hl               ; 01:6638 - 22 12 D2
+   ld     (tmp_04), hl                 ; 01:6638 - 22 12 D2
    ld     hl, $FFFC                    ; 01:663B - 21 FC FF
-   ld     (var_D214), hl               ; 01:663E - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:663E - 22 14 D2
    call   spawn_object                 ; 01:6641 - CD 7B 7C
    jp     c, @continue                 ; 01:6644 - DA 78 66
    ld     de, $0000                    ; 01:6647 - 11 00 00
@@ -13418,9 +13427,9 @@ objfunc_08_badnik_crabmeat:
    ld     b, d                         ; 01:664B - 42
    call   init_fireball_object         ; 01:664C - CD 96 AC
    ld     hl, $0001                    ; 01:664F - 21 01 00
-   ld     (var_D212), hl               ; 01:6652 - 22 12 D2
+   ld     (tmp_04), hl                 ; 01:6652 - 22 12 D2
    ld     hl, $FFFC                    ; 01:6655 - 21 FC FF
-   ld     (var_D214), hl               ; 01:6658 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6658 - 22 14 D2
    call   spawn_object                 ; 01:665B - CD 7B 7C
    jr     c, @continue                 ; 01:665E - 38 18
    ld     de, $000E                    ; 01:6660 - 11 0E 00
@@ -13451,7 +13460,7 @@ objfunc_08_badnik_crabmeat:
    ld     (ix+10), l                   ; 01:6696 - DD 75 0A
    ld     (ix+11), h                   ; 01:6699 - DD 74 0B
    ld     (ix+12), a                   ; 01:669C - DD 77 0C
-   ld     hl, (var_D214)               ; 01:669F - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 01:669F - 2A 14 D2
    ld     a, (hl)                      ; 01:66A2 - 7E
    add    a, a                         ; 01:66A3 - 87
    ld     e, a                         ; 01:66A4 - 5F
@@ -13463,10 +13472,10 @@ objfunc_08_badnik_crabmeat:
    ld     de, SPRITEMAP_crabmeat_frames  ; 01:66AC - 11 F9 66
    call   do_framed_animation          ; 01:66AF - CD 41 7C
    ld     hl, $0A04                    ; 01:66B2 - 21 04 0A
-   ld     (var_D214), hl               ; 01:66B5 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:66B5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:66B8 - CD 56 39
    ld     hl, $0804                    ; 01:66BB - 21 04 08
-   ld     (var_D20E), hl               ; 01:66BE - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:66BE - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:66C1 - D4 E5 35
    ret                                 ; 01:66C4 - C9
 
@@ -13522,7 +13531,7 @@ objfunc_09_platform_swing:
    ld     (ix+14), $10                 ; 01:6786 - DD 36 0E 10
    ld     l, (ix+2)                    ; 01:678A - DD 6E 02
    ld     h, (ix+3)                    ; 01:678D - DD 66 03
-   ld     (var_D20E), hl               ; 01:6790 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:6790 - 22 0E D2
    ld     hl, LUT_swing_xy_table       ; 01:6793 - 21 2F 68
    ld     e, (ix+17)                   ; 01:6796 - DD 5E 11
    ld     d, $00                       ; 01:6799 - 16 00
@@ -13541,10 +13550,10 @@ objfunc_09_platform_swing:
    add    hl, de                       ; 01:67AB - 19
    ld     (ix+2), l                    ; 01:67AC - DD 75 02
    ld     (ix+3), h                    ; 01:67AF - DD 74 03
-   ld     de, (var_D20E)               ; 01:67B2 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 01:67B2 - ED 5B 0E D2
    and    a                            ; 01:67B6 - A7
    sbc    hl, de                       ; 01:67B7 - ED 52
-   ld     (var_D20E), hl               ; 01:67B9 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:67B9 - 22 0E D2
    inc    bc                           ; 01:67BC - 03
    ld     d, $00                       ; 01:67BD - 16 00
    ld     a, (bc)                      ; 01:67BF - 0A
@@ -13563,11 +13572,11 @@ objfunc_09_platform_swing:
    and    a                            ; 01:67D6 - A7
    jp     m, @skip_sonic_collision     ; 01:67D7 - FA F9 67
    ld     hl, $0806                    ; 01:67DA - 21 06 08
-   ld     (var_D214), hl               ; 01:67DD - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:67DD - 22 14 D2
    call   check_collision_with_sonic   ; 01:67E0 - CD 56 39
    jr     c, @skip_sonic_collision     ; 01:67E3 - 38 14
    ld     hl, (sonic_x)                ; 01:67E5 - 2A FE D3
-   ld     de, (var_D20E)               ; 01:67E8 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 01:67E8 - ED 5B 0E D2
    add    hl, de                       ; 01:67EC - 19
    ld     (sonic_x), hl                ; 01:67ED - 22 FE D3
    ld     bc, $0010                    ; 01:67F0 - 01 10 00
@@ -13727,7 +13736,7 @@ objfunc_0B_platform_semilowering:
    and    a                            ; 01:6A00 - A7
    jp     m, @not_collided_with_sonic  ; 01:6A01 - FA 2E 6A
    ld     hl, $0806                    ; 01:6A04 - 21 06 08
-   ld     (var_D214), hl               ; 01:6A07 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6A07 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6A0A - CD 56 39
    jr     c, @not_collided_with_sonic  ; 01:6A0D - 38 1F
    ld     de, $0000                    ; 01:6A0F - 11 00 00
@@ -13785,7 +13794,7 @@ objfunc_0C_platform_fall_on_touch:
    and    a                            ; 01:6A7A - A7
    jp     m, @sonic_was_not_positioned_correctly  ; 01:6A7B - FA 99 6A
    ld     hl, $0806                    ; 01:6A7E - 21 06 08
-   ld     (var_D214), hl               ; 01:6A81 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6A81 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6A84 - CD 56 39
    jr     c, @sonic_was_not_positioned_correctly  ; 01:6A87 - 38 10
    ld     (ix+22), $01                 ; 01:6A89 - DD 36 16 01
@@ -13824,7 +13833,7 @@ objfunc_0D_fireball_pallet:
    ld     (ix+13), $02                 ; 01:6AC5 - DD 36 0D 02
    ld     (ix+14), $02                 ; 01:6AC9 - DD 36 0E 02
    ld     hl, $0303                    ; 01:6ACD - 21 03 03
-   ld     (var_D214), hl               ; 01:6AD0 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6AD0 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6AD3 - CD 56 39
    call   nc, damage_sonic             ; 01:6AD6 - D4 FD 35
    ld     l, (ix+10)                   ; 01:6AD9 - DD 6E 0A
@@ -13839,13 +13848,13 @@ objfunc_0D_fireball_pallet:
    ld     (ix+12), a                   ; 01:6AF1 - DD 77 0C
    ld     l, (ix+2)                    ; 01:6AF4 - DD 6E 02
    ld     h, (ix+3)                    ; 01:6AF7 - DD 66 03
-   ld     (var_D20E), hl               ; 01:6AFA - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:6AFA - 22 0E D2
    ld     l, (ix+5)                    ; 01:6AFD - DD 6E 05
    ld     h, (ix+6)                    ; 01:6B00 - DD 66 06
-   ld     (var_D210), hl               ; 01:6B03 - 22 10 D2
+   ld     (tmp_02), hl                 ; 01:6B03 - 22 10 D2
    ld     hl, $0000                    ; 01:6B06 - 21 00 00
-   ld     (var_D212), hl               ; 01:6B09 - 22 12 D2
-   ld     (var_D214), hl               ; 01:6B0C - 22 14 D2
+   ld     (tmp_04), hl                 ; 01:6B09 - 22 12 D2
+   ld     (tmp_06), hl                 ; 01:6B0C - 22 14 D2
    ld     (ix+15), l                   ; 01:6B0F - DD 75 0F
    ld     (ix+16), h                   ; 01:6B12 - DD 74 10
    ld     hl, LUT_fireball_BRI3_LAB3   ; 01:6B15 - 21 72 6B
@@ -13954,7 +13963,7 @@ objfunc_0E_badnik_buzz_bomber:
 @find_next_state:
    ld     hl, LUT_buzz_bomber_state_sequence  ; 01:6BD9 - 21 D7 6C
    add    hl, de                       ; 01:6BDC - 19
-   ld     (var_D214), hl               ; 01:6BDD - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6BDD - 22 14 D2
    ld     a, (hl)                      ; 01:6BE0 - 7E
    and    a                            ; 01:6BE1 - A7
    jr     nz, @found_state             ; 01:6BE2 - 20 07
@@ -14051,7 +14060,7 @@ objfunc_0E_badnik_buzz_bomber:
    add    hl, de                       ; 01:6CAA - 19
    ld     (ix+17), l                   ; 01:6CAB - DD 75 11
    ld     (ix+18), h                   ; 01:6CAE - DD 74 12
-   ld     hl, (var_D214)               ; 01:6CB1 - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 01:6CB1 - 2A 14 D2
    ld     a, (hl)                      ; 01:6CB4 - 7E
    add    a, a                         ; 01:6CB5 - 87
    ld     e, a                         ; 01:6CB6 - 5F
@@ -14063,10 +14072,10 @@ objfunc_0E_badnik_buzz_bomber:
    ld     de, SPRITEMAP_buzz_bomber_frames  ; 01:6CBE - 11 F9 6C
    call   do_framed_animation          ; 01:6CC1 - CD 41 7C
    ld     hl, $1000                    ; 01:6CC4 - 21 00 10
-   ld     (var_D214), hl               ; 01:6CC7 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6CC7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6CCA - CD 56 39
    ld     hl, $1004                    ; 01:6CCD - 21 04 10
-   ld     (var_D20E), hl               ; 01:6CD0 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:6CD0 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:6CD3 - D4 E5 35
    ret                                 ; 01:6CD6 - C9
 
@@ -14116,7 +14125,7 @@ objfunc_0F_platform_horizontal:
    and    a                            ; 01:6D95 - A7
    jp     m, @sonic_was_not_positioned_correctly  ; 01:6D96 - FA B1 6D
    ld     hl, $0806                    ; 01:6D99 - 21 06 08
-   ld     (var_D214), hl               ; 01:6D9C - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6D9C - 22 14 D2
    call   check_collision_with_sonic   ; 01:6D9F - CD 56 39
    ld     c, $00                       ; 01:6DA2 - 0E 00
    jr     c, @sonic_was_not_positioned_correctly  ; 01:6DA4 - 38 0B
@@ -14183,7 +14192,7 @@ objfunc_10_badnik_motobug:
 @find_next_state:
    ld     hl, LUT_motobug_state_sequence  ; 01:6E1D - 21 96 6E
    add    hl, de                       ; 01:6E20 - 19
-   ld     (var_D214), hl               ; 01:6E21 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6E21 - 22 14 D2
    ld     a, (hl)                      ; 01:6E24 - 7E
    and    a                            ; 01:6E25 - A7
    jr     nz, @found_state             ; 01:6E26 - 20 07
@@ -14223,7 +14232,7 @@ objfunc_10_badnik_motobug:
    ld     (ix+10), $00                 ; 01:6E62 - DD 36 0A 00
    ld     (ix+11), $02                 ; 01:6E66 - DD 36 0B 02
    ld     (ix+12), $00                 ; 01:6E6A - DD 36 0C 00
-   ld     hl, (var_D214)               ; 01:6E6E - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 01:6E6E - 2A 14 D2
    ld     a, (hl)                      ; 01:6E71 - 7E
    add    a, a                         ; 01:6E72 - 87
    ld     e, a                         ; 01:6E73 - 5F
@@ -14236,10 +14245,10 @@ objfunc_10_badnik_motobug:
    ld     de, SPRITEMAP_motobug_frames  ; 01:6E7D - 11 CB 6E
    call   do_framed_animation          ; 01:6E80 - CD 41 7C
    ld     hl, $0203                    ; 01:6E83 - 21 03 02
-   ld     (var_D214), hl               ; 01:6E86 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6E86 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6E89 - CD 56 39
    ld     hl, $0000                    ; 01:6E8C - 21 00 00
-   ld     (var_D20E), hl               ; 01:6E8F - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:6E8F - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:6E92 - D4 E5 35
    ret                                 ; 01:6E95 - C9
 
@@ -14363,10 +14372,10 @@ objfunc_11_badnik_newtron:
    ld     (ix+15), c                   ; 01:6FD4 - DD 71 0F
    ld     (ix+16), b                   ; 01:6FD7 - DD 70 10
    ld     hl, $0202                    ; 01:6FDA - 21 02 02
-   ld     (var_D214), hl               ; 01:6FDD - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:6FDD - 22 14 D2
    call   check_collision_with_sonic   ; 01:6FE0 - CD 56 39
    ld     hl, $0000                    ; 01:6FE3 - 21 00 00
-   ld     (var_D20E), hl               ; 01:6FE6 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:6FE6 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:6FE9 - D4 E5 35
    ret                                 ; 01:6FEC - C9
 
@@ -14433,7 +14442,7 @@ objfunc_12_GHZ_boss:
    ld     l, (ix+20)                   ; 01:7088 - DD 6E 14
    ld     h, (ix+21)                   ; 01:708B - DD 66 15
    add    hl, de                       ; 01:708E - 19
-   ld     (var_D214), hl               ; 01:708F - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:708F - 22 14 D2
    ld     a, (hl)                      ; 01:7092 - 7E
    and    a                            ; 01:7093 - A7
    jr     nz, @found_state             ; 01:7094 - 20 08
@@ -14610,7 +14619,7 @@ objfunc_12_GHZ_boss:
    ld     (ix+7), l                    ; 01:7205 - DD 75 07
    ld     (ix+8), h                    ; 01:7208 - DD 74 08
    ld     (ix+9), c                    ; 01:720B - DD 71 09
-   ld     hl, (var_D214)               ; 01:720E - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 01:720E - 2A 14 D2
    ld     e, (hl)                      ; 01:7211 - 5E
    ld     d, $00                       ; 01:7212 - 16 00
    ld     hl, UNK_072C8                ; 01:7214 - 21 C8 72
@@ -14630,7 +14639,7 @@ objfunc_12_GHZ_boss:
    ld     (ix+15), l                   ; 01:722C - DD 75 0F
    ld     (ix+16), h                   ; 01:722F - DD 74 10
    ld     hl, $0012                    ; 01:7232 - 21 12 00
-   ld     (var_D216), hl               ; 01:7235 - 22 16 D2
+   ld     (tmp_08), hl                 ; 01:7235 - 22 16 D2
    call   addr_077BE                   ; 01:7238 - CD BE 77
    call   addr_079FA                   ; 01:723B - CD FA 79
    inc    (ix+19)                      ; 01:723E - DD 34 13
@@ -14751,7 +14760,7 @@ objfunc_25_animal_capsule:
    add    hl, de                       ; 01:73AB - 19
    ld     (g_level_limit_x1), hl       ; 01:73AC - 22 75 D2
    ld     hl, $0002                    ; 01:73AF - 21 02 00
-   ld     (var_D214), hl               ; 01:73B2 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:73B2 - 22 14 D2
    call   check_collision_with_sonic   ; 01:73B5 - CD 56 39
    jp     c, @sonic_was_not_positioned_correctly  ; 01:73B8 - DA 5B 74
    ld     a, (sonic_vel_y_hi)          ; 01:73BB - 3A 08 D4
@@ -14883,7 +14892,7 @@ objfunc_25_animal_capsule:
    .ENDIF
 
 @animal_spawning_subroutine:
-   ld     (var_D216), a                ; 01:74B6 - 32 16 D2
+   ld     (tmp_08), a                  ; 01:74B6 - 32 16 D2
    call   spawn_object                 ; 01:74B9 - CD 7B 7C
    ret    c                            ; 01:74BC - D8
    ld     e, (ix+2)                    ; 01:74BD - DD 5E 02
@@ -14893,7 +14902,7 @@ objfunc_25_animal_capsule:
    push   ix                           ; 01:74C9 - DD E5
    push   hl                           ; 01:74CB - E5
    pop    ix                           ; 01:74CC - DD E1
-   ld     a, (var_D216)                ; 01:74CE - 3A 16 D2
+   ld     a, (tmp_08)                  ; 01:74CE - 3A 16 D2
    ld     (ix+0), a                    ; 01:74D1 - DD 77 00
    xor    a                            ; 01:74D4 - AF
    ld     (ix+22), a                   ; 01:74D5 - DD 77 16
@@ -15152,7 +15161,7 @@ addr_077BE:
    and    a                            ; 01:77C8 - A7
    jp     nz, addr_07821               ; 01:77C9 - C2 21 78
    ld     hl, $0C08                    ; 01:77CC - 21 08 0C
-   ld     (var_D214), hl               ; 01:77CF - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:77CF - 22 14 D2
    call   check_collision_with_sonic   ; 01:77D2 - CD 56 39
    ret    c                            ; 01:77D5 - D8
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:77D6 - FD CB 05 46
@@ -15196,7 +15205,7 @@ addr_077E6:
    ld     (var_D2EC), a                ; 01:781E - 32 EC D2
 
 addr_07821:
-   ld     hl, (var_D216)               ; 01:7821 - 2A 16 D2
+   ld     hl, (tmp_08)                 ; 01:7821 - 2A 16 D2
    ld     de, UNK_07922                ; 01:7824 - 11 22 79
    add    hl, de                       ; 01:7827 - 19
    bit    1, (ix+24)                   ; 01:7828 - DD CB 18 4E
@@ -15222,7 +15231,7 @@ addr_07841:
    ld     (ix+11), a                   ; 01:784E - DD 77 0B
    ld     (ix+12), a                   ; 01:7851 - DD 77 0C
    ld     de, $0024                    ; 01:7854 - 11 24 00
-   ld     hl, (var_D216)               ; 01:7857 - 2A 16 D2
+   ld     hl, (tmp_08)                 ; 01:7857 - 2A 16 D2
    bit    1, (ix+24)                   ; 01:785A - DD CB 18 4E
    jr     z, addr_07863                ; 01:785E - 28 03
    ld     de, $0036                    ; 01:7860 - 11 36 00
@@ -15340,10 +15349,10 @@ addr_079FA:
    and    $02                          ; 01:7A07 - E6 02
    ld     l, (ix+2)                    ; 01:7A09 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7A0C - DD 66 03
-   ld     (var_D20E), hl               ; 01:7A0F - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:7A0F - 22 0E D2
    ld     l, (ix+5)                    ; 01:7A12 - DD 6E 05
    ld     h, (ix+6)                    ; 01:7A15 - DD 66 06
-   ld     (var_D210), hl               ; 01:7A18 - 22 10 D2
+   ld     (tmp_02), hl                 ; 01:7A18 - 22 10 D2
    ld     hl, $FFF8                    ; 01:7A1B - 21 F8 FF
    ld     de, $0010                    ; 01:7A1E - 11 10 00
    ld     c, $04                       ; 01:7A21 - 0E 04
@@ -15353,8 +15362,8 @@ addr_079FA:
    ld     c, $00                       ; 01:7A2C - 0E 00
 
 addr_07A2E:
-   ld     (var_D212), hl               ; 01:7A2E - 22 12 D2
-   ld     (var_D214), de               ; 01:7A31 - ED 53 14 D2
+   ld     (tmp_04), hl                 ; 01:7A2E - 22 12 D2
+   ld     (tmp_06), de                 ; 01:7A31 - ED 53 14 D2
    add    a, c                         ; 01:7A35 - 81
    call   draw_sprite                  ; 01:7A36 - CD 81 35
    ret                                 ; 01:7A39 - C9
@@ -15367,12 +15376,12 @@ addr_07A3A:
    and    $1F                          ; 01:7A42 - E6 1F
    ld     l, a                         ; 01:7A44 - 6F
    ld     h, $00                       ; 01:7A45 - 26 00
-   ld     (var_D20E), hl               ; 01:7A47 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:7A47 - 22 0E D2
    call   random_A                     ; 01:7A4A - CD 25 06
    and    $1F                          ; 01:7A4D - E6 1F
    ld     l, a                         ; 01:7A4F - 6F
    ld     h, $00                       ; 01:7A50 - 26 00
-   ld     (var_D210), hl               ; 01:7A52 - 22 10 D2
+   ld     (tmp_02), hl                 ; 01:7A52 - 22 10 D2
    pop    hl                           ; 01:7A55 - E1
    ld     e, (ix+2)                    ; 01:7A56 - DD 5E 02
    ld     d, (ix+3)                    ; 01:7A59 - DD 56 03
@@ -15384,12 +15393,12 @@ addr_07A3A:
    xor    a                            ; 01:7A67 - AF
    ld     (ix+0), $0A                  ; 01:7A68 - DD 36 00 0A
    ld     (ix+1), a                    ; 01:7A6C - DD 77 01
-   ld     hl, (var_D20E)               ; 01:7A6F - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 01:7A6F - 2A 0E D2
    add    hl, de                       ; 01:7A72 - 19
    ld     (ix+2), l                    ; 01:7A73 - DD 75 02
    ld     (ix+3), h                    ; 01:7A76 - DD 74 03
    ld     (ix+4), a                    ; 01:7A79 - DD 77 04
-   ld     hl, (var_D210)               ; 01:7A7C - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 01:7A7C - 2A 10 D2
    add    hl, bc                       ; 01:7A7F - 09
    ld     (ix+5), l                    ; 01:7A80 - DD 75 05
    ld     (ix+6), h                    ; 01:7A83 - DD 74 06
@@ -15412,7 +15421,7 @@ objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    ld     (ix+13), $40                 ; 01:7AAB - DD 36 0D 40
    ld     (ix+14), $40                 ; 01:7AAF - DD 36 0E 40
    ld     hl, $0000                    ; 01:7AB3 - 21 00 00
-   ld     (var_D214), hl               ; 01:7AB6 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:7AB6 - 22 14 D2
    call   check_collision_with_sonic   ; 01:7AB9 - CD 56 39
    ret    c                            ; 01:7ABC - D8
    bit    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:7ABD - FD CB 06 76
@@ -15836,10 +15845,10 @@ objfunc_26_badnik_chopper:
 
 @not_emerging:
    ld     hl, $0204                    ; 01:7DC9 - 21 04 02
-   ld     (var_D214), hl               ; 01:7DCC - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:7DCC - 22 14 D2
    call   check_collision_with_sonic   ; 01:7DCF - CD 56 39
    ld     hl, $0000                    ; 01:7DD2 - 21 00 00
-   ld     (var_D20E), hl               ; 01:7DD5 - 22 0E D2
+   ld     (tmp_00), hl                 ; 01:7DD5 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 01:7DD8 - D4 E5 35
    ret                                 ; 01:7DDB - C9
 
@@ -15881,7 +15890,7 @@ platform_downwards_common:
    and    a                            ; 01:7E4A - A7
    jp     m, @not_collided_with_sonic  ; 01:7E4B - FA 65 7E
    ld     hl, $0806                    ; 01:7E4E - 21 06 08
-   ld     (var_D214), hl               ; 01:7E51 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:7E51 - 22 14 D2
    call   check_collision_with_sonic   ; 01:7E54 - CD 56 39
    jr     c, @not_collided_with_sonic  ; 01:7E57 - 38 0C
    ld     bc, $0010                    ; 01:7E59 - 01 10 00
@@ -15964,7 +15973,7 @@ objfunc_29_log:
    and    a                            ; 01:7F2D - A7
    jp     m, log_obj_continue          ; 01:7F2E - FA 03 80
    ld     hl, $0806                    ; 01:7F31 - 21 06 08
-   ld     (var_D214), hl               ; 01:7F34 - 22 14 D2
+   ld     (tmp_06), hl                 ; 01:7F34 - 22 14 D2
    call   check_collision_with_sonic   ; 01:7F37 - CD 56 39
    jp     c, log_obj_continue          ; 01:7F3A - DA 03 80
    ld     bc, $0010                    ; 01:7F3D - 01 10 00
@@ -16281,7 +16290,7 @@ addr_0817D:
 
 addr_081E7:
    ld     hl, $005A                    ; 02:81E7 - 21 5A 00
-   ld     (var_D216), hl               ; 02:81EA - 22 16 D2
+   ld     (tmp_08), hl                 ; 02:81EA - 22 16 D2
    call   addr_077BE                   ; 02:81ED - CD BE 77
    call   addr_079FA                   ; 02:81F0 - CD FA 79
    ret                                 ; 02:81F3 - C9
@@ -16299,7 +16308,7 @@ objfunc_2B_UNKNOWN:
    ld     (ix+13), $0C                 ; 02:821C - DD 36 0D 0C
    ld     (ix+14), $10                 ; 02:8220 - DD 36 0E 10
    ld     hl, $0202                    ; 02:8224 - 21 02 02
-   ld     (var_D214), hl               ; 02:8227 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8227 - 22 14 D2
    call   check_collision_with_sonic   ; 02:822A - CD 56 39
    call   nc, damage_sonic             ; 02:822D - D4 FD 35
    ld     l, (ix+7)                    ; 02:8230 - DD 6E 07
@@ -16389,16 +16398,16 @@ objfunc_2D_UNKNOWN:
    ld     (ix+13), $10                 ; 02:82E6 - DD 36 0D 10
    ld     (ix+14), $0F                 ; 02:82EA - DD 36 0E 0F
    ld     hl, $0408                    ; 02:82EE - 21 08 04
-   ld     (var_D214), hl               ; 02:82F1 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:82F1 - 22 14 D2
    call   check_collision_with_sonic   ; 02:82F4 - CD 56 39
    call   nc, damage_sonic             ; 02:82F7 - D4 FD 35
    ld     (ix+13), $14                 ; 02:82FA - DD 36 0D 14
    ld     (ix+14), $20                 ; 02:82FE - DD 36 0E 20
    ld     hl, $1006                    ; 02:8302 - 21 06 10
-   ld     (var_D214), hl               ; 02:8305 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8305 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8308 - CD 56 39
    ld     hl, $0404                    ; 02:830B - 21 04 04
-   ld     (var_D20E), hl               ; 02:830E - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:830E - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8311 - D4 E5 35
    ld     l, (ix+10)                   ; 02:8314 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8317 - DD 66 0B
@@ -16463,7 +16472,7 @@ objfunc_2E_UNKNOWN:
    ld     (ix+16), a                   ; 02:83D7 - DD 77 10
    ld     l, a                         ; 02:83DA - 6F
    ld     h, a                         ; 02:83DB - 67
-   ld     (var_D20E), hl               ; 02:83DC - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:83DC - 22 0E D2
    bit    1, (ix+24)                   ; 02:83DF - DD CB 18 4E
    jr     nz, addr_083F2               ; 02:83E3 - 20 0D
    call   random_A                     ; 02:83E5 - CD 25 06
@@ -16512,7 +16521,7 @@ addr_08446:
    ld     (ix+10), l                   ; 02:8446 - DD 75 0A
    ld     (ix+11), h                   ; 02:8449 - DD 74 0B
    ld     (ix+12), c                   ; 02:844C - DD 71 0C
-   ld     (var_D20E), hl               ; 02:844F - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:844F - 22 0E D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:8452 - ED 5B 5D D2
    inc    d                            ; 02:8456 - 14
    ld     l, (ix+5)                    ; 02:8457 - DD 6E 05
@@ -16529,13 +16538,13 @@ addr_08446:
 
 addr_08467:
    ld     hl, $0402                    ; 02:8467 - 21 02 04
-   ld     (var_D214), hl               ; 02:846A - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:846A - 22 14 D2
    call   check_collision_with_sonic   ; 02:846D - CD 56 39
    ret    c                            ; 02:8470 - D8
    ld     a, (sonic_vel_y_hi)          ; 02:8471 - 3A 08 D4
    and    a                            ; 02:8474 - A7
    ret    m                            ; 02:8475 - F8
-   ld     de, (var_D20E)               ; 02:8476 - ED 5B 0E D2
+   ld     de, (tmp_00)                 ; 02:8476 - ED 5B 0E D2
    ld     bc, $0010                    ; 02:847A - 01 10 00
    call   put_sonic_y_pos_on_platform  ; 02:847D - CD C1 7C
    ret                                 ; 02:8480 - C9
@@ -16651,27 +16660,27 @@ addr_08565:
    ld     l, (ix+2)                    ; 02:856E - DD 6E 02
    ld     h, (ix+3)                    ; 02:8571 - DD 66 03
    add    hl, de                       ; 02:8574 - 19
-   ld     (var_D20E), hl               ; 02:8575 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8575 - 22 0E D2
    ld     l, (ix+5)                    ; 02:8578 - DD 6E 05
    ld     h, (ix+6)                    ; 02:857B - DD 66 06
    add    hl, bc                       ; 02:857E - 09
-   ld     (var_D210), hl               ; 02:857F - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:857F - 22 10 D2
    pop    hl                           ; 02:8582 - E1
    ld     b, $03                       ; 02:8583 - 06 03
 
 addr_08585:
    push   bc                           ; 02:8585 - C5
    ld     a, (hl)                      ; 02:8586 - 7E
-   ld     (var_D212), a                ; 02:8587 - 32 12 D2
+   ld     (tmp_04), a                  ; 02:8587 - 32 12 D2
    inc    hl                           ; 02:858A - 23
    ld     a, (hl)                      ; 02:858B - 7E
-   ld     (var_D213), a                ; 02:858C - 32 13 D2
+   ld     (tmp_05), a                  ; 02:858C - 32 13 D2
    inc    hl                           ; 02:858F - 23
    ld     a, (hl)                      ; 02:8590 - 7E
-   ld     (var_D214), a                ; 02:8591 - 32 14 D2
+   ld     (tmp_06), a                  ; 02:8591 - 32 14 D2
    inc    hl                           ; 02:8594 - 23
    ld     a, (hl)                      ; 02:8595 - 7E
-   ld     (var_D215), a                ; 02:8596 - 32 15 D2
+   ld     (tmp_07), a                  ; 02:8596 - 32 15 D2
    inc    hl                           ; 02:8599 - 23
    push   hl                           ; 02:859A - E5
    ld     c, $10                       ; 02:859B - 0E 10
@@ -16697,7 +16706,7 @@ addr_085AA:
 
 addr_085C7:
    ld     hl, $00A2                    ; 02:85C7 - 21 A2 00
-   ld     (var_D216), hl               ; 02:85CA - 22 16 D2
+   ld     (tmp_08), hl                 ; 02:85CA - 22 16 D2
    call   addr_077BE                   ; 02:85CD - CD BE 77
    ret                                 ; 02:85D0 - C9
 
@@ -16711,11 +16720,11 @@ addr_085D1:
    pop    ix                           ; 02:85DA - DD E1
    xor    a                            ; 02:85DC - AF
    ld     (ix+0), $0D                  ; 02:85DD - DD 36 00 0D
-   ld     hl, (var_D20E)               ; 02:85E1 - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 02:85E1 - 2A 0E D2
    ld     (ix+1), a                    ; 02:85E4 - DD 77 01
    ld     (ix+2), l                    ; 02:85E7 - DD 75 02
    ld     (ix+3), h                    ; 02:85EA - DD 74 03
-   ld     hl, (var_D210)               ; 02:85ED - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 02:85ED - 2A 10 D2
    ld     (ix+4), a                    ; 02:85F0 - DD 77 04
    ld     (ix+5), l                    ; 02:85F3 - DD 75 05
    ld     (ix+6), h                    ; 02:85F6 - DD 74 06
@@ -16725,7 +16734,7 @@ addr_085D1:
    ld     (ix+21), a                   ; 02:8602 - DD 77 15
    ld     (ix+22), a                   ; 02:8605 - DD 77 16
    ld     (ix+23), a                   ; 02:8608 - DD 77 17
-   ld     hl, (var_D212)               ; 02:860B - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:860B - 2A 12 D2
    xor    a                            ; 02:860E - AF
    bit    7, h                         ; 02:860F - CB 7C
    jr     z, addr_08614                ; 02:8611 - 28 01
@@ -16735,7 +16744,7 @@ addr_08614:
    ld     (ix+7), l                    ; 02:8614 - DD 75 07
    ld     (ix+8), h                    ; 02:8617 - DD 74 08
    ld     (ix+9), a                    ; 02:861A - DD 77 09
-   ld     hl, (var_D214)               ; 02:861D - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 02:861D - 2A 14 D2
    xor    a                            ; 02:8620 - AF
    bit    7, h                         ; 02:8621 - CB 7C
    jr     z, addr_08626                ; 02:8623 - 28 01
@@ -16854,47 +16863,47 @@ addr_08707:
 addr_0871B:
    ld     l, (ix+2)                    ; 02:871B - DD 6E 02
    ld     h, (ix+3)                    ; 02:871E - DD 66 03
-   ld     (var_D20E), hl               ; 02:8721 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8721 - 22 0E D2
    ld     l, (ix+5)                    ; 02:8724 - DD 6E 05
    ld     h, (ix+6)                    ; 02:8727 - DD 66 06
-   ld     (var_D210), hl               ; 02:872A - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:872A - 22 10 D2
    ld     hl, $0000                    ; 02:872D - 21 00 00
-   ld     (var_D212), hl               ; 02:8730 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8730 - 22 12 D2
    ld     l, (ix+17)                   ; 02:8733 - DD 6E 11
    ld     de, $0010                    ; 02:8736 - 11 10 00
    add    hl, de                       ; 02:8739 - 19
-   ld     (var_D214), hl               ; 02:873A - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:873A - 22 14 D2
    ld     hl, UNK_08830                ; 02:873D - 21 30 88
    call   addr_0881A                   ; 02:8740 - CD 1A 88
    ld     hl, $0028                    ; 02:8743 - 21 28 00
-   ld     (var_D212), hl               ; 02:8746 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8746 - 22 12 D2
    ld     a, $1C                       ; 02:8749 - 3E 1C
    sub    (ix+17)                      ; 02:874B - DD 96 11
    ld     l, a                         ; 02:874E - 6F
    ld     h, $00                       ; 02:874F - 26 00
    ld     de, $0010                    ; 02:8751 - 11 10 00
    add    hl, de                       ; 02:8754 - 19
-   ld     (var_D214), hl               ; 02:8755 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8755 - 22 14 D2
    ld     hl, UNK_08830                ; 02:8758 - 21 30 88
    call   addr_0881A                   ; 02:875B - CD 1A 88
    ld     hl, $002C                    ; 02:875E - 21 2C 00
-   ld     (var_D212), hl               ; 02:8761 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8761 - 22 12 D2
    ld     l, (ix+21)                   ; 02:8764 - DD 6E 15
    ld     h, (ix+22)                   ; 02:8767 - DD 66 16
-   ld     (var_D214), hl               ; 02:876A - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:876A - 22 14 D2
    ld     hl, UNK_08834                ; 02:876D - 21 34 88
    call   addr_0881A                   ; 02:8770 - CD 1A 88
    res    1, (ix+24)                   ; 02:8773 - DD CB 18 8E
    ld     (ix+13), $14                 ; 02:8777 - DD 36 0D 14
    ld     a, $02                       ; 02:877B - 3E 02
-   ld     (var_D214), a                ; 02:877D - 32 14 D2
+   ld     (tmp_06), a                  ; 02:877D - 32 14 D2
    ld     a, (ix+17)                   ; 02:8780 - DD 7E 11
    ld     c, a                         ; 02:8783 - 4F
    add    a, $08                       ; 02:8784 - C6 08
    ld     (ix+14), a                   ; 02:8786 - DD 77 0E
    ld     a, c                         ; 02:8789 - 79
    add    a, $04                       ; 02:878A - C6 04
-   ld     (var_D215), a                ; 02:878C - 32 15 D2
+   ld     (tmp_07), a                  ; 02:878C - 32 15 D2
    call   check_collision_with_sonic   ; 02:878F - CD 56 39
    jr     nc, addr_087BC               ; 02:8792 - 30 28
    ld     a, (sonic_vel_y_hi)          ; 02:8794 - 3A 08 D4
@@ -16902,7 +16911,7 @@ addr_0871B:
    ret    m                            ; 02:8798 - F8
    ld     (ix+13), $3C                 ; 02:8799 - DD 36 0D 3C
    ld     a, $2A                       ; 02:879D - 3E 2A
-   ld     (var_D214), a                ; 02:879F - 32 14 D2
+   ld     (tmp_06), a                  ; 02:879F - 32 14 D2
    ld     a, $1C                       ; 02:87A2 - 3E 1C
    sub    (ix+17)                      ; 02:87A4 - DD 96 11
    add    a, $08                       ; 02:87A7 - C6 08
@@ -16910,7 +16919,7 @@ addr_0871B:
    ld     a, $1C                       ; 02:87AC - 3E 1C
    sub    (ix+17)                      ; 02:87AE - DD 96 11
    add    a, $04                       ; 02:87B1 - C6 04
-   ld     (var_D215), a                ; 02:87B3 - 32 15 D2
+   ld     (tmp_07), a                  ; 02:87B3 - 32 15 D2
    call   check_collision_with_sonic   ; 02:87B6 - CD 56 39
    jr     nc, addr_087ED               ; 02:87B9 - 30 32
    ret                                 ; 02:87BB - C9
@@ -16951,7 +16960,7 @@ addr_087F9:
    ld     h, (ix+6)                    ; 02:87FC - DD 66 06
    ld     bc, $0010                    ; 02:87FF - 01 10 00
    add    hl, bc                       ; 02:8802 - 09
-   ld     a, (var_D215)                ; 02:8803 - 3A 15 D2
+   ld     a, (tmp_07)                  ; 02:8803 - 3A 15 D2
    sub    $04                          ; 02:8806 - D6 04
    ld     c, a                         ; 02:8808 - 4F
    add    hl, bc                       ; 02:8809 - 09
@@ -16970,10 +16979,10 @@ addr_0881A:
    ret    m                            ; 02:881C - F8
    push   hl                           ; 02:881D - E5
    call   draw_sprite                  ; 02:881E - CD 81 35
-   ld     hl, (var_D212)               ; 02:8821 - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:8821 - 2A 12 D2
    ld     de, $0008                    ; 02:8824 - 11 08 00
    add    hl, de                       ; 02:8827 - 19
-   ld     (var_D212), hl               ; 02:8828 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8828 - 22 12 D2
    pop    hl                           ; 02:882B - E1
    inc    hl                           ; 02:882C - 23
    jp     addr_0881A                   ; 02:882D - C3 1A 88
@@ -16995,10 +17004,10 @@ objfunc_3C_UNKNOWN:
    ld     (ix+13), $14                 ; 02:884E - DD 36 0D 14
    ld     (ix+14), $0C                 ; 02:8852 - DD 36 0E 0C
    ld     hl, $0A02                    ; 02:8856 - 21 02 0A
-   ld     (var_D214), hl               ; 02:8859 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8859 - 22 14 D2
    call   check_collision_with_sonic   ; 02:885C - CD 56 39
    ld     hl, $0008                    ; 02:885F - 21 08 00
-   ld     (var_D20E), hl               ; 02:8862 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8862 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8865 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8868 - 11 BE 88
    ld     bc, UNK_088B4                ; 02:886B - 01 B4 88
@@ -17012,10 +17021,10 @@ addr_08873:
    ld     (ix+13), $0C                 ; 02:887F - DD 36 0D 0C
    ld     (ix+14), $0C                 ; 02:8883 - DD 36 0E 0C
    ld     hl, $0202                    ; 02:8887 - 21 02 02
-   ld     (var_D214), hl               ; 02:888A - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:888A - 22 14 D2
    call   check_collision_with_sonic   ; 02:888D - CD 56 39
    ld     hl, $0000                    ; 02:8890 - 21 00 00
-   ld     (var_D20E), hl               ; 02:8893 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8893 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8896 - D4 E5 35
    ld     de, UNK_088BE                ; 02:8899 - 11 BE 88
    ld     bc, UNK_088B9                ; 02:889C - 01 B9 88
@@ -17095,7 +17104,7 @@ addr_0894B:
    ld     (ix+5), l                    ; 02:895F - DD 75 05
    ld     (ix+6), h                    ; 02:8962 - DD 74 06
    ld     hl, $0204                    ; 02:8965 - 21 04 02
-   ld     (var_D214), hl               ; 02:8968 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8968 - 22 14 D2
    call   check_collision_with_sonic   ; 02:896B - CD 56 39
    call   nc, damage_sonic             ; 02:896E - D4 FD 35
    ld     (ix+15), UNK_08987&$FF       ; 02:8971 - DD 36 0F 87
@@ -17150,12 +17159,12 @@ objfunc_3E_UNKNOWN:
 addr_08B14:
    ld     l, (ix+2)                    ; 02:8B14 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8B17 - DD 66 03
-   ld     (var_D20E), hl               ; 02:8B1A - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8B1A - 22 0E D2
    ld     l, (ix+5)                    ; 02:8B1D - DD 6E 05
    ld     h, (ix+6)                    ; 02:8B20 - DD 66 06
-   ld     (var_D210), hl               ; 02:8B23 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:8B23 - 22 10 D2
    ld     hl, $0000                    ; 02:8B26 - 21 00 00
-   ld     (var_D212), hl               ; 02:8B29 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8B29 - 22 12 D2
    ld     a, (g_global_tick_counter)   ; 02:8B2C - 3A 23 D2
    rlca                                ; 02:8B2F - 07
    rlca                                ; 02:8B30 - 07
@@ -17217,7 +17226,7 @@ addr_08B7F:
    jp     m, addr_08B93                ; 02:8B85 - FA 93 8B
    push   hl                           ; 02:8B88 - E5
    ld     d, $00                       ; 02:8B89 - 16 00
-   ld     (var_D214), de               ; 02:8B8B - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:8B8B - ED 53 14 D2
    call   draw_sprite                  ; 02:8B8F - CD 81 35
    pop    hl                           ; 02:8B92 - E1
 
@@ -17228,7 +17237,7 @@ addr_08B93:
    ld     (ix+16), b                   ; 02:8B99 - DD 70 10
    ld     d, (hl)                      ; 02:8B9C - 56
    ld     e, $04                       ; 02:8B9D - 1E 04
-   ld     (var_D214), de               ; 02:8B9F - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:8B9F - ED 53 14 D2
    inc    hl                           ; 02:8BA3 - 23
    ld     a, (hl)                      ; 02:8BA4 - 7E
    ld     (ix+13), $01                 ; 02:8BA5 - DD 36 0D 01
@@ -17340,7 +17349,7 @@ addr_08CBC:
    bit    7, (ix+24)                   ; 02:8CCB - DD CB 18 7E
    jr     nz, addr_08D1A               ; 02:8CCF - 20 49
    ld     hl, $0402                    ; 02:8CD1 - 21 02 04
-   ld     (var_D214), hl               ; 02:8CD4 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8CD4 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8CD7 - CD 56 39
    call   nc, damage_sonic             ; 02:8CDA - D4 FD 35
    ld     e, (ix+2)                    ; 02:8CDD - DD 5E 02
@@ -17451,11 +17460,11 @@ addr_08DAB:
    add    a, $09                       ; 02:8DB3 - C6 09
    ld     l, a                         ; 02:8DB5 - 6F
    ld     h, $00                       ; 02:8DB6 - 26 00
-   ld     (var_D214), hl               ; 02:8DB8 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8DB8 - 22 14 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8DBB - 2A 5A D2
-   ld     (var_D20E), hl               ; 02:8DBE - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8DBE - 22 0E D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8DC1 - 2A 5D D2
-   ld     (var_D210), hl               ; 02:8DC4 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:8DC4 - 22 10 D2
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:8DC7 - FD 7E 0A
    ld     hl, (var_D23C)               ; 02:8DCA - 2A 3C D2
    push   af                           ; 02:8DCD - F5
@@ -17482,13 +17491,13 @@ addr_08DE5:
    add    a, c                         ; 02:8DEE - 81
    ld     l, a                         ; 02:8DEF - 6F
    ld     h, $00                       ; 02:8DF0 - 26 00
-   ld     (var_D212), hl               ; 02:8DF2 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8DF2 - 22 12 D2
    ld     a, $00                       ; 02:8DF5 - 3E 00
    call   draw_sprite                  ; 02:8DF7 - CD 81 35
-   ld     hl, (var_D212)               ; 02:8DFA - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:8DFA - 2A 12 D2
    ld     de, $0008                    ; 02:8DFD - 11 08 00
    add    hl, de                       ; 02:8E00 - 19
-   ld     (var_D212), hl               ; 02:8E01 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:8E01 - 22 12 D2
    ld     a, $02                       ; 02:8E04 - 3E 02
    call   draw_sprite                  ; 02:8E06 - CD 81 35
    pop    hl                           ; 02:8E09 - E1
@@ -17525,10 +17534,10 @@ objfunc_41_UNKNOWN:
 addr_08E72:
    ld     l, (ix+2)                    ; 02:8E72 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8E75 - DD 66 03
-   ld     (var_D20E), hl               ; 02:8E78 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8E78 - 22 0E D2
    ld     l, (ix+5)                    ; 02:8E7B - DD 6E 05
    ld     h, (ix+6)                    ; 02:8E7E - DD 66 06
-   ld     (var_D210), hl               ; 02:8E81 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:8E81 - 22 10 D2
    ld     a, (ix+17)                   ; 02:8E84 - DD 7E 11
    add    a, a                         ; 02:8E87 - 87
    ld     e, a                         ; 02:8E88 - 5F
@@ -17536,10 +17545,10 @@ addr_08E72:
    ld     hl, UNK_08EB6                ; 02:8E8B - 21 B6 8E
    add    hl, de                       ; 02:8E8E - 19
    ld     e, (hl)                      ; 02:8E8F - 5E
-   ld     (var_D212), de               ; 02:8E90 - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:8E90 - ED 53 12 D2
    inc    hl                           ; 02:8E94 - 23
    ld     e, (hl)                      ; 02:8E95 - 5E
-   ld     (var_D214), de               ; 02:8E96 - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:8E96 - ED 53 14 D2
    ld     a, $0C                       ; 02:8E9A - 3E 0C
    call   draw_sprite                  ; 02:8E9C - CD 81 35
    inc    (ix+18)                      ; 02:8E9F - DD 34 12
@@ -17587,7 +17596,7 @@ addr_08EF8:
    ld     (ix+12), $FF                 ; 02:8F00 - DD 36 0C FF
    ld     l, (ix+2)                    ; 02:8F04 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8F07 - DD 66 03
-   ld     (var_D20E), hl               ; 02:8F0A - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8F0A - 22 0E D2
    ex     de, hl                       ; 02:8F0D - EB
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8F0E - 2A 5A D2
    ld     bc, $0008                    ; 02:8F11 - 01 08 00
@@ -17609,7 +17618,7 @@ addr_08F1B:
    jr     c, addr_08F56                ; 02:8F2A - 38 2A
    ld     l, (ix+5)                    ; 02:8F2C - DD 6E 05
    ld     h, (ix+6)                    ; 02:8F2F - DD 66 06
-   ld     (var_D210), hl               ; 02:8F32 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:8F32 - 22 10 D2
    ex     de, hl                       ; 02:8F35 - EB
    ld     hl, (g_water_level_y)        ; 02:8F36 - 2A DC D2
    and    a                            ; 02:8F39 - A7
@@ -17637,8 +17646,8 @@ addr_08F56:
 
 addr_08F5A:
    ld     hl, $0000                    ; 02:8F5A - 21 00 00
-   ld     (var_D212), hl               ; 02:8F5D - 22 12 D2
-   ld     (var_D214), hl               ; 02:8F60 - 22 14 D2
+   ld     (tmp_04), hl                 ; 02:8F5D - 22 12 D2
+   ld     (tmp_06), hl                 ; 02:8F60 - 22 14 D2
    ld     a, $0C                       ; 02:8F63 - 3E 0C
    call   draw_sprite                  ; 02:8F65 - CD 81 35
    inc    (ix+17)                      ; 02:8F68 - DD 34 11
@@ -17651,10 +17660,10 @@ objfunc_44_UNKNOWN:
    ld     (ix+13), $0C                 ; 02:8F6D - DD 36 0D 0C
    ld     (ix+14), $20                 ; 02:8F71 - DD 36 0E 20
    ld     hl, $0202                    ; 02:8F75 - 21 02 02
-   ld     (var_D214), hl               ; 02:8F78 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:8F78 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8F7B - CD 56 39
    ld     hl, $0800                    ; 02:8F7E - 21 00 08
-   ld     (var_D20E), hl               ; 02:8F81 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:8F81 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8F84 - D4 E5 35
    ld     l, (ix+10)                   ; 02:8F87 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8F8A - DD 66 0B
@@ -17877,7 +17886,7 @@ addr_0918A:
 
 addr_091B7:
    ld     hl, $0E02                    ; 02:91B7 - 21 02 0E
-   ld     (var_D214), hl               ; 02:91BA - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:91BA - 22 14 D2
    call   check_collision_with_sonic   ; 02:91BD - CD 56 39
    ret    c                            ; 02:91C0 - D8
    set    0, (ix+24)                   ; 02:91C1 - DD CB 18 C6
@@ -18071,12 +18080,12 @@ addr_09324:
    ld     h, (ix+3)                    ; 02:9343 - DD 66 03
    ld     de, $000F                    ; 02:9346 - 11 0F 00
    add    hl, de                       ; 02:9349 - 19
-   ld     (var_D20E), hl               ; 02:934A - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:934A - 22 0E D2
    ld     l, (ix+5)                    ; 02:934D - DD 6E 05
    ld     h, (ix+6)                    ; 02:9350 - DD 66 06
    ld     bc, $0022                    ; 02:9353 - 01 22 00
    add    hl, bc                       ; 02:9356 - 09
-   ld     (var_D210), hl               ; 02:9357 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:9357 - 22 10 D2
    ld     a, (ix+19)                   ; 02:935A - DD 7E 13
    and    a                            ; 02:935D - A7
    jp     z, addr_09432                ; 02:935E - CA 32 94
@@ -18090,11 +18099,11 @@ addr_09324:
    pop    ix                           ; 02:9372 - DD E1
    xor    a                            ; 02:9374 - AF
    ld     (ix+0), $2F                  ; 02:9375 - DD 36 00 2F
-   ld     hl, (var_D20E)               ; 02:9379 - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 02:9379 - 2A 0E D2
    ld     (ix+1), a                    ; 02:937C - DD 77 01
    ld     (ix+2), l                    ; 02:937F - DD 75 02
    ld     (ix+3), h                    ; 02:9382 - DD 74 03
-   ld     hl, (var_D210)               ; 02:9385 - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 02:9385 - 2A 10 D2
    ld     (ix+4), a                    ; 02:9388 - DD 77 04
    ld     (ix+5), l                    ; 02:938B - DD 75 05
    ld     (ix+6), h                    ; 02:938E - DD 74 06
@@ -18147,7 +18156,7 @@ addr_093CC:
 
 addr_093F7:
    ld     hl, $00A2                    ; 02:93F7 - 21 A2 00
-   ld     (var_D216), hl               ; 02:93FA - 22 16 D2
+   ld     (tmp_08), hl                 ; 02:93FA - 22 16 D2
    call   addr_077BE                   ; 02:93FD - CD BE 77
    ld     a, (var_D2EC)                ; 02:9400 - 3A EC D2
    cp     $08                          ; 02:9403 - FE 08
@@ -18156,14 +18165,14 @@ addr_093F7:
    ret    z                            ; 02:940A - C8
    ld     l, (ix+2)                    ; 02:940B - DD 6E 02
    ld     h, (ix+3)                    ; 02:940E - DD 66 03
-   ld     (var_D20E), hl               ; 02:9411 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:9411 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9414 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9417 - DD 66 06
-   ld     (var_D210), hl               ; 02:941A - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:941A - 22 10 D2
    ld     hl, $0010                    ; 02:941D - 21 10 00
-   ld     (var_D212), hl               ; 02:9420 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:9420 - 22 12 D2
    ld     hl, $0030                    ; 02:9423 - 21 30 00
-   ld     (var_D214), hl               ; 02:9426 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9426 - 22 14 D2
    ld     a, (g_global_tick_counter)   ; 02:9429 - 3A 23 D2
    and    $02                          ; 02:942C - E6 02
    call   draw_sprite                  ; 02:942E - CD 81 35
@@ -18174,25 +18183,25 @@ addr_09432:
    ld     h, (ix+3)                    ; 02:9435 - DD 66 03
    ld     de, $0004                    ; 02:9438 - 11 04 00
    add    hl, de                       ; 02:943B - 19
-   ld     (var_D20E), hl               ; 02:943C - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:943C - 22 0E D2
    ld     l, (ix+5)                    ; 02:943F - DD 6E 05
    ld     h, (ix+6)                    ; 02:9442 - DD 66 06
    ld     de, $FFFA                    ; 02:9445 - 11 FA FF
    add    hl, de                       ; 02:9448 - 19
-   ld     (var_D210), hl               ; 02:9449 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:9449 - 22 10 D2
    ld     hl, $FF00                    ; 02:944C - 21 00 FF
-   ld     (var_D212), hl               ; 02:944F - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:944F - 22 12 D2
    ld     hl, $FF00                    ; 02:9452 - 21 00 FF
-   ld     (var_D214), hl               ; 02:9455 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9455 - 22 14 D2
    ld     c, $04                       ; 02:9458 - 0E 04
    call   addr_085D1                   ; 02:945A - CD D1 85
    ld     l, (ix+2)                    ; 02:945D - DD 6E 02
    ld     h, (ix+3)                    ; 02:9460 - DD 66 03
    ld     de, $0020                    ; 02:9463 - 11 20 00
    add    hl, de                       ; 02:9466 - 19
-   ld     (var_D20E), hl               ; 02:9467 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:9467 - 22 0E D2
    ld     hl, $0100                    ; 02:946A - 21 00 01
-   ld     (var_D212), hl               ; 02:946D - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:946D - 22 12 D2
    ld     c, $04                       ; 02:9470 - 0E 04
    call   addr_085D1                   ; 02:9472 - CD D1 85
    ld     a, $01                       ; 02:9475 - 3E 01
@@ -18217,7 +18226,7 @@ objfunc_2F_UNKNOWN:
    ld     (ix+13), $08                 ; 02:94A9 - DD 36 0D 08
    ld     (ix+14), $0A                 ; 02:94AD - DD 36 0E 0A
    ld     hl, $0404                    ; 02:94B1 - 21 04 04
-   ld     (var_D214), hl               ; 02:94B4 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:94B4 - 22 14 D2
    call   check_collision_with_sonic   ; 02:94B7 - CD 56 39
    call   nc, damage_sonic             ; 02:94BA - D4 FD 35
    bit    1, (ix+24)                   ; 02:94BD - DD CB 18 4E
@@ -18427,10 +18436,10 @@ addr_09607:
 
 addr_09634:
    add    hl, de                       ; 02:9634 - 19
-   ld     (var_D20E), hl               ; 02:9635 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:9635 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9638 - DD 6E 05
    ld     h, (ix+6)                    ; 02:963B - DD 66 06
-   ld     (var_D210), hl               ; 02:963E - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:963E - 22 10 D2
    ld     a, (g_global_tick_counter)   ; 02:9641 - 3A 23 D2
    and    $0F                          ; 02:9644 - E6 0F
    ret    nz                           ; 02:9646 - C0
@@ -18441,11 +18450,11 @@ addr_09634:
    pop    ix                           ; 02:964E - DD E1
    xor    a                            ; 02:9650 - AF
    ld     (ix+0), $2A                  ; 02:9651 - DD 36 00 2A
-   ld     hl, (var_D20E)               ; 02:9655 - 2A 0E D2
+   ld     hl, (tmp_00)                 ; 02:9655 - 2A 0E D2
    ld     (ix+1), a                    ; 02:9658 - DD 77 01
    ld     (ix+2), l                    ; 02:965B - DD 75 02
    ld     (ix+3), h                    ; 02:965E - DD 74 03
-   ld     hl, (var_D210)               ; 02:9661 - 2A 10 D2
+   ld     hl, (tmp_02)                 ; 02:9661 - 2A 10 D2
    ld     (ix+4), a                    ; 02:9664 - DD 77 04
    ld     (ix+5), l                    ; 02:9667 - DD 75 05
    ld     (ix+6), h                    ; 02:966A - DD 74 06
@@ -18473,14 +18482,14 @@ objfunc_2A_UNKNOWN:
    ld     (ix+16), a                   ; 02:96B0 - DD 77 10
    ld     l, (ix+2)                    ; 02:96B3 - DD 6E 02
    ld     h, (ix+3)                    ; 02:96B6 - DD 66 03
-   ld     (var_D20E), hl               ; 02:96B9 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:96B9 - 22 0E D2
    ld     l, (ix+5)                    ; 02:96BC - DD 6E 05
    ld     h, (ix+6)                    ; 02:96BF - DD 66 06
-   ld     (var_D210), hl               ; 02:96C2 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:96C2 - 22 10 D2
    ld     l, a                         ; 02:96C5 - 6F
    ld     h, a                         ; 02:96C6 - 67
-   ld     (var_D212), hl               ; 02:96C7 - 22 12 D2
-   ld     (var_D214), hl               ; 02:96CA - 22 14 D2
+   ld     (tmp_04), hl                 ; 02:96C7 - 22 12 D2
+   ld     (tmp_06), hl                 ; 02:96CA - 22 14 D2
    ld     e, (ix+18)                   ; 02:96CD - DD 5E 12
    ld     d, $00                       ; 02:96D0 - 16 00
    ld     hl, UNK_096F5                ; 02:96D2 - 21 F5 96
@@ -18525,30 +18534,30 @@ objfunc_20_UNKNOWN:
    ld     (var_D23C), hl               ; 02:9719 - 22 3C D2
    ld     l, (ix+2)                    ; 02:971C - DD 6E 02
    ld     h, (ix+3)                    ; 02:971F - DD 66 03
-   ld     (var_D20E), hl               ; 02:9722 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:9722 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9725 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9728 - DD 66 06
-   ld     (var_D210), hl               ; 02:972B - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:972B - 22 10 D2
    ld     hl, $0000                    ; 02:972E - 21 00 00
-   ld     (var_D212), hl               ; 02:9731 - 22 12 D2
-   ld     (var_D214), hl               ; 02:9734 - 22 14 D2
+   ld     (tmp_04), hl                 ; 02:9731 - 22 12 D2
+   ld     (tmp_06), hl                 ; 02:9734 - 22 14 D2
    ld     a, (ix+18)                   ; 02:9737 - DD 7E 12
    and    a                            ; 02:973A - A7
    jr     z, addr_0974B                ; 02:973B - 28 0E
    cp     $08                          ; 02:973D - FE 08
    jr     nc, addr_0974B               ; 02:973F - 30 0A
    ld     hl, $0004                    ; 02:9741 - 21 04 00
-   ld     (var_D212), hl               ; 02:9744 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:9744 - 22 12 D2
    ld     a, $0C                       ; 02:9747 - 3E 0C
    jr     addr_0975C                   ; 02:9749 - 18 11
 
 addr_0974B:
    ld     a, $40                       ; 02:974B - 3E 40
    call   draw_sprite                  ; 02:974D - CD 81 35
-   ld     hl, (var_D212)               ; 02:9750 - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:9750 - 2A 12 D2
    ld     de, $0008                    ; 02:9753 - 11 08 00
    add    hl, de                       ; 02:9756 - 19
-   ld     (var_D212), hl               ; 02:9757 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:9757 - 22 12 D2
    ld     a, $42                       ; 02:975A - 3E 42
 
 addr_0975C:
@@ -18584,7 +18593,7 @@ addr_09767:
 
 addr_09797:
    ld     hl, $0206                    ; 02:9797 - 21 06 02
-   ld     (var_D214), hl               ; 02:979A - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:979A - 22 14 D2
    call   check_collision_with_sonic   ; 02:979D - CD 56 39
    jr     c, addr_097E3                ; 02:97A0 - 38 41
    ld     bc, (sonic_y)                ; 02:97A2 - ED 4B 01 D4
@@ -18716,7 +18725,7 @@ addr_09894:
    cp     $01                          ; 02:9897 - FE 01
    jr     nc, addr_098D3               ; 02:9899 - 30 38
    ld     hl, $140C                    ; 02:989B - 21 0C 14
-   ld     (var_D214), hl               ; 02:989E - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:989E - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98A1 - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:98A5 - DD 36 0E 16
    call   check_collision_with_sonic   ; 02:98A9 - CD 56 39
@@ -18743,7 +18752,7 @@ addr_098D3:
    ld     (ix+15), UNK_09A90&$FF       ; 02:98D8 - DD 36 0F 90
    ld     (ix+16), UNK_09A90>>8        ; 02:98DC - DD 36 10 9A
    ld     hl, $080F                    ; 02:98E0 - 21 0F 08
-   ld     (var_D214), hl               ; 02:98E3 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:98E3 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98E6 - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:98EA - DD 36 0E 16
    call   check_collision_with_sonic   ; 02:98EE - CD 56 39
@@ -18797,7 +18806,7 @@ addr_0995E:
    ld     (ix+15), UNK_09AA2&$FF       ; 02:995E - DD 36 0F A2
    ld     (ix+16), UNK_09AA2>>8        ; 02:9962 - DD 36 10 9A
    ld     hl, $021A                    ; 02:9966 - 21 1A 02
-   ld     (var_D214), hl               ; 02:9969 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9969 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:996C - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:9970 - DD 36 0E 16
    call   check_collision_with_sonic   ; 02:9974 - CD 56 39
@@ -18928,7 +18937,7 @@ addr_09B2C:
    and    a                            ; 02:9B32 - A7
    jr     nz, addr_09B6A               ; 02:9B33 - 20 35
    ld     hl, $0602                    ; 02:9B35 - 21 02 06
-   ld     (var_D214), hl               ; 02:9B38 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9B38 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B3B - CD 56 39
    ret    c                            ; 02:9B3E - D8
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:9B3F - 3A E8 D2
@@ -18967,7 +18976,7 @@ objfunc_13_UNKNOWN:
    ld     (ix+13), $1E                 ; 02:9B79 - DD 36 0D 1E
    ld     (ix+14), $60                 ; 02:9B7D - DD 36 0E 60
    ld     hl, $0000                    ; 02:9B81 - 21 00 00
-   ld     (var_D214), hl               ; 02:9B84 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9B84 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B87 - CD 56 39
    jr     c, addr_09BD1                ; 02:9B8A - 38 45
    ld     l, (ix+2)                    ; 02:9B8C - DD 6E 02
@@ -19049,7 +19058,7 @@ addr_09C19:
    cp     $64                          ; 02:9C24 - FE 64
    jr     nc, addr_09C34               ; 02:9C26 - 30 0C
    ld     hl, $0400                    ; 02:9C28 - 21 00 04
-   ld     (var_D214), hl               ; 02:9C2B - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9C2B - 22 14 D2
    call   check_collision_with_sonic   ; 02:9C2E - CD 56 39
    call   nc, damage_sonic             ; 02:9C31 - D4 FD 35
 
@@ -19117,12 +19126,12 @@ objfunc_16_UNKNOWN:
 addr_09CC2:
    ld     l, (ix+2)                    ; 02:9CC2 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9CC5 - DD 66 03
-   ld     (var_D20E), hl               ; 02:9CC8 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:9CC8 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9CCB - DD 6E 05
    ld     h, (ix+6)                    ; 02:9CCE - DD 66 06
-   ld     (var_D210), hl               ; 02:9CD1 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:9CD1 - 22 10 D2
    ld     hl, $0000                    ; 02:9CD4 - 21 00 00
-   ld     (var_D212), hl               ; 02:9CD7 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:9CD7 - 22 12 D2
    ld     a, (ix+17)                   ; 02:9CDA - DD 7E 11
    srl    a                            ; 02:9CDD - CB 3F
    srl    a                            ; 02:9CDF - CB 3F
@@ -19164,7 +19173,7 @@ addr_09D11:
    inc    hl                           ; 02:9D15 - 23
    ld     d, $00                       ; 02:9D16 - 16 00
    push   hl                           ; 02:9D18 - E5
-   ld     (var_D214), de               ; 02:9D19 - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:9D19 - ED 53 14 D2
    call   draw_sprite                  ; 02:9D1D - CD 81 35
    pop    hl                           ; 02:9D20 - E1
    pop    bc                           ; 02:9D21 - C1
@@ -19173,7 +19182,7 @@ addr_09D11:
    and    a                            ; 02:9D27 - A7
    jr     z, addr_09D36                ; 02:9D28 - 28 0C
    ld     hl, $0202                    ; 02:9D2A - 21 02 02
-   ld     (var_D214), hl               ; 02:9D2D - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9D2D - 22 14 D2
    call   check_collision_with_sonic   ; 02:9D30 - CD 56 39
    call   nc, damage_sonic             ; 02:9D33 - D4 FD 35
 
@@ -19219,7 +19228,7 @@ objfunc_17_UNKNOWN:
    cp     $28                          ; 02:9E04 - FE 28
    jr     nc, addr_09E33               ; 02:9E06 - 30 2B
    ld     hl, $0005                    ; 02:9E08 - 21 05 00
-   ld     (var_D214), hl               ; 02:9E0B - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9E0B - 22 14 D2
    call   check_collision_with_sonic   ; 02:9E0E - CD 56 39
    jr     c, addr_09E33                ; 02:9E11 - 38 20
    ld     de, $0005                    ; 02:9E13 - 11 05 00
@@ -19403,7 +19412,7 @@ objfunc_18_UNKNOWN:
    cp     $28                          ; 02:9F6C - FE 28
    jr     nc, addr_09F9C               ; 02:9F6E - 30 2C
    ld     hl, $0005                    ; 02:9F70 - 21 05 00
-   ld     (var_D214), hl               ; 02:9F73 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:9F73 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9F76 - CD 56 39
    jr     c, addr_09F9C                ; 02:9F79 - 38 21
    ld     de, $0005                    ; 02:9F7B - 11 05 00
@@ -19476,7 +19485,7 @@ objfunc_19_UNKNOWN:
    cp     $28                          ; 02:A02F - FE 28
    jr     nc, addr_0A05F               ; 02:A031 - 30 2C
    ld     hl, $0005                    ; 02:A033 - 21 05 00
-   ld     (var_D214), hl               ; 02:A036 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A036 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A039 - CD 56 39
    jr     c, addr_0A05F                ; 02:A03C - 38 21
    ld     de, $0005                    ; 02:A03E - 11 05 00
@@ -19572,7 +19581,7 @@ addr_0A11E:
 
 addr_0A12A:
    ld     hl, $0000                    ; 02:A12A - 21 00 00
-   ld     (var_D214), hl               ; 02:A12D - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A12D - 22 14 D2
    call   check_collision_with_sonic   ; 02:A130 - CD 56 39
    call   nc, damage_sonic             ; 02:A133 - D4 FD 35
    ld     de, UNK_0A173                ; 02:A136 - 11 73 A1
@@ -19617,10 +19626,10 @@ objfunc_1B_UNKNOWN:
    ld     (ix+13), $0A                 ; 02:A1AA - DD 36 0D 0A
    ld     (ix+14), $20                 ; 02:A1AE - DD 36 0E 20
    ld     hl, $0803                    ; 02:A1B2 - 21 03 08
-   ld     (var_D214), hl               ; 02:A1B5 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A1B5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A1B8 - CD 56 39
    ld     hl, $0E00                    ; 02:A1BB - 21 00 0E
-   ld     (var_D20E), hl               ; 02:A1BE - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:A1BE - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:A1C1 - D4 E5 35
    ld     (ix+10), $00                 ; 02:A1C4 - DD 36 0A 00
    ld     (ix+11), $01                 ; 02:A1C8 - DD 36 0B 01
@@ -19757,7 +19766,7 @@ objfunc_1C_UNKNOWN:
    ld     (ix+13), $0A                 ; 02:A340 - DD 36 0D 0A
    ld     (ix+14), $0F                 ; 02:A344 - DD 36 0E 0F
    ld     hl, $0101                    ; 02:A348 - 21 01 01
-   ld     (var_D214), hl               ; 02:A34B - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A34B - 22 14 D2
    call   check_collision_with_sonic   ; 02:A34E - CD 56 39
    call   nc, damage_sonic             ; 02:A351 - D4 FD 35
    bit    7, (ix+24)                   ; 02:A354 - DD CB 18 7E
@@ -19834,7 +19843,7 @@ objfunc_1D_floorbutton:
 
 addr_0A41A:
    ld     hl, $0001                    ; 02:A41A - 21 01 00
-   ld     (var_D214), hl               ; 02:A41D - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A41D - 22 14 D2
    call   check_collision_with_sonic   ; 02:A420 - CD 56 39
    jr     c, addr_0A464                ; 02:A423 - 38 3F
    ld     a, (sonic_vel_y_hi)          ; 02:A425 - 3A 08 D4
@@ -19900,7 +19909,7 @@ objfunc_1E_door_from_button:
    cp     $28                          ; 02:A4B5 - FE 28
    jr     nc, addr_0A4E5               ; 02:A4B7 - 30 2C
    ld     hl, $0005                    ; 02:A4B9 - 21 05 00
-   ld     (var_D214), hl               ; 02:A4BC - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A4BC - 22 14 D2
    call   check_collision_with_sonic   ; 02:A4BF - CD 56 39
    jr     c, addr_0A4E5                ; 02:A4C2 - 38 21
    ld     de, $0005                    ; 02:A4C4 - 11 05 00
@@ -20017,10 +20026,10 @@ addr_0A5B0:
 addr_0A5B3:
    ld     l, (ix+2)                    ; 02:A5B3 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A5B6 - DD 66 03
-   ld     (var_D20E), hl               ; 02:A5B9 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:A5B9 - 22 0E D2
    ld     l, (ix+5)                    ; 02:A5BC - DD 6E 05
    ld     h, (ix+6)                    ; 02:A5BF - DD 66 06
-   ld     (var_D210), hl               ; 02:A5C2 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:A5C2 - 22 10 D2
    bit    1, (ix+24)                   ; 02:A5C5 - DD CB 18 4E
    jr     nz, addr_0A614               ; 02:A5C9 - 20 49
    ld     hl, UNK_0A711                ; 02:A5CB - 21 11 A7
@@ -20037,10 +20046,10 @@ addr_0A5B3:
    call   addr_0A6A2                   ; 02:A5E5 - CD A2 A6
    ld     (ix+13), $06                 ; 02:A5E8 - DD 36 0D 06
    ld     hl, $0802                    ; 02:A5EC - 21 02 08
-   ld     (var_D214), hl               ; 02:A5EF - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A5EF - 22 14 D2
    call   check_collision_with_sonic   ; 02:A5F2 - CD 56 39
    ld     hl, $0000                    ; 02:A5F5 - 21 00 00
-   ld     (var_D20E), hl               ; 02:A5F8 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:A5F8 - 22 0E D2
    jr     c, addr_0A602                ; 02:A5FB - 38 05
    call   enemy_touched_sonic          ; 02:A5FD - CD E5 35
    jr     addr_0A65B                   ; 02:A600 - 18 59
@@ -20048,7 +20057,7 @@ addr_0A5B3:
 addr_0A602:
    ld     (ix+13), $16                 ; 02:A602 - DD 36 0D 16
    ld     hl, $0806                    ; 02:A606 - 21 06 08
-   ld     (var_D214), hl               ; 02:A609 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A609 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A60C - CD 56 39
    call   nc, damage_sonic             ; 02:A60F - D4 FD 35
    jr     addr_0A65B                   ; 02:A612 - 18 47
@@ -20068,7 +20077,7 @@ addr_0A614:
    call   addr_0A6A2                   ; 02:A62E - CD A2 A6
    ld     (ix+13), $10                 ; 02:A631 - DD 36 0D 10
    ld     hl, $0401                    ; 02:A635 - 21 01 04
-   ld     (var_D214), hl               ; 02:A638 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A638 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A63B - CD 56 39
    jr     c, addr_0A645                ; 02:A63E - 38 05
    call   damage_sonic                 ; 02:A640 - CD FD 35
@@ -20077,10 +20086,10 @@ addr_0A614:
 addr_0A645:
    ld     (ix+13), $16                 ; 02:A645 - DD 36 0D 16
    ld     hl, $0410                    ; 02:A649 - 21 10 04
-   ld     (var_D214), hl               ; 02:A64C - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A64C - 22 14 D2
    call   check_collision_with_sonic   ; 02:A64F - CD 56 39
    ld     hl, $0000                    ; 02:A652 - 21 00 00
-   ld     (var_D20E), hl               ; 02:A655 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:A655 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:A658 - D4 E5 35
 
 addr_0A65B:
@@ -20107,10 +20116,10 @@ addr_0A688:
    push   hl                           ; 02:A688 - E5
    ld     e, (hl)                      ; 02:A689 - 5E
    ld     d, $00                       ; 02:A68A - 16 00
-   ld     (var_D212), de               ; 02:A68C - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:A68C - ED 53 12 D2
    ld     l, (ix+19)                   ; 02:A690 - DD 6E 13
    ld     h, (ix+20)                   ; 02:A693 - DD 66 14
-   ld     (var_D214), hl               ; 02:A696 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A696 - 22 14 D2
    call   draw_sprite                  ; 02:A699 - CD 81 35
    pop    hl                           ; 02:A69C - E1
    ld     de, $0016                    ; 02:A69D - 11 16 00
@@ -20121,9 +20130,9 @@ addr_0A6A2:
    push   hl                           ; 02:A6A2 - E5
    ld     e, (hl)                      ; 02:A6A3 - 5E
    ld     d, $00                       ; 02:A6A4 - 16 00
-   ld     (var_D212), de               ; 02:A6A6 - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:A6A6 - ED 53 12 D2
    ld     hl, $0000                    ; 02:A6AA - 21 00 00
-   ld     (var_D214), hl               ; 02:A6AD - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:A6AD - 22 14 D2
    call   draw_sprite                  ; 02:A6B0 - CD 81 35
    pop    hl                           ; 02:A6B3 - E1
    ld     de, $0016                    ; 02:A6B4 - 11 16 00
@@ -20461,10 +20470,10 @@ objfunc_31_UNKNOWN:
 addr_0AAA0:
    ld     l, (ix+2)                    ; 02:AAA0 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AAA3 - DD 66 03
-   ld     (var_D20E), hl               ; 02:AAA6 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:AAA6 - 22 0E D2
    ld     l, (ix+5)                    ; 02:AAA9 - DD 6E 05
    ld     h, (ix+6)                    ; 02:AAAC - DD 66 06
-   ld     (var_D210), hl               ; 02:AAAF - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:AAAF - 22 10 D2
    ld     e, (ix+17)                   ; 02:AAB2 - DD 5E 11
    ld     d, $00                       ; 02:AAB5 - 16 00
    ld     hl, UNK_0AB01                ; 02:AAB7 - 21 01 AB
@@ -20479,11 +20488,11 @@ addr_0AAC0:
    ld     a, (de)                      ; 02:AAC1 - 1A
    ld     l, a                         ; 02:AAC2 - 6F
    ld     h, $00                       ; 02:AAC3 - 26 00
-   ld     (var_D212), hl               ; 02:AAC5 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:AAC5 - 22 12 D2
    inc    de                           ; 02:AAC8 - 13
    ld     a, (de)                      ; 02:AAC9 - 1A
    ld     l, a                         ; 02:AACA - 6F
-   ld     (var_D214), hl               ; 02:AACB - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:AACB - 22 14 D2
    inc    de                           ; 02:AACE - 13
    ld     a, (de)                      ; 02:AACF - 1A
    inc    de                           ; 02:AAD0 - 13
@@ -20497,7 +20506,7 @@ addr_0AADA:
    pop    bc                           ; 02:AADA - C1
    djnz   addr_0AAC0                   ; 02:AADB - 10 E3
    ld     hl, $0202                    ; 02:AADD - 21 02 02
-   ld     (var_D214), hl               ; 02:AAE0 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:AAE0 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AAE3 - CD 56 39
    call   nc, damage_sonic             ; 02:AAE6 - D4 FD 35
    ld     (ix+15), $00                 ; 02:AAE9 - DD 36 0F 00
@@ -20573,9 +20582,9 @@ addr_0AB9D:
    cp     $67                          ; 02:ABA5 - FE 67
    jp     nz, addr_0AC6A               ; 02:ABA7 - C2 6A AC
    ld     hl, $FFFE                    ; 02:ABAA - 21 FE FF
-   ld     (var_D212), hl               ; 02:ABAD - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:ABAD - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABB0 - 21 FC FF
-   ld     (var_D214), hl               ; 02:ABB3 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:ABB3 - 22 14 D2
    call   spawn_object                 ; 02:ABB6 - CD 7B 7C
    jp     c, addr_0AC76                ; 02:ABB9 - DA 76 AC
    ld     de, $0000                    ; 02:ABBC - 11 00 00
@@ -20583,27 +20592,27 @@ addr_0AB9D:
    ld     b, d                         ; 02:ABC0 - 42
    call   init_fireball_object         ; 02:ABC1 - CD 96 AC
    ld     hl, $0003                    ; 02:ABC4 - 21 03 00
-   ld     (var_D212), hl               ; 02:ABC7 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:ABC7 - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABCA - 21 FC FF
-   ld     (var_D214), hl               ; 02:ABCD - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:ABCD - 22 14 D2
    call   spawn_object                 ; 02:ABD0 - CD 7B 7C
    jp     c, addr_0AC76                ; 02:ABD3 - DA 76 AC
    ld     de, $0008                    ; 02:ABD6 - 11 08 00
    ld     bc, $0000                    ; 02:ABD9 - 01 00 00
    call   init_fireball_object         ; 02:ABDC - CD 96 AC
    ld     hl, $FFFE                    ; 02:ABDF - 21 FE FF
-   ld     (var_D212), hl               ; 02:ABE2 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:ABE2 - 22 12 D2
    ld     hl, $FFFE                    ; 02:ABE5 - 21 FE FF
-   ld     (var_D214), hl               ; 02:ABE8 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:ABE8 - 22 14 D2
    call   spawn_object                 ; 02:ABEB - CD 7B 7C
    jp     c, addr_0AC76                ; 02:ABEE - DA 76 AC
    ld     de, $0000                    ; 02:ABF1 - 11 00 00
    ld     bc, $0008                    ; 02:ABF4 - 01 08 00
    call   init_fireball_object         ; 02:ABF7 - CD 96 AC
    ld     hl, $0003                    ; 02:ABFA - 21 03 00
-   ld     (var_D212), hl               ; 02:ABFD - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:ABFD - 22 12 D2
    ld     hl, $FFFE                    ; 02:AC00 - 21 FE FF
-   ld     (var_D214), hl               ; 02:AC03 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:AC03 - 22 14 D2
    call   spawn_object                 ; 02:AC06 - CD 7B 7C
    jp     c, addr_0AC76                ; 02:AC09 - DA 76 AC
    ld     de, $0008                    ; 02:AC0C - 11 08 00
@@ -20657,7 +20666,7 @@ addr_0AC6A:
 
 addr_0AC76:
    ld     hl, $0202                    ; 02:AC76 - 21 02 02
-   ld     (var_D214), hl               ; 02:AC79 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:AC79 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AC7C - CD 56 39
    call   nc, damage_sonic             ; 02:AC7F - D4 FD 35
    ld     a, (g_global_tick_counter)   ; 02:AC82 - 3A 23 D2
@@ -20698,11 +20707,11 @@ init_fireball_object:
    ld     (ix+22), a                   ; 02:ACD0 - DD 77 16
    ld     (ix+23), a                   ; 02:ACD3 - DD 77 17
    ld     (ix+7), a                    ; 02:ACD6 - DD 77 07
-   ld     hl, (var_D212)               ; 02:ACD9 - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:ACD9 - 2A 12 D2
    ld     (ix+8), l                    ; 02:ACDC - DD 75 08
    ld     (ix+9), h                    ; 02:ACDF - DD 74 09
    ld     (ix+10), a                   ; 02:ACE2 - DD 77 0A
-   ld     hl, (var_D214)               ; 02:ACE5 - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 02:ACE5 - 2A 14 D2
    ld     (ix+11), l                   ; 02:ACE8 - DD 75 0B
    ld     (ix+12), h                   ; 02:ACEB - DD 74 0C
    pop    ix                           ; 02:ACEE - DD E1
@@ -20826,7 +20835,7 @@ objfunc_34_UNKNOWN:
 
 addr_0AE57:
    ld     hl, $0202                    ; 02:AE57 - 21 02 02
-   ld     (var_D214), hl               ; 02:AE5A - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:AE5A - 22 14 D2
    call   check_collision_with_sonic   ; 02:AE5D - CD 56 39
    call   nc, damage_sonic             ; 02:AE60 - D4 FD 35
    xor    a                            ; 02:AE63 - AF
@@ -20866,7 +20875,7 @@ addr_0AEA6:
    ld     (ix+15), UNK_0B0D5&$FF       ; 02:AEC1 - DD 36 0F D5
    ld     (ix+16), UNK_0B0D5>>8        ; 02:AEC5 - DD 36 10 B0
    ld     hl, $FF80                    ; 02:AEC9 - 21 80 FF
-   ld     (var_D216), hl               ; 02:AECC - 22 16 D2
+   ld     (tmp_08), hl                 ; 02:AECC - 22 16 D2
    call   addr_0AF98                   ; 02:AECF - CD 98 AF
    ld     (ix+22), $01                 ; 02:AED2 - DD 36 16 01
    jr     addr_0AEF9                   ; 02:AED6 - 18 21
@@ -20878,7 +20887,7 @@ addr_0AED8:
    ld     (ix+15), UNK_0B0E7&$FF       ; 02:AEE4 - DD 36 0F E7
    ld     (ix+16), UNK_0B0E7>>8        ; 02:AEE8 - DD 36 10 B0
    ld     hl, $0080                    ; 02:AEEC - 21 80 00
-   ld     (var_D216), hl               ; 02:AEEF - 22 16 D2
+   ld     (tmp_08), hl                 ; 02:AEEF - 22 16 D2
    call   addr_0AF98                   ; 02:AEF2 - CD 98 AF
    ld     (ix+22), $FF                 ; 02:AEF5 - DD 36 16 FF
 
@@ -20886,17 +20895,17 @@ addr_0AEF9:
    ld     (ix+13), $1C                 ; 02:AEF9 - DD 36 0D 1C
    ld     (ix+14), $1C                 ; 02:AEFD - DD 36 0E 1C
    ld     hl, $1212                    ; 02:AF01 - 21 12 12
-   ld     (var_D214), hl               ; 02:AF04 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:AF04 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AF07 - CD 56 39
    ld     hl, $1010                    ; 02:AF0A - 21 10 10
-   ld     (var_D20E), hl               ; 02:AF0D - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:AF0D - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:AF10 - D4 E5 35
    ld     l, (ix+2)                    ; 02:AF13 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AF16 - DD 66 03
-   ld     (var_D20E), hl               ; 02:AF19 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:AF19 - 22 0E D2
    ld     l, (ix+5)                    ; 02:AF1C - DD 6E 05
    ld     h, (ix+6)                    ; 02:AF1F - DD 66 06
-   ld     (var_D210), hl               ; 02:AF22 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:AF22 - 22 10 D2
    push   ix                           ; 02:AF25 - DD E5
    pop    hl                           ; 02:AF27 - E1
    ld     de, $0011                    ; 02:AF28 - 11 11 00
@@ -20916,24 +20925,24 @@ addr_0AF2E:
    add    hl, de                       ; 02:AF3D - 19
    push   hl                           ; 02:AF3E - E5
    ld     e, (hl)                      ; 02:AF3F - 5E
-   ld     (var_D212), de               ; 02:AF40 - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:AF40 - ED 53 12 D2
    inc    hl                           ; 02:AF44 - 23
    ld     e, (hl)                      ; 02:AF45 - 5E
-   ld     (var_D214), de               ; 02:AF46 - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:AF46 - ED 53 14 D2
    ld     a, $24                       ; 02:AF4A - 3E 24
    call   draw_sprite                  ; 02:AF4C - CD 81 35
    pop    hl                           ; 02:AF4F - E1
    ld     a, (hl)                      ; 02:AF50 - 7E
    inc    a                            ; 02:AF51 - 3C
    inc    a                            ; 02:AF52 - 3C
-   ld     (var_D214), a                ; 02:AF53 - 32 14 D2
+   ld     (tmp_06), a                  ; 02:AF53 - 32 14 D2
    add    a, $04                       ; 02:AF56 - C6 04
    ld     (ix+13), a                   ; 02:AF58 - DD 77 0D
    inc    hl                           ; 02:AF5B - 23
    ld     a, (hl)                      ; 02:AF5C - 7E
    inc    a                            ; 02:AF5D - 3C
    inc    a                            ; 02:AF5E - 3C
-   ld     (var_D215), a                ; 02:AF5F - 32 15 D2
+   ld     (tmp_07), a                  ; 02:AF5F - 32 15 D2
    add    a, $04                       ; 02:AF62 - C6 04
    ld     (ix+14), a                   ; 02:AF64 - DD 77 0E
    call   check_collision_with_sonic   ; 02:AF67 - CD 56 39
@@ -21032,7 +21041,7 @@ addr_0AFDB:
    add    hl, bc                       ; 02:B00A - 09
    ld     (ix+5), l                    ; 02:B00B - DD 75 05
    ld     (ix+6), h                    ; 02:B00E - DD 74 06
-   ld     hl, (var_D216)               ; 02:B011 - 2A 16 D2
+   ld     hl, (tmp_08)                 ; 02:B011 - 2A 16 D2
    ld     (ix+7), l                    ; 02:B014 - DD 75 07
    ld     (ix+8), h                    ; 02:B017 - DD 74 08
    xor    a                            ; 02:B01A - AF
@@ -21076,12 +21085,12 @@ objfunc_36_UNKNOWN:
    ld     (ix+13), $04                 ; 02:B100 - DD 36 0D 04
    ld     (ix+14), $0A                 ; 02:B104 - DD 36 0E 0A
    ld     hl, $0602                    ; 02:B108 - 21 02 06
-   ld     (var_D214), hl               ; 02:B10B - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:B10B - 22 14 D2
    call   check_collision_with_sonic   ; 02:B10E - CD 56 39
    call   nc, damage_sonic             ; 02:B111 - D4 FD 35
    ld     l, (ix+2)                    ; 02:B114 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B117 - DD 66 03
-   ld     (var_D20E), hl               ; 02:B11A - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:B11A - 22 0E D2
    ex     de, hl                       ; 02:B11D - EB
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:B11E - 2A 5A D2
    ld     bc, $FFF0                    ; 02:B121 - 01 F0 FF
@@ -21097,7 +21106,7 @@ objfunc_36_UNKNOWN:
    jr     c, addr_0B167                ; 02:B134 - 38 31
    ld     l, (ix+5)                    ; 02:B136 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B139 - DD 66 06
-   ld     (var_D210), hl               ; 02:B13C - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:B13C - 22 10 D2
    ex     de, hl                       ; 02:B13F - EB
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:B140 - 2A 5D D2
    ld     bc, $FFF0                    ; 02:B143 - 01 F0 FF
@@ -21112,8 +21121,8 @@ objfunc_36_UNKNOWN:
    sbc    hl, de                       ; 02:B154 - ED 52
    jr     c, addr_0B167                ; 02:B156 - 38 0F
    ld     hl, $0000                    ; 02:B158 - 21 00 00
-   ld     (var_D212), hl               ; 02:B15B - 22 12 D2
-   ld     (var_D214), hl               ; 02:B15E - 22 14 D2
+   ld     (tmp_04), hl                 ; 02:B15B - 22 12 D2
+   ld     (tmp_06), hl                 ; 02:B15E - 22 14 D2
    ld     a, $24                       ; 02:B161 - 3E 24
    call   draw_sprite                  ; 02:B163 - CD 81 35
    ret                                 ; 02:B166 - C9
@@ -21140,10 +21149,10 @@ addr_0B182:
    ld     (ix+16), $00                 ; 02:B186 - DD 36 10 00
    ld     l, (ix+2)                    ; 02:B18A - DD 6E 02
    ld     h, (ix+3)                    ; 02:B18D - DD 66 03
-   ld     (var_D20E), hl               ; 02:B190 - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:B190 - 22 0E D2
    ld     l, (ix+5)                    ; 02:B193 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B196 - DD 66 06
-   ld     (var_D210), hl               ; 02:B199 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:B199 - 22 10 D2
    ld     a, (ix+17)                   ; 02:B19C - DD 7E 11
    add    a, a                         ; 02:B19F - 87
    add    a, a                         ; 02:B1A0 - 87
@@ -21163,7 +21172,7 @@ addr_0B1AB:
    ld     d, $FF                       ; 02:B1B3 - 16 FF
 
 addr_0B1B5:
-   ld     (var_D212), de               ; 02:B1B5 - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:B1B5 - ED 53 12 D2
    inc    hl                           ; 02:B1B9 - 23
    ld     d, $00                       ; 02:B1BA - 16 00
    ld     e, (hl)                      ; 02:B1BC - 5E
@@ -21172,7 +21181,7 @@ addr_0B1B5:
    ld     d, $FF                       ; 02:B1C1 - 16 FF
 
 addr_0B1C3:
-   ld     (var_D214), de               ; 02:B1C3 - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:B1C3 - ED 53 14 D2
    inc    hl                           ; 02:B1C7 - 23
    ld     a, (hl)                      ; 02:B1C8 - 7E
    inc    hl                           ; 02:B1C9 - 23
@@ -21213,11 +21222,11 @@ addr_0B1E7:
    inc    hl                           ; 02:B203 - 23
    ld     d, (hl)                      ; 02:B204 - 56
    inc    hl                           ; 02:B205 - 23
-   ld     (var_D212), de               ; 02:B206 - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:B206 - ED 53 12 D2
    ld     e, (hl)                      ; 02:B20A - 5E
    inc    hl                           ; 02:B20B - 23
    ld     d, (hl)                      ; 02:B20C - 56
-   ld     (var_D214), de               ; 02:B20D - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:B20D - ED 53 14 D2
    inc    hl                           ; 02:B211 - 23
    ld     e, (hl)                      ; 02:B212 - 5E
    ld     d, $00                       ; 02:B213 - 16 00
@@ -21278,7 +21287,7 @@ addr_0B2B7:
    ld     (ix+13), $1E                 ; 02:B2DA - DD 36 0D 1E
    ld     (ix+14), $10                 ; 02:B2DE - DD 36 0E 10
    ld     hl, $0A02                    ; 02:B2E2 - 21 02 0A
-   ld     (var_D214), hl               ; 02:B2E5 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:B2E5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:B2E8 - CD 56 39
    jr     c, addr_0B329                ; 02:B2EB - 38 3C
    ld     hl, $0030                    ; 02:B2ED - 21 30 00
@@ -21307,12 +21316,12 @@ addr_0B2B7:
 addr_0B329:
    ld     l, (ix+2)                    ; 02:B329 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B32C - DD 66 03
-   ld     (var_D20E), hl               ; 02:B32F - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:B32F - 22 0E D2
    ld     l, (ix+5)                    ; 02:B332 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B335 - DD 66 06
-   ld     (var_D210), hl               ; 02:B338 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:B338 - 22 10 D2
    ld     hl, $FFF8                    ; 02:B33B - 21 F8 FF
-   ld     (var_D212), hl               ; 02:B33E - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:B33E - 22 12 D2
    ld     e, (ix+17)                   ; 02:B341 - DD 5E 11
    ld     d, $00                       ; 02:B344 - 16 00
    ld     hl, UNK_0B388                ; 02:B346 - 21 88 B3
@@ -21324,7 +21333,7 @@ addr_0B34C:
    ld     e, (hl)                      ; 02:B34D - 5E
    ld     d, $00                       ; 02:B34E - 16 00
    inc    hl                           ; 02:B350 - 23
-   ld     (var_D214), de               ; 02:B351 - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:B351 - ED 53 14 D2
    ld     a, (hl)                      ; 02:B355 - 7E
    inc    hl                           ; 02:B356 - 23
    cp     $FF                          ; 02:B357 - FE FF
@@ -21368,7 +21377,7 @@ addr_0B3B2:
    ld     (ix+15), UNK_0B45B&$FF       ; 02:B3BA - DD 36 0F 5B
    ld     (ix+16), UNK_0B45B>>8        ; 02:B3BE - DD 36 10 B4
    ld     hl, $0202                    ; 02:B3C2 - 21 02 02
-   ld     (var_D214), hl               ; 02:B3C5 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:B3C5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:B3C8 - CD 56 39
    call   nc, damage_sonic             ; 02:B3CB - D4 FD 35
    ld     l, (ix+1)                    ; 02:B3CE - DD 6E 01
@@ -21379,18 +21388,18 @@ addr_0B3B2:
    adc    a, $00                       ; 02:B3DB - CE 00
    ld     l, h                         ; 02:B3DD - 6C
    ld     h, a                         ; 02:B3DE - 67
-   ld     (var_D20E), hl               ; 02:B3DF - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:B3DF - 22 0E D2
    ld     l, (ix+5)                    ; 02:B3E2 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B3E5 - DD 66 06
-   ld     (var_D210), hl               ; 02:B3E8 - 22 10 D2
+   ld     (tmp_02), hl                 ; 02:B3E8 - 22 10 D2
    ld     hl, $0000                    ; 02:B3EB - 21 00 00
-   ld     (var_D212), hl               ; 02:B3EE - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:B3EE - 22 12 D2
    ld     hl, $FFF0                    ; 02:B3F1 - 21 F0 FF
-   ld     (var_D214), hl               ; 02:B3F4 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:B3F4 - 22 14 D2
    ld     a, $16                       ; 02:B3F7 - 3E 16
    call   draw_sprite                  ; 02:B3F9 - CD 81 35
    ld     hl, $0008                    ; 02:B3FC - 21 08 00
-   ld     (var_D212), hl               ; 02:B3FF - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:B3FF - 22 12 D2
    ld     a, $18                       ; 02:B402 - 3E 18
    call   draw_sprite                  ; 02:B404 - CD 81 35
    ld     l, (ix+2)                    ; 02:B407 - DD 6E 02
@@ -21472,12 +21481,12 @@ addr_0B48C:
    inc    hl                           ; 02:B4A8 - 23
    ld     d, (hl)                      ; 02:B4A9 - 56
    inc    hl                           ; 02:B4AA - 23
-   ld     (var_D212), de               ; 02:B4AB - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:B4AB - ED 53 12 D2
    ld     e, (hl)                      ; 02:B4AF - 5E
    inc    hl                           ; 02:B4B0 - 23
    ld     d, (hl)                      ; 02:B4B1 - 56
    inc    hl                           ; 02:B4B2 - 23
-   ld     (var_D214), de               ; 02:B4B3 - ED 53 14 D2
+   ld     (tmp_06), de                 ; 02:B4B3 - ED 53 14 D2
    ld     e, (hl)                      ; 02:B4B7 - 5E
    inc    hl                           ; 02:B4B8 - 23
    ld     d, (hl)                      ; 02:B4B9 - 56
@@ -21527,7 +21536,7 @@ addr_0B51F:
    ld     (ix+15), l                   ; 02:B51F - DD 75 0F
    ld     (ix+16), h                   ; 02:B522 - DD 74 10
    ld     a, $50                       ; 02:B525 - 3E 50
-   ld     (var_D216), a                ; 02:B527 - 32 16 D2
+   ld     (tmp_08), a                  ; 02:B527 - 32 16 D2
    call   addr_0B53B                   ; 02:B52A - CD 3B B5
    inc    (ix+17)                      ; 02:B52D - DD 34 11
    ld     a, (ix+17)                   ; 02:B530 - DD 7E 11
@@ -21537,7 +21546,7 @@ addr_0B51F:
    ret                                 ; 02:B53A - C9
 
 addr_0B53B:
-   ld     a, (var_D216)                ; 02:B53B - 3A 16 D2
+   ld     a, (tmp_08)                  ; 02:B53B - 3A 16 D2
    ld     l, a                         ; 02:B53E - 6F
    ld     de, $0010                    ; 02:B53F - 11 10 00
    ld     c, $00                       ; 02:B542 - 0E 00
@@ -21588,7 +21597,7 @@ addr_0B591:
    ld     (ix+13), $1E                 ; 02:B596 - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:B59A - DD 36 0E 1C
    ld     hl, $0802                    ; 02:B59E - 21 02 08
-   ld     (var_D214), hl               ; 02:B5A1 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:B5A1 - 22 14 D2
    call   check_collision_with_sonic   ; 02:B5A4 - CD 56 39
    ret    c                            ; 02:B5A7 - D8
    ld     e, (ix+10)                   ; 02:B5A8 - DD 5E 0A
@@ -21633,7 +21642,7 @@ addr_0B5C2:
    ld     (ix+21), a                   ; 02:B600 - DD 77 15
    ld     (ix+22), a                   ; 02:B603 - DD 77 16
    ld     (ix+23), a                   ; 02:B606 - DD 77 17
-   ld     hl, (var_D212)               ; 02:B609 - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:B609 - 2A 12 D2
    bit    7, h                         ; 02:B60C - CB 7C
    jr     z, addr_0B612                ; 02:B60E - 28 02
    ld     a, $FF                       ; 02:B610 - 3E FF
@@ -21643,7 +21652,7 @@ addr_0B612:
    ld     (ix+8), h                    ; 02:B615 - DD 74 08
    ld     (ix+9), a                    ; 02:B618 - DD 77 09
    xor    a                            ; 02:B61B - AF
-   ld     hl, (var_D214)               ; 02:B61C - 2A 14 D2
+   ld     hl, (tmp_06)                 ; 02:B61C - 2A 14 D2
    bit    7, h                         ; 02:B61F - CB 7C
    jr     z, addr_0B625                ; 02:B621 - 28 02
    ld     a, $FF                       ; 02:B623 - 3E FF
@@ -21807,7 +21816,7 @@ addr_0B793:
    ld     hl, UNK_0BA3B                ; 02:B79C - 21 3B BA
 
 addr_0B79F:
-   ld     de, var_D20E                 ; 02:B79F - 11 0E D2
+   ld     de, tmp_00                   ; 02:B79F - 11 0E D2
    ldi                                 ; 02:B7A2 - ED A0
    ldi                                 ; 02:B7A4 - ED A0
    ldi                                 ; 02:B7A6 - ED A0
@@ -21820,10 +21829,10 @@ addr_0B79F:
    inc    hl                           ; 02:B7B3 - 23
    push   hl                           ; 02:B7B4 - E5
    call   draw_sprite                  ; 02:B7B5 - CD 81 35
-   ld     hl, (var_D212)               ; 02:B7B8 - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:B7B8 - 2A 12 D2
    ld     de, $0008                    ; 02:B7BB - 11 08 00
    add    hl, de                       ; 02:B7BE - 19
-   ld     (var_D212), hl               ; 02:B7BF - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:B7BF - 22 12 D2
    pop    hl                           ; 02:B7C2 - E1
    ld     a, (hl)                      ; 02:B7C3 - 7E
    call   draw_sprite                  ; 02:B7C4 - CD 81 35
@@ -22196,18 +22205,18 @@ objfunc_46_UNKNOWN:
 
 addr_0BBA7:
    ld     hl, $0390                    ; 02:BBA7 - 21 90 03
-   ld     (var_D20E), hl               ; 02:BBAA - 22 0E D2
+   ld     (tmp_00), hl                 ; 02:BBAA - 22 0E D2
    ld     l, (ix+17)                   ; 02:BBAD - DD 6E 11
    ld     h, $00                       ; 02:BBB0 - 26 00
-   ld     (var_D212), hl               ; 02:BBB2 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:BBB2 - 22 12 D2
    ld     l, h                         ; 02:BBB5 - 6C
-   ld     (var_D214), hl               ; 02:BBB6 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:BBB6 - 22 14 D2
    ld     de, $011A                    ; 02:BBB9 - 11 1A 01
    ld     hl, UNK_0BCDD                ; 02:BBBC - 21 DD BC
    call   addr_0BCA5                   ; 02:BBBF - CD A5 BC
    ld     e, (ix+17)                   ; 02:BBC2 - DD 5E 11
    ld     d, $00                       ; 02:BBC5 - 16 00
-   ld     (var_D212), de               ; 02:BBC7 - ED 53 12 D2
+   ld     (tmp_04), de                 ; 02:BBC7 - ED 53 12 D2
    ld     de, $01D2                    ; 02:BBCB - 11 D2 01
    ld     hl, UNK_0BCDD                ; 02:BBCE - 21 DD BC
    call   addr_0BCA5                   ; 02:BBD1 - CD A5 BC
@@ -22327,7 +22336,7 @@ addr_0BC88:
    ret                                 ; 02:BCA4 - C9
 
 addr_0BCA5:
-   ld     (var_D210), de               ; 02:BCA5 - ED 53 10 D2
+   ld     (tmp_02), de                 ; 02:BCA5 - ED 53 10 D2
    ld     a, (hl)                      ; 02:BCA9 - 7E
    inc    hl                           ; 02:BCAA - 23
    push   hl                           ; 02:BCAB - E5
@@ -22336,14 +22345,14 @@ addr_0BCA5:
    ld     a, (hl)                      ; 02:BCB0 - 7E
    inc    hl                           ; 02:BCB1 - 23
    push   hl                           ; 02:BCB2 - E5
-   ld     hl, (var_D212)               ; 02:BCB3 - 2A 12 D2
+   ld     hl, (tmp_04)                 ; 02:BCB3 - 2A 12 D2
    push   hl                           ; 02:BCB6 - E5
    ld     de, $0008                    ; 02:BCB7 - 11 08 00
    add    hl, de                       ; 02:BCBA - 19
-   ld     (var_D212), hl               ; 02:BCBB - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:BCBB - 22 12 D2
    call   draw_sprite                  ; 02:BCBE - CD 81 35
    pop    hl                           ; 02:BCC1 - E1
-   ld     (var_D212), hl               ; 02:BCC2 - 22 12 D2
+   ld     (tmp_04), hl                 ; 02:BCC2 - 22 12 D2
    pop    hl                           ; 02:BCC5 - E1
    ret                                 ; 02:BCC6 - C9
 
@@ -22358,7 +22367,7 @@ objfunc_47_UNKNOWN:
    set    5, (ix+24)                   ; 02:BCDF - DD CB 18 EE
    set    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:BCE3 - FD CB 08 EE
    ld     hl, $0202                    ; 02:BCE7 - 21 02 02
-   ld     (var_D214), hl               ; 02:BCEA - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:BCEA - 22 14 D2
    call   check_collision_with_sonic   ; 02:BCED - CD 56 39
    jr     c, addr_0BCFC                ; 02:BCF0 - 38 0A
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:BCF2 - FD CB 05 46
@@ -22550,7 +22559,7 @@ addr_0BE96:
    bit    0, (ix+24)                   ; 02:BE9E - DD CB 18 46
    jr     nz, addr_0BED7               ; 02:BEA2 - 20 33
    ld     hl, $1008                    ; 02:BEA4 - 21 08 10
-   ld     (var_D214), hl               ; 02:BEA7 - 22 14 D2
+   ld     (tmp_06), hl                 ; 02:BEA7 - 22 14 D2
    call   check_collision_with_sonic   ; 02:BEAA - CD 56 39
    jr     c, addr_0BED7                ; 02:BEAD - 38 28
    ld     de, $0001                    ; 02:BEAF - 11 01 00
