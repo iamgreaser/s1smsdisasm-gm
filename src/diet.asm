@@ -84,8 +84,8 @@ BANKS 16
 .DEF IYBASE $D200
 
 .RAMSECTION "RAMSection" SLOT 3 FORCE ORGA $C000
-var_C000 db   ; C000 (auto)
-var_C001 db   ; C001 (auto)
+g_level_layout db   ; C000
+g_level_layout_1 db   ; C001
 .  dsb 4094
 g_sprite_table db   ; D000
 g_sprite_table_0_y db   ; D001
@@ -805,8 +805,8 @@ reset_init:
 .ENDIF
 
    ;; Clear memory and set the stack pointer. This one's already somewhat optimised.
-   ld     hl, var_C000                 ; 00:029F - 21 00 C0
-   ld     de, var_C001                 ; 00:02A2 - 11 01 C0
+   ld     hl, g_level_layout           ; 00:029F - 21 00 C0
+   ld     de, g_level_layout_1         ; 00:02A2 - 11 01 C0
    ld     bc, $1FEF                    ; 00:02A5 - 01 EF 1F
    ld     (hl), l                      ; 00:02A8 - 75
    ldir                                ; 00:02A9 - ED B0
@@ -2412,7 +2412,7 @@ get_screen_tile_ptr_in_ram:
    add    a, c                         ; 00:08F5 - 81
    add    a, e                         ; 00:08F6 - 83
    ld     e, a                         ; 00:08F7 - 5F
-   ld     hl, var_C000                 ; 00:08F8 - 21 00 C0
+   ld     hl, g_level_layout           ; 00:08F8 - 21 00 C0
    add    hl, de                       ; 00:08FB - 19
    ret                                 ; 00:08FC - C9
 
@@ -2429,7 +2429,7 @@ get_screen_tile_ptr_in_ram:
    add    a, c                         ; 00:090F - 81
    add    a, e                         ; 00:0910 - 83
    ld     e, a                         ; 00:0911 - 5F
-   ld     hl, var_C000                 ; 00:0912 - 21 00 C0
+   ld     hl, g_level_layout           ; 00:0912 - 21 00 C0
    add    hl, de                       ; 00:0915 - 19
    ret                                 ; 00:0916 - C9
 
@@ -2448,7 +2448,7 @@ get_screen_tile_ptr_in_ram:
    add    a, c                         ; 00:092D - 81
    add    a, e                         ; 00:092E - 83
    ld     e, a                         ; 00:092F - 5F
-   ld     hl, var_C000                 ; 00:0930 - 21 00 C0
+   ld     hl, g_level_layout           ; 00:0930 - 21 00 C0
    add    hl, de                       ; 00:0933 - 19
    ret                                 ; 00:0934 - C9
 
@@ -2469,7 +2469,7 @@ get_screen_tile_ptr_in_ram:
    add    a, c                         ; 00:094F - 81
    add    a, e                         ; 00:0950 - 83
    ld     e, a                         ; 00:0951 - 5F
-   ld     hl, var_C000                 ; 00:0952 - 21 00 C0
+   ld     hl, g_level_layout           ; 00:0952 - 21 00 C0
    add    hl, de                       ; 00:0955 - 19
    ret                                 ; 00:0956 - C9
 
@@ -2480,7 +2480,7 @@ get_screen_tile_ptr_in_ram:
    ld     a, (g_level_scroll_tile_x)   ; 00:095C - 3A 57 D2
    add    a, c                         ; 00:095F - 81
    ld     e, a                         ; 00:0960 - 5F
-   ld     hl, var_C000                 ; 00:0961 - 21 00 C0
+   ld     hl, g_level_layout           ; 00:0961 - 21 00 C0
    add    hl, de                       ; 00:0964 - 19
    ret                                 ; 00:0965 - C9
 
@@ -2507,7 +2507,7 @@ get_screen_tile_ptr_in_ram:
    dec l  ; HL = g_level_scroll_tile_x
    add a, (hl)
    ld e, a
-   ld hl, var_C000
+   ld hl, g_level_layout
    add hl, de
    ret
    ; 1072 -> 1186
@@ -2649,7 +2649,7 @@ addr_009B6:
    ret                                 ; 00:0A0F - C9
 
 unpack_level_layout_into_ram:
-   ld     de, var_C000                 ; 00:0A10 - 11 00 C0
+   ld     de, g_level_layout           ; 00:0A10 - 11 00 C0
 .IF 1
    ;; Optimising this function should be a rite of passage.
    ;; Pre-decrement so we only need to read the top bit of B.
@@ -9018,7 +9018,7 @@ get_obj_level_tile_ptr_in_ram:
    ld     l, h                         ; 00:3732 - 6C
    ld     h, $00                       ; 00:3733 - 26 00
    add    hl, de                       ; 00:3735 - 19
-   ld     de, var_C000                 ; 00:3736 - 11 00 C0
+   ld     de, g_level_layout           ; 00:3736 - 11 00 C0
    add    hl, de                       ; 00:3739 - 19
    ret                                 ; 00:373A - C9
 
@@ -9045,7 +9045,7 @@ get_obj_level_tile_ptr_in_ram:
    ld     l, h                         ; 00:375B - 6C
    ld     h, $00                       ; 00:375C - 26 00
    add    hl, de                       ; 00:375E - 19
-   ld     de, var_C000                 ; 00:375F - 11 00 C0
+   ld     de, g_level_layout           ; 00:375F - 11 00 C0
    add    hl, de                       ; 00:3762 - 19
    ret                                 ; 00:3763 - C9
 
@@ -9070,7 +9070,7 @@ get_obj_level_tile_ptr_in_ram:
    ld     l, h                         ; 00:3781 - 6C
    ld     h, $00                       ; 00:3782 - 26 00
    add    hl, de                       ; 00:3784 - 19
-   ld     de, var_C000                 ; 00:3785 - 11 00 C0
+   ld     de, g_level_layout           ; 00:3785 - 11 00 C0
    add    hl, de                       ; 00:3788 - 19
    ret                                 ; 00:3789 - C9
 
@@ -9097,7 +9097,7 @@ get_obj_level_tile_ptr_in_ram:
    ld     l, h                         ; 00:37AA - 6C
    ld     h, $00                       ; 00:37AB - 26 00
    add    hl, de                       ; 00:37AD - 19
-   ld     de, var_C000                 ; 00:37AE - 11 00 C0
+   ld     de, g_level_layout           ; 00:37AE - 11 00 C0
    add    hl, de                       ; 00:37B1 - 19
    ret                                 ; 00:37B2 - C9
 
@@ -9127,7 +9127,7 @@ get_obj_level_tile_ptr_in_ram:
    ld     h, $00                       ; 00:37D7 - 26 00
    ld     e, h                         ; 00:37D9 - 5C
    add    hl, de                       ; 00:37DA - 19
-   ld     de, var_C000                 ; 00:37DB - 11 00 C0
+   ld     de, g_level_layout           ; 00:37DB - 11 00 C0
    add    hl, de                       ; 00:37DE - 19
    ret                                 ; 00:37DF - C9
 .ELSE
@@ -9171,9 +9171,9 @@ get_obj_level_tile_ptr_in_ram:
    add a, a
    rl h
    ld a, h
-   add a, <var_C000
+   add a, <g_level_layout
    ld l, a
-   ld h, >var_C000
+   ld h, >g_level_layout
    adc hl, de
    ret
 ; SAVING: 175 bytes
