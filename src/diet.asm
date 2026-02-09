@@ -14640,7 +14640,7 @@ objfunc_12_GHZ_boss:
    ld     (ix+16), h                   ; 01:722F - DD 74 10
    ld     hl, $0012                    ; 01:7232 - 21 12 00
    ld     (tmp_08), hl                 ; 01:7235 - 22 16 D2
-   call   addr_077BE                   ; 01:7238 - CD BE 77
+   call   boss_generic_update_8hp      ; 01:7238 - CD BE 77
    call   addr_079FA                   ; 01:723B - CD FA 79
    inc    (ix+19)                      ; 01:723E - DD 34 13
    ld     a, (ix+19)                   ; 01:7241 - DD 7E 13
@@ -15153,13 +15153,13 @@ SPRITEMAP_animal_0_on_ground_others:
 SPRITEMAP_animal_0_airborne_others:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $FF                 ; 01:77B1
 
-addr_077BE:
+boss_generic_update_8hp:
    ld     a, (g_boss_hits_taken)       ; 01:77BE - 3A EC D2
    cp     $08                          ; 01:77C1 - FE 08
-   jr     nc, addr_07841               ; 01:77C3 - 30 7C
+   jr     nc, @TODO_7841               ; 01:77C3 - 30 7C
    ld     a, (g_pal_flash_countdown_timer)  ; 01:77C5 - 3A B1 D2
    and    a                            ; 01:77C8 - A7
-   jp     nz, addr_07821               ; 01:77C9 - C2 21 78
+   jp     nz, @TODO_7821               ; 01:77C9 - C2 21 78
    ld     hl, $0C08                    ; 01:77CC - 21 08 0C
    ld     (tmp_06), hl                 ; 01:77CF - 22 14 D2
    call   check_collision_with_sonic   ; 01:77D2 - CD 56 39
@@ -15168,11 +15168,11 @@ addr_077BE:
    ret    nz                           ; 01:77DA - C0
    ld     a, (sonic_flags_ix_24)       ; 01:77DB - 3A 14 D4
    rrca                                ; 01:77DE - 0F
-   jr     c, addr_077E6                ; 01:77DF - 38 05
+   jr     c, @TODO_77E6                ; 01:77DF - 38 05
    and    $02                          ; 01:77E1 - E6 02
    jp     z, damage_sonic              ; 01:77E3 - CA FD 35
 
-addr_077E6:
+@TODO_77E6:
    ld     de, $0001                    ; 01:77E6 - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 01:77E9 - 2A 06 D4
    ld     a, l                         ; 01:77EC - 7D
@@ -15204,16 +15204,16 @@ addr_077E6:
    inc    a                            ; 01:781D - 3C
    ld     (g_boss_hits_taken), a       ; 01:781E - 32 EC D2
 
-addr_07821:
+@TODO_7821:
    ld     hl, (tmp_08)                 ; 01:7821 - 2A 16 D2
    ld     de, UNK_07922                ; 01:7824 - 11 22 79
    add    hl, de                       ; 01:7827 - 19
    bit    1, (ix+24)                   ; 01:7828 - DD CB 18 4E
-   jr     z, addr_07832                ; 01:782C - 28 04
+   jr     z, @TODO_7832                ; 01:782C - 28 04
    ld     de, $0012                    ; 01:782E - 11 12 00
    add    hl, de                       ; 01:7831 - 19
 
-addr_07832:
+@TODO_7832:
    ld     (ix+15), l                   ; 01:7832 - DD 75 0F
    ld     (ix+16), h                   ; 01:7835 - DD 74 10
    ld     hl, var_D2ED                 ; 01:7838 - 21 ED D2
@@ -15222,7 +15222,7 @@ addr_07832:
    ld     (hl), $00                    ; 01:783E - 36 00
    ret                                 ; 01:7840 - C9
 
-addr_07841:
+@TODO_7841:
    xor    a                            ; 01:7841 - AF
    ld     (ix+7), a                    ; 01:7842 - DD 77 07
    ld     (ix+8), a                    ; 01:7845 - DD 77 08
@@ -15233,10 +15233,10 @@ addr_07841:
    ld     de, $0024                    ; 01:7854 - 11 24 00
    ld     hl, (tmp_08)                 ; 01:7857 - 2A 16 D2
    bit    1, (ix+24)                   ; 01:785A - DD CB 18 4E
-   jr     z, addr_07863                ; 01:785E - 28 03
+   jr     z, @TODO_7863                ; 01:785E - 28 03
    ld     de, $0036                    ; 01:7860 - 11 36 00
 
-addr_07863:
+@TODO_7863:
    add    hl, de                       ; 01:7863 - 19
    ld     de, UNK_07922                ; 01:7864 - 11 22 79
    add    hl, de                       ; 01:7867 - 19
@@ -15245,7 +15245,7 @@ addr_07863:
    ld     hl, var_D2EE                 ; 01:786E - 21 EE D2
    ld     a, (hl)                      ; 01:7871 - 7E
    cp     $0A                          ; 01:7872 - FE 0A
-   jp     nc, addr_07882               ; 01:7874 - D2 82 78
+   jp     nc, @TODO_7882               ; 01:7874 - D2 82 78
    dec    hl                           ; 01:7877 - 2B
    dec    (hl)                         ; 01:7878 - 35
    ret    nz                           ; 01:7879 - C0
@@ -15255,10 +15255,10 @@ addr_07863:
    call   addr_07A3A                   ; 01:787E - CD 3A 7A
    ret                                 ; 01:7881 - C9
 
-addr_07882:
+@TODO_7882:
    ld     a, (var_D2EE)                ; 01:7882 - 3A EE D2
    cp     $3A                          ; 01:7885 - FE 3A
-   jr     nc, addr_078A1               ; 01:7887 - 30 18
+   jr     nc, @TODO_78A1               ; 01:7887 - 30 18
    ld     l, (ix+4)                    ; 01:7889 - DD 6E 04
    ld     h, (ix+5)                    ; 01:788C - DD 66 05
    ld     a, (ix+6)                    ; 01:788F - DD 7E 06
@@ -15269,16 +15269,16 @@ addr_07882:
    ld     (ix+5), h                    ; 01:789B - DD 74 05
    ld     (ix+6), a                    ; 01:789E - DD 77 06
 
-addr_078A1:
+@TODO_78A1:
    ld     hl, var_D2EE                 ; 01:78A1 - 21 EE D2
    ld     a, (hl)                      ; 01:78A4 - 7E
    cp     $5A                          ; 01:78A5 - FE 5A
-   jr     nc, addr_078AB               ; 01:78A7 - 30 02
+   jr     nc, @TODO_78AB               ; 01:78A7 - 30 02
    inc    (hl)                         ; 01:78A9 - 34
    ret                                 ; 01:78AA - C9
 
-addr_078AB:
-   jr     nz, addr_078C0               ; 01:78AB - 20 13
+@TODO_78AB:
+   jr     nz, @TODO_78C0               ; 01:78AB - 20 13
    ld     (hl), $5B                    ; 01:78AD - 36 5B
    ld     a, (g_level_music)           ; 01:78AF - 3A FC D2
    rst    $18                          ; 01:78B2 - DF
@@ -15287,7 +15287,7 @@ addr_078AB:
    call   wait_until_irq_ticked        ; 01:78BA - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 01:78BD - FD 77 0A
 
-addr_078C0:
+@TODO_78C0:
    ld     (ix+7), $00                  ; 01:78C0 - DD 36 07 00
    ld     (ix+8), $03                  ; 01:78C4 - DD 36 08 03
    ld     (ix+9), $00                  ; 01:78C8 - DD 36 09 00
@@ -15313,10 +15313,10 @@ addr_078C0:
    res    1, (iy+iy_02-IYBASE)         ; 01:7907 - FD CB 02 8E
    ld     a, (g_level)                 ; 01:790B - 3A 3E D2
    cp     $0B                          ; 01:790E - FE 0B
-   jr     nz, addr_07916               ; 01:7910 - 20 04
+   jr     nz, @TODO_7916               ; 01:7910 - 20 04
    set    1, (iy+iy_09-IYBASE)         ; 01:7912 - FD CB 09 CE
 
-addr_07916:
+@TODO_7916:
    ld     hl, ART_0C_DA28              ; 01:7916 - 21 28 DA
    ld     de, $2000                    ; 01:7919 - 11 00 20
    ld     a, $0C                       ; 01:791C - 3E 0C
@@ -16291,7 +16291,7 @@ objfunc_2C_JUN3_boss:
 @TODO_81E7:
    ld     hl, $005A                    ; 02:81E7 - 21 5A 00
    ld     (tmp_08), hl                 ; 02:81EA - 22 16 D2
-   call   addr_077BE                   ; 02:81ED - CD BE 77
+   call   boss_generic_update_8hp      ; 02:81ED - CD BE 77
    call   addr_079FA                   ; 02:81F0 - CD FA 79
    ret                                 ; 02:81F3 - C9
 
@@ -16707,7 +16707,7 @@ addr_085AA:
 addr_085C7:
    ld     hl, $00A2                    ; 02:85C7 - 21 A2 00
    ld     (tmp_08), hl                 ; 02:85CA - 22 16 D2
-   call   addr_077BE                   ; 02:85CD - CD BE 77
+   call   boss_generic_update_8hp      ; 02:85CD - CD BE 77
    ret                                 ; 02:85D0 - C9
 
 addr_085D1:
@@ -18157,7 +18157,7 @@ addr_093CC:
 addr_093F7:
    ld     hl, $00A2                    ; 02:93F7 - 21 A2 00
    ld     (tmp_08), hl                 ; 02:93FA - 22 16 D2
-   call   addr_077BE                   ; 02:93FD - CD BE 77
+   call   boss_generic_update_8hp      ; 02:93FD - CD BE 77
    ld     a, (g_boss_hits_taken)       ; 02:9400 - 3A EC D2
    cp     $08                          ; 02:9403 - FE 08
    ret    nc                           ; 02:9405 - D0
