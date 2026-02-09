@@ -21,7 +21,7 @@
 ;; - $7F causes a reset.
 ;; - $80 upwards behaves a bit like $00 upwards but things are weird and you have weird starting times and the clock goes in the middle of the screen... and you're stuck on the same level repeatedly.
 ;; - Go explore if you want to find out what the out-of-range values do.
-.DEF cht_starting_level $08
+.DEF cht_starting_level $00
 
 ;; bool: No Death On Hit
 .DEF cht_no_death_on_hit 0
@@ -269,7 +269,7 @@ g_sonic_bounce_vel_y_sub dw   ; D2E6
 g_sonic_bounce_vel_y_pix_hi db   ; D2E8
 var_D2E9 dw   ; D2E9
 .  dsb 1
-var_D2EC db   ; D2EC
+g_boss_hits_taken db   ; D2EC
 var_D2ED db   ; D2ED (auto)
 var_D2EE db   ; D2EE
 .  dsb 3
@@ -14406,7 +14406,7 @@ objfunc_12_GHZ_boss:
    ld     a, $0B                       ; 01:7044 - 3E 0B
    rst    $18                          ; 01:7046 - DF
    xor    a                            ; 01:7047 - AF
-   ld     (var_D2EC), a                ; 01:7048 - 32 EC D2
+   ld     (g_boss_hits_taken), a       ; 01:7048 - 32 EC D2
    ld     (ix+18), a                   ; 01:704B - DD 77 12
    ld     (ix+20), UNK_072A1&$FF       ; 01:704E - DD 36 14 A1
    ld     (ix+21), UNK_072A1>>8        ; 01:7052 - DD 36 15 72
@@ -15154,7 +15154,7 @@ SPRITEMAP_animal_0_airborne_others:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $18, $1A, $FF, $FF, $FF, $FF, $FF                 ; 01:77B1
 
 addr_077BE:
-   ld     a, (var_D2EC)                ; 01:77BE - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 01:77BE - 3A EC D2
    cp     $08                          ; 01:77C1 - FE 08
    jr     nc, addr_07841               ; 01:77C3 - 30 7C
    ld     a, (g_pal_flash_countdown_timer)  ; 01:77C5 - 3A B1 D2
@@ -15200,9 +15200,9 @@ addr_077E6:
    ld     (g_pal_flash_color_value), a  ; 01:7814 - 32 B3 D2
    ld     a, $01                       ; 01:7817 - 3E 01
    rst    $28                          ; 01:7819 - EF
-   ld     a, (var_D2EC)                ; 01:781A - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 01:781A - 3A EC D2
    inc    a                            ; 01:781D - 3C
-   ld     (var_D2EC), a                ; 01:781E - 32 EC D2
+   ld     (g_boss_hits_taken), a       ; 01:781E - 32 EC D2
 
 addr_07821:
    ld     hl, (tmp_08)                 ; 01:7821 - 2A 16 D2
@@ -16151,7 +16151,7 @@ objfunc_2C_JUN3_boss:
    ld     a, $0B                       ; 02:8087 - 3E 0B
    rst    $18                          ; 02:8089 - DF
    xor    a                            ; 02:808A - AF
-   ld     (var_D2EC), a                ; 02:808B - 32 EC D2
+   ld     (g_boss_hits_taken), a       ; 02:808B - 32 EC D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:808E - 2A 5A D2
    ld     (g_level_limit_x0), hl       ; 02:8091 - 22 73 D2
    ld     (g_level_limit_x1), hl       ; 02:8094 - 22 75 D2
@@ -16249,7 +16249,7 @@ objfunc_2C_JUN3_boss:
    ld     a, (ix+17)                   ; 02:817D - DD 7E 11
    xor    $02                          ; 02:8180 - EE 02
    ld     (ix+17), a                   ; 02:8182 - DD 77 11
-   ld     a, (var_D2EC)                ; 02:8185 - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:8185 - 3A EC D2
    cp     $08                          ; 02:8188 - FE 08
    jr     nc, @TODO_81E7               ; 02:818A - 30 5B
    call   spawn_object                 ; 02:818C - CD 7B 7C
@@ -16575,7 +16575,7 @@ objfunc_48_UNKNOWN:
    ld     a, $02                       ; 02:84CA - 3E 02
    call   signal_load_palettes         ; 02:84CC - CD 33 03
    xor    a                            ; 02:84CF - AF
-   ld     (var_D2EC), a                ; 02:84D0 - 32 EC D2
+   ld     (g_boss_hits_taken), a       ; 02:84D0 - 32 EC D2
    ld     a, $0B                       ; 02:84D3 - 3E 0B
    rst    $18                          ; 02:84D5 - DF
    set    0, (ix+24)                   ; 02:84D6 - DD CB 18 C6
@@ -16635,7 +16635,7 @@ addr_0852F:
    cp     $64                          ; 02:8542 - FE 64
    jp     nz, addr_085C7               ; 02:8544 - C2 C7 85
    inc    (ix+17)                      ; 02:8547 - DD 34 11
-   ld     a, (var_D2EC)                ; 02:854A - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:854A - 3A EC D2
    cp     $08                          ; 02:854D - FE 08
    jr     nc, addr_085C7               ; 02:854F - 30 76
    ld     hl, (sonic_x)                ; 02:8551 - 2A FE D3
@@ -17997,7 +17997,7 @@ objfunc_49_UNKNOWN:
    ld     a, $02                       ; 02:929F - 3E 02
    call   signal_load_palettes         ; 02:92A1 - CD 33 03
    xor    a                            ; 02:92A4 - AF
-   ld     (var_D2EC), a                ; 02:92A5 - 32 EC D2
+   ld     (g_boss_hits_taken), a       ; 02:92A5 - 32 EC D2
    ld     a, $0B                       ; 02:92A8 - 3E 0B
    rst    $18                          ; 02:92AA - DF
    set    0, (ix+24)                   ; 02:92AB - DD CB 18 C6
@@ -18089,7 +18089,7 @@ addr_09324:
    ld     a, (ix+19)                   ; 02:935A - DD 7E 13
    and    a                            ; 02:935D - A7
    jp     z, addr_09432                ; 02:935E - CA 32 94
-   ld     a, (var_D2EC)                ; 02:9361 - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:9361 - 3A EC D2
    cp     $08                          ; 02:9364 - FE 08
    jp     nc, addr_093F7               ; 02:9366 - D2 F7 93
    call   spawn_object                 ; 02:9369 - CD 7B 7C
@@ -18158,7 +18158,7 @@ addr_093F7:
    ld     hl, $00A2                    ; 02:93F7 - 21 A2 00
    ld     (tmp_08), hl                 ; 02:93FA - 22 16 D2
    call   addr_077BE                   ; 02:93FD - CD BE 77
-   ld     a, (var_D2EC)                ; 02:9400 - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:9400 - 3A EC D2
    cp     $08                          ; 02:9403 - FE 08
    ret    nc                           ; 02:9405 - D0
    bit    7, (ix+12)                   ; 02:9406 - DD CB 0C 7E
@@ -21696,7 +21696,7 @@ objfunc_4A_UNKNOWN:
    ld     (ix+19), l                   ; 02:B682 - DD 75 13
    ld     (ix+20), h                   ; 02:B685 - DD 74 14
    xor    a                            ; 02:B688 - AF
-   ld     (var_D2EC), a                ; 02:B689 - 32 EC D2
+   ld     (g_boss_hits_taken), a       ; 02:B689 - 32 EC D2
    ld     a, $0D                       ; 02:B68C - 3E 0D
    rst    $18                          ; 02:B68E - DF
    set    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:B68F - FD CB 08 E6
@@ -21836,7 +21836,7 @@ addr_0B79F:
    pop    hl                           ; 02:B7C2 - E1
    ld     a, (hl)                      ; 02:B7C3 - 7E
    call   draw_sprite                  ; 02:B7C4 - CD 81 35
-   ld     a, (var_D2EC)                ; 02:B7C7 - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:B7C7 - 3A EC D2
    cp     $0C                          ; 02:B7CA - FE 0C
    ret    c                            ; 02:B7CC - D8
    xor    a                            ; 02:B7CD - AF
@@ -21881,7 +21881,7 @@ addr_0B7F9:
    ld     (hl), $3F                    ; 02:B817 - 36 3F
    ld     a, $01                       ; 02:B819 - 3E 01
    rst    $28                          ; 02:B81B - EF
-   ld     hl, var_D2EC                 ; 02:B81C - 21 EC D2
+   ld     hl, g_boss_hits_taken        ; 02:B81C - 21 EC D2
    inc    (hl)                         ; 02:B81F - 34
    ret                                 ; 02:B820 - C9
 
@@ -22268,7 +22268,7 @@ addr_0BBF3:
    call   z, damage_sonic              ; 02:BC28 - CC FD 35
 
 addr_0BC2B:
-   ld     a, (var_D2EC)                ; 02:BC2B - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:BC2B - 3A EC D2
    cp     $06                          ; 02:BC2E - FE 06
    jr     nc, addr_0BC65               ; 02:BC30 - 30 33
    bit    1, (ix+24)                   ; 02:BC32 - DD CB 18 4E
@@ -22324,7 +22324,7 @@ addr_0BC88:
    ld     c, a                         ; 02:BC8F - 4F
    and    $40                          ; 02:BC90 - E6 40
    ret    nz                           ; 02:BC92 - C0
-   ld     a, (var_D2EC)                ; 02:BC93 - 3A EC D2
+   ld     a, (g_boss_hits_taken)       ; 02:BC93 - 3A EC D2
    cp     $06                          ; 02:BC96 - FE 06
    ret    z                            ; 02:BC98 - C8
    set    1, (ix+24)                   ; 02:BC99 - DD CB 18 CE
