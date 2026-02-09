@@ -235,7 +235,7 @@ g_ring_sparkle_sprite_x db   ; D31D
 g_ring_sparkle_sprite_y db   ; D31F
 .  dsb 1
 g_ring_sparkle_sprite_countdown_timer db   ; D321
-var_D322 db   ; D322 (auto)
+g_credits_sprites db   ; D322
 .  dsb 11
 g_per_level_checkpoint_positions dw   ; D32E
 .  dsb 36
@@ -244,12 +244,12 @@ g_level_header_copy db   ; D354
 g_object_ptrs dw   ; D37C
 g_active_object_ptrs dw   ; D37E
 .  dsb 60
-var_D3BC db   ; D3BC (auto)
+g_temporary_palette_buffer db   ; D3BC
 .  dsb 63
 object_list db   ; D3FC
 sonic_x_sub db   ; D3FD
 sonic_x db   ; D3FE
-var_D3FF db   ; D3FF
+sonic_x_hi db   ; D3FF
 sonic_y_sub db   ; D400
 sonic_y dw   ; D401
 sonic_vel_x_sub db   ; D403
@@ -2013,13 +2013,13 @@ addr_00A40:
 addr_00A5F:
    push   bc                           ; 00:0A5F - C5
    ld     hl, (g_current_displayed_palette_0)  ; 00:0A60 - 2A 30 D2
-   ld     de, var_D3BC                 ; 00:0A63 - 11 BC D3
+   ld     de, g_temporary_palette_buffer  ; 00:0A63 - 11 BC D3
    ld     b, $10                       ; 00:0A66 - 06 10
    call   palette_fade_to_black        ; 00:0A68 - CD 90 0A
    ld     hl, (g_current_displayed_palette_1)  ; 00:0A6B - 2A 32 D2
    ld     b, $10                       ; 00:0A6E - 06 10
    call   palette_fade_to_black        ; 00:0A70 - CD 90 0A
-   ld     hl, var_D3BC                 ; 00:0A73 - 21 BC D3
+   ld     hl, g_temporary_palette_buffer  ; 00:0A73 - 21 BC D3
    ld     a, $03                       ; 00:0A76 - 3E 03
    call   signal_load_palettes         ; 00:0A78 - CD 33 03
    ld     b, $0A                       ; 00:0A7B - 06 0A
@@ -2066,7 +2066,7 @@ palette_fade_to_black:
 addr_00AAE:
    ld     (tmp_06), hl                 ; 00:0AAE - 22 14 D2
    ld     hl, (g_current_displayed_palette_0)  ; 00:0AB1 - 2A 30 D2
-   ld     de, var_D3BC                 ; 00:0AB4 - 11 BC D3
+   ld     de, g_temporary_palette_buffer  ; 00:0AB4 - 11 BC D3
    ld     bc, $0020                    ; 00:0AB7 - 01 20 00
    ldir                                ; 00:0ABA - ED B0
    ld     a, $01                       ; 00:0ABC - 3E 01
@@ -2075,7 +2075,7 @@ addr_00AAE:
    ld     a, $02                       ; 00:0AC4 - 3E 02
    ld     (rompage_2), a               ; 00:0AC6 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0AC9 - 32 36 D2
-   ld     hl, var_D3BC                 ; 00:0ACC - 21 BC D3
+   ld     hl, g_temporary_palette_buffer  ; 00:0ACC - 21 BC D3
    ld     a, $03                       ; 00:0ACF - 3E 03
    call   signal_load_palettes         ; 00:0AD1 - CD 33 03
    ld     c, (iy+g_sprite_count-IYBASE)  ; 00:0AD4 - FD 4E 0A
@@ -2098,7 +2098,7 @@ addr_00AEB:
 addr_00AFC:
    push   bc                           ; 00:0AFC - C5
    ld     hl, (tmp_06)                 ; 00:0AFD - 2A 14 D2
-   ld     de, var_D3BC                 ; 00:0B00 - 11 BC D3
+   ld     de, g_temporary_palette_buffer  ; 00:0B00 - 11 BC D3
    ld     b, $20                       ; 00:0B03 - 06 20
 
 addr_00B05:
@@ -2142,7 +2142,7 @@ addr_00B2C:
    inc    de                           ; 00:0B2F - 13
    pop    bc                           ; 00:0B30 - C1
    djnz   addr_00B05                   ; 00:0B31 - 10 D2
-   ld     hl, var_D3BC                 ; 00:0B33 - 21 BC D3
+   ld     hl, g_temporary_palette_buffer  ; 00:0B33 - 21 BC D3
    ld     a, $03                       ; 00:0B36 - 3E 03
    call   signal_load_palettes         ; 00:0B38 - CD 33 03
    ld     b, $0A                       ; 00:0B3B - 06 0A
@@ -2159,7 +2159,7 @@ addr_00B3D:
 
 palette_fade_in_banks_01_02:
    ld     (tmp_06), hl                 ; 00:0B50 - 22 14 D2
-   ld     hl, var_D3BC                 ; 00:0B53 - 21 BC D3
+   ld     hl, g_temporary_palette_buffer  ; 00:0B53 - 21 BC D3
    ld     b, $20                       ; 00:0B56 - 06 20
 
 @clear_starting_palette:
@@ -2171,7 +2171,7 @@ palette_fade_in_banks_01_02:
 palette_fade_up:
    ld     (tmp_06), hl                 ; 00:0B60 - 22 14 D2
    ld     hl, (g_current_displayed_palette_0)  ; 00:0B63 - 2A 30 D2
-   ld     de, var_D3BC                 ; 00:0B66 - 11 BC D3
+   ld     de, g_temporary_palette_buffer  ; 00:0B66 - 11 BC D3
    ld     bc, $0020                    ; 00:0B69 - 01 20 00
    ldir                                ; 00:0B6C - ED B0
 
@@ -2182,7 +2182,7 @@ _palette_fade_up_common:
    ld     a, $02                       ; 00:0B76 - 3E 02
    ld     (rompage_2), a               ; 00:0B78 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0B7B - 32 36 D2
-   ld     hl, var_D3BC                 ; 00:0B7E - 21 BC D3
+   ld     hl, g_temporary_palette_buffer  ; 00:0B7E - 21 BC D3
    ld     a, $03                       ; 00:0B81 - 3E 03
    call   signal_load_palettes         ; 00:0B83 - CD 33 03
    ld     c, (iy+g_sprite_count-IYBASE)  ; 00:0B86 - FD 4E 0A
@@ -2205,7 +2205,7 @@ _palette_fade_up_common:
 --:
    push   bc                           ; 00:0BAE - C5
    ld     hl, (tmp_06)                 ; 00:0BAF - 2A 14 D2
-   ld     de, var_D3BC                 ; 00:0BB2 - 11 BC D3
+   ld     de, g_temporary_palette_buffer  ; 00:0BB2 - 11 BC D3
    ld     b, $20                       ; 00:0BB5 - 06 20
 
 -:
@@ -2249,7 +2249,7 @@ _palette_fade_up_common:
    inc    de                           ; 00:0BE1 - 13
    pop    bc                           ; 00:0BE2 - C1
    djnz   -                            ; 00:0BE3 - 10 D2
-   ld     hl, var_D3BC                 ; 00:0BE5 - 21 BC D3
+   ld     hl, g_temporary_palette_buffer  ; 00:0BE5 - 21 BC D3
    ld     a, $03                       ; 00:0BE8 - 3E 03
    call   signal_load_palettes         ; 00:0BEA - CD 33 03
    ld     b, $0A                       ; 00:0BED - 06 0A
@@ -5385,7 +5385,7 @@ addr_02693:
    ld     (tmp_00), a                  ; 00:26D3 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:26D6 - CD 01 05
    xor    a                            ; 00:26D9 - AF
-   ld     hl, var_D322                 ; 00:26DA - 21 22 D3
+   ld     hl, g_credits_sprites        ; 00:26DA - 21 22 D3
    ld     (hl), credits_sprite_00&$FF  ; 00:26DD - 36 48
    inc    hl                           ; 00:26DF - 23
    ld     (hl), credits_sprite_00>>8   ; 00:26E0 - 36 28
@@ -5436,7 +5436,7 @@ addr_0271C:
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2724 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:2728 - 21 00 D0
    ld     (var_D23C), hl               ; 00:272B - 22 3C D2
-   ld     hl, var_D322                 ; 00:272E - 21 22 D3
+   ld     hl, g_credits_sprites        ; 00:272E - 21 22 D3
    ld     b, $04                       ; 00:2731 - 06 04
 
 addr_02733:
@@ -9696,24 +9696,24 @@ objfunc_00_sonic:
    bit    7, (ix+24)                   ; 01:5578 - DD CB 18 7E
    ret    z                            ; 01:557C - C8
    ld     hl, (sonic_x_sub)            ; 01:557D - 2A FD D3
-   ld     a, (var_D3FF)                ; 01:5580 - 3A FF D3
+   ld     a, (sonic_x_hi)              ; 01:5580 - 3A FF D3
    ld     de, $FE80                    ; 01:5583 - 11 80 FE
    add    hl, de                       ; 01:5586 - 19
    adc    a, $FF                       ; 01:5587 - CE FF
    ld     (sonic_x_sub), hl            ; 01:5589 - 22 FD D3
-   ld     (var_D3FF), a                ; 01:558C - 32 FF D3
+   ld     (sonic_x_hi), a              ; 01:558C - 32 FF D3
    ret                                 ; 01:558F - C9
 
 @special_07:
    bit    7, (ix+24)                   ; 01:5590 - DD CB 18 7E
    ret    z                            ; 01:5594 - C8
    ld     hl, (sonic_x_sub)            ; 01:5595 - 2A FD D3
-   ld     a, (var_D3FF)                ; 01:5598 - 3A FF D3
+   ld     a, (sonic_x_hi)              ; 01:5598 - 3A FF D3
    ld     de, $0200                    ; 01:559B - 11 00 02
    add    hl, de                       ; 01:559E - 19
    adc    a, $00                       ; 01:559F - CE 00
    ld     (sonic_x_sub), hl            ; 01:55A1 - 22 FD D3
-   ld     (var_D3FF), a                ; 01:55A4 - 32 FF D3
+   ld     (sonic_x_hi), a              ; 01:55A4 - 32 FF D3
    ret                                 ; 01:55A7 - C9
 
 @special_08_underwater:
@@ -18925,11 +18925,11 @@ addr_0B2B7:
    ld     (ix+2), h                    ; 02:B314 - DD 74 02
    ld     (ix+3), a                    ; 02:B317 - DD 77 03
    ld     hl, (sonic_x_sub)            ; 02:B31A - 2A FD D3
-   ld     a, (var_D3FF)                ; 02:B31D - 3A FF D3
+   ld     a, (sonic_x_hi)              ; 02:B31D - 3A FF D3
    add    hl, de                       ; 02:B320 - 19
    adc    a, $00                       ; 02:B321 - CE 00
    ld     (sonic_x_sub), hl            ; 02:B323 - 22 FD D3
-   ld     (var_D3FF), a                ; 02:B326 - 32 FF D3
+   ld     (sonic_x_hi), a              ; 02:B326 - 32 FF D3
 
 addr_0B329:
    ld     l, (ix+2)                    ; 02:B329 - DD 6E 02
