@@ -196,7 +196,7 @@ g_UNUSED_last_sonic_ground_y dw   ; D2D9
 var_D2DB db   ; D2DB
 g_water_level_y dw   ; D2DC
 var_D2DE db   ; D2DE
-var_D2DF db   ; D2DF
+g_sonic_prev_anim_idx db   ; D2DF
 g_sonic_x_speed_dependent_anim_subframe db   ; D2E0
 var_D2E1 db   ; D2E1
 var_D2E2 dw   ; D2E2
@@ -8439,9 +8439,9 @@ objfunc_00_sonic:
    inc    hl                           ; 01:4C62 - 23
    ld     d, (hl)                      ; 01:4C63 - 56
    ld     (sonic_anim_ptr_ix_17), de   ; 01:4C64 - ED 53 0D D4
-   ld     a, (var_D2DF)                ; 01:4C68 - 3A DF D2
+   ld     a, (g_sonic_prev_anim_idx)   ; 01:4C68 - 3A DF D2
    sub    c                            ; 01:4C6B - 91
-   call   nz, @fn_TODO_521F            ; 01:4C6C - C4 1F 52
+   call   nz, @fn_reset_anim_frame_idx_on_anim_change  ; 01:4C6C - C4 1F 52
    ld     a, (sonic_anim_sprite_subindex_ix_19)  ; 01:4C6F - 3A 0F D4
 
 @find_next_anim_frame:
@@ -8590,7 +8590,7 @@ objfunc_00_sonic:
    ld     a, (sonic_flags_ix_24)       ; 01:4D81 - 3A 14 D4
    ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
    ld     a, (sonic_anim_index_ix_20)  ; 01:4D87 - 3A 10 D4
-   ld     (var_D2DF), a                ; 01:4D8A - 32 DF D2
+   ld     (g_sonic_prev_anim_idx), a   ; 01:4D8A - 32 DF D2
    ld     d, $01                       ; 01:4D8D - 16 01
    ld     c, $30                       ; 01:4D8F - 0E 30
    cp     $01                          ; 01:4D91 - FE 01
@@ -9262,7 +9262,7 @@ objfunc_00_sonic:
    ld     hl, SPRITEMAP_sonic_upspring_left  ; 01:521B - 21 4B 59
    ret                                 ; 01:521E - C9
 
-@fn_TODO_521F:
+@fn_reset_anim_frame_idx_on_anim_change:
    ld     (ix+19), $00                 ; 01:521F - DD 36 13 00
    ret                                 ; 01:5223 - C9
 
