@@ -5773,7 +5773,7 @@ LUT_object_functions:
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
-.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
+.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_UNKNOWN, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
@@ -13822,12 +13822,12 @@ SPRITEMAP_log:
 .db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $4C, $4E, $FF, $FF, $FF, $FF  ; 02:8042
 .db $FF                                                                             ; 02:8052
 
-objfunc_2C_UNKNOWN:
+objfunc_2C_JUN3_boss:
    set    5, (ix+24)                   ; 02:8053 - DD CB 18 EE
    ld     (ix+13), $20                 ; 02:8057 - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:805B - DD 36 0E 1C
    bit    0, (ix+24)                   ; 02:805F - DD CB 18 46
-   jr     nz, addr_080B0               ; 02:8063 - 20 4B
+   jr     nz, @TODO_80B0               ; 02:8063 - 20 4B
    ld     hl, (sonic_y)                ; 02:8065 - 2A 01 D4
    ld     de, $00E0                    ; 02:8068 - 11 E0 00
    and    a                            ; 02:806B - A7
@@ -13859,10 +13859,10 @@ objfunc_2C_UNKNOWN:
    ld     (var_D27D), hl               ; 02:80A9 - 22 7D D2
    set    0, (ix+24)                   ; 02:80AC - DD CB 18 C6
 
-addr_080B0:
+@TODO_80B0:
    call   addr_07CA6                   ; 02:80B0 - CD A6 7C
    bit    0, (ix+17)                   ; 02:80B3 - DD CB 11 46
-   jr     nz, addr_080E7               ; 02:80B7 - 20 2E
+   jr     nz, @TODO_80E7               ; 02:80B7 - 20 2E
    ld     (ix+15), UNK_081F4&$FF       ; 02:80B9 - DD 36 0F F4
    ld     (ix+16), UNK_081F4>>8        ; 02:80BD - DD 36 10 81
    ld     (ix+10), $80                 ; 02:80C1 - DD 36 0A 80
@@ -13879,14 +13879,14 @@ addr_080B0:
    ld     (ix+12), a                   ; 02:80E0 - DD 77 0C
    set    0, (ix+17)                   ; 02:80E3 - DD CB 11 C6
 
-addr_080E7:
+@TODO_80E7:
    ld     a, (ix+18)                   ; 02:80E7 - DD 7E 12
    and    a                            ; 02:80EA - A7
-   jp     nz, addr_0814A               ; 02:80EB - C2 4A 81
+   jp     nz, @TODO_814A               ; 02:80EB - C2 4A 81
    ld     l, (ix+2)                    ; 02:80EE - DD 6E 02
    ld     h, (ix+3)                    ; 02:80F1 - DD 66 03
    bit    1, (ix+17)                   ; 02:80F4 - DD CB 11 4E
-   jr     nz, addr_08122               ; 02:80F8 - 20 28
+   jr     nz, @TODO_8122               ; 02:80F8 - 20 28
    ld     (ix+15), UNK_081F4&$FF       ; 02:80FA - DD 36 0F F4
    ld     (ix+16), UNK_081F4>>8        ; 02:80FE - DD 36 10 81
    res    1, (ix+24)                   ; 02:8102 - DD CB 18 8E
@@ -13896,11 +13896,11 @@ addr_080E7:
    ld     de, $021C                    ; 02:8112 - 11 1C 02
    and    a                            ; 02:8115 - A7
    sbc    hl, de                       ; 02:8116 - ED 52
-   jp     nc, addr_081E7               ; 02:8118 - D2 E7 81
+   jp     nc, @TODO_81E7               ; 02:8118 - D2 E7 81
    ld     (ix+18), $67                 ; 02:811B - DD 36 12 67
-   jp     addr_081E7                   ; 02:811F - C3 E7 81
+   jp     @TODO_81E7                   ; 02:811F - C3 E7 81
 
-addr_08122:
+@TODO_8122:
    ld     (ix+15), UNK_08206&$FF       ; 02:8122 - DD 36 0F 06
    ld     (ix+16), UNK_08206>>8        ; 02:8126 - DD 36 10 82
    set    1, (ix+24)                   ; 02:812A - DD CB 18 CE
@@ -13910,43 +13910,43 @@ addr_08122:
    ld     de, $02AA                    ; 02:813A - 11 AA 02
    and    a                            ; 02:813D - A7
    sbc    hl, de                       ; 02:813E - ED 52
-   jp     c, addr_081E7                ; 02:8140 - DA E7 81
+   jp     c, @TODO_81E7                ; 02:8140 - DA E7 81
    ld     (ix+18), $67                 ; 02:8143 - DD 36 12 67
-   jp     addr_081E7                   ; 02:8147 - C3 E7 81
+   jp     @TODO_81E7                   ; 02:8147 - C3 E7 81
 
-addr_0814A:
+@TODO_814A:
    xor    a                            ; 02:814A - AF
    ld     (ix+7), a                    ; 02:814B - DD 77 07
    ld     (ix+8), a                    ; 02:814E - DD 77 08
    ld     (ix+9), a                    ; 02:8151 - DD 77 09
    ld     hl, $0001                    ; 02:8154 - 21 01 00
    dec    (ix+18)                      ; 02:8157 - DD 35 12
-   jr     z, addr_0816E                ; 02:815A - 28 12
+   jr     z, @TODO_816E                ; 02:815A - 28 12
    ld     a, (ix+18)                   ; 02:815C - DD 7E 12
    cp     $40                          ; 02:815F - FE 40
-   jr     nc, addr_08171               ; 02:8161 - 30 0E
+   jr     nc, @TODO_8171               ; 02:8161 - 30 0E
    ld     hl, $FFFF                    ; 02:8163 - 21 FF FF
    cp     $28                          ; 02:8166 - FE 28
-   jr     c, addr_08171                ; 02:8168 - 38 07
+   jr     c, @TODO_8171                ; 02:8168 - 38 07
    cp     $34                          ; 02:816A - FE 34
-   jr     z, addr_0817D                ; 02:816C - 28 0F
+   jr     z, @TODO_817D                ; 02:816C - 28 0F
 
-addr_0816E:
+@TODO_816E:
    ld     hl, $0000                    ; 02:816E - 21 00 00
 
-addr_08171:
+@TODO_8171:
    ld     (ix+10), $00                 ; 02:8171 - DD 36 0A 00
    ld     (ix+11), l                   ; 02:8175 - DD 75 0B
    ld     (ix+12), h                   ; 02:8178 - DD 74 0C
-   jr     addr_081E7                   ; 02:817B - 18 6A
+   jr     @TODO_81E7                   ; 02:817B - 18 6A
 
-addr_0817D:
+@TODO_817D:
    ld     a, (ix+17)                   ; 02:817D - DD 7E 11
    xor    $02                          ; 02:8180 - EE 02
    ld     (ix+17), a                   ; 02:8182 - DD 77 11
    ld     a, (var_D2EC)                ; 02:8185 - 3A EC D2
    cp     $08                          ; 02:8188 - FE 08
-   jr     nc, addr_081E7               ; 02:818A - 30 5B
+   jr     nc, @TODO_81E7               ; 02:818A - 30 5B
    call   spawn_object                 ; 02:818C - CD 7B 7C
    ret    c                            ; 02:818F - D8
    ld     e, (ix+2)                    ; 02:8190 - DD 5E 02
@@ -13983,7 +13983,7 @@ addr_0817D:
    ld     (ix+18), a                   ; 02:81E2 - DD 77 12
    pop    ix                           ; 02:81E5 - DD E1
 
-addr_081E7:
+@TODO_81E7:
    ld     hl, $005A                    ; 02:81E7 - 21 5A 00
    ld     (tmp_08), hl                 ; 02:81EA - 22 16 D2
    call   addr_077BE                   ; 02:81ED - CD BE 77
@@ -13998,7 +13998,7 @@ UNK_08206:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $5A, $5C, $5E  ; 02:8206
 .db $72, $FF                                                                        ; 02:8216
 
-objfunc_2B_UNKNOWN:
+objfunc_2B_JUN3_boss_bomb:
    res    5, (ix+24)                   ; 02:8218 - DD CB 18 AE
    ld     (ix+13), $0C                 ; 02:821C - DD 36 0D 0C
    ld     (ix+14), $10                 ; 02:8220 - DD 36 0E 10
@@ -14012,11 +14012,11 @@ objfunc_2B_UNKNOWN:
    ld     de, $0002                    ; 02:8239 - 11 02 00
    ld     c, $00                       ; 02:823C - 0E 00
    and    a                            ; 02:823E - A7
-   jp     m, addr_08246                ; 02:823F - FA 46 82
+   jp     m, @TODO_8246                ; 02:823F - FA 46 82
    dec    c                            ; 02:8242 - 0D
    ld     de, $FFFE                    ; 02:8243 - 11 FE FF
 
-addr_08246:
+@TODO_8246:
    add    hl, de                       ; 02:8246 - 19
    adc    a, c                         ; 02:8247 - 89
    ld     (ix+7), l                    ; 02:8248 - DD 75 07
@@ -14031,11 +14031,11 @@ addr_08246:
    ld     c, a                         ; 02:8260 - 4F
    ld     a, h                         ; 02:8261 - 7C
    cp     $03                          ; 02:8262 - FE 03
-   jr     c, addr_0826B                ; 02:8264 - 38 05
+   jr     c, @TODO_826B                ; 02:8264 - 38 05
    ld     hl, $0300                    ; 02:8266 - 21 00 03
    ld     c, $00                       ; 02:8269 - 0E 00
 
-addr_0826B:
+@TODO_826B:
    ld     (ix+10), l                   ; 02:826B - DD 75 0A
    ld     (ix+11), h                   ; 02:826E - DD 74 0B
    ld     (ix+12), c                   ; 02:8271 - DD 71 0C
@@ -14045,14 +14045,14 @@ addr_0826B:
    ld     (ix+17), a                   ; 02:827C - DD 77 11
    ld     a, (ix+17)                   ; 02:827F - DD 7E 11
    cp     (ix+18)                      ; 02:8282 - DD BE 12
-   jr     nc, addr_08291               ; 02:8285 - 30 0A
+   jr     nc, @TODO_8291               ; 02:8285 - 30 0A
    ld     bc, UNK_082C1                ; 02:8287 - 01 C1 82
    ld     de, UNK_082CD                ; 02:828A - 11 CD 82
    call   do_framed_animation          ; 02:828D - CD 41 7C
    ret                                 ; 02:8290 - C9
 
-addr_08291:
-   jr     nz, addr_082A0               ; 02:8291 - 20 0D
+@TODO_8291:
+   jr     nz, @TODO_82A0               ; 02:8291 - 20 0D
    ld     a, (g_global_tick_counter)   ; 02:8293 - 3A 23 D2
    and    $01                          ; 02:8296 - E6 01
    ret    z                            ; 02:8298 - C8
@@ -14060,7 +14060,7 @@ addr_08291:
    ld     a, $01                       ; 02:829D - 3E 01
    rst    $28                          ; 02:829F - EF
 
-addr_082A0:
+@TODO_82A0:
    xor    a                            ; 02:82A0 - AF
    ld     (ix+7), a                    ; 02:82A1 - DD 77 07
    ld     (ix+8), a                    ; 02:82A4 - DD 77 08
