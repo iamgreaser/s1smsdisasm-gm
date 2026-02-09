@@ -58,6 +58,8 @@
 
 ;; Get objects from a freelist instead of searching the list every time.
 ;; FIXME: The SKY3 boss electric balls will *immediately* hurt Sonic if the freelist optimisation is enabled! --GM
+;; (objfunc $4A = hittable part of boss)
+;; (objfunc $47 = something the boss can spawn)
 .DEF opt_object_freelist 0
 
 ;; Don't show the world map between levels.
