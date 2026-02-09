@@ -593,7 +593,7 @@ irq_start:
    ld     a, $89                       ; 00:0112 - 3E 89
    out    ($BF), a                     ; 00:0114 - D3 BF
    bit    5, (iy+iy_00-IYBASE)         ; 00:0116 - FD CB 00 6E
-   call   nz, addr_007DB               ; 00:011A - C4 DB 07
+   call   nz, dispatch_scrolling_tile_updates_IRQ  ; 00:011A - C4 DB 07
    bit    5, (iy+iy_00-IYBASE)         ; 00:011D - FD CB 00 6E
    call   nz, @fn_update_palette       ; 00:0121 - C4 74 01
    ld     a, (g_saved_vdp_reg_01)      ; 00:0124 - 3A 19 D2
@@ -2143,9 +2143,9 @@ addr_007A3:
 addr_007DA:
    ret                                 ; 00:07DA - C9
 
-addr_007DB:
+dispatch_scrolling_tile_updates_IRQ:
    bit    0, (iy+iy_02-IYBASE)         ; 00:07DB - FD CB 02 46
-   jp     z, addr_00849                ; 00:07DF - CA 49 08
+   jp     z, @skip_vertical_tile_update  ; 00:07DF - CA 49 08
    exx                                 ; 00:07E2 - D9
    push   hl                           ; 00:07E3 - E5
    push   de                           ; 00:07E4 - D5
@@ -2166,10 +2166,10 @@ addr_007DB:
    ld     c, a                         ; 00:07F6 - 4F
    ld     a, (g_vdp_scroll_x)          ; 00:07F7 - 3A 51 D2
    bit    6, (iy+iy_00-IYBASE)         ; 00:07FA - FD CB 00 76
-   jr     z, addr_00802                ; 00:07FE - 28 02
+   jr     z, @TODO_0802                ; 00:07FE - 28 02
    add    a, $08                       ; 00:0800 - C6 08
 
-addr_00802:
+@TODO_0802:
    and    $F8                          ; 00:0802 - E6 F8
    srl    a                            ; 00:0804 - CB 3F
    srl    a                            ; 00:0806 - CB 3F
@@ -2245,7 +2245,7 @@ addr_00802:
    ; SAVING: 1 byte
    .ENDIF
 
-addr_0082F:
+@each_vertical_tile:
    exx                                 ; 00:082F - D9
    ld     a, l                         ; 00:0830 - 7D
    out    ($BF), a                     ; 00:0831 - D3 BF
@@ -2254,22 +2254,22 @@ addr_0082F:
    add    hl, bc                       ; 00:0836 - 09
    ld     a, h                         ; 00:0837 - 7C
    cp     d                            ; 00:0838 - BA
-   jp     nc, addr_008D0               ; 00:0839 - D2 D0 08
+   jp     nc, @wrap_vertical           ; 00:0839 - D2 D0 08
 
-addr_0083C:
+@return_from_wrap_vertical:
    exx                                 ; 00:083C - D9
    outi                                ; 00:083D - ED A3
    outi                                ; 00:083F - ED A3
-   jp     nz, addr_0082F               ; 00:0841 - C2 2F 08
+   jp     nz, @each_vertical_tile      ; 00:0841 - C2 2F 08
    exx                                 ; 00:0844 - D9
    pop    bc                           ; 00:0845 - C1
    pop    de                           ; 00:0846 - D1
    pop    hl                           ; 00:0847 - E1
    exx                                 ; 00:0848 - D9
 
-addr_00849:
+@skip_vertical_tile_update:
    bit    1, (iy+iy_02-IYBASE)         ; 00:0849 - FD CB 02 4E
-   jp     z, addr_008CF                ; 00:084D - CA CF 08
+   jp     z, @skip_horizontal_tile_update  ; 00:084D - CA CF 08
    ld     a, (g_vdp_scroll_y)          ; 00:0850 - 3A 52 D2
    ld     b, $00                       ; 00:0853 - 06 00
    .IF 0
@@ -2284,15 +2284,15 @@ addr_00849:
    ; SAVING: 1 byte
    .ENDIF
    bit    7, (iy+iy_00-IYBASE)         ; 00:085B - FD CB 00 7E
-   jr     nz, addr_00863               ; 00:085F - 20 02
+   jr     nz, @TODO_0863               ; 00:085F - 20 02
    add    a, $18                       ; 00:0861 - C6 18
 
-addr_00863:
+@TODO_0863:
    cp     $1C                          ; 00:0863 - FE 1C
-   jr     c, addr_00869                ; 00:0865 - 38 02
+   jr     c, @adjust_y_to_handle_28_discontinuity  ; 00:0865 - 38 02
    sub    $1C                          ; 00:0867 - D6 1C
 
-addr_00869:
+@adjust_y_to_handle_28_discontinuity:
    .IF 0
    add    a, a                         ; 00:0869 - 87
    add    a, a                         ; 00:086A - 87
@@ -2370,34 +2370,34 @@ addr_00869:
    ; SAVING: 1 byte
    .ENDIF
 
-addr_008B2:
+@each_horizontal_tile_until_wrap:
    bit    6, e                         ; 00:08B2 - CB 73
-   jr     nz, addr_008C0               ; 00:08B4 - 20 0A
+   jr     nz, @wrap_horizontal         ; 00:08B4 - 20 0A
    inc    e                            ; 00:08B6 - 1C
    inc    e                            ; 00:08B7 - 1C
    outi                                ; 00:08B8 - ED A3
    outi                                ; 00:08BA - ED A3
-   jp     nz, addr_008B2               ; 00:08BC - C2 B2 08
+   jp     nz, @each_horizontal_tile_until_wrap  ; 00:08BC - C2 B2 08
    ret                                 ; 00:08BF - C9
 
-addr_008C0:
+@wrap_horizontal:
    ld     a, (tmp_00)                  ; 00:08C0 - 3A 0E D2
    out    ($BF), a                     ; 00:08C3 - D3 BF
    ld     a, d                         ; 00:08C5 - 7A
    out    ($BF), a                     ; 00:08C6 - D3 BF
 
-addr_008C8:
+@each_horizontal_tile_after_wrap:
    outi                                ; 00:08C8 - ED A3
    outi                                ; 00:08CA - ED A3
-   jp     nz, addr_008C8               ; 00:08CC - C2 C8 08
+   jp     nz, @each_horizontal_tile_after_wrap  ; 00:08CC - C2 C8 08
 
-addr_008CF:
+@skip_horizontal_tile_update:
    ret                                 ; 00:08CF - C9
 
-addr_008D0:
+@wrap_vertical:
    sub    e                            ; 00:08D0 - 93
    ld     h, a                         ; 00:08D1 - 67
-   jp     addr_0083C                   ; 00:08D2 - C3 3C 08
+   jp     @return_from_wrap_vertical   ; 00:08D2 - C3 3C 08
 
 get_screen_tile_ptr_in_ram:
 .IF 0
