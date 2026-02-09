@@ -9414,39 +9414,39 @@ objfunc_00_sonic:
    jp     z, @consider_camera_look_down  ; 01:5354 - CA B9 53
    ld     (ix+20), $09                 ; 01:5357 - DD 36 14 09
    bit    2, (iy+g_inputs_player_1-IYBASE)  ; 01:535B - FD CB 03 56
-   jr     nz, @TODO_5381               ; 01:535F - 20 20
+   jr     nz, @dont_go_left_in_roll    ; 01:535F - 20 20
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:5361 - FD CB 03 4E
-   jr     z, @TODO_5381                ; 01:5365 - 28 1A
+   jr     z, @dont_go_left_in_roll     ; 01:5365 - 28 1A
    bit    7, (ix+24)                   ; 01:5367 - DD CB 18 7E
-   jp     z, @TODO_5379                ; 01:536B - CA 79 53
+   jp     z, @go_left_in_roll          ; 01:536B - CA 79 53
    bit    7, b                         ; 01:536E - CB 78
-   jr     nz, @TODO_53A7               ; 01:5370 - 20 35
+   jr     nz, @dont_go_right_in_roll   ; 01:5370 - 20 35
    res    0, (ix+24)                   ; 01:5372 - DD CB 18 86
    jp     @right_brake_to_left         ; 01:5376 - C3 A6 4F
 
-@TODO_5379:
+@go_left_in_roll:
    ld     de, $FFF0                    ; 01:5379 - 11 F0 FF
    ld     c, $FF                       ; 01:537C - 0E FF
    jp     @update_x_velocity_from_basic_movement  ; 01:537E - C3 1B 4B
 
-@TODO_5381:
+@dont_go_left_in_roll:
    bit    3, (iy+g_inputs_player_1-IYBASE)  ; 01:5381 - FD CB 03 5E
-   jr     nz, @TODO_53A7               ; 01:5385 - 20 20
+   jr     nz, @dont_go_right_in_roll   ; 01:5385 - 20 20
    bit    1, (iy+g_inputs_player_1-IYBASE)  ; 01:5387 - FD CB 03 4E
-   jr     z, @TODO_53A7                ; 01:538B - 28 1A
+   jr     z, @dont_go_right_in_roll    ; 01:538B - 28 1A
    bit    7, (ix+24)                   ; 01:538D - DD CB 18 7E
-   jp     z, @TODO_539F                ; 01:5391 - CA 9F 53
+   jp     z, @go_right_in_roll         ; 01:5391 - CA 9F 53
    bit    7, b                         ; 01:5394 - CB 78
-   jr     z, @TODO_53A7                ; 01:5396 - 28 0F
+   jr     z, @dont_go_right_in_roll    ; 01:5396 - 28 0F
    res    0, (ix+24)                   ; 01:5398 - DD CB 18 86
    jp     @right_brake_to_left         ; 01:539C - C3 A6 4F
 
-@TODO_539F:
+@go_right_in_roll:
    ld     de, $0010                    ; 01:539F - 11 10 00
    ld     c, $00                       ; 01:53A2 - 0E 00
    jp     @update_x_velocity_from_basic_movement  ; 01:53A4 - C3 1B 4B
 
-@TODO_53A7:
+@dont_go_right_in_roll:
    ld     de, $0004                    ; 01:53A7 - 11 04 00
    ld     c, $00                       ; 01:53AA - 0E 00
    ld     a, b                         ; 01:53AC - 78
