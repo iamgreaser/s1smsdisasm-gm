@@ -9692,7 +9692,7 @@ objfunc_00_sonic:
    rst    $28                          ; 01:5576 - EF
    ret                                 ; 01:5577 - C9
 
-@special_06:
+@special_06_conveyor_left:
    bit    7, (ix+24)                   ; 01:5578 - DD CB 18 7E
    ret    z                            ; 01:557C - C8
    ld     hl, (sonic_x_sub)            ; 01:557D - 2A FD D3
@@ -9704,7 +9704,7 @@ objfunc_00_sonic:
    ld     (sonic_x_hi), a              ; 01:558C - 32 FF D3
    ret                                 ; 01:558F - C9
 
-@special_07:
+@special_07_conveyor_right:
    bit    7, (ix+24)                   ; 01:5590 - DD CB 18 7E
    ret    z                            ; 01:5594 - C8
    ld     hl, (sonic_x_sub)            ; 01:5595 - 2A FD D3
@@ -10191,7 +10191,7 @@ objfunc_00_sonic:
    ret                                 ; 01:58E4 - C9
 
 CODEPTRTAB_sonic_tile_specials:
-.dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
+.dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06_conveyor_left, objfunc_00_sonic@special_07_conveyor_right  ; 01:58E5
 .dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B_teleport, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
 .dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t_special_stage, objfunc_00_sonic@special_13_spring_up_12_px_t_special_stage, objfunc_00_sonic@special_14_spring_up_14_px_t_special_stage, objfunc_00_sonic@special_15_bouncebar_middle_special_stage, objfunc_00_sonic@special_16_bouncebar_end_special_stage, objfunc_00_sonic@special_17_SKY1_lightning  ; 01:5905
 .dw objfunc_00_sonic@special_18_collapsing_bridge_both_sides, objfunc_00_sonic@special_19_collapsing_bridge_right_only, objfunc_00_sonic@special_1A_collapsing_bridge_left_only, objfunc_00_sonic@special_1B  ; 01:5915
