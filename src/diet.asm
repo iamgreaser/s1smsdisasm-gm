@@ -44,6 +44,10 @@
 ;; Also, holding the button down forces Sonic to be treated as on the ground and allows Sonic to jump in mid-air.
 .DEF cht_noclip_button_1 0
 
+;; bool: Boss Destroys Itself: Constantly damage the boss until it is defeated.
+;; NOTE: DOES NOT WORK ON ALL BOSSES! GHZ+BRI+JUN+LAB are fine, SCR isn't a real boss, SKY takes 12 hits so the 8 HP logic I hijacked isn't used and thus this hack doesn't affect that boss.
+.DEF cht_boss_destroys_itself 0
+
 ;; Branding! WARNING: Heavy (consumes about 410 bytes or something) - make sure to rip this out when making your own mods!
 .DEF show_diet_logo 1
 
@@ -65,6 +69,13 @@
 ;; Commenting out the call to 00:0A40 at 00:1FC4 results in at least one of those fades having a borked palette.
 ;; I need to find a solution for the double-fade. --GM
 .DEF mod_skip_score_tally 1
+
+;; Only do boss fight levels. Probably costs 2 extra bytes.
+.DEF mod_boss_rush 0
+
+.IF mod_boss_rush
+.REDEF cht_starting_level $02+(floor(cht_starting_level/3)*3)
+.ENDIF
 
 .MEMORYMAP
 SLOT 0 START $0000 SIZE $4000
@@ -5966,7 +5977,13 @@ update_signpost_timer:
 
 @level_was_normal_no_bonus:
    ld     hl, g_level                  ; 00:200E - 21 3E D2
+   .IF mod_boss_rush
+   inc (hl)
+   inc (hl)
+   inc (hl)
+   .ELSE
    inc    (hl)                         ; 00:2011 - 34
+   .ENDIF
    ld     a, $01                       ; 00:2012 - 3E 01
    ret                                 ; 00:2014 - C9
 
@@ -15162,6 +15179,7 @@ boss_generic_update_8hp:
    jp     nz, @skip_damage_check_due_to_flashing_anim  ; 01:77C9 - C2 21 78
    ld     hl, $0C08                    ; 01:77CC - 21 08 0C
    ld     (tmp_06), hl                 ; 01:77CF - 22 14 D2
+   .IF !cht_boss_destroys_itself
    call   check_collision_with_sonic   ; 01:77D2 - CD 56 39
    ret    c                            ; 01:77D5 - D8
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 01:77D6 - FD CB 05 46
@@ -15192,6 +15210,7 @@ boss_generic_update_8hp:
    ld     h, a                         ; 01:7801 - 67
    ld     (sonic_vel_x_sub), hl        ; 01:7802 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:7805 - 32 05 D4
+   .ENDIF
    ld     a, $18                       ; 01:7808 - 3E 18
    ld     (g_pal_flash_countdown_timer), a  ; 01:780A - 32 B1 D2
    ld     a, $8F                       ; 01:780D - 3E 8F
@@ -16067,7 +16086,13 @@ objfunc_29_log:
    add    hl, de                       ; 01:7FD2 - 19
    ld     (ix+15), l                   ; 01:7FD3 - DD 75 0F
    ld     (ix+16), h                   ; 01:7FD6 - DD 74 10
+   .IF 0
    jr     log_obj_continue@sprite_was_set  ; 01:7FD9 - 18 30
+   .ELSE
+   ;; We cannot ensure this can jump the gap from Bank $01 to Bank $02 once we optimise enough code out of Bank $01.
+   ; COST: 1 byte
+   jp log_obj_continue@sprite_was_set
+   .ENDIF
 .IF 0
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 01:7FDB
 .db $00, $00, $00, $00, $00                                                         ; 01:7FEB
