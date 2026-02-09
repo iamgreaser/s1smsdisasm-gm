@@ -357,10 +357,10 @@ ENTRY_RESET:
    di                                  ; 00:0000 - F3
    im     1                            ; 00:0001 - ED 56
 
-_reset_wait_for_vblank:
+@wait_for_vblank:
    in     a, ($7E)                     ; 00:0003 - DB 7E
    cp     $B0                          ; 00:0005 - FE B0
-   jr     nz, _reset_wait_for_vblank   ; 00:0007 - 20 FA
+   jr     nz, @wait_for_vblank         ; 00:0007 - 20 FA
    jp     reset_init                   ; 00:0009 - C3 8B 02
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00                      ; 00:000C
 
@@ -400,15 +400,15 @@ irq_start:
    push   bc                           ; 00:0077 - C5
    in     a, ($BF)                     ; 00:0078 - DB BF
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:007A - FD CB 06 7E
-   jr     z, +                         ; 00:007E - 28 2C
+   jr     z, @dont_prepare_line_interrupt_for_water  ; 00:007E - 28 2C
    ld     a, (g_water_irq_line_state)  ; 00:0080 - 3A 47 D2
    and    a                            ; 00:0083 - A7
-   jp     nz, irq_line_state_chk_nonzero  ; 00:0084 - C2 F2 01
+   jp     nz, line_irq                 ; 00:0084 - C2 F2 01
    ld     a, (var_D2DB)                ; 00:0087 - 3A DB D2
    and    a                            ; 00:008A - A7
-   jr     z, +                         ; 00:008B - 28 1F
+   jr     z, @dont_prepare_line_interrupt_for_water  ; 00:008B - 28 1F
    cp     $FF                          ; 00:008D - FE FF
-   jr     z, +                         ; 00:008F - 28 1B
+   jr     z, @dont_prepare_line_interrupt_for_water  ; 00:008F - 28 1B
    ld     (g_water_onscreen_y), a      ; 00:0091 - 32 48 D2
    ld     a, $0A                       ; 00:0094 - 3E 0A
    out    ($BF), a                     ; 00:0096 - D3 BF
@@ -422,15 +422,15 @@ irq_start:
    ld     a, $03                       ; 00:00A7 - 3E 03
    ld     (g_water_irq_line_state), a  ; 00:00A9 - 32 47 D2
 
-+:
+@dont_prepare_line_interrupt_for_water:
    push   ix                           ; 00:00AC - DD E5
    push   iy                           ; 00:00AE - FD E5
    ld     hl, (g_committed_rompage_1)  ; 00:00B0 - 2A 35 D2
    push   hl                           ; 00:00B3 - E5
    bit    0, (iy+iy_00-IYBASE)         ; 00:00B4 - FD CB 00 46
-   call   nz, addr_001A0               ; 00:00B8 - C4 A0 01
+   call   nz, @fn_consider_underwater_palette  ; 00:00B8 - C4 A0 01
    bit    0, (iy+iy_00-IYBASE)         ; 00:00BB - FD CB 00 46
-   call   z, addr_000F7                ; 00:00BF - CC F7 00
+   call   z, @fn_update_screen         ; 00:00BF - CC F7 00
    ei                                  ; 00:00C2 - FB
    ld     a, $03                       ; 00:00C3 - 3E 03
    ld     (rompage_1), a               ; 00:00C5 - 32 FE FF
@@ -438,7 +438,7 @@ irq_start:
    call   snddrv_update                ; 00:00CB - CD 00 40
    call   poll_player_1_inputs         ; 00:00CE - CD A7 05
    bit    4, (iy+g_inputs_player_1-IYBASE)  ; 00:00D1 - FD CB 03 66
-   call   z, addr_000F2                ; 00:00D5 - CC F2 00
+   call   z, @fn_pretend_button_2_pressed  ; 00:00D5 - CC F2 00
    call   random_A                     ; 00:00D8 - CD 25 06
    in     a, ($DD)                     ; 00:00DB - DB DD
    and    $10                          ; 00:00DD - E6 10
@@ -454,11 +454,11 @@ irq_start:
    pop    af                           ; 00:00F0 - F1
    ret                                 ; 00:00F1 - C9
 
-addr_000F2:
+@fn_pretend_button_2_pressed:
    res    5, (iy+g_inputs_player_1-IYBASE)  ; 00:00F2 - FD CB 03 AE
    ret                                 ; 00:00F6 - C9
 
-addr_000F7:
+@fn_update_screen:
    ld     a, (g_saved_vdp_reg_01)      ; 00:00F7 - 3A 19 D2
    and    $BF                          ; 00:00FA - E6 BF
    out    ($BF), a                     ; 00:00FC - D3 BF
@@ -476,7 +476,7 @@ addr_000F7:
    bit    5, (iy+iy_00-IYBASE)         ; 00:0116 - FD CB 00 6E
    call   nz, addr_007DB               ; 00:011A - C4 DB 07
    bit    5, (iy+iy_00-IYBASE)         ; 00:011D - FD CB 00 6E
-   call   nz, addr_00174               ; 00:0121 - C4 74 01
+   call   nz, @fn_update_palette       ; 00:0121 - C4 74 01
    ld     a, (g_saved_vdp_reg_01)      ; 00:0124 - 3A 19 D2
    out    ($BF), a                     ; 00:0127 - D3 BF
    ld     a, $81                       ; 00:0129 - 3E 81
@@ -498,7 +498,7 @@ addr_000F7:
    bit    1, (iy+iy_00-IYBASE)         ; 00:0154 - FD CB 00 4E
    call   nz, upload_sprite_table_IRQ  ; 00:0158 - C4 3E 03
    bit    5, (iy+iy_00-IYBASE)         ; 00:015B - FD CB 00 6E
-   call   z, addr_00174                ; 00:015F - CC 74 01
+   call   z, @fn_update_palette        ; 00:015F - CC 74 01
    ld     a, (g_screen_tile_replace_x_hi)  ; 00:0162 - 3A AC D2
    and    $80                          ; 00:0165 - E6 80
    call   z, addr_038B0                ; 00:0167 - CC B0 38
@@ -507,7 +507,7 @@ addr_000F7:
    set    0, (iy+iy_00-IYBASE)         ; 00:016F - FD CB 00 C6
    ret                                 ; 00:0173 - C9
 
-addr_00174:
+@fn_update_palette:
    ld     a, $01                       ; 00:0174 - 3E 01
    ld     (rompage_1), a               ; 00:0176 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:0179 - 32 35 D2
@@ -515,7 +515,7 @@ addr_00174:
    ld     (rompage_2), a               ; 00:017E - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:0181 - 32 36 D2
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:0184 - FD CB 06 7E
-   jr     nz, addr_0019C               ; 00:0188 - 20 12
+   jr     nz, @use_underwater_palettes_instead  ; 00:0188 - 20 12
    ld     hl, (g_SIG00b3_palette_addr)  ; 00:018A - 2A 2B D2
    ld     a, (g_SIG00b3_palettes_present)  ; 00:018D - 3A 2F D2
    bit    3, (iy+iy_00-IYBASE)         ; 00:0190 - FD CB 00 5E
@@ -523,11 +523,11 @@ addr_00174:
    res    3, (iy+iy_00-IYBASE)         ; 00:0197 - FD CB 00 9E
    ret                                 ; 00:019B - C9
 
-addr_0019C:
-   call   addr_001BA                   ; 00:019C - CD BA 01
+@use_underwater_palettes_instead:
+   call   irq_start@continue_underwater_palette_without_delay  ; 00:019C - CD BA 01
    ret                                 ; 00:019F - C9
 
-addr_001A0:
+@fn_consider_underwater_palette:
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:01A0 - FD CB 06 7E
    ret    z                            ; 00:01A4 - C8
    ld     a, $01                       ; 00:01A5 - 3E 01
@@ -538,27 +538,27 @@ addr_001A0:
    ld     (g_committed_rompage_2), a   ; 00:01B2 - 32 36 D2
    ld     b, $00                       ; 00:01B5 - 06 00
 
--:
+@waste_19_scanlines:
    nop                                 ; 00:01B7 - 00
-   djnz   -                            ; 00:01B8 - 10 FD
+   djnz   @waste_19_scanlines          ; 00:01B8 - 10 FD
 
-addr_001BA:
+@continue_underwater_palette_without_delay:
    ld     a, (var_D2DB)                ; 00:01BA - 3A DB D2
    and    a                            ; 00:01BD - A7
-   jr     z, addr_001D6                ; 00:01BE - 28 16
+   jr     z, @load_and_update_cycling_and_underwater_palette  ; 00:01BE - 28 16
    cp     $FF                          ; 00:01C0 - FE FF
-   jr     nz, addr_001D6               ; 00:01C2 - 20 12
+   jr     nz, @load_and_update_cycling_and_underwater_palette  ; 00:01C2 - 20 12
    ld     hl, PAL2_lv_lab_under_water  ; 00:01C4 - 21 4B 02
    bit    4, (iy+iy_07_lvflag02-IYBASE)  ; 00:01C7 - FD CB 07 66
-   jr     z, addr_001D0                ; 00:01CB - 28 03
+   jr     z, @load_this_underwater_palette  ; 00:01CB - 28 03
    ld     hl, PAL2_lv_lab_3_under_water  ; 00:01CD - 21 6B 02
 
-addr_001D0:
+@load_this_underwater_palette:
    ld     a, $03                       ; 00:01D0 - 3E 03
    call   load_palettes_IRQ            ; 00:01D2 - CD 66 05
    ret                                 ; 00:01D5 - C9
 
-addr_001D6:
+@load_and_update_cycling_and_underwater_palette:
    ld     a, (g_palette_cycle_index)   ; 00:01D6 - 3A A6 D2
    add    a, a                         ; 00:01D9 - 87
    add    a, a                         ; 00:01DA - 87
@@ -575,11 +575,11 @@ addr_001D6:
    call   load_palettes_IRQ            ; 00:01EE - CD 66 05
    ret                                 ; 00:01F1 - C9
 
-irq_line_state_chk_nonzero:
+line_irq:
    cp     $01                          ; 00:01F2 - FE 01
-   jr     z, irq_line_state_1_load_water_palette  ; 00:01F4 - 28 1F
+   jr     z, @state_01_load_water_palette  ; 00:01F4 - 28 1F
    cp     $02                          ; 00:01F6 - FE 02
-   jr     z, irq_line_state_2          ; 00:01F8 - 28 14
+   jr     z, @state_02                 ; 00:01F8 - 28 14
    dec    a                            ; 00:01FA - 3D
    ld     (g_water_irq_line_state), a  ; 00:01FB - 32 47 D2
    in     a, ($7E)                     ; 00:01FE - DB 7E
@@ -589,14 +589,14 @@ irq_line_state_chk_nonzero:
    out    ($BF), a                     ; 00:0205 - D3 BF
    ld     a, $8A                       ; 00:0207 - 3E 8A
    out    ($BF), a                     ; 00:0209 - D3 BF
-   jp     irq_exit                     ; 00:020B - C3 45 02
+   jp     @line_irq_exit               ; 00:020B - C3 45 02
 
-irq_line_state_2:
+@state_02:
    dec    a                            ; 00:020E - 3D
    ld     (g_water_irq_line_state), a  ; 00:020F - 32 47 D2
-   jp     irq_exit                     ; 00:0212 - C3 45 02
+   jp     @line_irq_exit               ; 00:0212 - C3 45 02
 
-irq_line_state_1_load_water_palette:
+@state_01_load_water_palette:
    dec    a                            ; 00:0215 - 3D
    ld     (g_water_irq_line_state), a  ; 00:0216 - 32 47 D2
    ld     a, $00                       ; 00:0219 - 3E 00
@@ -606,10 +606,10 @@ irq_line_state_1_load_water_palette:
    ld     b, $10                       ; 00:0221 - 06 10
    ld     hl, PAL2_lv_lab_under_water  ; 00:0223 - 21 4B 02
    bit    4, (iy+iy_07_lvflag02-IYBASE)  ; 00:0226 - FD CB 07 66
-   jr     z, _f                        ; 00:022A - 28 03
+   jr     z, @loop_every_2_palette_values  ; 00:022A - 28 03
    ld     hl, PAL2_lv_lab_3_under_water  ; 00:022C - 21 6B 02
 
-__:
+@loop_every_2_palette_values:
    ld     a, (hl)                      ; 00:022F - 7E
    out    ($BE), a                     ; 00:0230 - D3 BE
    inc    hl                           ; 00:0232 - 23
@@ -617,14 +617,14 @@ __:
    ld     a, (hl)                      ; 00:0234 - 7E
    out    ($BE), a                     ; 00:0235 - D3 BE
    inc    hl                           ; 00:0237 - 23
-   djnz   _b                           ; 00:0238 - 10 F5
+   djnz   @loop_every_2_palette_values  ; 00:0238 - 10 F5
    ld     a, (g_saved_vdp_reg_00)      ; 00:023A - 3A 18 D2
    and    $EF                          ; 00:023D - E6 EF
    out    ($BF), a                     ; 00:023F - D3 BF
    ld     a, $80                       ; 00:0241 - 3E 80
    out    ($BF), a                     ; 00:0243 - D3 BF
 
-irq_exit:
+@line_irq_exit:
    pop    bc                           ; 00:0245 - C1
    pop    de                           ; 00:0246 - D1
    pop    hl                           ; 00:0247 - E1
@@ -658,7 +658,7 @@ reset_init:
    ld     b, $0B                       ; 00:02B2 - 06 0B
    ld     c, $8B                       ; 00:02B4 - 0E 8B
 
-_lp_reset_init_vdp_regs:
+@init_each_vdp_reg:
    ld     a, (hl)                      ; 00:02B6 - 7E
    ld     (de), a                      ; 00:02B7 - 12
    inc    hl                           ; 00:02B8 - 23
@@ -667,7 +667,7 @@ _lp_reset_init_vdp_regs:
    ld     a, c                         ; 00:02BC - 79
    sub    b                            ; 00:02BD - 90
    out    ($BF), a                     ; 00:02BE - D3 BF
-   djnz   _lp_reset_init_vdp_regs      ; 00:02C0 - 10 F4
+   djnz   @init_each_vdp_reg           ; 00:02C0 - 10 F4
    ld     hl, $3F00                    ; 00:02C2 - 21 00 3F
    ld     bc, $0040                    ; 00:02C5 - 01 40 00
    ld     a, $E0                       ; 00:02C8 - 3E E0
@@ -1150,11 +1150,11 @@ load_palettes_IRQ:
    ld     b, $10                       ; 00:0567 - 06 10
    ld     c, $00                       ; 00:0569 - 0E 00
    bit    0, a                         ; 00:056B - CB 47
-   jr     z, +                         ; 00:056D - 28 06
+   jr     z, @dont_load_first_palette  ; 00:056D - 28 06
    ld     (g_current_displayed_palette_0), hl  ; 00:056F - 22 30 D2
-   call   ++                           ; 00:0572 - CD 89 05
+   call   @write_cram_address_and_block  ; 00:0572 - CD 89 05
 
-+:
+@dont_load_first_palette:
    pop    af                           ; 00:0575 - F1
    bit    1, a                         ; 00:0576 - CB 4F
    ret    z                            ; 00:0578 - C8
@@ -1162,12 +1162,12 @@ load_palettes_IRQ:
    ld     b, $10                       ; 00:057C - 06 10
    ld     c, $10                       ; 00:057E - 0E 10
    bit    0, a                         ; 00:0580 - CB 47
-   jr     nz, ++                       ; 00:0582 - 20 05
+   jr     nz, @write_cram_address_and_block  ; 00:0582 - 20 05
    inc    hl                           ; 00:0584 - 23
    ld     b, $0F                       ; 00:0585 - 06 0F
    ld     c, $11                       ; 00:0587 - 0E 11
 
-++:
+@write_cram_address_and_block:
    ld     a, c                         ; 00:0589 - 79
    out    ($BF), a                     ; 00:058A - D3 BF
    ld     a, $C0                       ; 00:058C - 3E C0
