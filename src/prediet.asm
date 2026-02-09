@@ -23,14 +23,14 @@ BANKS 16
 var_C000 db   ; C000 (auto)
 var_C001 db   ; C001 (auto)
 .  dsb 4094
-var_D000 db   ; D000 (auto)
-var_D001 db   ; D001 (auto)
+g_sprite_table db   ; D000
+g_sprite_table_0_y db   ; D001
 .  dsb 34
-var_D024 db   ; D024 (auto)
+g_sprite_table_12 db   ; D024
 .  dsb 23
-var_D03C db   ; D03C (auto)
+g_sprite_table_20 db   ; D03C
 .  dsb 2
-var_D03F db   ; D03F (auto)
+g_sprite_table_21 db   ; D03F
 .  dsb 192
 var_D100 db   ; D100 (auto)
 .  dsb 127
@@ -730,7 +730,7 @@ upload_sprite_table_IRQ:
    or     $40                          ; 00:0344 - F6 40
    out    ($BF), a                     ; 00:0346 - D3 BF
    ld     b, (iy+g_sprite_count-IYBASE)  ; 00:0348 - FD 46 0A
-   ld     hl, var_D001                 ; 00:034B - 21 01 D0
+   ld     hl, g_sprite_table_0_y       ; 00:034B - 21 01 D0
    ld     de, $0003                    ; 00:034E - 11 03 00
    ld     a, b                         ; 00:0351 - 78
    and    a                            ; 00:0352 - A7
@@ -762,7 +762,7 @@ upload_sprite_table_IRQ:
    ld     a, c                         ; 00:036F - 79
    and    a                            ; 00:0370 - A7
    ret    z                            ; 00:0371 - C8
-   ld     hl, var_D000                 ; 00:0372 - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:0372 - 21 00 D0
    ld     b, (iy+g_sprite_count-IYBASE)  ; 00:0375 - FD 46 0A
    ld     a, $80                       ; 00:0378 - 3E 80
    out    ($BF), a                     ; 00:037A - D3 BF
@@ -1231,7 +1231,7 @@ print_positioned_FF_string:
    ret                                 ; 00:05E1 - C9
 
 clear_sprite_table:
-   ld     hl, var_D000                 ; 00:05E2 - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:05E2 - 21 00 D0
    ld     e, l                         ; 00:05E5 - 5D
    ld     d, h                         ; 00:05E6 - 54
    ld     bc, $00BD                    ; 00:05E7 - 01 BD 00
@@ -2643,7 +2643,7 @@ addr_00E86:
    ld     (var_D2C0), a                ; 00:0EC2 - 32 C0 D2
    ld     b, $A7                       ; 00:0EC5 - 06 A7
    ld     c, $28                       ; 00:0EC7 - 0E 28
-   ld     hl, var_D000                 ; 00:0EC9 - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:0EC9 - 21 00 D0
    ld     de, g_HUD_FFstr_buf          ; 00:0ECC - 11 BE D2
    call   draw_sprite_text             ; 00:0ECF - CD CC 35
    ld     (var_D23C), hl               ; 00:0ED2 - 22 3C D2
@@ -3068,7 +3068,7 @@ run_title_screen:
    ld     (var_D212), de               ; 00:1331 - ED 53 12 D2
 
 @next_sonic_hand_animation_frame:
-   ld     hl, var_D000                 ; 00:1335 - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:1335 - 21 00 D0
    ld     (var_D23C), hl               ; 00:1338 - 22 3C D2
    ld     hl, $0080                    ; 00:133B - 21 80 00
    ld     de, $0018                    ; 00:133E - 11 18 00
@@ -3232,7 +3232,7 @@ addr_01492:
    ld     b, $01                       ; 00:14A4 - 06 01
    call   addr_01B13                   ; 00:14A6 - CD 13 1B
    ex     de, hl                       ; 00:14A9 - EB
-   ld     hl, var_D000                 ; 00:14AA - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:14AA - 21 00 D0
    ld     c, $8C                       ; 00:14AD - 0E 8C
    ld     b, $5E                       ; 00:14AF - 06 5E
    call   draw_sprite_text             ; 00:14B1 - CD CC 35
@@ -3732,7 +3732,7 @@ addr_01860:
    res    0, (iy+var_D200-IYBASE)      ; 00:1861 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1865 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1868 - FD 36 0A 00
-   ld     hl, var_D000                 ; 00:186C - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:186C - 21 00 D0
    ld     (var_D23C), hl               ; 00:186F - 22 3C D2
    ld     hl, var_D2BA                 ; 00:1872 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1875 - 11 BE D2
@@ -3921,7 +3921,7 @@ LUT_01A14_allzero:
 
 addr_01A18:
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1A18 - FD 36 0A 00
-   ld     hl, var_D000                 ; 00:1A1C - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:1A1C - 21 00 D0
    ld     (var_D23C), hl               ; 00:1A1F - 22 3C D2
    ld     hl, var_D2BA                 ; 00:1A22 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A25 - 11 BE D2
@@ -4336,9 +4336,9 @@ addr_01E07:
    ld     (g_sonic_sprite_index_override), a  ; 00:1E2E - 32 02 D3
    ld     (var_D2DE), a                ; 00:1E31 - 32 DE D2
    ld     (iy+g_sprite_count-IYBASE), $15  ; 00:1E34 - FD 36 0A 15
-   ld     hl, var_D03F                 ; 00:1E38 - 21 3F D0
+   ld     hl, g_sprite_table_21        ; 00:1E38 - 21 3F D0
    ld     (var_D23C), hl               ; 00:1E3B - 22 3C D2
-   ld     hl, var_D001                 ; 00:1E3E - 21 01 D0
+   ld     hl, g_sprite_table_0_y       ; 00:1E3E - 21 01 D0
    ld     b, $07                       ; 00:1E41 - 06 07
    ld     de, $0003                    ; 00:1E43 - 11 03 00
    ld     a, $E0                       ; 00:1E46 - 3E E0
@@ -5271,7 +5271,7 @@ addr_025ED:
    push   bc                           ; 00:25ED - C5
    res    0, (iy+var_D200-IYBASE)      ; 00:25EE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:25F2 - CD 1C 03
-   ld     hl, var_D000                 ; 00:25F5 - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:25F5 - 21 00 D0
    ld     c, $70                       ; 00:25F8 - 0E 70
    ld     b, $60                       ; 00:25FA - 06 60
    ld     de, LUT_02825                ; 00:25FC - 11 25 28
@@ -5292,7 +5292,7 @@ addr_02610:
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:261B - FD 71 0A
    res    0, (iy+var_D200-IYBASE)      ; 00:261E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2622 - CD 1C 03
-   ld     de, var_D000                 ; 00:2625 - 11 00 D0
+   ld     de, g_sprite_table           ; 00:2625 - 11 00 D0
    ld     (var_D23C), de               ; 00:2628 - ED 53 3C D2
    ld     b, $03                       ; 00:262C - 06 03
 
@@ -5425,7 +5425,7 @@ addr_0271C:
    res    0, (iy+var_D200-IYBASE)      ; 00:271D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2721 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2724 - FD 36 0A 00
-   ld     hl, var_D000                 ; 00:2728 - 21 00 D0
+   ld     hl, g_sprite_table           ; 00:2728 - 21 00 D0
    ld     (var_D23C), hl               ; 00:272B - 22 3C D2
    ld     hl, var_D322                 ; 00:272E - 21 22 D3
    ld     b, $04                       ; 00:2731 - 06 04
@@ -6452,7 +6452,7 @@ run_all_objfuncs:
    ld     hl, (var_D23C)               ; 00:32AE - 2A 3C D2
    push   af                           ; 00:32B1 - F5
    push   hl                           ; 00:32B2 - E5
-   ld     hl, var_D024                 ; 00:32B3 - 21 24 D0
+   ld     hl, g_sprite_table_12        ; 00:32B3 - 21 24 D0
    ld     (var_D23C), hl               ; 00:32B6 - 22 3C D2
    ld     de, object_list              ; 00:32B9 - 11 FC D3
    call   try_run_objfunc_DE           ; 00:32BC - CD C8 32
@@ -9023,7 +9023,7 @@ objfunc_00_sonic:
    ld     a, l                         ; 01:5089 - 7D
    add    a, $EC                       ; 01:508A - C6 EC
    ld     b, a                         ; 01:508C - 47
-   ld     hl, var_D03C                 ; 01:508D - 21 3C D0
+   ld     hl, g_sprite_table_20        ; 01:508D - 21 3C D0
    ld     de, g_HUD_FFstr_buf          ; 01:5090 - 11 BE D2
    call   draw_sprite_text             ; 01:5093 - CD CC 35
    ret                                 ; 01:5096 - C9
@@ -9278,7 +9278,7 @@ objfunc_00_sonic:
    ld     hl, (var_D23C)               ; 01:523F - 2A 3C D2
    push   af                           ; 01:5242 - F5
    push   hl                           ; 01:5243 - E5
-   ld     hl, var_D000                 ; 01:5244 - 21 00 D0
+   ld     hl, g_sprite_table           ; 01:5244 - 21 00 D0
    ld     (var_D23C), hl               ; 01:5247 - 22 3C D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 01:524A - ED 5B 5D D2
    ld     hl, (var_D2E4)               ; 01:524E - 2A E4 D2
@@ -15147,7 +15147,7 @@ addr_08DAB:
    ld     hl, (var_D23C)               ; 02:8DCA - 2A 3C D2
    push   af                           ; 02:8DCD - F5
    push   hl                           ; 02:8DCE - E5
-   ld     hl, var_D000                 ; 02:8DCF - 21 00 D0
+   ld     hl, g_sprite_table           ; 02:8DCF - 21 00 D0
    ld     (var_D23C), hl               ; 02:8DD2 - 22 3C D2
    ld     a, (g_global_tick_counter)   ; 02:8DD5 - 3A 23 D2
    and    $03                          ; 02:8DD8 - E6 03
@@ -16179,7 +16179,7 @@ objfunc_20_UNKNOWN:
    jr     nc, addr_09767               ; 02:9710 - 30 55
    ld     e, a                         ; 02:9712 - 5F
    ld     d, $00                       ; 02:9713 - 16 00
-   ld     hl, var_D000                 ; 02:9715 - 21 00 D0
+   ld     hl, g_sprite_table           ; 02:9715 - 21 00 D0
    add    hl, de                       ; 02:9718 - 19
    ld     (var_D23C), hl               ; 02:9719 - 22 3C D2
    ld     l, (ix+2)                    ; 02:971C - DD 6E 02
@@ -18003,7 +18003,7 @@ objfunc_30_UNKNOWN:
    jr     nc, addr_0AA1C               ; 02:A9D8 - 30 42
    ld     e, a                         ; 02:A9DA - 5F
    ld     d, $00                       ; 02:A9DB - 16 00
-   ld     hl, var_D000                 ; 02:A9DD - 21 00 D0
+   ld     hl, g_sprite_table           ; 02:A9DD - 21 00 D0
    add    hl, de                       ; 02:A9E0 - 19
    ld     (var_D23C), hl               ; 02:A9E1 - 22 3C D2
    ld     a, (var_D2A3)                ; 02:A9E4 - 3A A3 D2
@@ -20261,7 +20261,7 @@ addr_0BF95:
    ld     hl, (var_D23C)               ; 02:BFA1 - 2A 3C D2
    push   af                           ; 02:BFA4 - F5
    push   hl                           ; 02:BFA5 - E5
-   ld     hl, var_D000                 ; 02:BFA6 - 21 00 D0
+   ld     hl, g_sprite_table           ; 02:BFA6 - 21 00 D0
    ld     (var_D23C), hl               ; 02:BFA9 - 22 3C D2
    ld     l, (ix+5)                    ; 02:BFAC - DD 6E 05
    ld     h, (ix+6)                    ; 02:BFAF - DD 66 06
