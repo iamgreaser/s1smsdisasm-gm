@@ -9530,7 +9530,7 @@ objfunc_00_sonic:
    set    5, (ix+24)                   ; 01:543C - DD CB 18 EE
    ld     a, (g_level_restart_countdown_timer)  ; 01:5440 - 3A 87 D2
    cp     $60                          ; 01:5443 - FE 60
-   jr     z, @TODO_54AA                ; 01:5445 - 28 63
+   jr     z, @skip_sonic_vel_change_on_death  ; 01:5445 - 28 63
    ld     hl, (g_level_scroll_y_pix_lo)  ; 01:5447 - 2A 5D D2
    ld     de, $00C0                    ; 01:544A - 11 C0 00
    add    hl, de                       ; 01:544D - 19
@@ -9544,51 +9544,51 @@ objfunc_00_sonic:
    ld     hl, g_lives                  ; 01:5461 - 21 46 D2
    dec    (hl)                         ; 01:5464 - 35
    set    2, (iy+iy_06_lvflag01-IYBASE)  ; 01:5465 - FD CB 06 D6
-   jp     @TODO_54AA                   ; 01:5469 - C3 AA 54
+   jp     @skip_sonic_vel_change_on_death  ; 01:5469 - C3 AA 54
 
 @dont_deduct_lives:
    xor    a                            ; 01:546C - AF
    ld     hl, $0080                    ; 01:546D - 21 80 00
    bit    3, (iy+iy_08_lvflag03-IYBASE)  ; 01:5470 - FD CB 08 5E
-   jr     nz, @TODO_549B               ; 01:5474 - 20 25
+   jr     nz, @select_sonic_drowning_y_vel_cap  ; 01:5474 - 20 25
    ld     de, (sonic_vel_y_sub)        ; 01:5476 - ED 5B 06 D4
    bit    7, d                         ; 01:547A - CB 7A
-   jr     nz, @TODO_5486               ; 01:547C - 20 08
+   jr     nz, @skip_y_vel_cap_when_going_up_on_death  ; 01:547C - 20 08
    ld     hl, $0600                    ; 01:547E - 21 00 06
    and    a                            ; 01:5481 - A7
    sbc    hl, de                       ; 01:5482 - ED 52
-   jr     c, @TODO_54A1                ; 01:5484 - 38 1B
+   jr     c, @apply_sonic_y_vel_cap_on_death  ; 01:5484 - 38 1B
 
-@TODO_5486:
+@skip_y_vel_cap_when_going_up_on_death:
    ex     de, hl                       ; 01:5486 - EB
    ld     b, (ix+12)                   ; 01:5487 - DD 46 0C
    ld     a, h                         ; 01:548A - 7C
    cp     $80                          ; 01:548B - FE 80
-   jr     nc, @TODO_5493               ; 01:548D - 30 04
+   jr     nc, @dont_cap_sonic_y_vel_on_death  ; 01:548D - 30 04
    cp     $08                          ; 01:548F - FE 08
-   jr     nc, @TODO_5498               ; 01:5491 - 30 05
+   jr     nc, @continue_from_capped_sonic_y_vel_on_death  ; 01:5491 - 30 05
 
-@TODO_5493:
+@dont_cap_sonic_y_vel_on_death:
    ld     de, $0030                    ; 01:5493 - 11 30 00
    ld     c, $00                       ; 01:5496 - 0E 00
 
-@TODO_5498:
+@continue_from_capped_sonic_y_vel_on_death:
    add    hl, de                       ; 01:5498 - 19
    ld     a, b                         ; 01:5499 - 78
    adc    a, c                         ; 01:549A - 89
 
-@TODO_549B:
+@select_sonic_drowning_y_vel_cap:
    ld     (sonic_vel_y_sub), hl        ; 01:549B - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 01:549E - 32 08 D4
 
-@TODO_54A1:
+@apply_sonic_y_vel_cap_on_death:
    xor    a                            ; 01:54A1 - AF
    ld     l, a                         ; 01:54A2 - 6F
    ld     h, a                         ; 01:54A3 - 67
    ld     (sonic_vel_x_sub), hl        ; 01:54A4 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 01:54A7 - 32 05 D4
 
-@TODO_54AA:
+@skip_sonic_vel_change_on_death:
    ld     (ix+20), $0B                 ; 01:54AA - DD 36 14 0B
    bit    3, (iy+iy_08_lvflag03-IYBASE)  ; 01:54AE - FD CB 08 5E
    jp     z, @continue_past_basic_movement_physics  ; 01:54B2 - CA 39 4C
@@ -10215,8 +10215,8 @@ TILEREPLACE_ring_blanking:
 
 LUT_sonic_anim_ptrs:
 .dw sonic_anim_00_01_walking, sonic_anim_00_01_walking, sonic_anim_02, sonic_anim_03_EMPTY_ANIM_HANGS_GAME, sonic_anim_04, sonic_anim_05, sonic_anim_06, sonic_anim_07_look_down  ; 01:5965
-.dw sonic_anim_08, sonic_anim_09_rolling, sonic_anim_0A_braking, sonic_anim_0B, sonic_anim_0C_look_up, sonic_anim_0D_bored, sonic_anim_0E_teleport_disappear, sonic_anim_0F_teleport_spin  ; 01:5975
-.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13_upspring, sonic_anim_14, sonic_anim_15, sonic_anim_16, sonic_anim_17_dropped_rings_00_03  ; 01:5985
+.dw sonic_anim_08, sonic_anim_09_rolling, sonic_anim_0A_braking, sonic_anim_0B_death, sonic_anim_0C_look_up, sonic_anim_0D_bored, sonic_anim_0E_teleport_disappear, sonic_anim_0F_teleport_spin  ; 01:5975
+.dw sonic_anim_10, sonic_anim_11, sonic_anim_12, sonic_anim_13_upspring, sonic_anim_14, sonic_anim_15_death_by_drowning, sonic_anim_16, sonic_anim_17_dropped_rings_00_03  ; 01:5985
 .dw sonic_anim_18_dropped_rings_01_04, sonic_anim_19_dropped_rings_02_05            ; 01:5995
 
 sonic_anim_00_01_walking:
@@ -10260,7 +10260,7 @@ sonic_anim_0A_braking:
 .db $13, $13, $13, $13, $13, $13, $13, $13, $25, $25, $25, $25, $25, $25, $25, $25  ; 01:5A53
 .db $FF, $00                                                                        ; 01:5A63
 
-sonic_anim_0B:
+sonic_anim_0B_death:
 .db $11, $FF, $00                                                                   ; 01:5A65
 
 sonic_anim_0C_look_up:
@@ -10295,7 +10295,7 @@ sonic_anim_13_upspring:
 sonic_anim_14:
 .db $22, $FF, $00                                                                   ; 01:5AE4
 
-sonic_anim_15:
+sonic_anim_15_death_by_drowning:
 .db $23, $FF, $00                                                                   ; 01:5AE7
 
 sonic_anim_16:
