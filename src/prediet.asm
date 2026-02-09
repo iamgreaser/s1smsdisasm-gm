@@ -5773,7 +5773,7 @@ LUT_object_functions:
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
-.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_UNKNOWN, objfunc_2F_UNKNOWN  ; 00:2B46
+.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_UNKNOWN, objfunc_2C_UNKNOWN, objfunc_2D_UNKNOWN, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
@@ -10063,7 +10063,7 @@ objfunc_00_sonic:
    jp     z, damage_sonic              ; 01:5804 - CA FD 35
    ret                                 ; 01:5807 - C9
 
-@special_18:
+@special_18_collapsing_bridge_both_sides:
    ld     a, (sonic_flags_ix_24)       ; 01:5808 - 3A 14 D4
    rlca                                ; 01:580B - 07
    ret    nc                           ; 01:580C - D0
@@ -10073,9 +10073,9 @@ objfunc_00_sonic:
    ld     a, l                         ; 01:5814 - 7D
    and    $1F                          ; 01:5815 - E6 1F
    cp     $10                          ; 01:5817 - FE 10
-   jr     nc, @TODO_5858               ; 01:5819 - 30 3D
+   jr     nc, @collapsing_bridge_continue_right_side  ; 01:5819 - 30 3D
 
-@TODO_581B:
+@collapsing_bridge_continue_left_side:
    ld     hl, (sonic_x)                ; 01:581B - 2A FE D3
    ld     bc, $000C                    ; 01:581E - 01 0C 00
    add    hl, bc                       ; 01:5821 - 09
@@ -10090,7 +10090,7 @@ objfunc_00_sonic:
    and    $E0                          ; 01:582F - E6 E0
    ld     e, a                         ; 01:5831 - 5F
    ld     d, h                         ; 01:5832 - 54
-   call   @TODO_5893                   ; 01:5833 - CD 93 58
+   call   @spawn_falling_bridge_piece  ; 01:5833 - CD 93 58
    ret    c                            ; 01:5836 - D8
    ld     bc, $000C                    ; 01:5837 - 01 0C 00
    ld     de, $0010                    ; 01:583A - 11 10 00
@@ -10098,14 +10098,14 @@ objfunc_00_sonic:
    ld     c, $00                       ; 01:5840 - 0E 00
    ld     a, (hl)                      ; 01:5842 - 7E
    cp     $8A                          ; 01:5843 - FE 8A
-   jr     z, @TODO_5849                ; 01:5845 - 28 02
+   jr     z, @collapsing_bridge_write_tile_back_now  ; 01:5845 - 28 02
    ld     c, $89                       ; 01:5847 - 0E 89
 
-@TODO_5849:
+@collapsing_bridge_write_tile_back_now:
    ld     (hl), c                      ; 01:5849 - 71
    ret                                 ; 01:584A - C9
 
-@special_19:
+@special_19_collapsing_bridge_right_only:
    ld     hl, (sonic_x)                ; 01:584B - 2A FE D3
    ld     bc, $000C                    ; 01:584E - 01 0C 00
    add    hl, bc                       ; 01:5851 - 09
@@ -10114,7 +10114,7 @@ objfunc_00_sonic:
    cp     $10                          ; 01:5855 - FE 10
    ret    c                            ; 01:5857 - D8
 
-@TODO_5858:
+@collapsing_bridge_continue_right_side:
    ld     a, l                         ; 01:5858 - 7D
    and    $E0                          ; 01:5859 - E6 E0
    add    a, $10                       ; 01:585B - C6 10
@@ -10127,7 +10127,7 @@ objfunc_00_sonic:
    and    $E0                          ; 01:5867 - E6 E0
    ld     e, a                         ; 01:5869 - 5F
    ld     d, h                         ; 01:586A - 54
-   call   @TODO_5893                   ; 01:586B - CD 93 58
+   call   @spawn_falling_bridge_piece  ; 01:586B - CD 93 58
    ret    c                            ; 01:586E - D8
    ld     bc, $000C                    ; 01:586F - 01 0C 00
    ld     de, $0010                    ; 01:5872 - 11 10 00
@@ -10135,12 +10135,12 @@ objfunc_00_sonic:
    ld     c, $00                       ; 01:5878 - 0E 00
    ld     a, (hl)                      ; 01:587A - 7E
    cp     $89                          ; 01:587B - FE 89
-   jr     z, @TODO_5849                ; 01:587D - 28 CA
+   jr     z, @collapsing_bridge_write_tile_back_now  ; 01:587D - 28 CA
    ld     c, $8A                       ; 01:587F - 0E 8A
    ld     (hl), c                      ; 01:5881 - 71
    ret                                 ; 01:5882 - C9
 
-@special_1A:
+@special_1A_collapsing_bridge_left_only:
    ld     hl, (sonic_x)                ; 01:5883 - 2A FE D3
    ld     bc, $000C                    ; 01:5886 - 01 0C 00
    add    hl, bc                       ; 01:5889 - 09
@@ -10148,9 +10148,9 @@ objfunc_00_sonic:
    and    $1F                          ; 01:588B - E6 1F
    cp     $10                          ; 01:588D - FE 10
    ret    nc                           ; 01:588F - D0
-   jp     @TODO_581B                   ; 01:5890 - C3 1B 58
+   jp     @collapsing_bridge_continue_left_side  ; 01:5890 - C3 1B 58
 
-@TODO_5893:
+@spawn_falling_bridge_piece:
    push   bc                           ; 01:5893 - C5
    push   de                           ; 01:5894 - D5
    call   spawn_object                 ; 01:5895 - CD 7B 7C
@@ -10194,7 +10194,7 @@ CODEPTRTAB_sonic_tile_specials:
 .dw objfunc_00_sonic@special_00_nothing, objfunc_00_sonic@special_01_spikes, objfunc_00_sonic@special_02, objfunc_00_sonic@special_03_spring_left_8_px_t, objfunc_00_sonic@special_04_spring_up_12_px_t, objfunc_00_sonic@special_05_spring_right_8_px_t, objfunc_00_sonic@special_06, objfunc_00_sonic@special_07  ; 01:58E5
 .dw objfunc_00_sonic@special_08_underwater, objfunc_00_sonic@special_09_spring_up_12_px_t, objfunc_00_sonic@special_0A, objfunc_00_sonic@special_0B_teleport, objfunc_00_sonic@special_0C_underwater_accel_left_8_subpx_t2, objfunc_00_sonic@special_0D_slide_right_5_px_t, objfunc_00_sonic@special_0E_slide_right_6_px_t, objfunc_00_sonic@special_0F_slide_left_5_px_t  ; 01:58F5
 .dw objfunc_00_sonic@special_10_slide_left_6_px_t, objfunc_00_sonic@special_11_bumper_special_stage, objfunc_00_sonic@special_12_spring_up_10_px_t_special_stage, objfunc_00_sonic@special_13_spring_up_12_px_t_special_stage, objfunc_00_sonic@special_14_spring_up_14_px_t_special_stage, objfunc_00_sonic@special_15_bouncebar_middle_special_stage, objfunc_00_sonic@special_16_bouncebar_end_special_stage, objfunc_00_sonic@special_17_SKY1_lightning  ; 01:5905
-.dw objfunc_00_sonic@special_18, objfunc_00_sonic@special_19, objfunc_00_sonic@special_1A, objfunc_00_sonic@special_1B  ; 01:5915
+.dw objfunc_00_sonic@special_18_collapsing_bridge_both_sides, objfunc_00_sonic@special_19_collapsing_bridge_right_only, objfunc_00_sonic@special_1A_collapsing_bridge_left_only, objfunc_00_sonic@special_1B  ; 01:5915
 
 SPRITEMAP_sonic_normal:
 .db $B4, $B6, $B8, $FF, $FF, $FF, $BA, $BC, $BE, $FF, $FF, $FF, $FF, $FF            ; 01:591D
@@ -14152,7 +14152,7 @@ UNK_0837E:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $44, $46, $48, $FF  ; 02:83AE
 .db $FF, $FF, $FF                                                                   ; 02:83BE
 
-objfunc_2E_UNKNOWN:
+objfunc_2E_falling_bridge_piece:
    set    5, (ix+24)                   ; 02:83C1 - DD CB 18 EE
    ld     (ix+13), $0E                 ; 02:83C5 - DD 36 0D 0E
    ld     (ix+14), $08                 ; 02:83C9 - DD 36 0E 08
