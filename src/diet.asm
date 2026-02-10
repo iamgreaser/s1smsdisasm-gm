@@ -6708,6 +6708,11 @@ load_object_from_level_spec:
    ; SAVING: 25 bytes
    .ENDIF
 
+   ;; Diet edition: Initialise via the objinit system.
+   push hl
+   call init_object_defaults
+   pop hl
+
    add    ix, de                       ; 00:2399 - DD 19
    ret                                 ; 00:239B - C9
 
@@ -9740,6 +9745,156 @@ tick_game_time:
 UNK_03A62:
 .db $01, $30, $00                                                                   ; 00:3A62
 
+;; A lot of objfuncs initialise themselves in some weird way, and on every tick, they waste time checking to see if they're already initialised.
+;; Here's an attempt to at least initialise *some* stuff declaratively.
+PTRLUT_objinit:
+   .dw objinit_unused  ; 00
+   .dw objinit_monitor  ; 01
+   .dw objinit_monitor  ; 02
+   .dw objinit_monitor  ; 03
+   .dw objinit_monitor  ; 04
+   .dw objinit_monitor  ; 05
+   .dw objinit_unused  ; 06
+   .dw objinit_unused  ; 07
+   .dw objinit_unused  ; 08
+   .dw objinit_unused  ; 09
+   .dw objinit_unused  ; 0A
+   .dw objinit_unused  ; 0B
+   .dw objinit_unused  ; 0C
+   .dw objinit_unused  ; 0D
+   .dw objinit_unused  ; 0E
+   .dw objinit_unused  ; 0F
+   .dw objinit_unused  ; 10
+   .dw objinit_unused  ; 11
+   .dw objinit_unused  ; 12
+   .dw objinit_unused  ; 13
+   .dw objinit_unused  ; 14
+   .dw objinit_unused  ; 15
+   .dw objinit_unused  ; 16
+   .dw objinit_unused  ; 17
+   .dw objinit_unused  ; 18
+   .dw objinit_unused  ; 19
+   .dw objinit_unused  ; 1A
+   .dw objinit_unused  ; 1B
+   .dw objinit_unused  ; 1C
+   .dw objinit_unused  ; 1D
+   .dw objinit_unused  ; 1E
+   .dw objinit_unused  ; 1F
+   .dw objinit_unused  ; 20
+   .dw objinit_unused  ; 21
+   .dw objinit_unused  ; 22
+   .dw objinit_unused  ; 23
+   .dw objinit_unused  ; 24
+   .dw objinit_unused  ; 25
+   .dw objinit_unused  ; 26
+   .dw objinit_unused  ; 27
+   .dw objinit_unused  ; 28
+   .dw objinit_unused  ; 29
+   .dw objinit_unused  ; 2A
+   .dw objinit_unused  ; 2B
+   .dw objinit_unused  ; 2C
+   .dw objinit_unused  ; 2D
+   .dw objinit_unused  ; 2E
+   .dw objinit_unused  ; 2F
+   .dw objinit_unused  ; 30
+   .dw objinit_unused  ; 31
+   .dw objinit_unused  ; 32
+   .dw objinit_unused  ; 33
+   .dw objinit_unused  ; 34
+   .dw objinit_unused  ; 35
+   .dw objinit_unused  ; 36
+   .dw objinit_unused  ; 37
+   .dw objinit_unused  ; 38
+   .dw objinit_unused  ; 39
+   .dw objinit_unused  ; 3A
+   .dw objinit_unused  ; 3B
+   .dw objinit_unused  ; 3C
+   .dw objinit_unused  ; 3D
+   .dw objinit_unused  ; 3E
+   .dw objinit_unused  ; 3F
+   .dw objinit_unused  ; 40
+   .dw objinit_unused  ; 41
+   .dw objinit_unused  ; 42
+   .dw objinit_unused  ; 43
+   .dw objinit_unused  ; 44
+   .dw objinit_unused  ; 45
+   .dw objinit_unused  ; 46
+   .dw objinit_unused  ; 47
+   .dw objinit_unused  ; 48
+   .dw objinit_unused  ; 49
+   .dw objinit_unused  ; 4A
+   .dw objinit_unused  ; 4B
+   .dw objinit_unused  ; 4C
+   .dw objinit_unused  ; 4D
+   .dw objinit_unused  ; 4E
+   .dw objinit_unused  ; 4F
+   .dw objinit_unused  ; 50
+   .dw objinit_monitor  ; 51
+   .dw objinit_monitor  ; 52
+   .dw objinit_unused  ; 53
+   .dw objinit_unused  ; 54
+   .dw objinit_unused  ; 55
+
+objinit_unused: .db $FF
+
+objinit_monitor: .db 13|(1<<5), $14, $18, $FF
+
+init_object_defaults:
+   ;; Range check!
+   ld a, (ix+0)
+   cp $56
+   ret nc
+
+   push de
+      ;; Load our pointer
+      add a, a
+      ld l, a
+      ld h, 0
+      ld de, PTRLUT_objinit
+      add hl, de
+      ld a, (hl)
+      inc hl
+      ld h, (hl)
+      ld l, a
+
+      ;; Initialise everything until we hit a $FF marker
+      --:
+         ;; Check for end of stream
+         ld a, (hl)
+         cp $FF
+         jr z, @end_of_init_stream
+         inc hl
+         ;; Load pointer and count for write
+         push bc
+            ld c, a
+            and $1F
+            ld e, a
+            ; E = low 5 bits
+            xor c
+            ; A = high 3 bits in place
+            rlca
+            rlca
+            rlca
+            ; Now we have those bits at the bottom
+            inc a
+            ld c, a
+            ld b, $00
+            ld d, b
+            push hl
+               push ix
+               pop hl
+               add hl, de
+               ex de, hl
+            pop hl
+            ;; Write!
+            ldir
+         pop bc
+         jp --
+      @end_of_init_stream:
+   pop de
+
+   ret
+
 .IF 0
 .ELSE
 ;; This is called 6 times.
@@ -12482,8 +12637,10 @@ sonic_anim_19_dropped_rings_02_05:
 .ENDIF
 
 objfunc_01_monitor_rings:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5B09 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5B0D - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5B11 - CD A8 5D
    ld     hl, $0003                    ; 01:5B14 - 21 03 00
    ld     (tmp_06), hl                 ; 01:5B17 - 22 14 D2
@@ -12569,8 +12726,10 @@ SPRITEMAP_monitor_unnoisy_surrounds:
 .db $54, $FE, $58, $FF, $FF, $FF, $AA, $AC, $AE, $FF, $FF, $FF, $FF                 ; 01:5BCC
 
 objfunc_02_monitor_speed_shoes:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5BD9 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5BDD - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5BE1 - CD A8 5D
    ld     hl, $0003                    ; 01:5BE4 - 21 03 00
    ld     (tmp_06), hl                 ; 01:5BE7 - 22 14 D2
@@ -12589,8 +12748,10 @@ objfunc_02_monitor_speed_shoes:
    jp     monitor_common_main          ; 01:5C02 - C3 34 5B
 
 objfunc_03_monitor_life:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5C05 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5C09 - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5C0D - CD A8 5D
    ld     hl, g_level_lives_collected_mask  ; 01:5C10 - 21 05 D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5C13 - CD 02 0C
@@ -12698,8 +12859,10 @@ objfunc_03_monitor_life:
    jr     @continue_into_common_main   ; 01:5CD5 - 18 96
 
 objfunc_04_monitor_shield:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5CD7 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5CDB - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5CDF - CD A8 5D
    ld     hl, $0003                    ; 01:5CE2 - 21 03 00
    ld     (tmp_06), hl                 ; 01:5CE5 - 22 14 D2
@@ -12715,8 +12878,10 @@ objfunc_04_monitor_shield:
    jp     monitor_common_main          ; 01:5CFC - C3 34 5B
 
 objfunc_05_monitor_invincibility:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5CFF - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D03 - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5D07 - CD A8 5D
    ld     hl, $0003                    ; 01:5D0A - 21 03 00
    ld     (tmp_06), hl                 ; 01:5D0D - 22 14 D2
@@ -12736,8 +12901,10 @@ objfunc_05_monitor_invincibility:
    jp     monitor_common_main          ; 01:5D2C - C3 34 5B
 
 objfunc_51_monitor_checkpoint:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5D2F - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D33 - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5D37 - CD A8 5D
    ld     hl, $0003                    ; 01:5D3A - 21 03 00
    ld     (tmp_06), hl                 ; 01:5D3D - 22 14 D2
@@ -12780,8 +12947,10 @@ objfunc_51_monitor_checkpoint:
    jp     monitor_common_main          ; 01:5D7D - C3 34 5B
 
 objfunc_52_monitor_continue:
+   .IF 0
    ld     (ix+13), $14                 ; 01:5D80 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D84 - DD 36 0E 18
+   .ENDIF
    call   addr_05DA8                   ; 01:5D88 - CD A8 5D
    ld     hl, $0003                    ; 01:5D8B - 21 03 00
    ld     (tmp_06), hl                 ; 01:5D8E - 22 14 D2
