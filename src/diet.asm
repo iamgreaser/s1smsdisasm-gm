@@ -7467,7 +7467,7 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_UNKNOWN, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
@@ -17664,29 +17664,29 @@ LUT_air_bubble_spawner_anim_xy:
 LUT_air_bubble_spawner_initial_chance:
 .db $01, $00, $01, $01, $00, $01, $00, $01                                          ; 02:8EC2
 
-objfunc_42_UNKNOWN:
+objfunc_42_small_bubble:
    set    5, (ix+24)                   ; 02:8ECA - DD CB 18 EE
    xor    a                            ; 02:8ECE - AF
    ld     (ix+15), a                   ; 02:8ECF - DD 77 0F
    ld     (ix+16), a                   ; 02:8ED2 - DD 77 10
    ld     a, (ix+17)                   ; 02:8ED5 - DD 7E 11
    and    $0F                          ; 02:8ED8 - E6 0F
-   jr     nz, addr_08EF8               ; 02:8EDA - 20 1C
+   jr     nz, @move_same_x_dir_as_last_time  ; 02:8EDA - 20 1C
    call   random_A                     ; 02:8EDC - CD 25 06
    ld     bc, $0020                    ; 02:8EDF - 01 20 00
    ld     d, $00                       ; 02:8EE2 - 16 00
    and    $3F                          ; 02:8EE4 - E6 3F
    cp     $20                          ; 02:8EE6 - FE 20
-   jr     c, addr_08EEF                ; 02:8EE8 - 38 05
+   jr     c, @selected_move_right      ; 02:8EE8 - 38 05
    ld     bc, $FFE0                    ; 02:8EEA - 01 E0 FF
    ld     d, $FF                       ; 02:8EED - 16 FF
 
-addr_08EEF:
+@selected_move_right:
    ld     (ix+7), c                    ; 02:8EEF - DD 71 07
    ld     (ix+8), b                    ; 02:8EF2 - DD 70 08
    ld     (ix+9), d                    ; 02:8EF5 - DD 72 09
 
-addr_08EF8:
+@move_same_x_dir_as_last_time:
    ld     (ix+10), $A0                 ; 02:8EF8 - DD 36 0A A0
    ld     (ix+11), $FF                 ; 02:8EFC - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:8F00 - DD 36 0C FF
@@ -17698,20 +17698,20 @@ addr_08EF8:
    ld     bc, $0008                    ; 02:8F11 - 01 08 00
    xor    a                            ; 02:8F14 - AF
    sbc    hl, bc                       ; 02:8F15 - ED 42
-   jr     nc, addr_08F1B               ; 02:8F17 - 30 02
+   jr     nc, @dont_clamp_x_left_side_check  ; 02:8F17 - 30 02
    ld     l, a                         ; 02:8F19 - 6F
    ld     h, a                         ; 02:8F1A - 67
 
-addr_08F1B:
+@dont_clamp_x_left_side_check:
    and    a                            ; 02:8F1B - A7
    sbc    hl, de                       ; 02:8F1C - ED 52
-   jr     nc, addr_08F56               ; 02:8F1E - 30 36
+   jr     nc, @destroy_this_object     ; 02:8F1E - 30 36
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8F20 - 2A 5A D2
    ld     bc, $0100                    ; 02:8F23 - 01 00 01
    add    hl, bc                       ; 02:8F26 - 09
    and    a                            ; 02:8F27 - A7
    sbc    hl, de                       ; 02:8F28 - ED 52
-   jr     c, addr_08F56                ; 02:8F2A - 38 2A
+   jr     c, @destroy_this_object      ; 02:8F2A - 38 2A
    ld     l, (ix+5)                    ; 02:8F2C - DD 6E 05
    ld     h, (ix+6)                    ; 02:8F2F - DD 66 06
    ld     (tmp_02), hl                 ; 02:8F32 - 22 10 D2
@@ -17719,28 +17719,28 @@ addr_08F1B:
    ld     hl, (g_water_level_y)        ; 02:8F36 - 2A DC D2
    and    a                            ; 02:8F39 - A7
    sbc    hl, de                       ; 02:8F3A - ED 52
-   jr     nc, addr_08F56               ; 02:8F3C - 30 18
+   jr     nc, @destroy_this_object     ; 02:8F3C - 30 18
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8F3E - 2A 5D D2
    ld     bc, $FFF0                    ; 02:8F41 - 01 F0 FF
    add    hl, bc                       ; 02:8F44 - 09
    and    a                            ; 02:8F45 - A7
    sbc    hl, de                       ; 02:8F46 - ED 52
-   jr     nc, addr_08F56               ; 02:8F48 - 30 0C
+   jr     nc, @destroy_this_object     ; 02:8F48 - 30 0C
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8F4A - 2A 5D D2
    ld     bc, $00C0                    ; 02:8F4D - 01 C0 00
    add    hl, bc                       ; 02:8F50 - 09
    and    a                            ; 02:8F51 - A7
    sbc    hl, de                       ; 02:8F52 - ED 52
-   jr     nc, addr_08F5A               ; 02:8F54 - 30 04
+   jr     nc, @dont_destroy_this_object  ; 02:8F54 - 30 04
 
-addr_08F56:
+@destroy_this_object:
    .IF 0
    ld     (ix+0), $FF                  ; 02:8F56 - DD 36 00 FF
    .ELSE
    call free_object
    .ENDIF
 
-addr_08F5A:
+@dont_destroy_this_object:
    ld     hl, $0000                    ; 02:8F5A - 21 00 00
    ld     (tmp_04), hl                 ; 02:8F5D - 22 12 D2
    ld     (tmp_06), hl                 ; 02:8F60 - 22 14 D2
