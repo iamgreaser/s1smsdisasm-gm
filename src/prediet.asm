@@ -88,7 +88,7 @@ g_committed_rompage_2 db   ; D236
 g_level_width db   ; D238
 .  dsb 1
 g_level_height dw   ; D23A
-var_D23C dw   ; D23C
+g_next_avail_vdp_sprite_ptr dw   ; D23C
 g_level db   ; D23E
 g_next_bonus_level db   ; D23F
 g_sonic_x_speed_cap_subpx dw   ; D240
@@ -2655,7 +2655,7 @@ addr_00E86:
    ld     hl, g_sprite_table           ; 00:0EC9 - 21 00 D0
    ld     de, g_HUD_FFstr_buf          ; 00:0ECC - 11 BE D2
    call   draw_sprite_text             ; 00:0ECF - CD CC 35
-   ld     (var_D23C), hl               ; 00:0ED2 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:0ED2 - 22 3C D2
    pop    hl                           ; 00:0ED5 - E1
    ld     (tmp_00), hl                 ; 00:0ED6 - 22 0E D2
    pop    bc                           ; 00:0ED9 - C1
@@ -3078,7 +3078,7 @@ run_title_screen:
 
 @next_sonic_hand_animation_frame:
    ld     hl, g_sprite_table           ; 00:1335 - 21 00 D0
-   ld     (var_D23C), hl               ; 00:1338 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1338 - 22 3C D2
    ld     hl, $0080                    ; 00:133B - 21 80 00
    ld     de, $0018                    ; 00:133E - 11 18 00
    ld     bc, (tmp_04)                 ; 00:1341 - ED 4B 12 D2
@@ -3245,7 +3245,7 @@ addr_01492:
    ld     c, $8C                       ; 00:14AD - 0E 8C
    ld     b, $5E                       ; 00:14AF - 06 5E
    call   draw_sprite_text             ; 00:14B1 - CD CC 35
-   ld     (var_D23C), hl               ; 00:14B4 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:14B4 - 22 3C D2
    pop    bc                           ; 00:14B7 - C1
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:14B8 - FD CB 03 6E
    jr     z, addr_014CC                ; 00:14BC - 28 0E
@@ -3742,17 +3742,17 @@ addr_01860:
    call   wait_until_irq_ticked        ; 00:1865 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1868 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:186C - 21 00 D0
-   ld     (var_D23C), hl               ; 00:186F - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:186F - 22 3C D2
    ld     hl, var_D2BA                 ; 00:1872 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1875 - 11 BE D2
    ld     b, $04                       ; 00:1878 - 06 04
    call   addr_01B13                   ; 00:187A - CD 13 1B
    ex     de, hl                       ; 00:187D - EB
-   ld     hl, (var_D23C)               ; 00:187E - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:187E - 2A 3C D2
    ld     c, $90                       ; 00:1881 - 0E 90
    ld     b, $80                       ; 00:1883 - 06 80
    call   draw_sprite_text             ; 00:1885 - CD CC 35
-   ld     (var_D23C), hl               ; 00:1888 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1888 - 22 3C D2
    ld     a, (tmp_08)                  ; 00:188B - 3A 16 D2
    and    a                            ; 00:188E - A7
    jr     nz, addr_018C5               ; 00:188F - 20 34
@@ -3761,21 +3761,21 @@ addr_01860:
    ld     b, $01                       ; 00:1897 - 06 01
    call   addr_01B13                   ; 00:1899 - CD 13 1B
    ex     de, hl                       ; 00:189C - EB
-   ld     hl, (var_D23C)               ; 00:189D - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:189D - 2A 3C D2
    ld     c, $90                       ; 00:18A0 - 0E 90
    ld     b, $60                       ; 00:18A2 - 06 60
    call   draw_sprite_text             ; 00:18A4 - CD CC 35
-   ld     (var_D23C), hl               ; 00:18A7 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18A7 - 22 3C D2
    ld     hl, LUT_019AE                ; 00:18AA - 21 AE 19
    ld     de, g_HUD_FFstr_buf          ; 00:18AD - 11 BE D2
    ld     b, $03                       ; 00:18B0 - 06 03
    call   addr_01B13                   ; 00:18B2 - CD 13 1B
    ex     de, hl                       ; 00:18B5 - EB
-   ld     hl, (var_D23C)               ; 00:18B6 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:18B6 - 2A 3C D2
    ld     c, $A0                       ; 00:18B9 - 0E A0
    ld     b, $60                       ; 00:18BB - 06 60
    call   draw_sprite_text             ; 00:18BD - CD CC 35
-   ld     (var_D23C), hl               ; 00:18C0 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18C0 - 22 3C D2
    jr     addr_018FF                   ; 00:18C3 - 18 3A
 
 addr_018C5:
@@ -3787,11 +3787,11 @@ addr_018C5:
    ld     b, $03                       ; 00:18D1 - 06 03
    call   addr_01B13                   ; 00:18D3 - CD 13 1B
    ex     de, hl                       ; 00:18D6 - EB
-   ld     hl, (var_D23C)               ; 00:18D7 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:18D7 - 2A 3C D2
    ld     c, $A0                       ; 00:18DA - 0E A0
    ld     b, $60                       ; 00:18DC - 06 60
    call   draw_sprite_text             ; 00:18DE - CD CC 35
-   ld     (var_D23C), hl               ; 00:18E1 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18E1 - 22 3C D2
    jr     addr_018FF                   ; 00:18E4 - 18 19
 
 addr_018E6:
@@ -3800,11 +3800,11 @@ addr_018E6:
    ld     b, $03                       ; 00:18EC - 06 03
    call   addr_01B13                   ; 00:18EE - CD 13 1B
    ex     de, hl                       ; 00:18F1 - EB
-   ld     hl, (var_D23C)               ; 00:18F2 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:18F2 - 2A 3C D2
    ld     c, $A0                       ; 00:18F5 - 0E A0
    ld     b, $60                       ; 00:18F7 - 06 60
    call   draw_sprite_text             ; 00:18F9 - CD CC 35
-   ld     (var_D23C), hl               ; 00:18FC - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18FC - 22 3C D2
 
 addr_018FF:
    pop    bc                           ; 00:18FF - C1
@@ -3931,23 +3931,23 @@ LUT_01A14_allzero:
 addr_01A18:
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1A18 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:1A1C - 21 00 D0
-   ld     (var_D23C), hl               ; 00:1A1F - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A1F - 22 3C D2
    ld     hl, var_D2BA                 ; 00:1A22 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A25 - 11 BE D2
    ld     b, $04                       ; 00:1A28 - 06 04
    call   addr_01B13                   ; 00:1A2A - CD 13 1B
    ex     de, hl                       ; 00:1A2D - EB
-   ld     hl, (var_D23C)               ; 00:1A2E - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1A2E - 2A 3C D2
    ld     c, $88                       ; 00:1A31 - 0E 88
    ld     b, $50                       ; 00:1A33 - 06 50
    call   draw_sprite_text             ; 00:1A35 - CD CC 35
-   ld     (var_D23C), hl               ; 00:1A38 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A38 - 22 3C D2
    ld     hl, g_rings_BCD              ; 00:1A3B - 21 AA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A3E - 11 BE D2
    ld     b, $01                       ; 00:1A41 - 06 01
    call   addr_01B13                   ; 00:1A43 - CD 13 1B
    ex     de, hl                       ; 00:1A46 - EB
-   ld     hl, (var_D23C)               ; 00:1A47 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1A47 - 2A 3C D2
    ld     c, $98                       ; 00:1A4A - 0E 98
    ld     b, $80                       ; 00:1A4C - 06 80
    ld     a, (g_level)                 ; 00:1A4E - 3A 3E D2
@@ -3957,7 +3957,7 @@ addr_01A18:
 
 addr_01A57:
    call   draw_sprite_text             ; 00:1A57 - CD CC 35
-   ld     (var_D23C), hl               ; 00:1A5A - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A5A - 22 3C D2
    ld     a, (g_level)                 ; 00:1A5D - 3A 3E D2
    cp     $1C                          ; 00:1A60 - FE 1C
    jr     c, addr_01A73                ; 00:1A62 - 38 0F
@@ -3978,9 +3978,9 @@ addr_01A73:
 addr_01A80:
    ld     c, $C0                       ; 00:1A80 - 0E C0
    ex     de, hl                       ; 00:1A82 - EB
-   ld     hl, (var_D23C)               ; 00:1A83 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1A83 - 2A 3C D2
    call   draw_sprite_text             ; 00:1A86 - CD CC 35
-   ld     (var_D23C), hl               ; 00:1A89 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A89 - 22 3C D2
    call   addr_01ACA                   ; 00:1A8C - CD CA 1A
    ld     a, (g_level)                 ; 00:1A8F - 3A 3E D2
    cp     $1C                          ; 00:1A92 - FE 1C
@@ -3990,11 +3990,11 @@ addr_01A80:
    ld     b, $04                       ; 00:1A9C - 06 04
    call   addr_01B13                   ; 00:1A9E - CD 13 1B
    ex     de, hl                       ; 00:1AA1 - EB
-   ld     hl, (var_D23C)               ; 00:1AA2 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1AA2 - 2A 3C D2
    ld     c, $88                       ; 00:1AA5 - 0E 88
    ld     b, $68                       ; 00:1AA7 - 06 68
    call   draw_sprite_text             ; 00:1AA9 - CD CC 35
-   ld     (var_D23C), hl               ; 00:1AAC - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1AAC - 22 3C D2
    ret                                 ; 00:1AAF - C9
 
 addr_01AB0:
@@ -4003,11 +4003,11 @@ addr_01AB0:
    ld     b, $01                       ; 00:1AB6 - 06 01
    call   addr_01B13                   ; 00:1AB8 - CD 13 1B
    ex     de, hl                       ; 00:1ABB - EB
-   ld     hl, (var_D23C)               ; 00:1ABC - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1ABC - 2A 3C D2
    ld     c, $A8                       ; 00:1ABF - 0E A8
    ld     b, $80                       ; 00:1AC1 - 06 80
    call   draw_sprite_text             ; 00:1AC3 - CD CC 35
-   ld     (var_D23C), hl               ; 00:1AC6 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1AC6 - 22 3C D2
    ret                                 ; 00:1AC9 - C9
 
 addr_01ACA:
@@ -4043,10 +4043,10 @@ addr_01ACA:
    ld     c, $90                       ; 00:1B04 - 0E 90
 
 addr_01B06:
-   ld     hl, (var_D23C)               ; 00:1B06 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1B06 - 2A 3C D2
    ld     de, g_HUD_FFstr_buf          ; 00:1B09 - 11 BE D2
    call   draw_sprite_text             ; 00:1B0C - CD CC 35
-   ld     (var_D23C), hl               ; 00:1B0F - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1B0F - 22 3C D2
    ret                                 ; 00:1B12 - C9
 
 addr_01B13:
@@ -4346,7 +4346,7 @@ addr_01E07:
    ld     (var_D2DE), a                ; 00:1E31 - 32 DE D2
    ld     (iy+g_sprite_count-IYBASE), $15  ; 00:1E34 - FD 36 0A 15
    ld     hl, g_sprite_table_21        ; 00:1E38 - 21 3F D0
-   ld     (var_D23C), hl               ; 00:1E3B - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1E3B - 22 3C D2
    ld     hl, g_sprite_table_0_y       ; 00:1E3E - 21 01 D0
    ld     b, $07                       ; 00:1E41 - 06 07
    ld     de, $0003                    ; 00:1E43 - 11 03 00
@@ -5285,7 +5285,7 @@ addr_025ED:
    ld     b, $60                       ; 00:25FA - 06 60
    ld     de, LUT_02825                ; 00:25FC - 11 25 28
    call   draw_sprite_text             ; 00:25FF - CD CC 35
-   ld     (var_D23C), hl               ; 00:2602 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2602 - 22 3C D2
    pop    bc                           ; 00:2605 - C1
    djnz   addr_025ED                   ; 00:2606 - 10 E5
    ld     a, $13                       ; 00:2608 - 3E 13
@@ -5302,7 +5302,7 @@ addr_02610:
    res    0, (iy+iy_00-IYBASE)         ; 00:261E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2622 - CD 1C 03
    ld     de, g_sprite_table           ; 00:2625 - 11 00 D0
-   ld     (var_D23C), de               ; 00:2628 - ED 53 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), de  ; 00:2628 - ED 53 3C D2
    ld     b, $03                       ; 00:262C - 06 03
 
 addr_0262E:
@@ -5318,9 +5318,9 @@ addr_0262E:
    inc    hl                           ; 00:2639 - 23
    push   bc                           ; 00:263A - C5
    ld     de, LUT_02825                ; 00:263B - 11 25 28
-   ld     hl, (var_D23C)               ; 00:263E - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:263E - 2A 3C D2
    call   draw_sprite_text             ; 00:2641 - CD CC 35
-   ld     (var_D23C), hl               ; 00:2644 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2644 - 22 3C D2
    pop    bc                           ; 00:2647 - C1
    pop    hl                           ; 00:2648 - E1
    ld     a, (hl)                      ; 00:2649 - 7E
@@ -5335,9 +5335,9 @@ addr_0262E:
    inc    hl                           ; 00:2656 - 23
    push   hl                           ; 00:2657 - E5
    ld     de, LUT_02825                ; 00:2658 - 11 25 28
-   ld     hl, (var_D23C)               ; 00:265B - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:265B - 2A 3C D2
    call   draw_sprite_text             ; 00:265E - CD CC 35
-   ld     (var_D23C), hl               ; 00:2661 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2661 - 22 3C D2
    pop    hl                           ; 00:2664 - E1
    pop    bc                           ; 00:2665 - C1
    djnz   addr_0262E                   ; 00:2666 - 10 C6
@@ -5435,7 +5435,7 @@ addr_0271C:
    call   wait_until_irq_ticked        ; 00:2721 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2724 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:2728 - 21 00 D0
-   ld     (var_D23C), hl               ; 00:272B - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:272B - 22 3C D2
    ld     hl, g_credits_sprites        ; 00:272E - 21 22 D3
    ld     b, $04                       ; 00:2731 - 06 04
 
@@ -5848,10 +5848,10 @@ addr_02E72:
    ld     (var_D2C1), a                ; 00:2E75 - 32 C1 D2
    ld     c, $10                       ; 00:2E78 - 0E 10
    ld     b, $AC                       ; 00:2E7A - 06 AC
-   ld     hl, (var_D23C)               ; 00:2E7C - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2E7C - 2A 3C D2
    ld     de, g_HUD_FFstr_buf          ; 00:2E7F - 11 BE D2
    call   draw_sprite_text             ; 00:2E82 - CD CC 35
-   ld     (var_D23C), hl               ; 00:2E85 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2E85 - 22 3C D2
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:2E88 - FD CB 05 56
    call   nz, addr_02EE6               ; 00:2E8C - C4 E6 2E
    bit    5, (iy+iy_07_lvflag02-IYBASE)  ; 00:2E8F - FD CB 07 6E
@@ -5916,14 +5916,14 @@ addr_02EE6:
    ld     (var_D2C0), a                ; 00:2F01 - 32 C0 D2
    ld     c, $14                       ; 00:2F04 - 0E 14
    ld     b, $00                       ; 00:2F06 - 06 00
-   ld     hl, (var_D23C)               ; 00:2F08 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2F08 - 2A 3C D2
    ld     de, LUT_02E52                ; 00:2F0B - 11 52 2E
    call   draw_sprite_text             ; 00:2F0E - CD CC 35
    ld     c, $28                       ; 00:2F11 - 0E 28
    ld     b, $00                       ; 00:2F13 - 06 00
    ld     de, g_HUD_FFstr_buf          ; 00:2F15 - 11 BE D2
    call   draw_sprite_text             ; 00:2F18 - CD CC 35
-   ld     (var_D23C), hl               ; 00:2F1B - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2F1B - 22 3C D2
    ret                                 ; 00:2F1E - C9
 
 draw_level_timer:
@@ -5962,10 +5962,10 @@ draw_level_timer:
    ld     b, $38                       ; 00:2F57 - 06 38
 
 addr_02F59:
-   ld     hl, (var_D23C)               ; 00:2F59 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2F59 - 2A 3C D2
    ld     de, g_HUD_FFstr_buf          ; 00:2F5C - 11 BE D2
    call   draw_sprite_text             ; 00:2F5F - CD CC 35
-   ld     (var_D23C), hl               ; 00:2F62 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2F62 - 22 3C D2
    ret                                 ; 00:2F65 - C9
 
 addr_02F66:
@@ -6458,16 +6458,16 @@ run_all_objfuncs:
    call   nz, try_run_objfunc_DE       ; 00:32A6 - C4 C8 32
    djnz   -                            ; 00:32A9 - 10 F5
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:32AB - FD 7E 0A
-   ld     hl, (var_D23C)               ; 00:32AE - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:32AE - 2A 3C D2
    push   af                           ; 00:32B1 - F5
    push   hl                           ; 00:32B2 - E5
    ld     hl, g_sprite_table_12        ; 00:32B3 - 21 24 D0
-   ld     (var_D23C), hl               ; 00:32B6 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:32B6 - 22 3C D2
    ld     de, object_list              ; 00:32B9 - 11 FC D3
    call   try_run_objfunc_DE           ; 00:32BC - CD C8 32
    pop    hl                           ; 00:32BF - E1
    pop    af                           ; 00:32C0 - F1
-   ld     (var_D23C), hl               ; 00:32C1 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:32C1 - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:32C4 - FD 77 0A
    ret                                 ; 00:32C7 - C9
 
@@ -6839,7 +6839,7 @@ draw_sprite_string:
    ld     a, (bc)                      ; 00:353E - 0A
    cp     $FE                          ; 00:353F - FE FE
    jr     nc, @cull_horizontal         ; 00:3541 - 30 16
-   ld     de, (var_D23C)               ; 00:3543 - ED 5B 3C D2
+   ld     de, (g_next_avail_vdp_sprite_ptr)  ; 00:3543 - ED 5B 3C D2
    ld     a, l                         ; 00:3547 - 7D
    ld     (de), a                      ; 00:3548 - 12
    inc    e                            ; 00:3549 - 1C
@@ -6851,7 +6851,7 @@ draw_sprite_string:
    ld     a, (bc)                      ; 00:354F - 0A
    ld     (de), a                      ; 00:3550 - 12
    inc    e                            ; 00:3551 - 1C
-   ld     (var_D23C), de               ; 00:3552 - ED 53 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), de  ; 00:3552 - ED 53 3C D2
    inc    (iy+g_sprite_count-IYBASE)   ; 00:3556 - FD 34 0A
 
 @cull_horizontal:
@@ -6924,7 +6924,7 @@ draw_sprite:
 
 @draw_it:
    ld     h, c                         ; 00:35B6 - 61
-   ld     bc, (var_D23C)               ; 00:35B7 - ED 4B 3C D2
+   ld     bc, (g_next_avail_vdp_sprite_ptr)  ; 00:35B7 - ED 4B 3C D2
    ld     a, l                         ; 00:35BB - 7D
    ld     (bc), a                      ; 00:35BC - 02
    inc    c                            ; 00:35BD - 0C
@@ -6934,7 +6934,7 @@ draw_sprite:
    ld     a, h                         ; 00:35C1 - 7C
    ld     (bc), a                      ; 00:35C2 - 02
    inc    c                            ; 00:35C3 - 0C
-   ld     (var_D23C), bc               ; 00:35C4 - ED 43 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), bc  ; 00:35C4 - ED 43 3C D2
    inc    (iy+g_sprite_count-IYBASE)   ; 00:35C8 - FD 34 0A
    ret                                 ; 00:35CB - C9
 
@@ -9284,11 +9284,11 @@ objfunc_00_sonic:
 
 @show_round_bumper_throbbing_sprite:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 01:523C - FD 7E 0A
-   ld     hl, (var_D23C)               ; 01:523F - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 01:523F - 2A 3C D2
    push   af                           ; 01:5242 - F5
    push   hl                           ; 01:5243 - E5
    ld     hl, g_sprite_table           ; 01:5244 - 21 00 D0
-   ld     (var_D23C), hl               ; 01:5247 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 01:5247 - 22 3C D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 01:524A - ED 5B 5D D2
    ld     hl, (g_special_stage_round_bumper_anim_sprite_y)  ; 01:524E - 2A E4 D2
    and    a                            ; 01:5251 - A7
@@ -9302,7 +9302,7 @@ objfunc_00_sonic:
    call   draw_sprite_string           ; 01:5262 - CD 0F 35
    pop    hl                           ; 01:5265 - E1
    pop    af                           ; 01:5266 - F1
-   ld     (var_D23C), hl               ; 01:5267 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 01:5267 - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 01:526A - FD 77 0A
    ret                                 ; 01:526D - C9
 
@@ -15153,11 +15153,11 @@ objfunc_40_waterline:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8DC1 - 2A 5D D2
    ld     (tmp_02), hl                 ; 02:8DC4 - 22 10 D2
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:8DC7 - FD 7E 0A
-   ld     hl, (var_D23C)               ; 02:8DCA - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:8DCA - 2A 3C D2
    push   af                           ; 02:8DCD - F5
    push   hl                           ; 02:8DCE - E5
    ld     hl, g_sprite_table           ; 02:8DCF - 21 00 D0
-   ld     (var_D23C), hl               ; 02:8DD2 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:8DD2 - 22 3C D2
    ld     a, (g_global_tick_counter)   ; 02:8DD5 - 3A 23 D2
    and    $03                          ; 02:8DD8 - E6 03
    add    a, a                         ; 02:8DDA - 87
@@ -15192,7 +15192,7 @@ objfunc_40_waterline:
    djnz   @each_onscreen_sprite        ; 02:8E0B - 10 D8
    pop    hl                           ; 02:8E0D - E1
    pop    af                           ; 02:8E0E - F1
-   ld     (var_D23C), hl               ; 02:8E0F - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:8E0F - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:8E12 - FD 77 0A
    ret                                 ; 02:8E15 - C9
 
@@ -16180,7 +16180,7 @@ objfunc_20_UNKNOWN:
    ld     (ix+15), a                   ; 02:96FD - DD 77 0F
    ld     (ix+16), a                   ; 02:9700 - DD 77 10
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:9703 - FD 7E 0A
-   ld     hl, (var_D23C)               ; 02:9706 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:9706 - 2A 3C D2
    push   af                           ; 02:9709 - F5
    push   hl                           ; 02:970A - E5
    ld     a, (var_D2DE)                ; 02:970B - 3A DE D2
@@ -16190,7 +16190,7 @@ objfunc_20_UNKNOWN:
    ld     d, $00                       ; 02:9713 - 16 00
    ld     hl, g_sprite_table           ; 02:9715 - 21 00 D0
    add    hl, de                       ; 02:9718 - 19
-   ld     (var_D23C), hl               ; 02:9719 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:9719 - 22 3C D2
    ld     l, (ix+2)                    ; 02:971C - DD 6E 02
    ld     h, (ix+3)                    ; 02:971F - DD 66 03
    ld     (tmp_00), hl                 ; 02:9722 - 22 0E D2
@@ -16228,7 +16228,7 @@ addr_0975C:
 addr_09767:
    pop    hl                           ; 02:9767 - E1
    pop    af                           ; 02:9768 - F1
-   ld     (var_D23C), hl               ; 02:9769 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:9769 - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:976C - FD 77 0A
    ld     (ix+13), $0A                 ; 02:976F - DD 36 0D 0A
    ld     (ix+14), $0C                 ; 02:9773 - DD 36 0E 0C
@@ -18004,7 +18004,7 @@ UNK_0A9C0:
 objfunc_30_UNKNOWN:
    set    5, (ix+24)                   ; 02:A9C7 - DD CB 18 EE
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:A9CB - FD 7E 0A
-   ld     hl, (var_D23C)               ; 02:A9CE - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:A9CE - 2A 3C D2
    push   af                           ; 02:A9D1 - F5
    push   hl                           ; 02:A9D2 - E5
    ld     a, (var_D2DE)                ; 02:A9D3 - 3A DE D2
@@ -18014,7 +18014,7 @@ objfunc_30_UNKNOWN:
    ld     d, $00                       ; 02:A9DB - 16 00
    ld     hl, g_sprite_table           ; 02:A9DD - 21 00 D0
    add    hl, de                       ; 02:A9E0 - 19
-   ld     (var_D23C), hl               ; 02:A9E1 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:A9E1 - 22 3C D2
    ld     a, (var_D2A3)                ; 02:A9E4 - 3A A3 D2
    ld     c, a                         ; 02:A9E7 - 4F
    ld     de, (var_D2A1)               ; 02:A9E8 - ED 5B A1 D2
@@ -18043,7 +18043,7 @@ objfunc_30_UNKNOWN:
 addr_0AA1C:
    pop    hl                           ; 02:AA1C - E1
    pop    af                           ; 02:AA1D - F1
-   ld     (var_D23C), hl               ; 02:AA1E - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:AA1E - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:AA21 - FD 77 0A
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:AA24 - 2A 5A D2
    ld     de, $FFE0                    ; 02:AA27 - 11 E0 FF
@@ -20267,11 +20267,11 @@ addr_0BF95:
    rrca                                ; 02:BF9B - 0F
    jr     nc, addr_0BFD5               ; 02:BF9C - 30 37
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:BF9E - FD 7E 0A
-   ld     hl, (var_D23C)               ; 02:BFA1 - 2A 3C D2
+   ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:BFA1 - 2A 3C D2
    push   af                           ; 02:BFA4 - F5
    push   hl                           ; 02:BFA5 - E5
    ld     hl, g_sprite_table           ; 02:BFA6 - 21 00 D0
-   ld     (var_D23C), hl               ; 02:BFA9 - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:BFA9 - 22 3C D2
    ld     l, (ix+5)                    ; 02:BFAC - DD 6E 05
    ld     h, (ix+6)                    ; 02:BFAF - DD 66 06
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:BFB2 - ED 5B 5D D2
@@ -20287,7 +20287,7 @@ addr_0BF95:
    call   draw_sprite_string           ; 02:BFCA - CD 0F 35
    pop    hl                           ; 02:BFCD - E1
    pop    af                           ; 02:BFCE - F1
-   ld     (var_D23C), hl               ; 02:BFCF - 22 3C D2
+   ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:BFCF - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:BFD2 - FD 77 0A
 
 addr_0BFD5:
