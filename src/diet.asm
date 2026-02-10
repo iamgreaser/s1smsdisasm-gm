@@ -16180,6 +16180,7 @@ objfunc_2C_JUN3_boss:
    rst    $18                          ; 02:8089 - DF
    xor    a                            ; 02:808A - AF
    ld     (g_boss_hits_taken), a       ; 02:808B - 32 EC D2
+   .IF 0
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:808E - 2A 5A D2
    ld     (g_level_limit_x0), hl       ; 02:8091 - 22 73 D2
    ld     (g_level_limit_x1), hl       ; 02:8094 - 22 75 D2
@@ -16190,6 +16191,13 @@ objfunc_2C_JUN3_boss:
    ld     (g_level_camera_lock_towards_x), hl  ; 02:80A3 - 22 7B D2
    ld     hl, $0048                    ; 02:80A6 - 21 48 00
    ld     (g_level_camera_lock_towards_y), hl  ; 02:80A9 - 22 7D D2
+   .ELSE
+   ;; There's a function for that!
+   ld hl, $01F0
+   ld de, $0048
+   call set_locked_camera_target
+   ; SAVING: 21 bytes (plus the code is slightly tidier)
+   .ENDIF
    set    0, (ix+24)                   ; 02:80AC - DD CB 18 C6
 
 @already_initialised:
