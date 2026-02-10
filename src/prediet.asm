@@ -193,7 +193,7 @@ g_tile_flags_index db   ; D2D4
 g_teleport_spec_dest_ptr dw   ; D2D5
 g_random_seed dw   ; D2D7
 g_UNUSED_last_sonic_ground_y dw   ; D2D9
-var_D2DB db   ; D2DB
+g_water_level_onscreen_y db   ; D2DB
 g_water_level_y dw   ; D2DC
 var_D2DE db   ; D2DE
 g_sonic_prev_anim_idx db   ; D2DF
@@ -404,7 +404,7 @@ irq_start:
    ld     a, (g_water_irq_line_state)  ; 00:0080 - 3A 47 D2
    and    a                            ; 00:0083 - A7
    jp     nz, line_irq                 ; 00:0084 - C2 F2 01
-   ld     a, (var_D2DB)                ; 00:0087 - 3A DB D2
+   ld     a, (g_water_level_onscreen_y)  ; 00:0087 - 3A DB D2
    and    a                            ; 00:008A - A7
    jr     z, @dont_prepare_line_interrupt_for_water  ; 00:008B - 28 1F
    cp     $FF                          ; 00:008D - FE FF
@@ -543,7 +543,7 @@ irq_start:
    djnz   @waste_19_scanlines          ; 00:01B8 - 10 FD
 
 @continue_underwater_palette_without_delay:
-   ld     a, (var_D2DB)                ; 00:01BA - 3A DB D2
+   ld     a, (g_water_level_onscreen_y)  ; 00:01BA - 3A DB D2
    and    a                            ; 00:01BD - A7
    jr     z, @load_and_update_cycling_and_underwater_palette  ; 00:01BE - 28 16
    cp     $FF                          ; 00:01C0 - FE FF
@@ -4698,7 +4698,7 @@ addr_020A4:
    res    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:20AB - FD CB 06 BE
    xor    a                            ; 00:20AF - AF
    ld     (g_water_onscreen_y), a      ; 00:20B0 - 32 48 D2
-   ld     (var_D2DB), a                ; 00:20B3 - 32 DB D2
+   ld     (g_water_level_onscreen_y), a  ; 00:20B3 - 32 DB D2
    ei                                  ; 00:20B6 - FB
    ret                                 ; 00:20B7 - C9
 
@@ -4758,7 +4758,7 @@ addr_020CB:
 
 addr_02132:
    ld     a, $FF                       ; 00:2132 - 3E FF
-   ld     (var_D2DB), a                ; 00:2134 - 32 DB D2
+   ld     (g_water_level_onscreen_y), a  ; 00:2134 - 32 DB D2
    ld     hl, $0020                    ; 00:2137 - 21 20 00
 
 addr_0213A:
@@ -5776,7 +5776,7 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
@@ -15087,21 +15087,21 @@ SPRTAB_gargoyle_fireball_left:
 SPRTAB_gargoyle_fireball_right:
 .db $30, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:8D41
 
-objfunc_40_UNKNOWN:
+objfunc_40_waterline:
    set    5, (ix+24)                   ; 02:8D48 - DD CB 18 EE
    ld     a, (ix+17)                   ; 02:8D4C - DD 7E 11
    ld     e, a                         ; 02:8D4F - 5F
    ld     d, $00                       ; 02:8D50 - 16 00
-   ld     hl, UNK_08E36                ; 02:8D52 - 21 36 8E
+   ld     hl, LUT_waterline_y_vel_steps  ; 02:8D52 - 21 36 8E
    add    hl, de                       ; 02:8D55 - 19
    ld     e, (hl)                      ; 02:8D56 - 5E
    ld     a, d                         ; 02:8D57 - 7A
    bit    7, e                         ; 02:8D58 - CB 7B
-   jr     z, addr_08D5E                ; 02:8D5A - 28 02
+   jr     z, @y_vel_step_was_positive  ; 02:8D5A - 28 02
    dec    a                            ; 02:8D5C - 3D
    dec    d                            ; 02:8D5D - 15
 
-addr_08D5E:
+@y_vel_step_was_positive:
    ld     l, (ix+4)                    ; 02:8D5E - DD 6E 04
    ld     h, (ix+5)                    ; 02:8D61 - DD 66 05
    add    hl, de                       ; 02:8D64 - 19
@@ -15113,33 +15113,33 @@ addr_08D5E:
    ld     h, (ix+6)                    ; 02:8D72 - DD 66 06
    ld     a, (g_global_tick_counter)   ; 02:8D75 - 3A 23 D2
    and    $0F                          ; 02:8D78 - E6 0F
-   jr     nz, addr_08D8A               ; 02:8D7A - 20 0E
+   jr     nz, @end_of_y_vel_step_timer_update  ; 02:8D7A - 20 0E
    inc    (ix+17)                      ; 02:8D7C - DD 34 11
    ld     a, (ix+17)                   ; 02:8D7F - DD 7E 11
    cp     $20                          ; 02:8D82 - FE 20
-   jr     c, addr_08D8A                ; 02:8D84 - 38 04
+   jr     c, @end_of_y_vel_step_timer_update  ; 02:8D84 - 38 04
    ld     (ix+17), $00                 ; 02:8D86 - DD 36 11 00
 
-addr_08D8A:
+@end_of_y_vel_step_timer_update:
    ld     (g_water_level_y), hl        ; 02:8D8A - 22 DC D2
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:8D8D - ED 5B 5D D2
    and    a                            ; 02:8D91 - A7
    ld     a, $FF                       ; 02:8D92 - 3E FF
    sbc    hl, de                       ; 02:8D94 - ED 52
-   jr     c, addr_08DAB                ; 02:8D96 - 38 13
+   jr     c, @set_onscreen_line_irq_water_level_y  ; 02:8D96 - 38 13
    ex     de, hl                       ; 02:8D98 - EB
    ld     hl, $000C                    ; 02:8D99 - 21 0C 00
    ld     a, $FF                       ; 02:8D9C - 3E FF
    sbc    hl, de                       ; 02:8D9E - ED 52
-   jr     nc, addr_08DAB               ; 02:8DA0 - 30 09
+   jr     nc, @set_onscreen_line_irq_water_level_y  ; 02:8DA0 - 30 09
    ld     hl, $00B4                    ; 02:8DA2 - 21 B4 00
    xor    a                            ; 02:8DA5 - AF
    sbc    hl, de                       ; 02:8DA6 - ED 52
-   jr     c, addr_08DAB                ; 02:8DA8 - 38 01
+   jr     c, @set_onscreen_line_irq_water_level_y  ; 02:8DA8 - 38 01
    ld     a, e                         ; 02:8DAA - 7B
 
-addr_08DAB:
-   ld     (var_D2DB), a                ; 02:8DAB - 32 DB D2
+@set_onscreen_line_irq_water_level_y:
+   ld     (g_water_level_onscreen_y), a  ; 02:8DAB - 32 DB D2
    and    a                            ; 02:8DAE - A7
    ret    z                            ; 02:8DAF - C8
    cp     $FF                          ; 02:8DB0 - FE FF
@@ -15164,11 +15164,11 @@ addr_08DAB:
    add    a, a                         ; 02:8DDB - 87
    ld     c, a                         ; 02:8DDC - 4F
    ld     b, $00                       ; 02:8DDD - 06 00
-   ld     hl, UNK_08E16                ; 02:8DDF - 21 16 8E
+   ld     hl, LUT_waterline_onscreen_x_positions  ; 02:8DDF - 21 16 8E
    add    hl, bc                       ; 02:8DE2 - 09
    ld     b, $04                       ; 02:8DE3 - 06 04
 
-addr_08DE5:
+@each_onscreen_sprite:
    push   bc                           ; 02:8DE5 - C5
    ld     c, (hl)                      ; 02:8DE6 - 4E
    inc    hl                           ; 02:8DE7 - 23
@@ -15189,18 +15189,18 @@ addr_08DE5:
    call   draw_sprite                  ; 02:8E06 - CD 81 35
    pop    hl                           ; 02:8E09 - E1
    pop    bc                           ; 02:8E0A - C1
-   djnz   addr_08DE5                   ; 02:8E0B - 10 D8
+   djnz   @each_onscreen_sprite        ; 02:8E0B - 10 D8
    pop    hl                           ; 02:8E0D - E1
    pop    af                           ; 02:8E0E - F1
    ld     (var_D23C), hl               ; 02:8E0F - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:8E12 - FD 77 0A
    ret                                 ; 02:8E15 - C9
 
-UNK_08E16:
+LUT_waterline_onscreen_x_positions:
 .db $00, $40, $80, $C0, $10, $50, $90, $D0, $20, $60, $A0, $E0, $30, $70, $B0, $F0  ; 02:8E16
 .db $08, $48, $88, $C8, $18, $58, $98, $D8, $28, $68, $A8, $E8, $38, $78, $B8, $F8  ; 02:8E26
 
-UNK_08E36:
+LUT_waterline_y_vel_steps:
 .db $FE, $FC, $F8, $F0, $E8, $D8, $C8, $C8, $C8, $C8, $D8, $E8, $F0, $F8, $FC, $FE  ; 02:8E36
 .db $02, $04, $08, $10, $18, $28, $38, $38, $38, $38, $28, $18, $10, $08, $04, $02  ; 02:8E46
 
