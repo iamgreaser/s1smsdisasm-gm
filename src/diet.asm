@@ -7467,7 +7467,7 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_UNKNOWN, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
@@ -17749,7 +17749,7 @@ addr_08F5A:
    inc    (ix+17)                      ; 02:8F68 - DD 34 11
    ret                                 ; 02:8F6B - C9
 
-objfunc_43_UNKNOWN:
+objfunc_43_nothing_UNUSED_MAYBE:
    ret                                 ; 02:8F6C - C9
 
 objfunc_44_UNKNOWN:
