@@ -5775,7 +5775,7 @@ LUT_object_functions:
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
-.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
+.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -14739,12 +14739,12 @@ SPRTAB_jaws:
 .db $FF, $FF, $FF, $FF, $0E, $10, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:88DE
 .db $FF, $FF, $FF, $FF, $FF, $FF, $0E, $10, $0C, $FF, $FF, $FF, $FF                 ; 02:88EE
 
-objfunc_3D_UNKNOWN:
+objfunc_3D_spinning_spike_ball:
    set    5, (ix+24)                   ; 02:88FB - DD CB 18 EE
    ld     (ix+13), $08                 ; 02:88FF - DD 36 0D 08
    ld     (ix+14), $0C                 ; 02:8903 - DD 36 0E 0C
    bit    0, (ix+24)                   ; 02:8907 - DD CB 18 46
-   jr     nz, addr_08931               ; 02:890B - 20 24
+   jr     nz, @already_initialised     ; 02:890B - 20 24
    ld     l, (ix+2)                    ; 02:890D - DD 6E 02
    ld     h, (ix+3)                    ; 02:8910 - DD 66 03
    ld     de, $0008                    ; 02:8913 - 11 08 00
@@ -14759,11 +14759,11 @@ objfunc_3D_UNKNOWN:
    ld     (ix+21), h                   ; 02:892A - DD 74 15
    set    0, (ix+24)                   ; 02:892D - DD CB 18 C6
 
-addr_08931:
+@already_initialised:
    ld     l, (ix+17)                   ; 02:8931 - DD 6E 11
    ld     h, $00                       ; 02:8934 - 26 00
    add    hl, hl                       ; 02:8936 - 29
-   ld     de, UNK_0898E                ; 02:8937 - 11 8E 89
+   ld     de, LUT_spinning_spike_ball_xy_positions  ; 02:8937 - 11 8E 89
    add    hl, de                       ; 02:893A - 19
    ld     e, (hl)                      ; 02:893B - 5E
    inc    hl                           ; 02:893C - 23
@@ -14771,15 +14771,15 @@ addr_08931:
    ld     d, $00                       ; 02:893E - 16 00
    ld     b, d                         ; 02:8940 - 42
    bit    7, e                         ; 02:8941 - CB 7B
-   jr     z, addr_08946                ; 02:8943 - 28 01
+   jr     z, @dx_was_positive          ; 02:8943 - 28 01
    dec    d                            ; 02:8945 - 15
 
-addr_08946:
+@dx_was_positive:
    bit    7, c                         ; 02:8946 - CB 79
-   jr     z, addr_0894B                ; 02:8948 - 28 01
+   jr     z, @dy_was_positive          ; 02:8948 - 28 01
    dec    b                            ; 02:894A - 05
 
-addr_0894B:
+@dy_was_positive:
    ld     l, (ix+18)                   ; 02:894B - DD 6E 12
    ld     h, (ix+19)                   ; 02:894E - DD 66 13
    add    hl, de                       ; 02:8951 - 19
@@ -14794,8 +14794,8 @@ addr_0894B:
    ld     (tmp_06), hl                 ; 02:8968 - 22 14 D2
    call   check_collision_with_sonic   ; 02:896B - CD 56 39
    call   nc, damage_sonic             ; 02:896E - D4 FD 35
-   ld     (ix+15), UNK_08987&$FF       ; 02:8971 - DD 36 0F 87
-   ld     (ix+16), UNK_08987>>8        ; 02:8975 - DD 36 10 89
+   ld     (ix+15), SPRTAB_spinning_spike_ball&$FF  ; 02:8971 - DD 36 0F 87
+   ld     (ix+16), SPRTAB_spinning_spike_ball>>8  ; 02:8975 - DD 36 10 89
    inc    (ix+17)                      ; 02:8979 - DD 34 11
    ld     a, (ix+17)                   ; 02:897C - DD 7E 11
    cp     $B4                          ; 02:897F - FE B4
@@ -14803,10 +14803,10 @@ addr_0894B:
    ld     (ix+17), $00                 ; 02:8982 - DD 36 11 00
    ret                                 ; 02:8986 - C9
 
-UNK_08987:
+SPRTAB_spinning_spike_ball:
 .db $60, $62, $FF, $FF, $FF, $FF, $FF                                               ; 02:8987
 
-UNK_0898E:
+LUT_spinning_spike_ball_xy_positions:
 .db $40, $00, $40, $02, $40, $04, $40, $07, $3F, $09, $3F, $0B, $3F, $0D, $3E, $0F  ; 02:898E
 .db $3E, $12, $3D, $14, $3C, $16, $3B, $18, $3A, $1A, $3A, $1C, $39, $1E, $37, $20  ; 02:899E
 .db $36, $22, $35, $24, $34, $26, $32, $27, $31, $29, $30, $2B, $2E, $2C, $2C, $2E  ; 02:89AE
