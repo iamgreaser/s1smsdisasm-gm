@@ -7468,7 +7468,7 @@ LUT_object_functions:
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
-.dw objfunc_48_UNKNOWN, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
+.dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
@@ -14432,7 +14432,7 @@ objfunc_12_GHZ_boss:
    ld     (ix+21), UNK_072A1>>8        ; 01:7052 - DD 36 15 72
    ld     hl, $0760                    ; 01:7056 - 21 60 07
    ld     de, $00E8                    ; 01:7059 - 11 E8 00
-   call   addr_07C8C                   ; 01:705C - CD 8C 7C
+   call   set_locked_camera_target     ; 01:705C - CD 8C 7C
    set    0, (ix+17)                   ; 01:705F - DD CB 11 C6
 
 @already_initialised:
@@ -15721,7 +15721,7 @@ spawn_object:
    ret                                 ; 01:7C8B - C9
 .ENDIF
 
-addr_07C8C:
+set_locked_camera_target:
    ld     (g_level_camera_lock_towards_x), hl  ; 01:7C8C - 22 7B D2
    ld     (g_level_camera_lock_towards_y), de  ; 01:7C8F - ED 53 7D D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 01:7C93 - 2A 5A D2
@@ -16583,18 +16583,18 @@ SPRTAB_falling_bridge_piece:
 UNK_0848E:
 .db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 02:848E
 
-objfunc_48_UNKNOWN:
+objfunc_48_BRI3_boss:
    set    5, (ix+24)                   ; 02:8496 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:849A - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:849E - DD 36 0E 1C
    call   move_locked_camera_towards_target  ; 02:84A2 - CD A6 7C
-   ld     (ix+15), UNK_0865A&$FF       ; 02:84A5 - DD 36 0F 5A
-   ld     (ix+16), UNK_0865A>>8        ; 02:84A9 - DD 36 10 86
+   ld     (ix+15), SPRTAB_BRI3_boss&$FF  ; 02:84A5 - DD 36 0F 5A
+   ld     (ix+16), SPRTAB_BRI3_boss>>8  ; 02:84A9 - DD 36 10 86
    bit    0, (ix+24)                   ; 02:84AD - DD CB 18 46
-   jr     nz, addr_084DA               ; 02:84B1 - 20 27
+   jr     nz, @already_initialised     ; 02:84B1 - 20 27
    ld     hl, $03A0                    ; 02:84B3 - 21 A0 03
    ld     de, $0300                    ; 02:84B6 - 11 00 03
-   call   addr_07C8C                   ; 02:84B9 - CD 8C 7C
+   call   set_locked_camera_target     ; 02:84B9 - CD 8C 7C
    ld     hl, ART_0C_E508              ; 02:84BC - 21 08 E5
    ld     de, $2000                    ; 02:84BF - 11 00 20
    ld     a, $0C                       ; 02:84C2 - 3E 0C
@@ -16608,17 +16608,17 @@ objfunc_48_UNKNOWN:
    rst    $18                          ; 02:84D5 - DF
    set    0, (ix+24)                   ; 02:84D6 - DD CB 18 C6
 
-addr_084DA:
+@already_initialised:
    ld     a, (ix+17)                   ; 02:84DA - DD 7E 11
    and    a                            ; 02:84DD - A7
-   jr     nz, addr_08508               ; 02:84DE - 20 28
+   jr     nz, @not_state_00            ; 02:84DE - 20 28
    call   random_A                     ; 02:84E0 - CD 25 06
    and    $01                          ; 02:84E3 - E6 01
    add    a, a                         ; 02:84E5 - 87
    add    a, a                         ; 02:84E6 - 87
    ld     e, a                         ; 02:84E7 - 5F
    ld     d, $00                       ; 02:84E8 - 16 00
-   ld     hl, UNK_08632                ; 02:84EA - 21 32 86
+   ld     hl, LUT_BRI3_boss_entrances  ; 02:84EA - 21 32 86
    add    hl, de                       ; 02:84ED - 19
    ld     a, (hl)                      ; 02:84EE - 7E
    ld     (ix+2), a                    ; 02:84EF - DD 77 02
@@ -16633,11 +16633,11 @@ addr_084DA:
    inc    hl                           ; 02:84FE - 23
    ld     (ix+6), a                    ; 02:84FF - DD 77 06
    inc    (ix+17)                      ; 02:8502 - DD 34 11
-   jp     addr_085C7                   ; 02:8505 - C3 C7 85
+   jp     @do_generic_boss_update      ; 02:8505 - C3 C7 85
 
-addr_08508:
+@not_state_00:
    dec    a                            ; 02:8508 - 3D
-   jr     nz, addr_0852F               ; 02:8509 - 20 24
+   jr     nz, @not_state_01            ; 02:8509 - 20 24
    ld     (ix+10), $80                 ; 02:850B - DD 36 0A 80
    ld     (ix+11), $FF                 ; 02:850F - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:8513 - DD 36 0C FF
@@ -16646,14 +16646,14 @@ addr_08508:
    ld     d, (ix+6)                    ; 02:851D - DD 56 06
    xor    a                            ; 02:8520 - AF
    sbc    hl, de                       ; 02:8521 - ED 52
-   jp     c, addr_085C7                ; 02:8523 - DA C7 85
+   jp     c, @do_generic_boss_update   ; 02:8523 - DA C7 85
    inc    (ix+17)                      ; 02:8526 - DD 34 11
    ld     (ix+18), a                   ; 02:8529 - DD 77 12
-   jp     addr_085C7                   ; 02:852C - C3 C7 85
+   jp     @do_generic_boss_update      ; 02:852C - C3 C7 85
 
-addr_0852F:
+@not_state_01:
    dec    a                            ; 02:852F - 3D
-   jr     nz, addr_085AA               ; 02:8530 - 20 78
+   jr     nz, @not_state_02            ; 02:8530 - 20 78
    xor    a                            ; 02:8532 - AF
    ld     (ix+10), a                   ; 02:8533 - DD 77 0A
    ld     (ix+11), a                   ; 02:8536 - DD 77 0B
@@ -16661,21 +16661,21 @@ addr_0852F:
    inc    (ix+18)                      ; 02:853C - DD 34 12
    ld     a, (ix+18)                   ; 02:853F - DD 7E 12
    cp     $64                          ; 02:8542 - FE 64
-   jp     nz, addr_085C7               ; 02:8544 - C2 C7 85
+   jp     nz, @do_generic_boss_update  ; 02:8544 - C2 C7 85
    inc    (ix+17)                      ; 02:8547 - DD 34 11
    ld     a, (g_boss_hits_taken)       ; 02:854A - 3A EC D2
    cp     $08                          ; 02:854D - FE 08
-   jr     nc, addr_085C7               ; 02:854F - 30 76
+   jr     nc, @do_generic_boss_update  ; 02:854F - 30 76
    ld     hl, (sonic_x)                ; 02:8551 - 2A FE D3
    ld     e, (ix+2)                    ; 02:8554 - DD 5E 02
    ld     d, (ix+3)                    ; 02:8557 - DD 56 03
    and    a                            ; 02:855A - A7
    sbc    hl, de                       ; 02:855B - ED 52
-   ld     hl, UNK_0863A                ; 02:855D - 21 3A 86
-   jr     c, addr_08565                ; 02:8560 - 38 03
-   ld     hl, UNK_0864A                ; 02:8562 - 21 4A 86
+   ld     hl, LUT_BRI3_boss_pallet_velocities_left  ; 02:855D - 21 3A 86
+   jr     c, @sonic_was_at_left_before_firing  ; 02:8560 - 38 03
+   ld     hl, LUT_BRI3_boss_pallet_velocities_right  ; 02:8562 - 21 4A 86
 
-addr_08565:
+@sonic_was_at_left_before_firing:
    ld     e, (hl)                      ; 02:8565 - 5E
    inc    hl                           ; 02:8566 - 23
    ld     d, (hl)                      ; 02:8567 - 56
@@ -16696,7 +16696,7 @@ addr_08565:
    pop    hl                           ; 02:8582 - E1
    ld     b, $03                       ; 02:8583 - 06 03
 
-addr_08585:
+@each_fireball:
    push   bc                           ; 02:8585 - C5
    ld     a, (hl)                      ; 02:8586 - 7E
    ld     (tmp_04), a                  ; 02:8587 - 32 12 D2
@@ -16712,15 +16712,15 @@ addr_08585:
    inc    hl                           ; 02:8599 - 23
    push   hl                           ; 02:859A - E5
    ld     c, $10                       ; 02:859B - 0E 10
-   call   addr_085D1                   ; 02:859D - CD D1 85
+   call   boss_fire_fireball_pallet    ; 02:859D - CD D1 85
    pop    hl                           ; 02:85A0 - E1
    pop    bc                           ; 02:85A1 - C1
-   djnz   addr_08585                   ; 02:85A2 - 10 E1
+   djnz   @each_fireball               ; 02:85A2 - 10 E1
    ld     a, $01                       ; 02:85A4 - 3E 01
    rst    $28                          ; 02:85A6 - EF
-   jp     addr_085C7                   ; 02:85A7 - C3 C7 85
+   jp     @do_generic_boss_update      ; 02:85A7 - C3 C7 85
 
-addr_085AA:
+@not_state_02:
    ld     (ix+10), $80                 ; 02:85AA - DD 36 0A 80
    ld     (ix+11), $00                 ; 02:85AE - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:85B2 - DD 36 0C 00
@@ -16729,16 +16729,16 @@ addr_085AA:
    ld     d, (ix+6)                    ; 02:85BC - DD 56 06
    xor    a                            ; 02:85BF - AF
    sbc    hl, de                       ; 02:85C0 - ED 52
-   jr     nc, addr_085C7               ; 02:85C2 - 30 03
+   jr     nc, @do_generic_boss_update  ; 02:85C2 - 30 03
    ld     (ix+17), a                   ; 02:85C4 - DD 77 11
 
-addr_085C7:
+@do_generic_boss_update:
    ld     hl, $00A2                    ; 02:85C7 - 21 A2 00
    ld     (tmp_08), hl                 ; 02:85CA - 22 16 D2
    call   boss_generic_update_8hp      ; 02:85CD - CD BE 77
    ret                                 ; 02:85D0 - C9
 
-addr_085D1:
+boss_fire_fireball_pallet:
    push   bc                           ; 02:85D1 - C5
    call   spawn_object                 ; 02:85D2 - CD 7B 7C
    pop    bc                           ; 02:85D5 - C1
@@ -16765,36 +16765,36 @@ addr_085D1:
    ld     hl, (tmp_04)                 ; 02:860B - 2A 12 D2
    xor    a                            ; 02:860E - AF
    bit    7, h                         ; 02:860F - CB 7C
-   jr     z, addr_08614                ; 02:8611 - 28 01
+   jr     z, @x_vel_was_positive       ; 02:8611 - 28 01
    dec    a                            ; 02:8613 - 3D
 
-addr_08614:
+@x_vel_was_positive:
    ld     (ix+7), l                    ; 02:8614 - DD 75 07
    ld     (ix+8), h                    ; 02:8617 - DD 74 08
    ld     (ix+9), a                    ; 02:861A - DD 77 09
    ld     hl, (tmp_06)                 ; 02:861D - 2A 14 D2
    xor    a                            ; 02:8620 - AF
    bit    7, h                         ; 02:8621 - CB 7C
-   jr     z, addr_08626                ; 02:8623 - 28 01
+   jr     z, @y_vel_was_positive       ; 02:8623 - 28 01
    dec    a                            ; 02:8625 - 3D
 
-addr_08626:
+@y_vel_was_positive:
    ld     (ix+10), l                   ; 02:8626 - DD 75 0A
    ld     (ix+11), h                   ; 02:8629 - DD 74 0B
    ld     (ix+12), a                   ; 02:862C - DD 77 0C
    pop    ix                           ; 02:862F - DD E1
    ret                                 ; 02:8631 - C9
 
-UNK_08632:
-.db $D4, $03, $C0, $03, $44, $04, $C0, $03                                          ; 02:8632
+LUT_BRI3_boss_entrances:
+.dw $03D4, $03C0, $0444, $03C0                                                      ; 02:8632
 
-UNK_0863A:
-.db $00, $00, $F6, $FF, $C0, $FE, $00, $FC, $60, $FE, $80, $FD, $C0, $FD, $00, $FF  ; 02:863A
+LUT_BRI3_boss_pallet_velocities_left:
+.dw $0000, $FFF6, $FEC0, $FC00, $FE60, $FD80, $FDC0, $FF00                          ; 02:863A
 
-UNK_0864A:
-.db $20, $00, $F6, $FF, $40, $01, $00, $FC, $A0, $01, $80, $FD, $40, $02, $00, $FF  ; 02:864A
+LUT_BRI3_boss_pallet_velocities_right:
+.dw $0020, $FFF6, $0140, $FC00, $01A0, $FD80, $0240, $FF00                          ; 02:864A
 
-UNK_0865A:
+SPRTAB_BRI3_boss:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:865A
 .db $68, $FF                                                                        ; 02:866A
 
@@ -18015,7 +18015,7 @@ objfunc_49_UNKNOWN:
    jr     nz, addr_092AF               ; 02:9282 - 20 2B
    ld     hl, $02D0                    ; 02:9284 - 21 D0 02
    ld     de, $0290                    ; 02:9287 - 11 90 02
-   call   addr_07C8C                   ; 02:928A - CD 8C 7C
+   call   set_locked_camera_target     ; 02:928A - CD 8C 7C
    set    1, (iy+iy_09-IYBASE)         ; 02:928D - FD CB 09 CE
    ld     hl, ART_0C_E508              ; 02:9291 - 21 08 E5
    ld     de, $2000                    ; 02:9294 - 11 00 20
@@ -18222,7 +18222,7 @@ addr_09432:
    ld     hl, $FF00                    ; 02:9452 - 21 00 FF
    ld     (tmp_06), hl                 ; 02:9455 - 22 14 D2
    ld     c, $04                       ; 02:9458 - 0E 04
-   call   addr_085D1                   ; 02:945A - CD D1 85
+   call   boss_fire_fireball_pallet    ; 02:945A - CD D1 85
    ld     l, (ix+2)                    ; 02:945D - DD 6E 02
    ld     h, (ix+3)                    ; 02:9460 - DD 66 03
    ld     de, $0020                    ; 02:9463 - 11 20 00
@@ -18231,7 +18231,7 @@ addr_09432:
    ld     hl, $0100                    ; 02:946A - 21 00 01
    ld     (tmp_04), hl                 ; 02:946D - 22 12 D2
    ld     c, $04                       ; 02:9470 - 0E 04
-   call   addr_085D1                   ; 02:9472 - CD D1 85
+   call   boss_fire_fireball_pallet    ; 02:9472 - CD D1 85
    ld     a, $01                       ; 02:9475 - 3E 01
    rst    $28                          ; 02:9477 - EF
    jp     addr_093F7                   ; 02:9478 - C3 F7 93
@@ -20272,7 +20272,7 @@ addr_0A893:
    jr     nz, addr_0A8CD               ; 02:A897 - 20 34
    ld     hl, $0530                    ; 02:A899 - 21 30 05
    ld     de, $0220                    ; 02:A89C - 11 20 02
-   call   addr_07C8C                   ; 02:A89F - CD 8C 7C
+   call   set_locked_camera_target     ; 02:A89F - CD 8C 7C
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:A8A2 - FD 36 03 FF
    ld     hl, $05A0                    ; 02:A8A6 - 21 A0 05
    ld     (ix+1), $00                  ; 02:A8A9 - DD 36 01 00
@@ -21706,7 +21706,7 @@ objfunc_4A_UNKNOWN:
    jr     nz, addr_0B697               ; 02:B651 - 20 44
    ld     hl, $0350                    ; 02:B653 - 21 50 03
    ld     de, $0120                    ; 02:B656 - 11 20 01
-   call   addr_07C8C                   ; 02:B659 - CD 8C 7C
+   call   set_locked_camera_target     ; 02:B659 - CD 8C 7C
    ld     l, (ix+2)                    ; 02:B65C - DD 6E 02
    ld     h, (ix+3)                    ; 02:B65F - DD 66 03
    ld     de, $0008                    ; 02:B662 - 11 08 00
@@ -22034,7 +22034,7 @@ addr_0B8E9:
    ld     (ix+20), $01                 ; 02:B919 - DD 36 14 01
    ld     hl, $0550                    ; 02:B91D - 21 50 05
    ld     de, $0120                    ; 02:B920 - 11 20 01
-   call   addr_07C8C                   ; 02:B923 - CD 8C 7C
+   call   set_locked_camera_target     ; 02:B923 - CD 8C 7C
    set    3, (ix+24)                   ; 02:B926 - DD CB 18 DE
    jp     addr_0B95B                   ; 02:B92A - C3 5B B9
 
