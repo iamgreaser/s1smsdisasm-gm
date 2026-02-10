@@ -7467,7 +7467,7 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
@@ -17752,7 +17752,7 @@ objfunc_42_small_bubble:
 objfunc_43_nothing_UNUSED_MAYBE:
    ret                                 ; 02:8F6C - C9
 
-objfunc_44_UNKNOWN:
+objfunc_44_badnik_burrobot:
    ld     (ix+13), $0C                 ; 02:8F6D - DD 36 0D 0C
    ld     (ix+14), $20                 ; 02:8F71 - DD 36 0E 20
    ld     hl, $0202                    ; 02:8F75 - 21 02 02
@@ -17768,19 +17768,19 @@ objfunc_44_UNKNOWN:
    add    hl, de                       ; 02:8F93 - 19
    adc    a, $00                       ; 02:8F94 - CE 00
    ld     c, a                         ; 02:8F96 - 4F
-   jp     m, addr_08FA4                ; 02:8F97 - FA A4 8F
+   jp     m, @selected_y_vel           ; 02:8F97 - FA A4 8F
    ld     a, h                         ; 02:8F9A - 7C
    cp     $04                          ; 02:8F9B - FE 04
-   jr     c, addr_08FA4                ; 02:8F9D - 38 05
+   jr     c, @selected_y_vel           ; 02:8F9D - 38 05
    ld     hl, $0300                    ; 02:8F9F - 21 00 03
    ld     c, $00                       ; 02:8FA2 - 0E 00
 
-addr_08FA4:
+@selected_y_vel:
    ld     (ix+10), l                   ; 02:8FA4 - DD 75 0A
    ld     (ix+11), h                   ; 02:8FA7 - DD 74 0B
    ld     (ix+12), c                   ; 02:8FAA - DD 71 0C
    bit    0, (ix+24)                   ; 02:8FAD - DD CB 18 46
-   jp     nz, addr_09029               ; 02:8FB1 - C2 29 90
+   jp     nz, @currently_jumping       ; 02:8FB1 - C2 29 90
    ld     de, $FFD0                    ; 02:8FB4 - 11 D0 FF
    ld     l, (ix+2)                    ; 02:8FB7 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8FBA - DD 66 03
@@ -17788,72 +17788,72 @@ addr_08FA4:
    ld     de, (sonic_x)                ; 02:8FBE - ED 5B FE D3
    and    a                            ; 02:8FC2 - A7
    sbc    hl, de                       ; 02:8FC3 - ED 52
-   jr     nc, addr_08FE6               ; 02:8FC5 - 30 1F
+   jr     nc, @selected_x_vel_no_jump  ; 02:8FC5 - 30 1F
    ld     bc, $0030                    ; 02:8FC7 - 01 30 00
    ld     l, (ix+2)                    ; 02:8FCA - DD 6E 02
    ld     h, (ix+3)                    ; 02:8FCD - DD 66 03
    add    hl, bc                       ; 02:8FD0 - 09
    and    a                            ; 02:8FD1 - A7
    sbc    hl, de                       ; 02:8FD2 - ED 52
-   jr     c, addr_08FE6                ; 02:8FD4 - 38 10
+   jr     c, @selected_x_vel_no_jump   ; 02:8FD4 - 38 10
    set    0, (ix+24)                   ; 02:8FD6 - DD CB 18 C6
    ld     (ix+10), $80                 ; 02:8FDA - DD 36 0A 80
    ld     (ix+11), $FD                 ; 02:8FDE - DD 36 0B FD
    ld     (ix+12), $FF                 ; 02:8FE2 - DD 36 0C FF
 
-addr_08FE6:
+@selected_x_vel_no_jump:
    ld     l, (ix+2)                    ; 02:8FE6 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8FE9 - DD 66 03
    ld     de, (sonic_x)                ; 02:8FEC - ED 5B FE D3
    and    a                            ; 02:8FF0 - A7
    sbc    hl, de                       ; 02:8FF1 - ED 52
-   jr     c, addr_0900F                ; 02:8FF3 - 38 1A
+   jr     c, @sonic_was_to_the_right   ; 02:8FF3 - 38 1A
    ld     (ix+7), $C0                  ; 02:8FF5 - DD 36 07 C0
    ld     (ix+8), $FF                  ; 02:8FF9 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:8FFD - DD 36 09 FF
-   ld     de, UNK_09059                ; 02:9001 - 11 59 90
-   ld     bc, UNK_0904A                ; 02:9004 - 01 4A 90
+   ld     de, SPRTAB_badnik_burrobot   ; 02:9001 - 11 59 90
+   ld     bc, LUT_burrobot_anim_sequence_walk_left  ; 02:9004 - 01 4A 90
    call   do_framed_animation          ; 02:9007 - CD 41 7C
    set    1, (ix+24)                   ; 02:900A - DD CB 18 CE
    ret                                 ; 02:900E - C9
 
-addr_0900F:
+@sonic_was_to_the_right:
    ld     (ix+7), $40                  ; 02:900F - DD 36 07 40
    ld     (ix+8), $00                  ; 02:9013 - DD 36 08 00
    ld     (ix+9), $00                  ; 02:9017 - DD 36 09 00
-   ld     de, UNK_09059                ; 02:901B - 11 59 90
-   ld     bc, UNK_09045                ; 02:901E - 01 45 90
+   ld     de, SPRTAB_badnik_burrobot   ; 02:901B - 11 59 90
+   ld     bc, LUT_burrobot_anim_sequence_walk_right  ; 02:901E - 01 45 90
    call   do_framed_animation          ; 02:9021 - CD 41 7C
    res    1, (ix+24)                   ; 02:9024 - DD CB 18 8E
    ret                                 ; 02:9028 - C9
 
-addr_09029:
-   ld     bc, UNK_09054                ; 02:9029 - 01 54 90
+@currently_jumping:
+   ld     bc, LUT_burrobot_anim_sequence_jump_left  ; 02:9029 - 01 54 90
    bit    1, (ix+24)                   ; 02:902C - DD CB 18 4E
-   jr     nz, addr_09035               ; 02:9030 - 20 03
-   ld     bc, UNK_0904F                ; 02:9032 - 01 4F 90
+   jr     nz, @jumping_to_the_left     ; 02:9030 - 20 03
+   ld     bc, LUT_burrobot_anim_sequence_jump_right  ; 02:9032 - 01 4F 90
 
-addr_09035:
-   ld     de, UNK_09059                ; 02:9035 - 11 59 90
+@jumping_to_the_left:
+   ld     de, SPRTAB_badnik_burrobot   ; 02:9035 - 11 59 90
    call   do_framed_animation          ; 02:9038 - CD 41 7C
    bit    7, (ix+24)                   ; 02:903B - DD CB 18 7E
    ret    z                            ; 02:903F - C8
    res    0, (ix+24)                   ; 02:9040 - DD CB 18 86
    ret                                 ; 02:9044 - C9
 
-UNK_09045:
+LUT_burrobot_anim_sequence_walk_right:
 .db $00, $04, $01, $04, $FF                                                         ; 02:9045
 
-UNK_0904A:
+LUT_burrobot_anim_sequence_walk_left:
 .db $02, $04, $03, $04, $FF                                                         ; 02:904A
 
-UNK_0904F:
+LUT_burrobot_anim_sequence_jump_right:
 .db $04, $04, $04, $04, $FF                                                         ; 02:904F
 
-UNK_09054:
+LUT_burrobot_anim_sequence_jump_left:
 .db $05, $04, $05, $04, $FF                                                         ; 02:9054
 
-UNK_09059:
+SPRTAB_badnik_burrobot:
 .db $44, $46, $FF, $FF, $FF, $FF, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9059
 .db $FF, $FF, $44, $46, $FF, $FF, $FF, $FF, $48, $4A, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9069
 .db $FF, $FF, $FF, $FF, $50, $52, $FF, $FF, $FF, $FF, $70, $72, $FF, $FF, $FF, $FF  ; 02:9079
