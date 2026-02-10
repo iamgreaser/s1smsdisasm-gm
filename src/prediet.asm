@@ -14157,7 +14157,7 @@ objfunc_2E_falling_bridge_piece:
    ld     (ix+13), $0E                 ; 02:83C5 - DD 36 0D 0E
    ld     (ix+14), $08                 ; 02:83C9 - DD 36 0E 08
    bit    0, (ix+24)                   ; 02:83CD - DD CB 18 46
-   jr     nz, addr_08427               ; 02:83D1 - 20 54
+   jr     nz, @already_fallen          ; 02:83D1 - 20 54
    xor    a                            ; 02:83D3 - AF
    ld     (ix+15), a                   ; 02:83D4 - DD 77 0F
    ld     (ix+16), a                   ; 02:83D7 - DD 77 10
@@ -14165,20 +14165,20 @@ objfunc_2E_falling_bridge_piece:
    ld     h, a                         ; 02:83DB - 67
    ld     (tmp_00), hl                 ; 02:83DC - 22 0E D2
    bit    1, (ix+24)                   ; 02:83DF - DD CB 18 4E
-   jr     nz, addr_083F2               ; 02:83E3 - 20 0D
+   jr     nz, @already_set_random_fall_timer  ; 02:83E3 - 20 0D
    call   random_A                     ; 02:83E5 - CD 25 06
    and    $1F                          ; 02:83E8 - E6 1F
    inc    a                            ; 02:83EA - 3C
    ld     (ix+17), a                   ; 02:83EB - DD 77 11
    set    1, (ix+24)                   ; 02:83EE - DD CB 18 CE
 
-addr_083F2:
+@already_set_random_fall_timer:
    dec    (ix+17)                      ; 02:83F2 - DD 35 11
-   jp     nz, addr_08467               ; 02:83F5 - C2 67 84
+   jp     nz, @do_platform_behaviour   ; 02:83F5 - C2 67 84
    ld     (ix+17), $01                 ; 02:83F8 - DD 36 11 01
    ld     a, (g_screen_tile_replace_x_hi)  ; 02:83FC - 3A AC D2
    and    $80                          ; 02:83FF - E6 80
-   jp     z, addr_08467                ; 02:8401 - CA 67 84
+   jp     z, @do_platform_behaviour    ; 02:8401 - CA 67 84
    ld     l, (ix+2)                    ; 02:8404 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8407 - DD 66 03
    ld     (g_screen_tile_replace_x), hl  ; 02:840A - 22 AB D2
@@ -14193,9 +14193,9 @@ addr_083F2:
    ld     a, $20                       ; 02:8424 - 3E 20
    rst    $28                          ; 02:8426 - EF
 
-addr_08427:
-   ld     (ix+15), UNK_08481&$FF       ; 02:8427 - DD 36 0F 81
-   ld     (ix+16), UNK_08481>>8        ; 02:842B - DD 36 10 84
+@already_fallen:
+   ld     (ix+15), SPRTAB_falling_bridge_piece&$FF  ; 02:8427 - DD 36 0F 81
+   ld     (ix+16), SPRTAB_falling_bridge_piece>>8  ; 02:842B - DD 36 10 84
    ld     l, (ix+10)                   ; 02:842F - DD 6E 0A
    ld     h, (ix+11)                   ; 02:8432 - DD 66 0B
    ld     a, (ix+12)                   ; 02:8435 - DD 7E 0C
@@ -14205,10 +14205,10 @@ addr_08427:
    ld     c, a                         ; 02:843E - 4F
    ld     a, h                         ; 02:843F - 7C
    cp     $04                          ; 02:8440 - FE 04
-   jr     c, addr_08446                ; 02:8442 - 38 02
+   jr     c, @skip_y_vel_cap           ; 02:8442 - 38 02
    ld     h, $04                       ; 02:8444 - 26 04
 
-addr_08446:
+@skip_y_vel_cap:
    ld     (ix+10), l                   ; 02:8446 - DD 75 0A
    ld     (ix+11), h                   ; 02:8449 - DD 74 0B
    ld     (ix+12), c                   ; 02:844C - DD 71 0C
@@ -14219,11 +14219,11 @@ addr_08446:
    ld     h, (ix+6)                    ; 02:845A - DD 66 06
    and    a                            ; 02:845D - A7
    sbc    hl, de                       ; 02:845E - ED 52
-   jr     c, addr_08467                ; 02:8460 - 38 05
+   jr     c, @do_platform_behaviour    ; 02:8460 - 38 05
    ld     (ix+0), $FF                  ; 02:8462 - DD 36 00 FF
    ret                                 ; 02:8466 - C9
 
-addr_08467:
+@do_platform_behaviour:
    ld     hl, $0402                    ; 02:8467 - 21 02 04
    ld     (tmp_06), hl                 ; 02:846A - 22 14 D2
    call   check_collision_with_sonic   ; 02:846D - CD 56 39
@@ -14236,7 +14236,7 @@ addr_08467:
    call   put_sonic_y_pos_on_platform  ; 02:847D - CD C1 7C
    ret                                 ; 02:8480 - C9
 
-UNK_08481:
+SPRTAB_falling_bridge_piece:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $70, $72, $FF, $FF, $FF, $FF, $FF                 ; 02:8481
 
 UNK_0848E:
