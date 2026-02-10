@@ -7467,7 +7467,7 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_waterline, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
@@ -17613,21 +17613,21 @@ LUT_waterline_y_vel_steps:
 .db $FE, $FC, $F8, $F0, $E8, $D8, $C8, $C8, $C8, $C8, $D8, $E8, $F0, $F8, $FC, $FE  ; 02:8E36
 .db $02, $04, $08, $10, $18, $28, $38, $38, $38, $38, $28, $18, $10, $08, $04, $02  ; 02:8E46
 
-objfunc_41_UNKNOWN:
+objfunc_41_air_bubble_spawner:
    set    5, (ix+24)                   ; 02:8E56 - DD CB 18 EE
    ld     a, (ix+18)                   ; 02:8E5A - DD 7E 12
    and    $7F                          ; 02:8E5D - E6 7F
-   jr     nz, addr_08E72               ; 02:8E5F - 20 11
+   jr     nz, @skip_attempt_spawn_air_bubble  ; 02:8E5F - 20 11
    call   random_A                     ; 02:8E61 - CD 25 06
    and    $07                          ; 02:8E64 - E6 07
    ld     e, a                         ; 02:8E66 - 5F
    ld     d, $00                       ; 02:8E67 - 16 00
-   ld     hl, UNK_08EC2                ; 02:8E69 - 21 C2 8E
+   ld     hl, LUT_air_bubble_spawner_initial_chance  ; 02:8E69 - 21 C2 8E
    add    hl, de                       ; 02:8E6C - 19
    bit    0, (hl)                      ; 02:8E6D - CB 46
    call   nz, spawn_bubble             ; 02:8E6F - C4 EB 91
 
-addr_08E72:
+@skip_attempt_spawn_air_bubble:
    ld     l, (ix+2)                    ; 02:8E72 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8E75 - DD 66 03
    ld     (tmp_00), hl                 ; 02:8E78 - 22 0E D2
@@ -17638,7 +17638,7 @@ addr_08E72:
    add    a, a                         ; 02:8E87 - 87
    ld     e, a                         ; 02:8E88 - 5F
    ld     d, $00                       ; 02:8E89 - 16 00
-   ld     hl, UNK_08EB6                ; 02:8E8B - 21 B6 8E
+   ld     hl, LUT_air_bubble_spawner_anim_xy  ; 02:8E8B - 21 B6 8E
    add    hl, de                       ; 02:8E8E - 19
    ld     e, (hl)                      ; 02:8E8F - 5E
    ld     (tmp_04), de                 ; 02:8E90 - ED 53 12 D2
@@ -17658,10 +17658,10 @@ addr_08E72:
    ld     (ix+17), $00                 ; 02:8EB1 - DD 36 11 00
    ret                                 ; 02:8EB5 - C9
 
-UNK_08EB6:
+LUT_air_bubble_spawner_anim_xy:
 .db $08, $05, $08, $04, $07, $03, $06, $02, $07, $01, $06, $00                      ; 02:8EB6
 
-UNK_08EC2:
+LUT_air_bubble_spawner_initial_chance:
 .db $01, $00, $01, $01, $00, $01, $00, $01                                          ; 02:8EC2
 
 objfunc_42_UNKNOWN:
