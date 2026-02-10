@@ -5773,7 +5773,7 @@ LUT_object_functions:
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
-.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_UNKNOWN, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
+.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
@@ -14085,7 +14085,7 @@ SPRTAB_JUN3_boss_bomb:
 .db $08, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:82CD
 .db $FF, $FF, $0C, $0E, $FF, $FF, $FF, $FF, $FF                                     ; 02:82DD
 
-objfunc_2D_UNKNOWN:
+objfunc_2D_badnik_spikeses:
    ld     (ix+13), $10                 ; 02:82E6 - DD 36 0D 10
    ld     (ix+14), $0F                 ; 02:82EA - DD 36 0E 0F
    ld     hl, $0408                    ; 02:82EE - 21 08 04
@@ -14111,24 +14111,24 @@ objfunc_2D_UNKNOWN:
    ld     (ix+12), a                   ; 02:8329 - DD 77 0C
    ld     a, (ix+17)                   ; 02:832C - DD 7E 11
    cp     $50                          ; 02:832F - FE 50
-   jr     c, addr_0834B                ; 02:8331 - 38 18
+   jr     c, @go_left                  ; 02:8331 - 38 18
    ld     (ix+7), $40                  ; 02:8333 - DD 36 07 40
    ld     (ix+8), $00                  ; 02:8337 - DD 36 08 00
    ld     (ix+9), $00                  ; 02:833B - DD 36 09 00
-   ld     de, UNK_0837E                ; 02:833F - 11 7E 83
-   ld     bc, UNK_08379                ; 02:8342 - 01 79 83
+   ld     de, SPRTAB_spikeses          ; 02:833F - 11 7E 83
+   ld     bc, LUT_spikeses_anim_sequence_right  ; 02:8342 - 01 79 83
    call   do_framed_animation          ; 02:8345 - CD 41 7C
-   jp     addr_08360                   ; 02:8348 - C3 60 83
+   jp     @was_going_right             ; 02:8348 - C3 60 83
 
-addr_0834B:
+@go_left:
    ld     (ix+7), $C0                  ; 02:834B - DD 36 07 C0
    ld     (ix+8), $FF                  ; 02:834F - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:8353 - DD 36 09 FF
-   ld     de, UNK_0837E                ; 02:8357 - 11 7E 83
-   ld     bc, UNK_08374                ; 02:835A - 01 74 83
+   ld     de, SPRTAB_spikeses          ; 02:8357 - 11 7E 83
+   ld     bc, LUT_spikeses_anim_sequence_left  ; 02:835A - 01 74 83
    call   do_framed_animation          ; 02:835D - CD 41 7C
 
-addr_08360:
+@was_going_right:
    ld     a, (g_global_tick_counter)   ; 02:8360 - 3A 23 D2
    and    $07                          ; 02:8363 - E6 07
    ret    nz                           ; 02:8365 - C0
@@ -14139,13 +14139,13 @@ addr_08360:
    ld     (ix+17), $00                 ; 02:836F - DD 36 11 00
    ret                                 ; 02:8373 - C9
 
-UNK_08374:
+LUT_spikeses_anim_sequence_left:
 .db $00, $06, $01, $06, $FF                                                         ; 02:8374
 
-UNK_08379:
+LUT_spikeses_anim_sequence_right:
 .db $02, $06, $03, $06, $FF                                                         ; 02:8379
 
-UNK_0837E:
+SPRTAB_spikeses:
 .db $FE, $00, $02, $FF, $FF, $FF, $20, $22, $24, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:837E
 .db $FF, $FF, $FE, $00, $02, $FF, $FF, $FF, $26, $28, $2A, $FF, $FF, $FF, $FF, $FF  ; 02:838E
 .db $FF, $FF, $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $4A, $4C, $4E, $FF, $FF, $FF  ; 02:839E
