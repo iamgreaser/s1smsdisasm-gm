@@ -7466,7 +7466,7 @@ LUT_object_functions:
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
-.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_UNKNOWN  ; 00:2B66
+.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -17366,12 +17366,12 @@ LUT_giant_spear_anim_frames_n_y:
 .db $12, $18, $32, $20, $FF, $00, $16, $30, $12, $1C, $32, $20, $FF, $00, $1A, $30  ; 02:8BFE
 .db $12, $20, $FF, $00, $FF, $00, $1E, $30                                          ; 02:8C0E
 
-objfunc_3F_UNKNOWN:
+objfunc_3F_fireball_gargoyle:
    res    5, (ix+24)                   ; 02:8C16 - DD CB 18 AE
    ld     (ix+13), $04                 ; 02:8C1A - DD 36 0D 04
    ld     (ix+14), $0A                 ; 02:8C1E - DD 36 0E 0A
    bit    0, (ix+24)                   ; 02:8C22 - DD CB 18 46
-   jr     nz, addr_08C6E               ; 02:8C26 - 20 46
+   jr     nz, @already_initialised     ; 02:8C26 - 20 46
    ld     l, (ix+2)                    ; 02:8C28 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8C2B - DD 66 03
    ld     de, $000A                    ; 02:8C2E - 11 0A 00
@@ -17395,17 +17395,17 @@ objfunc_3F_UNKNOWN:
    call   get_obj_level_tile_ptr_in_ram  ; 02:8C62 - CD F9 36
    ld     a, (hl)                      ; 02:8C65 - 7E
    cp     $52                          ; 02:8C66 - FE 52
-   jr     z, addr_08C6E                ; 02:8C68 - 28 04
+   jr     z, @already_initialised      ; 02:8C68 - 28 04
    set    1, (ix+24)                   ; 02:8C6A - DD CB 18 CE
 
-addr_08C6E:
+@already_initialised:
    ld     a, (ix+17)                   ; 02:8C6E - DD 7E 11
    and    a                            ; 02:8C71 - A7
-   jr     z, addr_08C8D                ; 02:8C72 - 28 19
+   jr     z, @timer_expired            ; 02:8C72 - 28 19
    dec    (ix+17)                      ; 02:8C74 - DD 35 11
-   jr     z, addr_08C8A                ; 02:8C77 - 28 11
+   jr     z, @timer_just_expired_now   ; 02:8C77 - 28 11
 
-addr_08C79:
+@ensure_spriteless_and_unmoving:
    xor    a                            ; 02:8C79 - AF
    ld     (ix+15), a                   ; 02:8C7A - DD 77 0F
    ld     (ix+16), a                   ; 02:8C7D - DD 77 10
@@ -17414,36 +17414,36 @@ addr_08C79:
    ld     (ix+9), a                    ; 02:8C86 - DD 77 09
    ret                                 ; 02:8C89 - C9
 
-addr_08C8A:
+@timer_just_expired_now:
    ld     a, $18                       ; 02:8C8A - 3E 18
    rst    $28                          ; 02:8C8C - EF
 
-addr_08C8D:
+@timer_expired:
    xor    a                            ; 02:8C8D - AF
    bit    1, (ix+24)                   ; 02:8C8E - DD CB 18 4E
-   jr     nz, addr_08CAA               ; 02:8C92 - 20 16
+   jr     nz, @is_facing_right         ; 02:8C92 - 20 16
    ld     (ix+7), $00                  ; 02:8C94 - DD 36 07 00
    ld     (ix+8), $FF                  ; 02:8C98 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:8C9C - DD 36 09 FF
-   ld     (ix+15), UNK_08D39&$FF       ; 02:8CA0 - DD 36 0F 39
-   ld     (ix+16), UNK_08D39>>8        ; 02:8CA4 - DD 36 10 8D
-   jr     addr_08CBC                   ; 02:8CA8 - 18 12
+   ld     (ix+15), SPRTAB_gargoyle_fireball_left&$FF  ; 02:8CA0 - DD 36 0F 39
+   ld     (ix+16), SPRTAB_gargoyle_fireball_left>>8  ; 02:8CA4 - DD 36 10 8D
+   jr     @sprtab_and_dir_selected     ; 02:8CA8 - 18 12
 
-addr_08CAA:
+@is_facing_right:
    ld     (ix+7), a                    ; 02:8CAA - DD 77 07
    ld     (ix+8), $01                  ; 02:8CAD - DD 36 08 01
    ld     (ix+9), a                    ; 02:8CB1 - DD 77 09
-   ld     (ix+15), UNK_08D41&$FF       ; 02:8CB4 - DD 36 0F 41
-   ld     (ix+16), UNK_08D41>>8        ; 02:8CB8 - DD 36 10 8D
+   ld     (ix+15), SPRTAB_gargoyle_fireball_right&$FF  ; 02:8CB4 - DD 36 0F 41
+   ld     (ix+16), SPRTAB_gargoyle_fireball_right>>8  ; 02:8CB8 - DD 36 10 8D
 
-addr_08CBC:
+@sprtab_and_dir_selected:
    ld     (ix+10), a                   ; 02:8CBC - DD 77 0A
    ld     (ix+11), a                   ; 02:8CBF - DD 77 0B
    ld     (ix+12), a                   ; 02:8CC2 - DD 77 0C
    bit    6, (ix+24)                   ; 02:8CC5 - DD CB 18 76
-   jr     nz, addr_08D1A               ; 02:8CC9 - 20 4F
+   jr     nz, @reset_fireball          ; 02:8CC9 - 20 4F
    bit    7, (ix+24)                   ; 02:8CCB - DD CB 18 7E
-   jr     nz, addr_08D1A               ; 02:8CCF - 20 49
+   jr     nz, @reset_fireball          ; 02:8CCF - 20 49
    ld     hl, $0402                    ; 02:8CD1 - 21 02 04
    ld     (tmp_06), hl                 ; 02:8CD4 - 22 14 D2
    call   check_collision_with_sonic   ; 02:8CD7 - CD 56 39
@@ -17455,13 +17455,13 @@ addr_08CBC:
    add    hl, bc                       ; 02:8CE9 - 09
    and    a                            ; 02:8CEA - A7
    sbc    hl, de                       ; 02:8CEB - ED 52
-   jr     nc, addr_08D1A               ; 02:8CED - 30 2B
+   jr     nc, @reset_fireball          ; 02:8CED - 30 2B
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:8CEF - 2A 5A D2
    ld     bc, $0110                    ; 02:8CF2 - 01 10 01
    add    hl, bc                       ; 02:8CF5 - 09
    and    a                            ; 02:8CF6 - A7
    sbc    hl, de                       ; 02:8CF7 - ED 52
-   jr     c, addr_08D1A                ; 02:8CF9 - 38 1F
+   jr     c, @reset_fireball           ; 02:8CF9 - 38 1F
    ld     e, (ix+5)                    ; 02:8CFB - DD 5E 05
    ld     d, (ix+6)                    ; 02:8CFE - DD 56 06
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8D01 - 2A 5D D2
@@ -17469,16 +17469,16 @@ addr_08CBC:
    add    hl, bc                       ; 02:8D07 - 09
    and    a                            ; 02:8D08 - A7
    sbc    hl, de                       ; 02:8D09 - ED 52
-   jr     nc, addr_08D1A               ; 02:8D0B - 30 0D
+   jr     nc, @reset_fireball          ; 02:8D0B - 30 0D
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:8D0D - 2A 5D D2
    ld     bc, $00D0                    ; 02:8D10 - 01 D0 00
    add    hl, bc                       ; 02:8D13 - 09
    and    a                            ; 02:8D14 - A7
    sbc    hl, de                       ; 02:8D15 - ED 52
-   jr     c, addr_08D1A                ; 02:8D17 - 38 01
+   jr     c, @reset_fireball           ; 02:8D17 - 38 01
    ret                                 ; 02:8D19 - C9
 
-addr_08D1A:
+@reset_fireball:
    ld     l, (ix+18)                   ; 02:8D1A - DD 6E 12
    ld     h, (ix+19)                   ; 02:8D1D - DD 66 13
    ld     (ix+2), l                    ; 02:8D20 - DD 75 02
@@ -17488,12 +17488,12 @@ addr_08D1A:
    ld     (ix+5), l                    ; 02:8D2C - DD 75 05
    ld     (ix+6), h                    ; 02:8D2F - DD 74 06
    ld     (ix+17), $96                 ; 02:8D32 - DD 36 11 96
-   jp     addr_08C79                   ; 02:8D36 - C3 79 8C
+   jp     @ensure_spriteless_and_unmoving  ; 02:8D36 - C3 79 8C
 
-UNK_08D39:
+SPRTAB_gargoyle_fireball_left:
 .db $2E, $FF, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:8D39
 
-UNK_08D41:
+SPRTAB_gargoyle_fireball_right:
 .db $30, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:8D41
 
 objfunc_40_UNKNOWN:
