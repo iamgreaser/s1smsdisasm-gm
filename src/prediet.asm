@@ -5775,7 +5775,7 @@ LUT_object_functions:
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
-.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
+.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -14831,10 +14831,10 @@ LUT_spinning_spike_ball_xy_positions:
 .db $3A, $E6, $3B, $E8, $3C, $EA, $3D, $EC, $3E, $EE, $3E, $F1, $3F, $F3, $3F, $F5  ; 02:8ADE
 .db $3F, $F7, $40, $F9, $40, $FC, $40, $FE                                          ; 02:8AEE
 
-objfunc_3E_UNKNOWN:
+objfunc_3E_giant_spear:
    set    5, (ix+24)                   ; 02:8AF6 - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:8AFA - DD CB 18 46
-   jr     nz, addr_08B14               ; 02:8AFE - 20 14
+   jr     nz, @already_initialised     ; 02:8AFE - 20 14
    ld     l, (ix+2)                    ; 02:8B00 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8B03 - DD 66 03
    ld     de, $000C                    ; 02:8B06 - 11 0C 00
@@ -14843,7 +14843,7 @@ objfunc_3E_UNKNOWN:
    ld     (ix+3), h                    ; 02:8B0D - DD 74 03
    set    0, (ix+24)                   ; 02:8B10 - DD CB 18 C6
 
-addr_08B14:
+@already_initialised:
    ld     l, (ix+2)                    ; 02:8B14 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8B17 - DD 66 03
    ld     (tmp_00), hl                 ; 02:8B1A - 22 0E D2
@@ -14856,46 +14856,46 @@ addr_08B14:
    rlca                                ; 02:8B2F - 07
    rlca                                ; 02:8B30 - 07
    and    $03                          ; 02:8B31 - E6 03
-   jr     nz, addr_08B49               ; 02:8B33 - 20 14
-   ld     hl, UNK_08BBC                ; 02:8B35 - 21 BC 8B
+   jr     nz, @not_state_00            ; 02:8B33 - 20 14
+   ld     hl, LUT_inc_00_through_07    ; 02:8B35 - 21 BC 8B
    ld     a, (g_global_tick_counter)   ; 02:8B38 - 3A 23 D2
    and    $3F                          ; 02:8B3B - E6 3F
    ld     e, a                         ; 02:8B3D - 5F
    cp     $08                          ; 02:8B3E - FE 08
-   jr     c, addr_08B71                ; 02:8B40 - 38 2F
-   ld     hl, UNK_08BCD                ; 02:8B42 - 21 CD 8B
+   jr     c, @continue_after_states    ; 02:8B40 - 38 2F
+   ld     hl, LUT_stay_at_08           ; 02:8B42 - 21 CD 8B
    ld     e, $00                       ; 02:8B45 - 1E 00
-   jr     addr_08B71                   ; 02:8B47 - 18 28
+   jr     @continue_after_states       ; 02:8B47 - 18 28
 
-addr_08B49:
+@not_state_00:
    cp     $01                          ; 02:8B49 - FE 01
-   jr     nz, addr_08B54               ; 02:8B4B - 20 07
-   ld     hl, UNK_08BCD                ; 02:8B4D - 21 CD 8B
+   jr     nz, @not_state_01            ; 02:8B4B - 20 07
+   ld     hl, LUT_stay_at_08           ; 02:8B4D - 21 CD 8B
    ld     e, $00                       ; 02:8B50 - 1E 00
-   jr     addr_08B71                   ; 02:8B52 - 18 1D
+   jr     @continue_after_states       ; 02:8B52 - 18 1D
 
-addr_08B54:
+@not_state_01:
    cp     $02                          ; 02:8B54 - FE 02
-   jr     nz, addr_08B6C               ; 02:8B56 - 20 14
-   ld     hl, UNK_08BC4                ; 02:8B58 - 21 C4 8B
+   jr     nz, @not_state_02            ; 02:8B56 - 20 14
+   ld     hl, LUT_dec_07_through_00    ; 02:8B58 - 21 C4 8B
    ld     a, (g_global_tick_counter)   ; 02:8B5B - 3A 23 D2
    and    $3F                          ; 02:8B5E - E6 3F
    ld     e, a                         ; 02:8B60 - 5F
    cp     $08                          ; 02:8B61 - FE 08
-   jr     c, addr_08B71                ; 02:8B63 - 38 0C
-   ld     hl, UNK_08BCC                ; 02:8B65 - 21 CC 8B
+   jr     c, @continue_after_states    ; 02:8B63 - 38 0C
+   ld     hl, LUT_stay_at_00           ; 02:8B65 - 21 CC 8B
    ld     e, $00                       ; 02:8B68 - 1E 00
-   jr     addr_08B71                   ; 02:8B6A - 18 05
+   jr     @continue_after_states       ; 02:8B6A - 18 05
 
-addr_08B6C:
-   ld     hl, UNK_08BCC                ; 02:8B6C - 21 CC 8B
+@not_state_02:
+   ld     hl, LUT_stay_at_00           ; 02:8B6C - 21 CC 8B
    ld     e, $00                       ; 02:8B6F - 1E 00
 
-addr_08B71:
+@continue_after_states:
    ld     d, $00                       ; 02:8B71 - 16 00
    add    hl, de                       ; 02:8B73 - 19
    ld     a, (hl)                      ; 02:8B74 - 7E
-   ld     hl, UNK_08BCE                ; 02:8B75 - 21 CE 8B
+   ld     hl, LUT_giant_spear_anim_frames_n_y  ; 02:8B75 - 21 CE 8B
    add    a, a                         ; 02:8B78 - 87
    add    a, a                         ; 02:8B79 - 87
    add    a, a                         ; 02:8B7A - 87
@@ -14903,23 +14903,23 @@ addr_08B71:
    add    hl, de                       ; 02:8B7C - 19
    ld     b, $03                       ; 02:8B7D - 06 03
 
-addr_08B7F:
+@each_potential_sprite:
    push   bc                           ; 02:8B7F - C5
    ld     a, (hl)                      ; 02:8B80 - 7E
    inc    hl                           ; 02:8B81 - 23
    ld     e, (hl)                      ; 02:8B82 - 5E
    inc    hl                           ; 02:8B83 - 23
    and    a                            ; 02:8B84 - A7
-   jp     m, addr_08B93                ; 02:8B85 - FA 93 8B
+   jp     m, @dont_draw_this_sprite    ; 02:8B85 - FA 93 8B
    push   hl                           ; 02:8B88 - E5
    ld     d, $00                       ; 02:8B89 - 16 00
    ld     (tmp_06), de                 ; 02:8B8B - ED 53 14 D2
    call   draw_sprite                  ; 02:8B8F - CD 81 35
    pop    hl                           ; 02:8B92 - E1
 
-addr_08B93:
+@dont_draw_this_sprite:
    pop    bc                           ; 02:8B93 - C1
-   djnz   addr_08B7F                   ; 02:8B94 - 10 E9
+   djnz   @each_potential_sprite       ; 02:8B94 - 10 E9
    ld     (ix+15), b                   ; 02:8B96 - DD 70 0F
    ld     (ix+16), b                   ; 02:8B99 - DD 70 10
    ld     d, (hl)                      ; 02:8B9C - 56
@@ -14938,19 +14938,19 @@ addr_08B93:
    rst    $28                          ; 02:8BBA - EF
    ret                                 ; 02:8BBB - C9
 
-UNK_08BBC:
+LUT_inc_00_through_07:
 .db $00, $01, $02, $03, $04, $05, $06, $07                                          ; 02:8BBC
 
-UNK_08BC4:
+LUT_dec_07_through_00:
 .db $07, $06, $05, $04, $03, $02, $01, $00                                          ; 02:8BC4
 
-UNK_08BCC:
+LUT_stay_at_00:
 .db $00                                                                             ; 02:8BCC
 
-UNK_08BCD:
+LUT_stay_at_08:
 .db $08                                                                             ; 02:8BCD
 
-UNK_08BCE:
+LUT_giant_spear_anim_frames_n_y:
 .db $12, $00, $32, $10, $32, $20, $01, $30, $12, $04, $32, $14, $32, $20, $02, $30  ; 02:8BCE
 .db $12, $08, $32, $18, $32, $20, $06, $30, $12, $0C, $32, $1C, $32, $20, $0A, $30  ; 02:8BDE
 .db $12, $10, $32, $20, $FF, $00, $0E, $30, $12, $14, $32, $20, $FF, $00, $12, $30  ; 02:8BEE
