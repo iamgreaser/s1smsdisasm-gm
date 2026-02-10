@@ -6709,9 +6709,7 @@ load_object_from_level_spec:
    .ENDIF
 
    ;; Diet edition: Initialise via the objinit system.
-   push hl
    call init_object_defaults
-   pop hl
 
    add    ix, de                       ; 00:2399 - DD 19
    ret                                 ; 00:239B - C9
@@ -9756,17 +9754,17 @@ PTRLUT_objinit:
    .dw objinit_monitor  ; 05
    .dw objinit_unused  ; 06
    .dw objinit_unused  ; 07
-   .dw objinit_unused  ; 08
-   .dw objinit_unused  ; 09
+   .dw objinit_08_badnik_crabmeat  ; 08
+   .dw objinit_09_platform_swing  ; 09
    .dw objinit_unused  ; 0A
-   .dw objinit_unused  ; 0B
-   .dw objinit_unused  ; 0C
+   .dw objinit_0B_platform_semilowering  ; 0B
+   .dw objinit_0C_platform_fall_on_touch  ; 0C
    .dw objinit_unused  ; 0D
-   .dw objinit_unused  ; 0E
-   .dw objinit_unused  ; 0F
-   .dw objinit_unused  ; 10
-   .dw objinit_unused  ; 11
-   .dw objinit_unused  ; 12
+   .dw objinit_0E_badnik_buzz_bomber  ; 0E
+   .dw objinit_0F_platform_horizontal  ; 0F
+   .dw objinit_10_badnik_motobug  ; 10
+   .dw objinit_11_badnik_newtron  ; 11
+   .dw objinit_12_GHZ_boss  ; 12
    .dw objinit_unused  ; 13
    .dw objinit_unused  ; 14
    .dw objinit_unused  ; 15
@@ -9783,9 +9781,9 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 20
    .dw objinit_unused  ; 21
    .dw objinit_unused  ; 22
-   .dw objinit_unused  ; 23
-   .dw objinit_unused  ; 24
-   .dw objinit_unused  ; 25
+   .dw objinit_23_animal_0  ; 23
+   .dw objinit_24_animal_1  ; 24
+   .dw objinit_25_animal_capsule  ; 25
    .dw objinit_unused  ; 26
    .dw objinit_unused  ; 27
    .dw objinit_unused  ; 28
@@ -9837,7 +9835,7 @@ PTRLUT_objinit:
 
 objinit_unused: .db $FF
 
-objinit_monitor: .db 13|(1<<5), $14, $18, $FF
+objinit_monitor: .db 13|((2-1)<<5), $14, $18, $FF
 
 init_object_defaults:
    ;; Range check!
@@ -9845,7 +9843,15 @@ init_object_defaults:
    cp $56
    ret nc
 
-   push de
+   ;; Save our slot 1/2 settings
+   push hl
+   ld hl, (g_committed_rompage_1)
+   push hl
+   exx
+      ;; Use the correct slot 1/2 settings
+      ld a, $01
+      call set_slot_1_2
+      ld a, (ix+0)
       ;; Load our pointer
       add a, a
       ld l, a
@@ -9865,33 +9871,42 @@ init_object_defaults:
          jr z, @end_of_init_stream
          inc hl
          ;; Load pointer and count for write
-         push bc
-            ld c, a
-            and $1F
-            ld e, a
-            ; E = low 5 bits
-            xor c
-            ; A = high 3 bits in place
-            rlca
-            rlca
-            rlca
-            ; Now we have those bits at the bottom
-            inc a
-            ld c, a
-            ld b, $00
-            ld d, b
-            push hl
-               push ix
-               pop hl
-               add hl, de
-               ex de, hl
+         ld c, a
+         and $1F
+         ld e, a
+         ; E = low 5 bits
+         ; RANGE CHECK!
+         cp $1A
+         -: jr nc, -
+         xor c
+         ; A = high 3 bits in place
+         rlca
+         rlca
+         rlca
+         ; Now we have those bits at the bottom
+         inc a
+         ld c, a
+         ld b, $00
+         ; BC = count of bytes to copy
+         ld d, b
+         ; DE = destination pointer offset
+         push hl
+            push ix
             pop hl
-            ;; Write!
-            ldir
-         pop bc
+            add hl, de
+            ex de, hl
+         pop hl
+         ; DE = destination pointer
+         ;; Write!
+         ldir
          jp --
       @end_of_init_stream:
-   pop de
+   exx
+   ;; Restore our slot 1/2 settings
+   pop hl
+   ld (g_committed_rompage_1), hl
+   ld (rompage_1), hl
+   pop hl
 
    ret
 
@@ -13561,9 +13576,15 @@ LVPAL3_SKY_3:
 LVCYCPAL1_SKY_3:
 .INCBIN "src/data/lv_sky_3.pal1c"
 
+objinit_08_badnik_crabmeat:
+   .db 13|((2-1)<<5), $10, $1F
+   .db $FF
+
 objfunc_08_badnik_crabmeat:
+   .IF 0
    ld     (ix+13), $10                 ; 01:65EE - DD 36 0D 10
    ld     (ix+14), $1F                 ; 01:65F2 - DD 36 0E 1F
+   .ENDIF
    ld     e, (ix+18)                   ; 01:65F6 - DD 5E 12
    ld     d, $00                       ; 01:65F9 - 16 00
 
@@ -13691,8 +13712,16 @@ SPRITEMAP_crabmeat_frames:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $40, $02, $04, $FF, $FF, $FF, $46, $22, $4A, $FF  ; 01:6729
 .db $FF, $FF, $FF                                                                   ; 01:6739
 
+objinit_09_platform_swing:
+   .db 13|((2-1)<<5), $1A, $10
+   .db 17|((1-1)<<5), $E0
+   .db 24|((1-1)<<5), $22
+   .db $FF
+
 objfunc_09_platform_swing:
+   .IF 0
    set    5, (ix+24)                   ; 01:673C - DD CB 18 EE
+   .ENDIF
    ld     hl, $0020                    ; 01:6740 - 21 20 00
    ld     (var_D267), hl               ; 01:6743 - 22 67 D2
    ld     hl, $0048                    ; 01:6746 - 21 48 00
@@ -13711,13 +13740,19 @@ objfunc_09_platform_swing:
    ld     h, (ix+6)                    ; 01:676D - DD 66 06
    ld     (ix+20), l                   ; 01:6770 - DD 75 14
    ld     (ix+21), h                   ; 01:6773 - DD 74 15
+   .IF 0
    ld     (ix+17), $E0                 ; 01:6776 - DD 36 11 E0
+   .ENDIF
    set    0, (ix+24)                   ; 01:677A - DD CB 18 C6
+   .IF 0
    set    1, (ix+24)                   ; 01:677E - DD CB 18 CE
+   .ENDIF
 
 @already_initialised:
+   .IF 0
    ld     (ix+13), $1A                 ; 01:6782 - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6786 - DD 36 0E 10
+   .ENDIF
    ld     l, (ix+2)                    ; 01:678A - DD 6E 02
    ld     h, (ix+3)                    ; 01:678D - DD 66 03
    ld     (tmp_00), hl                 ; 01:6790 - 22 0E D2
@@ -13915,12 +13950,20 @@ SPRITEMAP_explosion_frames:
 .db $FF, $FF, $78, $7A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:69CE
 .db $FF, $FF, $FF, $FF, $7C, $7E, $FF, $FF, $FF, $FF, $FF                           ; 01:69DE
 
+objinit_0B_platform_semilowering:
+   .db 13|((4-1)<<5), $1A, $10
+      .dw SPRITEMAP_platform_GHZ
+   .db 24|((1-1)<<5), $20
+   .db $FF
+
 objfunc_0B_platform_semilowering:
+   .IF 0
    set    5, (ix+24)                   ; 01:69E9 - DD CB 18 EE
    ld     (ix+13), $1A                 ; 01:69ED - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:69F1 - DD 36 0E 10
    ld     (ix+15), SPRITEMAP_platform_GHZ&$FF  ; 01:69F5 - DD 36 0F 11
    ld     (ix+16), SPRITEMAP_platform_GHZ>>8  ; 01:69F9 - DD 36 10 69
+   .ENDIF
    ld     a, (sonic_vel_y_hi)          ; 01:69FD - 3A 08 D4
    and    a                            ; 01:6A00 - A7
    jp     m, @not_collided_with_sonic  ; 01:6A01 - FA 2E 6A
@@ -13959,8 +14002,15 @@ objfunc_0B_platform_semilowering:
    ld     (ix+12), c                   ; 01:6A43 - DD 71 0C
    ret                                 ; 01:6A46 - C9
 
+objinit_0C_platform_fall_on_touch:
+   .db 13|((2-1)<<5), $1A, $10
+   .db 24|((1-1)<<5), $20
+   .db $FF
+
 objfunc_0C_platform_fall_on_touch:
+   .IF 0
    set    5, (ix+24)                   ; 01:6A47 - DD CB 18 EE
+   .ENDIF
    ld     a, (ix+22)                   ; 01:6A4B - DD 7E 16
    add    a, (ix+23)                   ; 01:6A4E - DD 86 17
    ld     (ix+23), a                   ; 01:6A51 - DD 77 17
@@ -13977,8 +14027,10 @@ objfunc_0C_platform_fall_on_touch:
    ld     (ix+12), a                   ; 01:6A6C - DD 77 0C
 
 @pre_fall_delay_was_not_expired:
+   .IF 0
    ld     (ix+13), $1A                 ; 01:6A6F - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6A73 - DD 36 0E 10
+   .ENDIF
    ld     a, (sonic_vel_y_hi)          ; 01:6A77 - 3A 08 D4
    and    a                            ; 01:6A7A - A7
    jp     m, @sonic_was_not_positioned_correctly  ; 01:6A7B - FA 99 6A
@@ -14106,8 +14158,15 @@ LUT_fireball_main:
 LUT_fireball_BRI3_LAB3:
 .db $34, $36                                                                        ; 01:6B72
 
+objinit_0E_badnik_buzz_bomber:
+   .db 13|((2-1)<<5), $14, $20
+   .db 24|((1-1)<<5), $20
+   .db $FF
+
 objfunc_0E_badnik_buzz_bomber:
+   .IF 0
    set    5, (ix+24)                   ; 01:6B74 - DD CB 18 EE
+   .ENDIF
    bit    0, (ix+24)                   ; 01:6B78 - DD CB 18 46
    jr     nz, @already_initialised     ; 01:6B7C - 20 2D
    ld     e, (ix+2)                    ; 01:6B7E - DD 5E 02
@@ -14129,8 +14188,10 @@ objfunc_0E_badnik_buzz_bomber:
    set    0, (ix+24)                   ; 01:6BA7 - DD CB 18 C6
 
 @already_initialised:
+   .IF 0
    ld     (ix+13), $14                 ; 01:6BAB - DD 36 0D 14
    ld     (ix+14), $20                 ; 01:6BAF - DD 36 0E 20
+   .ENDIF
    ld     l, (ix+2)                    ; 01:6BB3 - DD 6E 02
    ld     h, (ix+3)                    ; 01:6BB6 - DD 66 03
    ld     de, (sonic_x)                ; 01:6BB9 - ED 5B FE D3
@@ -14292,8 +14353,15 @@ SPRITEMAP_buzz_bomber_frames:
 .db $16, $FF, $FF, $FF, $30, $34, $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF  ; 01:6D49
 .db $12, $14, $16, $FF, $FF, $FF, $30, $34, $FF, $FF, $FF, $FF                      ; 01:6D59
 
+objinit_0F_platform_horizontal:
+   .db 13|((2-1)<<5), $1A, $10
+   .db 24|((1-1)<<5), $20
+   .db $FF
+
 objfunc_0F_platform_horizontal:
+   .IF 0
    set    5, (ix+24)                   ; 01:6D65 - DD CB 18 EE
+   .ENDIF
    ld     a, (g_level)                 ; 01:6D69 - 3A 3E D2
    cp     $07                          ; 01:6D6C - FE 07
    jr     z, @level_was_not_JUN2_dont_break_the_camera  ; 01:6D6E - 28 18
@@ -14307,8 +14375,10 @@ objfunc_0F_platform_horizontal:
    ld     (var_D26D), hl               ; 01:6D85 - 22 6D D2
 
 @level_was_not_JUN2_dont_break_the_camera:
+   .IF 0
    ld     (ix+13), $1A                 ; 01:6D88 - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6D8C - DD 36 0E 10
+   .ENDIF
    ld     c, $00                       ; 01:6D90 - 0E 00
    ld     a, (sonic_vel_y_hi)          ; 01:6D92 - 3A 08 D4
    and    a                            ; 01:6D95 - A7
@@ -14371,10 +14441,17 @@ objfunc_0F_platform_horizontal:
    ld     (ix+16), h                   ; 01:6E08 - DD 74 10
    ret                                 ; 01:6E0B - C9
 
+objinit_10_badnik_motobug:
+   .db 13|((2-1)<<5), $0A, $10
+   .db 11|((1-1)<<5), $02
+   .db $FF
+
 objfunc_10_badnik_motobug:
+   .IF 0
    res    5, (ix+24)                   ; 01:6E0C - DD CB 18 AE
    ld     (ix+13), $0A                 ; 01:6E10 - DD 36 0D 0A
    ld     (ix+14), $10                 ; 01:6E14 - DD 36 0E 10
+   .ENDIF
    ld     e, (ix+18)                   ; 01:6E18 - DD 5E 12
    ld     d, $00                       ; 01:6E1B - 16 00
 
@@ -14418,9 +14495,11 @@ objfunc_10_badnik_motobug:
    add    hl, de                       ; 01:6E5B - 19
    ld     (ix+17), l                   ; 01:6E5C - DD 75 11
    ld     (ix+18), h                   ; 01:6E5F - DD 74 12
+   .IF 0
    ld     (ix+10), $00                 ; 01:6E62 - DD 36 0A 00
    ld     (ix+11), $02                 ; 01:6E66 - DD 36 0B 02
    ld     (ix+12), $00                 ; 01:6E6A - DD 36 0C 00
+   .ENDIF
    ld     hl, (tmp_06)                 ; 01:6E6E - 2A 14 D2
    ld     a, (hl)                      ; 01:6E71 - 7E
    add    a, a                         ; 01:6E72 - 87
@@ -14466,10 +14545,17 @@ SPRITEMAP_motobug_frames:
 .db $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6EEB
 .db $FF, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $FF, $FF, $FF, $FF, $FF                 ; 01:6EFB
 
+objinit_11_badnik_newtron:
+   .db 13|((2-1)<<5), $0C, $14
+   .db 24|((1-1)<<5), $20
+   .db $FF
+
 objfunc_11_badnik_newtron:
+   .IF 0
    set    5, (ix+24)                   ; 01:6F08 - DD CB 18 EE
    ld     (ix+13), $0C                 ; 01:6F0C - DD 36 0D 0C
    ld     (ix+14), $14                 ; 01:6F10 - DD 36 0E 14
+   .ENDIF
    ld     a, (ix+17)                   ; 01:6F14 - DD 7E 11
    cp     $02                          ; 01:6F17 - FE 02
    jr     z, @state_02                 ; 01:6F19 - 28 03
@@ -14572,10 +14658,19 @@ SPRITEMAP_newtron:
 .db $1C, $1E, $FF, $FF, $FF, $FF, $FE, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:6FED
 .db $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $FE, $62, $FF, $FF, $FF, $FF, $FF       ; 01:6FFD
 
+objinit_12_GHZ_boss:
+   .db 13|((2-1)<<5), $20, $1C
+   .db 24|((1-1)<<5), $20
+   .db 20|((2-1)<<5)
+      .dw UNK_072A1
+   .db $FF
+
 objfunc_12_GHZ_boss:
+   .IF 0
    set    5, (ix+24)                   ; 01:700C - DD CB 18 EE
    ld     (ix+13), $20                 ; 01:7010 - DD 36 0D 20
    ld     (ix+14), $1C                 ; 01:7014 - DD 36 0E 1C
+   .ENDIF
    call   move_locked_camera_towards_target  ; 01:7018 - CD A6 7C
    bit    0, (ix+17)                   ; 01:701B - DD CB 11 46
    jr     nz, @already_initialised     ; 01:701F - 20 42
@@ -14596,9 +14691,11 @@ objfunc_12_GHZ_boss:
    rst    $18                          ; 01:7046 - DF
    xor    a                            ; 01:7047 - AF
    ld     (g_boss_hits_taken), a       ; 01:7048 - 32 EC D2
+   .IF 0
    ld     (ix+18), a                   ; 01:704B - DD 77 12
    ld     (ix+20), UNK_072A1&$FF       ; 01:704E - DD 36 14 A1
    ld     (ix+21), UNK_072A1>>8        ; 01:7052 - DD 36 15 72
+   .ENDIF
    ld     hl, $0760                    ; 01:7056 - 21 60 07
    ld     de, $00E8                    ; 01:7059 - 11 E8 00
    call   set_locked_camera_target     ; 01:705C - CD 8C 7C
@@ -14885,8 +14982,15 @@ UNK_0730A:
 PAL2_boss:
 .INCBIN "src/data/boss.pal2"
 
+objinit_25_animal_capsule:
+   .db 13|((2-1)<<5), $1C, $40
+   .db 24|((1-1)<<5), $20
+   .db $FF
+
 objfunc_25_animal_capsule:
+   .IF 0
    set    5, (ix+24)                   ; 01:732C - DD CB 18 EE
+   .ENDIF
    bit    0, (ix+24)                   ; 01:7330 - DD CB 18 46
    jr     nz, @already_initialised     ; 01:7334 - 20 14
    ld     l, (ix+5)                    ; 01:7336 - DD 6E 05
@@ -14898,8 +15002,10 @@ objfunc_25_animal_capsule:
    set    0, (ix+24)                   ; 01:7346 - DD CB 18 C6
 
 @already_initialised:
+   .IF 0
    ld     (ix+13), $1C                 ; 01:734A - DD 36 0D 1C
    ld     (ix+14), $40                 ; 01:734E - DD 36 0E 40
+   .ENDIF
    ld     hl, animal_capsule_UNK_07564  ; 01:7352 - 21 64 75
    bit    1, (ix+24)                   ; 01:7355 - DD CB 18 4E
    jr     z, @capsule_show_as_intact   ; 01:7359 - 28 03
@@ -15093,6 +15199,7 @@ objfunc_25_animal_capsule:
    pop    ix                           ; 01:74CC - DD E1
    ld     a, (tmp_08)                  ; 01:74CE - 3A 16 D2
    ld     (ix+0), a                    ; 01:74D1 - DD 77 00
+   call init_object_defaults
    xor    a                            ; 01:74D4 - AF
    ld     (ix+22), a                   ; 01:74D5 - DD 77 16
    ld     (ix+23), a                   ; 01:74D8 - DD 77 17
@@ -15142,10 +15249,16 @@ animal_capsule_UNK_0757C:
 .db $00, $00, $20, $00, $00, $00, $00, $00, $49, $19, $4B, $19, $10, $00, $20, $00  ; 01:757C
 .db $00, $00, $00, $00, $4D, $19, $4F, $19                                          ; 01:758C
 
+objinit_24_animal_1:
+   .db 13|((2-1)<<5), $0C, $10
+   .db $FF
+
 objfunc_24_animal_1:
+   .IF 0
    res    5, (ix+24)                   ; 01:7594 - DD CB 18 AE
    ld     (ix+13), $0C                 ; 01:7598 - DD 36 0D 0C
    ld     (ix+14), $10                 ; 01:759C - DD 36 0E 10
+   .ENDIF
    bit    7, (ix+24)                   ; 01:75A0 - DD CB 18 7E
    jr     z, @was_not_on_floor         ; 01:75A4 - 28 0C
    ld     (ix+10), $00                 ; 01:75A6 - DD 36 0A 00
@@ -15234,10 +15347,17 @@ SPRITEMAP_animal_1:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $50, $52, $FF, $FF, $FF, $FF  ; 01:7688
 .db $FF                                                                             ; 01:7698
 
+objinit_23_animal_0:
+   .db 13|((2-1)<<5), $0C, $20
+   .db $FF
+
 objfunc_23_animal_0:
+   .IF 0
    res    5, (ix+24)                   ; 01:7699 - DD CB 18 AE
    ld     (ix+13), $0C                 ; 01:769D - DD 36 0D 0C
    ld     (ix+14), $20                 ; 01:76A1 - DD 36 0E 20
+   .ENDIF
+   ;; Ironically, this objfunc could actually *benefit* from an "is initialised" flag.
    ld     hl, SPRITEMAP_animal_0_airborne_GHZ  ; 01:76A5 - 21 60 77
    ld     a, (g_tile_flags_index)      ; 01:76A8 - 3A D4 D2
    and    a                            ; 01:76AB - A7
@@ -15843,6 +15963,22 @@ do_framed_animation:
    ret                                 ; 01:7C7A - C9
 
 spawn_object:
+   call @spawn_object_main_fn
+   ret c
+   ;; This needs to be a clean object now!
+   push hl
+      xor a
+      ld b, $19
+      ld (hl), $FF
+      -:
+         inc hl
+         ld (hl), a
+         djnz -
+   pop hl
+   or a  ; Clear carry flag
+   ret
+
+@spawn_object_main_fn:
 .IF opt_object_freelist
    ; Cycle counts:
    ; Original version:
