@@ -7468,7 +7468,7 @@ LUT_object_functions:
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
-.dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_UNKNOWN, ENTRY_RESET  ; 00:2B86
+.dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
@@ -16806,10 +16806,10 @@ SPRTAB_BRI3_boss:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:865A
 .db $68, $FF                                                                        ; 02:866A
 
-objfunc_4E_UNKNOWN:
+objfunc_4E_seesaw:
    set    5, (ix+24)                   ; 02:866C - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:8670 - DD CB 18 46
-   jr     nz, addr_0868E               ; 02:8674 - 20 18
+   jr     nz, @already_initialised     ; 02:8674 - 20 18
    ld     (ix+17), $1C                 ; 02:8676 - DD 36 11 1C
    ld     l, (ix+2)                    ; 02:867A - DD 6E 02
    ld     h, (ix+3)                    ; 02:867D - DD 66 03
@@ -16819,7 +16819,7 @@ objfunc_4E_UNKNOWN:
    ld     (ix+3), h                    ; 02:8687 - DD 74 03
    set    0, (ix+24)                   ; 02:868A - DD CB 18 C6
 
-addr_0868E:
+@already_initialised:
    ld     l, (ix+20)                   ; 02:868E - DD 6E 14
    ld     h, (ix+21)                   ; 02:8691 - DD 66 15
    ld     a, (ix+22)                   ; 02:8694 - DD 7E 16
@@ -16827,10 +16827,10 @@ addr_0868E:
    ld     d, (ix+19)                   ; 02:869A - DD 56 13
    ld     c, $00                       ; 02:869D - 0E 00
    bit    7, d                         ; 02:869F - CB 7A
-   jr     z, addr_086A4                ; 02:86A1 - 28 01
+   jr     z, @accumulated_y_vel_was_positive  ; 02:86A1 - 28 01
    dec    c                            ; 02:86A3 - 0D
 
-addr_086A4:
+@accumulated_y_vel_was_positive:
    add    hl, de                       ; 02:86A4 - 19
    adc    a, c                         ; 02:86A5 - 89
    ld     (ix+20), l                   ; 02:86A6 - DD 75 14
@@ -16843,24 +16843,24 @@ addr_086A4:
    ld     (ix+18), l                   ; 02:86B5 - DD 75 12
    ld     (ix+19), h                   ; 02:86B8 - DD 74 13
    bit    7, h                         ; 02:86BB - CB 7C
-   jr     nz, addr_0871B               ; 02:86BD - 20 5C
+   jr     nz, @do_sprite_drawing       ; 02:86BD - 20 5C
    rlca                                ; 02:86BF - 07
-   jr     c, addr_0871B                ; 02:86C0 - 38 59
+   jr     c, @do_sprite_drawing        ; 02:86C0 - 38 59
    ld     a, (ix+17)                   ; 02:86C2 - DD 7E 11
    and    a                            ; 02:86C5 - A7
-   jr     z, addr_08707                ; 02:86C6 - 28 3F
+   jr     z, @reset_seesaw_state       ; 02:86C6 - 28 3F
    bit    1, (ix+24)                   ; 02:86C8 - DD CB 18 4E
-   jr     z, addr_086F4                ; 02:86CC - 28 26
+   jr     z, @continue_after_weight_applied  ; 02:86CC - 28 26
    ld     a, l                         ; 02:86CE - 7D
    or     h                            ; 02:86CF - B4
-   jr     nz, addr_086E0               ; 02:86D0 - 20 0E
+   jr     nz, @skip_bounce_off_platform_when_weight_offset_nonzero  ; 02:86D0 - 20 0E
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:86D2 - 3A E8 D2
    ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:86D5 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:86D8 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:86DB - 32 08 D4
-   jr     addr_086F4                   ; 02:86DE - 18 14
+   jr     @continue_after_weight_applied  ; 02:86DE - 18 14
 
-addr_086E0:
+@skip_bounce_off_platform_when_weight_offset_nonzero:
    ld     a, l                         ; 02:86E0 - 7D
    cpl                                 ; 02:86E1 - 2F
    ld     l, a                         ; 02:86E2 - 6F
@@ -16874,20 +16874,20 @@ addr_086E0:
    ld     a, $FF                       ; 02:86EF - 3E FF
    ld     (sonic_vel_y_hi), a          ; 02:86F1 - 32 08 D4
 
-addr_086F4:
+@continue_after_weight_applied:
    ld     a, $1C                       ; 02:86F4 - 3E 1C
    sub    c                            ; 02:86F6 - 91
    ld     (ix+17), a                   ; 02:86F7 - DD 77 11
-   jr     z, addr_086FE                ; 02:86FA - 28 02
-   jr     nc, addr_0871B               ; 02:86FC - 30 1D
+   jr     z, @maybe_play_sfx_before_reset  ; 02:86FA - 28 02
+   jr     nc, @do_sprite_drawing       ; 02:86FC - 30 1D
 
-addr_086FE:
+@maybe_play_sfx_before_reset:
    bit    1, (ix+24)                   ; 02:86FE - DD CB 18 4E
-   jr     z, addr_08707                ; 02:8702 - 28 03
+   jr     z, @reset_seesaw_state       ; 02:8702 - 28 03
    ld     a, $04                       ; 02:8704 - 3E 04
    rst    $28                          ; 02:8706 - EF
 
-addr_08707:
+@reset_seesaw_state:
    xor    a                            ; 02:8707 - AF
    ld     (ix+17), a                   ; 02:8708 - DD 77 11
    ld     (ix+18), a                   ; 02:870B - DD 77 12
@@ -16896,7 +16896,7 @@ addr_08707:
    ld     (ix+21), $1C                 ; 02:8714 - DD 36 15 1C
    ld     (ix+22), a                   ; 02:8718 - DD 77 16
 
-addr_0871B:
+@do_sprite_drawing:
    ld     l, (ix+2)                    ; 02:871B - DD 6E 02
    ld     h, (ix+3)                    ; 02:871E - DD 66 03
    ld     (tmp_00), hl                 ; 02:8721 - 22 0E D2
@@ -16909,8 +16909,8 @@ addr_0871B:
    ld     de, $0010                    ; 02:8736 - 11 10 00
    add    hl, de                       ; 02:8739 - 19
    ld     (tmp_06), hl                 ; 02:873A - 22 14 D2
-   ld     hl, UNK_08830                ; 02:873D - 21 30 88
-   call   addr_0881A                   ; 02:8740 - CD 1A 88
+   ld     hl, LUT_sprite_platform      ; 02:873D - 21 30 88
+   call   @fn_draw_sprite_string       ; 02:8740 - CD 1A 88
    ld     hl, $0028                    ; 02:8743 - 21 28 00
    ld     (tmp_04), hl                 ; 02:8746 - 22 12 D2
    ld     a, $1C                       ; 02:8749 - 3E 1C
@@ -16920,15 +16920,15 @@ addr_0871B:
    ld     de, $0010                    ; 02:8751 - 11 10 00
    add    hl, de                       ; 02:8754 - 19
    ld     (tmp_06), hl                 ; 02:8755 - 22 14 D2
-   ld     hl, UNK_08830                ; 02:8758 - 21 30 88
-   call   addr_0881A                   ; 02:875B - CD 1A 88
+   ld     hl, LUT_sprite_platform      ; 02:8758 - 21 30 88
+   call   @fn_draw_sprite_string       ; 02:875B - CD 1A 88
    ld     hl, $002C                    ; 02:875E - 21 2C 00
    ld     (tmp_04), hl                 ; 02:8761 - 22 12 D2
    ld     l, (ix+21)                   ; 02:8764 - DD 6E 15
    ld     h, (ix+22)                   ; 02:8767 - DD 66 16
    ld     (tmp_06), hl                 ; 02:876A - 22 14 D2
-   ld     hl, UNK_08834                ; 02:876D - 21 34 88
-   call   addr_0881A                   ; 02:8770 - CD 1A 88
+   ld     hl, LUT_sprite_weight        ; 02:876D - 21 34 88
+   call   @fn_draw_sprite_string       ; 02:8770 - CD 1A 88
    res    1, (ix+24)                   ; 02:8773 - DD CB 18 8E
    ld     (ix+13), $14                 ; 02:8777 - DD 36 0D 14
    ld     a, $02                       ; 02:877B - 3E 02
@@ -16941,7 +16941,7 @@ addr_0871B:
    add    a, $04                       ; 02:878A - C6 04
    ld     (tmp_07), a                  ; 02:878C - 32 15 D2
    call   check_collision_with_sonic   ; 02:878F - CD 56 39
-   jr     nc, addr_087BC               ; 02:8792 - 30 28
+   jr     nc, @handle_left_platform_sonic_collision  ; 02:8792 - 30 28
    ld     a, (sonic_vel_y_hi)          ; 02:8794 - 3A 08 D4
    and    a                            ; 02:8797 - A7
    ret    m                            ; 02:8798 - F8
@@ -16957,17 +16957,17 @@ addr_0871B:
    add    a, $04                       ; 02:87B1 - C6 04
    ld     (tmp_07), a                  ; 02:87B3 - 32 15 D2
    call   check_collision_with_sonic   ; 02:87B6 - CD 56 39
-   jr     nc, addr_087ED               ; 02:87B9 - 30 32
+   jr     nc, @handle_right_platform_sonic_collision  ; 02:87B9 - 30 32
    ret                                 ; 02:87BB - C9
 
-addr_087BC:
+@handle_left_platform_sonic_collision:
    set    1, (ix+24)                   ; 02:87BC - DD CB 18 CE
    ld     a, (sonic_vel_y_hi)          ; 02:87C0 - 3A 08 D4
    and    a                            ; 02:87C3 - A7
    ret    m                            ; 02:87C4 - F8
    ld     a, (ix+17)                   ; 02:87C5 - DD 7E 11
    cp     $1C                          ; 02:87C8 - FE 1C
-   jr     z, addr_087ED                ; 02:87CA - 28 21
+   jr     z, @handle_right_platform_sonic_collision  ; 02:87CA - 28 21
    ld     hl, (sonic_vel_y_sub)        ; 02:87CC - 2A 06 D4
    ld     a, l                         ; 02:87CF - 7D
    cpl                                 ; 02:87D0 - 2F
@@ -16982,16 +16982,16 @@ addr_087BC:
    add    a, (ix+17)                   ; 02:87DF - DD 86 11
    ld     (ix+17), a                   ; 02:87E2 - DD 77 11
    cp     $1C                          ; 02:87E5 - FE 1C
-   jr     c, addr_087F9                ; 02:87E7 - 38 10
+   jr     c, @skip_bounce_off_platform  ; 02:87E7 - 38 10
    ld     (ix+17), $1C                 ; 02:87E9 - DD 36 11 1C
 
-addr_087ED:
+@handle_right_platform_sonic_collision:
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:87ED - 3A E8 D2
    ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:87F0 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:87F3 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:87F6 - 32 08 D4
 
-addr_087F9:
+@skip_bounce_off_platform:
    ld     l, (ix+5)                    ; 02:87F9 - DD 6E 05
    ld     h, (ix+6)                    ; 02:87FC - DD 66 06
    ld     bc, $0010                    ; 02:87FF - 01 10 00
@@ -17009,7 +17009,7 @@ addr_087F9:
    set    7, (hl)                      ; 02:8817 - CB FE
    ret                                 ; 02:8819 - C9
 
-addr_0881A:
+@fn_draw_sprite_string:
    ld     a, (hl)                      ; 02:881A - 7E
    and    a                            ; 02:881B - A7
    ret    m                            ; 02:881C - F8
@@ -17021,12 +17021,12 @@ addr_0881A:
    ld     (tmp_04), hl                 ; 02:8828 - 22 12 D2
    pop    hl                           ; 02:882B - E1
    inc    hl                           ; 02:882C - 23
-   jp     addr_0881A                   ; 02:882D - C3 1A 88
+   jp     @fn_draw_sprite_string       ; 02:882D - C3 1A 88
 
-UNK_08830:
+LUT_sprite_platform:
 .db $36, $38, $3A, $FF                                                              ; 02:8830
 
-UNK_08834:
+LUT_sprite_weight:
 .db $3C, $3E, $FF                                                                   ; 02:8834
 
 objfunc_3C_UNKNOWN:
