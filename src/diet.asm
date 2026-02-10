@@ -17109,6 +17109,7 @@ objfunc_3D_spinning_spike_ball:
    set    0, (ix+24)                   ; 02:892D - DD CB 18 C6
 
 @already_initialised:
+   .IF 0
    ld     l, (ix+17)                   ; 02:8931 - DD 6E 11
    ld     h, $00                       ; 02:8934 - 26 00
    add    hl, hl                       ; 02:8936 - 29
@@ -17117,6 +17118,25 @@ objfunc_3D_spinning_spike_ball:
    ld     e, (hl)                      ; 02:893B - 5E
    inc    hl                           ; 02:893C - 23
    ld     c, (hl)                      ; 02:893D - 4E
+   .ELSE
+   ;; We can just use a single sine, I think?
+   ld a, (ix+17)
+   ld l, a
+   ld h, $00
+   ld de, LUT_spinning_spike_ball_xy_positions
+   ld bc, 180/4
+   .IF 1
+   ;; Handle sine table wraparound
+   cp 0+180-(180/4)
+   jr c, +
+      ld bc, 0+(180/4)-180
+   +:
+   .ENDIF
+   add hl, de
+   ld e, (hl)
+   add hl, bc
+   ld c, (hl)
+   .ENDIF
    ld     d, $00                       ; 02:893E - 16 00
    ld     b, d                         ; 02:8940 - 42
    bit    7, e                         ; 02:8941 - CB 7B
@@ -17156,6 +17176,8 @@ SPRTAB_spinning_spike_ball:
 .db $60, $62, $FF, $FF, $FF, $FF, $FF                                               ; 02:8987
 
 LUT_spinning_spike_ball_xy_positions:
+.IF 0
+;; Original table
 .db $40, $00, $40, $02, $40, $04, $40, $07, $3F, $09, $3F, $0B, $3F, $0D, $3E, $0F  ; 02:898E
 .db $3E, $12, $3D, $14, $3C, $16, $3B, $18, $3A, $1A, $3A, $1C, $39, $1E, $37, $20  ; 02:899E
 .db $36, $22, $35, $24, $34, $26, $32, $27, $31, $29, $30, $2B, $2E, $2C, $2C, $2E  ; 02:89AE
@@ -17179,6 +17201,44 @@ LUT_spinning_spike_ball_xy_positions:
 .db $31, $D7, $32, $D9, $34, $DA, $35, $DC, $36, $DE, $37, $E0, $39, $E2, $3A, $E4  ; 02:8ACE
 .db $3A, $E6, $3B, $E8, $3C, $EA, $3D, $EC, $3E, $EE, $3E, $F1, $3F, $F3, $3F, $F5  ; 02:8ADE
 .db $3F, $F7, $40, $F9, $40, $FC, $40, $FE                                          ; 02:8AEE
+
+.ELSE
+;; Sine table
+.db $00, $02, $04, $07, $09, $0B, $0D, $0F
+.db $12, $14, $16, $18, $1A, $1C, $1E, $20
+.db $22, $24, $26, $27, $29, $2B, $2C, $2E
+.db $30, $31, $32, $34, $35, $36, $37, $39
+.db $3A, $3A, $3B, $3C, $3D, $3E, $3E, $3F
+.db $3F, $3F, $40, $40, $40, $40, $40, $40
+.db $40, $3F, $3F, $3F, $3E, $3E, $3D, $3C
+.db $3B, $3A, $3A, $39, $37, $36, $35, $34
+.db $32, $31, $30, $2E, $2C, $2B, $29, $27
+.db $26, $24, $22, $20, $1E, $1C, $1A, $18
+.db $16, $14, $12, $0F, $0D, $0B, $09, $07
+.db $04, $02, $00, $FE, $FC, $F9, $F7, $F5
+.db $F3, $F1, $EE, $EC, $EA, $E8, $E6, $E4
+.db $E2, $E0, $DE, $DC, $DA, $D9, $D7, $D5
+.db $D4, $D2, $D0, $CF, $CE, $CC, $CB, $CA
+.db $C9, $C7, $C6, $C6, $C5, $C4, $C3, $C2
+.db $C2, $C1, $C1, $C1, $C0, $C0, $C0, $C0
+.db $C0, $C0, $C0, $C1, $C1, $C1, $C2, $C2
+.db $C3, $C4, $C5, $C6, $C6, $C7, $C9, $CA
+.db $CB, $CC, $CE, $CF, $D0, $D2, $D4, $D5
+.db $D7, $D9, $DA, $DC, $DE, $E0, $E2, $E4
+.db $E6, $E8, $EA, $EC, $EE, $F1, $F3, $F5
+.db $F7, $F9, $FC, $FE
+.IF 0
+;; Optional 1/4 repeat (not needed)
+.db $00, $02, $04, $07, $09, $0B, $0D, $0F
+.db $12, $14, $16, $18, $1A, $1C, $1E, $20
+.db $22, $24, $26, $27, $29, $2B, $2C, $2E
+.db $30, $31, $32, $34, $35, $36, $37, $39
+.db $3A, $3A, $3B, $3C, $3D, $3E, $3E, $3F
+.db $3F, $3F, $40, $40, $40
+.ENDIF
+; SAVING: 170 bytes (with regular size sine table)
+; We save only 132 bytes if we do a 5/4 sine table instead
+.ENDIF
 
 objfunc_3E_UNKNOWN:
    set    5, (ix+24)                   ; 02:8AF6 - DD CB 18 EE
