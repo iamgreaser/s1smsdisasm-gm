@@ -7466,7 +7466,7 @@ LUT_object_functions:
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
-.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_UNKNOWN, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
+.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_UNKNOWN, objfunc_3E_UNKNOWN, objfunc_3F_UNKNOWN  ; 00:2B66
 .dw objfunc_40_UNKNOWN, objfunc_41_UNKNOWN, objfunc_42_UNKNOWN, objfunc_43_UNKNOWN, objfunc_44_UNKNOWN, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -17029,11 +17029,11 @@ LUT_sprite_platform:
 LUT_sprite_weight:
 .db $3C, $3E, $FF                                                                   ; 02:8834
 
-objfunc_3C_UNKNOWN:
+objfunc_3C_badnik_jaws:
    set    5, (ix+24)                   ; 02:8837 - DD CB 18 EE
    ld     a, (ix+17)                   ; 02:883B - DD 7E 11
    cp     $80                          ; 02:883E - FE 80
-   jr     nc, addr_08873               ; 02:8840 - 30 31
+   jr     nc, @go_left                 ; 02:8840 - 30 31
    ld     (ix+7), $20                  ; 02:8842 - DD 36 07 20
    ld     (ix+8), $00                  ; 02:8846 - DD 36 08 00
    ld     (ix+9), $00                  ; 02:884A - DD 36 09 00
@@ -17045,12 +17045,12 @@ objfunc_3C_UNKNOWN:
    ld     hl, $0008                    ; 02:885F - 21 08 00
    ld     (tmp_00), hl                 ; 02:8862 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8865 - D4 E5 35
-   ld     de, UNK_088BE                ; 02:8868 - 11 BE 88
-   ld     bc, UNK_088B4                ; 02:886B - 01 B4 88
+   ld     de, SPRTAB_jaws              ; 02:8868 - 11 BE 88
+   ld     bc, LUT_jaws_anim_sequence_right  ; 02:886B - 01 B4 88
    call   do_framed_animation          ; 02:886E - CD 41 7C
-   jr     addr_088A2                   ; 02:8871 - 18 2F
+   jr     @handle_random_bubbles       ; 02:8871 - 18 2F
 
-addr_08873:
+@go_left:
    ld     (ix+7), $E0                  ; 02:8873 - DD 36 07 E0
    ld     (ix+8), $FF                  ; 02:8877 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:887B - DD 36 09 FF
@@ -17062,11 +17062,11 @@ addr_08873:
    ld     hl, $0000                    ; 02:8890 - 21 00 00
    ld     (tmp_00), hl                 ; 02:8893 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:8896 - D4 E5 35
-   ld     de, UNK_088BE                ; 02:8899 - 11 BE 88
-   ld     bc, UNK_088B9                ; 02:889C - 01 B9 88
+   ld     de, SPRTAB_jaws              ; 02:8899 - 11 BE 88
+   ld     bc, LUT_jaws_anim_sequence_left  ; 02:889C - 01 B9 88
    call   do_framed_animation          ; 02:889F - CD 41 7C
 
-addr_088A2:
+@handle_random_bubbles:
    ld     a, (g_global_tick_counter)   ; 02:88A2 - 3A 23 D2
    and    $07                          ; 02:88A5 - E6 07
    ret    nz                           ; 02:88A7 - C0
@@ -17076,13 +17076,13 @@ addr_088A2:
    call   z, spawn_bubble              ; 02:88B0 - CC EB 91
    ret                                 ; 02:88B3 - C9
 
-UNK_088B4:
+LUT_jaws_anim_sequence_right:
 .db $00, $04, $01, $04, $FF                                                         ; 02:88B4
 
-UNK_088B9:
+LUT_jaws_anim_sequence_left:
 .db $02, $04, $03, $04, $FF                                                         ; 02:88B9
 
-UNK_088BE:
+SPRTAB_jaws:
 .db $04, $2A, $2C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:88BE
 .db $FF, $FF, $0C, $2A, $2C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:88CE
 .db $FF, $FF, $FF, $FF, $0E, $10, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:88DE
