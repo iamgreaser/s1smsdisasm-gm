@@ -5773,11 +5773,11 @@ LUT_object_functions:
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
-.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_UNKNOWN, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_UNKNOWN  ; 00:2B46
+.dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
-.dw objfunc_48_BRI3_boss, objfunc_49_UNKNOWN, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
+.dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
@@ -15643,15 +15643,15 @@ spawn_bubble:
 @LUT_bubble_type_select:
 .db $42, $20, $20, $20, $42, $20, $20, $20, $42, $20, $20, $20, $42, $20, $20, $20  ; 02:9257
 
-objfunc_49_UNKNOWN:
+objfunc_49_LAB3_boss:
    set    5, (ix+24)                   ; 02:9267 - DD CB 18 EE
    ld     (ix+13), $20                 ; 02:926B - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:926F - DD 36 0E 1C
    call   move_locked_camera_towards_target  ; 02:9273 - CD A6 7C
-   ld     (ix+15), UNK_09493&$FF       ; 02:9276 - DD 36 0F 93
-   ld     (ix+16), UNK_09493>>8        ; 02:927A - DD 36 10 94
+   ld     (ix+15), SPRTAB_LAB3_boss&$FF  ; 02:9276 - DD 36 0F 93
+   ld     (ix+16), SPRTAB_LAB3_boss>>8  ; 02:927A - DD 36 10 94
    bit    0, (ix+24)                   ; 02:927E - DD CB 18 46
-   jr     nz, addr_092AF               ; 02:9282 - 20 2B
+   jr     nz, @already_initialised     ; 02:9282 - 20 2B
    ld     hl, $02D0                    ; 02:9284 - 21 D0 02
    ld     de, $0290                    ; 02:9287 - 11 90 02
    call   set_locked_camera_target     ; 02:928A - CD 8C 7C
@@ -15669,16 +15669,16 @@ objfunc_49_UNKNOWN:
    rst    $18                          ; 02:92AA - DF
    set    0, (ix+24)                   ; 02:92AB - DD CB 18 C6
 
-addr_092AF:
+@already_initialised:
    ld     a, (ix+17)                   ; 02:92AF - DD 7E 11
    and    a                            ; 02:92B2 - A7
-   jr     nz, addr_092DB               ; 02:92B3 - 20 26
+   jr     nz, @not_state_00            ; 02:92B3 - 20 26
    ld     a, (ix+19)                   ; 02:92B5 - DD 7E 13
    add    a, a                         ; 02:92B8 - 87
    add    a, a                         ; 02:92B9 - 87
    ld     e, a                         ; 02:92BA - 5F
    ld     d, $00                       ; 02:92BB - 16 00
-   ld     hl, UNK_0947B                ; 02:92BD - 21 7B 94
+   ld     hl, LUT_LAB3_boss_entrance_positions_xy  ; 02:92BD - 21 7B 94
    add    hl, de                       ; 02:92C0 - 19
    ld     a, (hl)                      ; 02:92C1 - 7E
    ld     (ix+2), a                    ; 02:92C2 - DD 77 02
@@ -15693,26 +15693,26 @@ addr_092AF:
    inc    hl                           ; 02:92D1 - 23
    ld     (ix+6), a                    ; 02:92D2 - DD 77 06
    inc    (ix+17)                      ; 02:92D5 - DD 34 11
-   jp     addr_093F7                   ; 02:92D8 - C3 F7 93
+   jp     @continue_to_common_code     ; 02:92D8 - C3 F7 93
 
-addr_092DB:
+@not_state_00:
    dec    a                            ; 02:92DB - 3D
-   jr     nz, addr_09324               ; 02:92DC - 20 46
+   jr     nz, @not_state_01            ; 02:92DC - 20 46
    ld     a, (ix+19)                   ; 02:92DE - DD 7E 13
    and    a                            ; 02:92E1 - A7
-   jr     nz, addr_092F3               ; 02:92E2 - 20 0F
+   jr     nz, @is_exiting_upwards      ; 02:92E2 - 20 0F
    ld     (ix+10), $80                 ; 02:92E4 - DD 36 0A 80
    ld     (ix+11), $FF                 ; 02:92E8 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:92EC - DD 36 0C FF
-   jp     addr_092FF                   ; 02:92F0 - C3 FF 92
+   jp     @was_exiting_downwards       ; 02:92F0 - C3 FF 92
 
-addr_092F3:
+@is_exiting_upwards:
    ld     (ix+10), $80                 ; 02:92F3 - DD 36 0A 80
    ld     (ix+11), $00                 ; 02:92F7 - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:92FB - DD 36 0C 00
 
-addr_092FF:
-   ld     hl, UNK_09487                ; 02:92FF - 21 87 94
+@was_exiting_downwards:
+   ld     hl, LUT_LAB3_boss_target_y_positions  ; 02:92FF - 21 87 94
    ld     a, (ix+19)                   ; 02:9302 - DD 7E 13
    add    a, a                         ; 02:9305 - 87
    ld     e, a                         ; 02:9306 - 5F
@@ -15726,14 +15726,14 @@ addr_092FF:
    ld     d, (ix+6)                    ; 02:9311 - DD 56 06
    and    a                            ; 02:9314 - A7
    sbc    hl, de                       ; 02:9315 - ED 52
-   jp     nz, addr_093F7               ; 02:9317 - C2 F7 93
+   jp     nz, @continue_to_common_code  ; 02:9317 - C2 F7 93
    inc    (ix+17)                      ; 02:931A - DD 34 11
    ld     (ix+18), $00                 ; 02:931D - DD 36 12 00
-   jp     addr_093F7                   ; 02:9321 - C3 F7 93
+   jp     @continue_to_common_code     ; 02:9321 - C3 F7 93
 
-addr_09324:
+@not_state_01:
    dec    a                            ; 02:9324 - 3D
-   jp     nz, addr_093AB               ; 02:9325 - C2 AB 93
+   jp     nz, @not_state_02            ; 02:9325 - C2 AB 93
    xor    a                            ; 02:9328 - AF
    ld     (ix+10), a                   ; 02:9329 - DD 77 0A
    ld     (ix+11), a                   ; 02:932C - DD 77 0B
@@ -15741,7 +15741,7 @@ addr_09324:
    inc    (ix+18)                      ; 02:9332 - DD 34 12
    ld     a, (ix+18)                   ; 02:9335 - DD 7E 12
    cp     $64                          ; 02:9338 - FE 64
-   jp     nz, addr_093F7               ; 02:933A - C2 F7 93
+   jp     nz, @continue_to_common_code  ; 02:933A - C2 F7 93
    inc    (ix+17)                      ; 02:933D - DD 34 11
    ld     l, (ix+2)                    ; 02:9340 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9343 - DD 66 03
@@ -15755,12 +15755,12 @@ addr_09324:
    ld     (tmp_02), hl                 ; 02:9357 - 22 10 D2
    ld     a, (ix+19)                   ; 02:935A - DD 7E 13
    and    a                            ; 02:935D - A7
-   jp     z, addr_09432                ; 02:935E - CA 32 94
+   jp     z, @fire_fireball_pallets    ; 02:935E - CA 32 94
    ld     a, (g_boss_hits_taken)       ; 02:9361 - 3A EC D2
    cp     $08                          ; 02:9364 - FE 08
-   jp     nc, addr_093F7               ; 02:9366 - D2 F7 93
+   jp     nc, @continue_to_common_code  ; 02:9366 - D2 F7 93
    call   spawn_object                 ; 02:9369 - CD 7B 7C
-   jp     c, addr_093F7                ; 02:936C - DA F7 93
+   jp     c, @continue_to_common_code  ; 02:936C - DA F7 93
    push   ix                           ; 02:936F - DD E5
    push   hl                           ; 02:9371 - E5
    pop    ix                           ; 02:9372 - DD E1
@@ -15782,24 +15782,24 @@ addr_09324:
    ld     (ix+11), a                   ; 02:93A0 - DD 77 0B
    ld     (ix+12), a                   ; 02:93A3 - DD 77 0C
    pop    ix                           ; 02:93A6 - DD E1
-   jp     addr_093F7                   ; 02:93A8 - C3 F7 93
+   jp     @continue_to_common_code     ; 02:93A8 - C3 F7 93
 
-addr_093AB:
+@not_state_02:
    ld     a, (ix+19)                   ; 02:93AB - DD 7E 13
    and    a                            ; 02:93AE - A7
-   jr     nz, addr_093C0               ; 02:93AF - 20 0F
+   jr     nz, @is_entering_downwards   ; 02:93AF - 20 0F
    ld     (ix+10), $80                 ; 02:93B1 - DD 36 0A 80
    ld     (ix+11), $00                 ; 02:93B5 - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:93B9 - DD 36 0C 00
-   jp     addr_093CC                   ; 02:93BD - C3 CC 93
+   jp     @was_entering_upwards        ; 02:93BD - C3 CC 93
 
-addr_093C0:
+@is_entering_downwards:
    ld     (ix+10), $80                 ; 02:93C0 - DD 36 0A 80
    ld     (ix+11), $FF                 ; 02:93C4 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:93C8 - DD 36 0C FF
 
-addr_093CC:
-   ld     hl, UNK_0948D                ; 02:93CC - 21 8D 94
+@was_entering_upwards:
+   ld     hl, LUT_LAB3_boss_exit_y_positions  ; 02:93CC - 21 8D 94
    ld     a, (ix+19)                   ; 02:93CF - DD 7E 13
    add    a, a                         ; 02:93D2 - 87
    ld     e, a                         ; 02:93D3 - 5F
@@ -15813,15 +15813,15 @@ addr_093CC:
    ld     d, (ix+6)                    ; 02:93DE - DD 56 06
    xor    a                            ; 02:93E1 - AF
    sbc    hl, de                       ; 02:93E2 - ED 52
-   jr     nz, addr_093F7               ; 02:93E4 - 20 11
+   jr     nz, @continue_to_common_code  ; 02:93E4 - 20 11
    ld     (ix+17), a                   ; 02:93E6 - DD 77 11
    inc    (ix+19)                      ; 02:93E9 - DD 34 13
    ld     a, (ix+19)                   ; 02:93EC - DD 7E 13
    cp     $03                          ; 02:93EF - FE 03
-   jr     c, addr_093F7                ; 02:93F1 - 38 04
+   jr     c, @continue_to_common_code  ; 02:93F1 - 38 04
    ld     (ix+19), $00                 ; 02:93F3 - DD 36 13 00
 
-addr_093F7:
+@continue_to_common_code:
    ld     hl, $00A2                    ; 02:93F7 - 21 A2 00
    ld     (tmp_08), hl                 ; 02:93FA - 22 16 D2
    call   boss_generic_update_8hp      ; 02:93FD - CD BE 77
@@ -15845,7 +15845,7 @@ addr_093F7:
    call   draw_sprite                  ; 02:942E - CD 81 35
    ret                                 ; 02:9431 - C9
 
-addr_09432:
+@fire_fireball_pallets:
    ld     l, (ix+2)                    ; 02:9432 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9435 - DD 66 03
    ld     de, $0004                    ; 02:9438 - 11 04 00
@@ -15873,22 +15873,22 @@ addr_09432:
    call   boss_fire_fireball_pallet    ; 02:9472 - CD D1 85
    ld     a, $01                       ; 02:9475 - 3E 01
    rst    $28                          ; 02:9477 - EF
-   jp     addr_093F7                   ; 02:9478 - C3 F7 93
+   jp     @continue_to_common_code     ; 02:9478 - C3 F7 93
 
-UNK_0947B:
-.db $3C, $03, $60, $03, $EC, $02, $60, $02, $8C, $03, $60, $02                      ; 02:947B
+LUT_LAB3_boss_entrance_positions_xy:
+.dw $033C, $0360, $02EC, $0260, $038C, $0260                                        ; 02:947B
 
-UNK_09487:
-.db $28, $03, $B0, $02, $B0, $02                                                    ; 02:9487
+LUT_LAB3_boss_target_y_positions:
+.dw $0328, $02B0, $02B0                                                             ; 02:9487
 
-UNK_0948D:
-.db $60, $03, $60, $02, $60, $02                                                    ; 02:948D
+LUT_LAB3_boss_exit_y_positions:
+.dw $0360, $0260, $0260                                                             ; 02:948D
 
-UNK_09493:
+SPRTAB_LAB3_boss:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:9493
 .db $68, $FF                                                                        ; 02:94A3
 
-objfunc_2F_UNKNOWN:
+objfunc_2F_LAB3_boss_rocket:
    set    5, (ix+24)                   ; 02:94A5 - DD CB 18 EE
    ld     (ix+13), $08                 ; 02:94A9 - DD 36 0D 08
    ld     (ix+14), $0A                 ; 02:94AD - DD 36 0E 0A
@@ -15897,7 +15897,7 @@ objfunc_2F_UNKNOWN:
    call   check_collision_with_sonic   ; 02:94B7 - CD 56 39
    call   nc, damage_sonic             ; 02:94BA - D4 FD 35
    bit    1, (ix+24)                   ; 02:94BD - DD CB 18 4E
-   jr     nz, addr_094E2               ; 02:94C1 - 20 1F
+   jr     nz, @already_initialised     ; 02:94C1 - 20 1F
    set    1, (ix+24)                   ; 02:94C3 - DD CB 18 CE
    ld     hl, (sonic_x)                ; 02:94C7 - 2A FE D3
    ld     de, $000C                    ; 02:94CA - 11 0C 00
@@ -15909,21 +15909,21 @@ objfunc_2F_UNKNOWN:
    add    hl, bc                       ; 02:94D8 - 09
    and    a                            ; 02:94D9 - A7
    sbc    hl, de                       ; 02:94DA - ED 52
-   jr     nc, addr_094E2               ; 02:94DC - 30 04
+   jr     nc, @already_initialised     ; 02:94DC - 30 04
    set    2, (ix+24)                   ; 02:94DE - DD CB 18 D6
 
-addr_094E2:
+@already_initialised:
    bit    0, (ix+24)                   ; 02:94E2 - DD CB 18 46
-   jr     nz, addr_09518               ; 02:94E6 - 20 30
+   jr     nz, @rocket_started          ; 02:94E6 - 20 30
    ld     (ix+10), $40                 ; 02:94E8 - DD 36 0A 40
    ld     (ix+11), $00                 ; 02:94EC - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:94F0 - DD 36 0C 00
-   ld     hl, UNK_09698                ; 02:94F4 - 21 98 96
+   ld     hl, SPRTAB_LAB3_boss_rocket_left  ; 02:94F4 - 21 98 96
    bit    2, (ix+24)                   ; 02:94F7 - DD CB 18 56
-   jr     z, addr_09500                ; 02:94FB - 28 03
-   ld     hl, UNK_09688                ; 02:94FD - 21 88 96
+   jr     z, @sonic_was_on_the_left    ; 02:94FB - 28 03
+   ld     hl, SPRTAB_LAB3_boss_rocket_right  ; 02:94FD - 21 88 96
 
-addr_09500:
+@sonic_was_on_the_left:
    ld     (ix+15), l                   ; 02:9500 - DD 75 0F
    ld     (ix+16), h                   ; 02:9503 - DD 74 10
    ld     hl, (sonic_y)                ; 02:9506 - 2A 01 D4
@@ -15935,7 +15935,7 @@ addr_09500:
    set    0, (ix+24)                   ; 02:9513 - DD CB 18 C6
    ret                                 ; 02:9517 - C9
 
-addr_09518:
+@rocket_started:
    ld     c, (ix+2)                    ; 02:9518 - DD 4E 02
    ld     b, (ix+3)                    ; 02:951B - DD 46 03
    ld     hl, $FFF0                    ; 02:951E - 21 F0 FF
@@ -15943,13 +15943,13 @@ addr_09518:
    ld     de, (g_level_scroll_x_pix_lo)  ; 02:9522 - ED 5B 5A D2
    and    a                            ; 02:9526 - A7
    sbc    hl, de                       ; 02:9527 - ED 52
-   jr     c, addr_0954F                ; 02:9529 - 38 24
+   jr     c, @rocket_off_screen_needs_culling  ; 02:9529 - 38 24
    ld     l, c                         ; 02:952B - 69
    ld     h, b                         ; 02:952C - 60
    inc    d                            ; 02:952D - 14
    and    a                            ; 02:952E - A7
    sbc    hl, de                       ; 02:952F - ED 52
-   jr     nc, addr_0954F               ; 02:9531 - 30 1C
+   jr     nc, @rocket_off_screen_needs_culling  ; 02:9531 - 30 1C
    ld     c, (ix+5)                    ; 02:9533 - DD 4E 05
    ld     b, (ix+6)                    ; 02:9536 - DD 46 06
    ld     hl, $FFF0                    ; 02:9539 - 21 F0 FF
@@ -15957,25 +15957,25 @@ addr_09518:
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:953D - ED 5B 5D D2
    and    a                            ; 02:9541 - A7
    sbc    hl, de                       ; 02:9542 - ED 52
-   jr     c, addr_0954F                ; 02:9544 - 38 09
+   jr     c, @rocket_off_screen_needs_culling  ; 02:9544 - 38 09
    ld     hl, $00C0                    ; 02:9546 - 21 C0 00
    add    hl, de                       ; 02:9549 - 19
    and    a                            ; 02:954A - A7
    sbc    hl, bc                       ; 02:954B - ED 42
-   jr     nc, addr_09553               ; 02:954D - 30 04
+   jr     nc, @not_off_screen          ; 02:954D - 30 04
 
-addr_0954F:
+@rocket_off_screen_needs_culling:
    ld     (ix+0), $FF                  ; 02:954F - DD 36 00 FF
 
-addr_09553:
+@not_off_screen:
    xor    a                            ; 02:9553 - AF
    ld     hl, $0002                    ; 02:9554 - 21 02 00
    bit    2, (ix+24)                   ; 02:9557 - DD CB 18 56
-   jr     nz, addr_09561               ; 02:955B - 20 04
+   jr     nz, @move_right_selected     ; 02:955B - 20 04
    dec    a                            ; 02:955D - 3D
    ld     hl, $FFFE                    ; 02:955E - 21 FE FF
 
-addr_09561:
+@move_right_selected:
    ld     e, (ix+7)                    ; 02:9561 - DD 5E 07
    ld     d, (ix+8)                    ; 02:9564 - DD 56 08
    add    hl, de                       ; 02:9567 - 19
@@ -15984,7 +15984,7 @@ addr_09561:
    ld     a, h                         ; 02:956C - 7C
    ld     de, $0100                    ; 02:956D - 11 00 01
    bit    7, c                         ; 02:9570 - CB 79
-   jr     z, addr_0957F                ; 02:9572 - 28 0B
+   jr     z, @new_x_vel_going_right    ; 02:9572 - 28 0B
    ld     a, l                         ; 02:9574 - 7D
    cpl                                 ; 02:9575 - 2F
    ld     e, a                         ; 02:9576 - 5F
@@ -15995,12 +15995,12 @@ addr_09561:
    ld     a, d                         ; 02:957B - 7A
    ld     de, $FF00                    ; 02:957C - 11 00 FF
 
-addr_0957F:
+@new_x_vel_going_right:
    and    a                            ; 02:957F - A7
-   jr     z, addr_09583                ; 02:9580 - 28 01
+   jr     z, @skip_clamp_x_vel         ; 02:9580 - 28 01
    ex     de, hl                       ; 02:9582 - EB
 
-addr_09583:
+@skip_clamp_x_vel:
    ld     (ix+7), l                    ; 02:9583 - DD 75 07
    ld     (ix+8), h                    ; 02:9586 - DD 74 08
    ld     (ix+9), c                    ; 02:9589 - DD 71 09
@@ -16017,18 +16017,18 @@ addr_09583:
    ld     a, $FF                       ; 02:95A1 - 3E FF
    ld     hl, $FFFE                    ; 02:95A3 - 21 FE FF
    bit    7, (ix+12)                   ; 02:95A6 - DD CB 0C 7E
-   jr     nz, addr_095AF               ; 02:95AA - 20 03
+   jr     nz, @skip_y_accel_boost_up   ; 02:95AA - 20 03
    ld     hl, $FFFC                    ; 02:95AC - 21 FC FF
 
-addr_095AF:
-   jr     nc, addr_095BE               ; 02:95AF - 30 0D
+@skip_y_accel_boost_up:
+   jr     nc, @y_accel_selected        ; 02:95AF - 30 0D
    inc    a                            ; 02:95B1 - 3C
    ld     hl, $0002                    ; 02:95B2 - 21 02 00
    bit    7, (ix+12)                   ; 02:95B5 - DD CB 0C 7E
-   jr     z, addr_095BE                ; 02:95B9 - 28 03
+   jr     z, @y_accel_selected         ; 02:95B9 - 28 03
    ld     hl, $0004                    ; 02:95BB - 21 04 00
 
-addr_095BE:
+@y_accel_selected:
    ld     e, (ix+10)                   ; 02:95BE - DD 5E 0A
    ld     d, (ix+11)                   ; 02:95C1 - DD 56 0B
    add    hl, de                       ; 02:95C4 - 19
@@ -16037,7 +16037,7 @@ addr_095BE:
    ld     a, h                         ; 02:95C9 - 7C
    ld     de, $0100                    ; 02:95CA - 11 00 01
    bit    7, c                         ; 02:95CD - CB 79
-   jr     z, addr_095DC                ; 02:95CF - 28 0B
+   jr     z, @new_y_vel_going_down     ; 02:95CF - 28 0B
    ld     a, l                         ; 02:95D1 - 7D
    cpl                                 ; 02:95D2 - 2F
    ld     e, a                         ; 02:95D3 - 5F
@@ -16048,26 +16048,26 @@ addr_095BE:
    ld     a, d                         ; 02:95D8 - 7A
    ld     de, $FF00                    ; 02:95D9 - 11 00 FF
 
-addr_095DC:
+@new_y_vel_going_down:
    and    a                            ; 02:95DC - A7
-   jr     z, addr_095E0                ; 02:95DD - 28 01
+   jr     z, @skip_clamp_y_vel         ; 02:95DD - 28 01
    ex     de, hl                       ; 02:95DF - EB
 
-addr_095E0:
+@skip_clamp_y_vel:
    ld     (ix+10), l                   ; 02:95E0 - DD 75 0A
    ld     (ix+11), h                   ; 02:95E3 - DD 74 0B
    ld     (ix+12), c                   ; 02:95E6 - DD 71 0C
-   ld     hl, UNK_09688                ; 02:95E9 - 21 88 96
+   ld     hl, SPRTAB_LAB3_boss_rocket_right  ; 02:95E9 - 21 88 96
    bit    7, (ix+9)                    ; 02:95EC - DD CB 09 7E
-   jr     z, addr_095F5                ; 02:95F0 - 28 03
-   ld     hl, UNK_09698                ; 02:95F2 - 21 98 96
+   jr     z, @selected_right_sprite    ; 02:95F0 - 28 03
+   ld     hl, SPRTAB_LAB3_boss_rocket_left  ; 02:95F2 - 21 98 96
 
-addr_095F5:
+@selected_right_sprite:
    push   hl                           ; 02:95F5 - E5
    ld     l, (ix+7)                    ; 02:95F6 - DD 6E 07
    ld     h, (ix+8)                    ; 02:95F9 - DD 66 08
    bit    7, h                         ; 02:95FC - CB 7C
-   jr     z, addr_09607                ; 02:95FE - 28 07
+   jr     z, @skip_x_vel_negation_for_abs_val  ; 02:95FE - 28 07
    ld     a, l                         ; 02:9600 - 7D
    cpl                                 ; 02:9601 - 2F
    ld     l, a                         ; 02:9602 - 6F
@@ -16076,7 +16076,7 @@ addr_095F5:
    ld     h, a                         ; 02:9605 - 67
    inc    hl                           ; 02:9606 - 23
 
-addr_09607:
+@skip_x_vel_negation_for_abs_val:
    ld     e, (ix+17)                   ; 02:9607 - DD 5E 11
    ld     d, (ix+18)                   ; 02:960A - DD 56 12
    add    hl, de                       ; 02:960D - 19
@@ -16094,10 +16094,10 @@ addr_09607:
    ld     h, (ix+3)                    ; 02:9625 - DD 66 03
    ld     de, $FFF9                    ; 02:9628 - 11 F9 FF
    bit    7, (ix+9)                    ; 02:962B - DD CB 09 7E
-   jr     z, addr_09634                ; 02:962F - 28 03
+   jr     z, @selected_left_puff_x_vel  ; 02:962F - 28 03
    ld     de, $000F                    ; 02:9631 - 11 0F 00
 
-addr_09634:
+@selected_left_puff_x_vel:
    add    hl, de                       ; 02:9634 - 19
    ld     (tmp_00), hl                 ; 02:9635 - 22 0E D2
    ld     l, (ix+5)                    ; 02:9638 - DD 6E 05
@@ -16132,13 +16132,13 @@ addr_09634:
    pop    ix                           ; 02:9685 - DD E1
    ret                                 ; 02:9687 - C9
 
-UNK_09688:
+SPRTAB_LAB3_boss_rocket_right:
 .db $3C, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $38, $3A, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9688
 
-UNK_09698:
+SPRTAB_LAB3_boss_rocket_left:
 .db $56, $58, $FF, $FF, $FF, $FF, $FF, $FF, $5A, $5C, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9698
 
-objfunc_2A_UNKNOWN:
+objfunc_2A_LAB3_boss_rocket_puff:
    set    5, (ix+24)                   ; 02:96A8 - DD CB 18 EE
    xor    a                            ; 02:96AC - AF
    ld     (ix+15), a                   ; 02:96AD - DD 77 0F
@@ -16155,7 +16155,7 @@ objfunc_2A_UNKNOWN:
    ld     (tmp_06), hl                 ; 02:96CA - 22 14 D2
    ld     e, (ix+18)                   ; 02:96CD - DD 5E 12
    ld     d, $00                       ; 02:96D0 - 16 00
-   ld     hl, UNK_096F5                ; 02:96D2 - 21 F5 96
+   ld     hl, LUT_LAB3_boss_rocket_puff_anim_sprites  ; 02:96D2 - 21 F5 96
    add    hl, de                       ; 02:96D5 - 19
    ld     a, (hl)                      ; 02:96D6 - 7E
    call   draw_sprite                  ; 02:96D7 - CD 81 35
@@ -16171,7 +16171,7 @@ objfunc_2A_UNKNOWN:
    ld     (ix+0), $FF                  ; 02:96F0 - DD 36 00 FF
    ret                                 ; 02:96F4 - C9
 
-UNK_096F5:
+LUT_LAB3_boss_rocket_puff_anim_sprites:
 .db $1C, $1E, $5E                                                                   ; 02:96F5
 
 objfunc_20_UNKNOWN:
