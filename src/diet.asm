@@ -18984,13 +18984,15 @@ objfunc_20_air_bubble:
    ld     (ix+11), c                   ; 02:9784 - DD 71 0B
    ld     (ix+12), c                   ; 02:9787 - DD 71 0C
    dec    (ix+18)                      ; 02:978A - DD 35 12
-   jp     nz, @set_x_vel               ; 02:978D - C2 09 98
    .IF 0
+   jp     nz, @set_x_vel               ; 02:978D - C2 09 98
    ld     (ix+0), $FF                  ; 02:9790 - DD 36 00 FF
-   .ELSE
-   call free_object
-   .ENDIF
    jp     @set_x_vel                   ; 02:9794 - C3 09 98
+   .ELSE
+   ;; Ensure we destroy without a UAF.
+   jp z, @destroy_this_object
+   ; SAVING: 6 bytes
+   .ENDIF
 
 @not_collected_yet:
    ld     hl, $0206                    ; 02:9797 - 21 06 02
@@ -19094,7 +19096,8 @@ objfunc_20_air_bubble:
    .IF 0
    ld     (ix+0), $FF                  ; 02:985E - DD 36 00 FF
    .ELSE
-   call free_object
+   ;; Avoid UAF, do a JP here.
+   jp free_object
    .ENDIF
 
 @dont_destroy_this_object:
