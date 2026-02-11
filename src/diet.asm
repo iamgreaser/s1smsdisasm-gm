@@ -273,7 +273,7 @@ g_random_seed dw   ; D2D7
 g_UNUSED_last_sonic_ground_y dw   ; D2D9
 g_water_level_onscreen_y db   ; D2DB
 g_water_level_y dw   ; D2DC
-var_D2DE db   ; D2DE
+g_frontmost_sprite_table_offs db   ; D2DE
 g_sonic_prev_anim_idx db   ; D2DF
 g_sonic_x_speed_dependent_anim_subframe db   ; D2E0
 g_special_stage_round_bumper_cooldown_timer db   ; D2E1
@@ -5681,7 +5681,7 @@ addr_01E07:
    call   nz, addr_0239C               ; 00:1E2A - C4 9C 23
    xor    a                            ; 00:1E2D - AF
    ld     (g_sonic_sprite_index_override), a  ; 00:1E2E - 32 02 D3
-   ld     (var_D2DE), a                ; 00:1E31 - 32 DE D2
+   ld     (g_frontmost_sprite_table_offs), a  ; 00:1E31 - 32 DE D2
    ld     (iy+g_sprite_count-IYBASE), $15  ; 00:1E34 - FD 36 0A 15
    ld     hl, g_sprite_table_21        ; 00:1E38 - 21 3F D0
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1E3B - 22 3C D2
@@ -7466,7 +7466,7 @@ LUT_object_functions:
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
-.dw objfunc_20_UNKNOWN, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
+.dw objfunc_20_air_bubble, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
@@ -18916,7 +18916,7 @@ objfunc_2A_LAB3_boss_rocket_puff:
 LUT_LAB3_boss_rocket_puff_anim_sprites:
 .db $1C, $1E, $5E                                                                   ; 02:96F5
 
-objfunc_20_UNKNOWN:
+objfunc_20_air_bubble:
    set    5, (ix+24)                   ; 02:96F8 - DD CB 18 EE
    xor    a                            ; 02:96FC - AF
    ld     (ix+15), a                   ; 02:96FD - DD 77 0F
@@ -18925,9 +18925,9 @@ objfunc_20_UNKNOWN:
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:9706 - 2A 3C D2
    push   af                           ; 02:9709 - F5
    push   hl                           ; 02:970A - E5
-   ld     a, (var_D2DE)                ; 02:970B - 3A DE D2
+   ld     a, (g_frontmost_sprite_table_offs)  ; 02:970B - 3A DE D2
    cp     $24                          ; 02:970E - FE 24
-   jr     nc, addr_09767               ; 02:9710 - 30 55
+   jr     nc, @skip_drawing_air_bubble  ; 02:9710 - 30 55
    ld     e, a                         ; 02:9712 - 5F
    ld     d, $00                       ; 02:9713 - 16 00
    ld     hl, g_sprite_table           ; 02:9715 - 21 00 D0
@@ -18944,15 +18944,15 @@ objfunc_20_UNKNOWN:
    ld     (tmp_06), hl                 ; 02:9734 - 22 14 D2
    ld     a, (ix+18)                   ; 02:9737 - DD 7E 12
    and    a                            ; 02:973A - A7
-   jr     z, addr_0974B                ; 02:973B - 28 0E
+   jr     z, @draw_big_bubble_sprites  ; 02:973B - 28 0E
    cp     $08                          ; 02:973D - FE 08
-   jr     nc, addr_0974B               ; 02:973F - 30 0A
+   jr     nc, @draw_big_bubble_sprites  ; 02:973F - 30 0A
    ld     hl, $0004                    ; 02:9741 - 21 04 00
    ld     (tmp_04), hl                 ; 02:9744 - 22 12 D2
    ld     a, $0C                       ; 02:9747 - 3E 0C
-   jr     addr_0975C                   ; 02:9749 - 18 11
+   jr     @draw_small_bubble_sprite    ; 02:9749 - 18 11
 
-addr_0974B:
+@draw_big_bubble_sprites:
    ld     a, $40                       ; 02:974B - 3E 40
    call   draw_sprite                  ; 02:974D - CD 81 35
    ld     hl, (tmp_04)                 ; 02:9750 - 2A 12 D2
@@ -18961,13 +18961,13 @@ addr_0974B:
    ld     (tmp_04), hl                 ; 02:9757 - 22 12 D2
    ld     a, $42                       ; 02:975A - 3E 42
 
-addr_0975C:
+@draw_small_bubble_sprite:
    call   draw_sprite                  ; 02:975C - CD 81 35
-   ld     a, (var_D2DE)                ; 02:975F - 3A DE D2
+   ld     a, (g_frontmost_sprite_table_offs)  ; 02:975F - 3A DE D2
    add    a, $06                       ; 02:9762 - C6 06
-   ld     (var_D2DE), a                ; 02:9764 - 32 DE D2
+   ld     (g_frontmost_sprite_table_offs), a  ; 02:9764 - 32 DE D2
 
-addr_09767:
+@skip_drawing_air_bubble:
    pop    hl                           ; 02:9767 - E1
    pop    af                           ; 02:9768 - F1
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:9769 - 22 3C D2
@@ -18976,7 +18976,7 @@ addr_09767:
    ld     (ix+14), $0C                 ; 02:9773 - DD 36 0E 0C
    ld     a, (ix+18)                   ; 02:9777 - DD 7E 12
    and    a                            ; 02:977A - A7
-   jr     z, addr_09797                ; 02:977B - 28 1A
+   jr     z, @not_collected_yet        ; 02:977B - 28 1A
    ld     c, $00                       ; 02:977D - 0E 00
    ld     b, c                         ; 02:977F - 41
    ld     d, c                         ; 02:9780 - 51
@@ -18984,19 +18984,19 @@ addr_09767:
    ld     (ix+11), c                   ; 02:9784 - DD 71 0B
    ld     (ix+12), c                   ; 02:9787 - DD 71 0C
    dec    (ix+18)                      ; 02:978A - DD 35 12
-   jp     nz, addr_09809               ; 02:978D - C2 09 98
+   jp     nz, @set_x_vel               ; 02:978D - C2 09 98
    .IF 0
    ld     (ix+0), $FF                  ; 02:9790 - DD 36 00 FF
    .ELSE
    call free_object
    .ENDIF
-   jp     addr_09809                   ; 02:9794 - C3 09 98
+   jp     @set_x_vel                   ; 02:9794 - C3 09 98
 
-addr_09797:
+@not_collected_yet:
    ld     hl, $0206                    ; 02:9797 - 21 06 02
    ld     (tmp_06), hl                 ; 02:979A - 22 14 D2
    call   check_collision_with_sonic   ; 02:979D - CD 56 39
-   jr     c, addr_097E3                ; 02:97A0 - 38 41
+   jr     c, @continue_from_non_collection  ; 02:97A0 - 38 41
    ld     bc, (sonic_y)                ; 02:97A2 - ED 4B 01 D4
    ld     e, (ix+5)                    ; 02:97A6 - DD 5E 05
    ld     d, (ix+6)                    ; 02:97A9 - DD 56 06
@@ -19004,15 +19004,15 @@ addr_09797:
    add    hl, de                       ; 02:97AF - 19
    and    a                            ; 02:97B0 - A7
    sbc    hl, bc                       ; 02:97B1 - ED 42
-   jr     nc, addr_097E3               ; 02:97B3 - 30 2E
+   jr     nc, @continue_from_non_collection  ; 02:97B3 - 30 2E
    ld     hl, $0006                    ; 02:97B5 - 21 06 00
    add    hl, de                       ; 02:97B8 - 19
    and    a                            ; 02:97B9 - A7
    sbc    hl, bc                       ; 02:97BA - ED 42
-   jr     c, addr_097E3                ; 02:97BC - 38 25
+   jr     c, @continue_from_non_collection  ; 02:97BC - 38 25
    ld     a, (ix+18)                   ; 02:97BE - DD 7E 12
    and    a                            ; 02:97C1 - A7
-   jr     nz, addr_097E3               ; 02:97C2 - 20 1F
+   jr     nz, @continue_from_non_collection  ; 02:97C2 - 20 1F
    xor    a                            ; 02:97C4 - AF
    ld     l, a                         ; 02:97C5 - 6F
    ld     h, a                         ; 02:97C6 - 67
@@ -19027,28 +19027,28 @@ addr_09797:
    ld     a, $22                       ; 02:97E0 - 3E 22
    rst    $28                          ; 02:97E2 - EF
 
-addr_097E3:
+@continue_from_non_collection:
    ld     (ix+10), $98                 ; 02:97E3 - DD 36 0A 98
    ld     (ix+11), $FF                 ; 02:97E7 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:97EB - DD 36 0C FF
    ld     a, (ix+17)                   ; 02:97EF - DD 7E 11
    and    $0F                          ; 02:97F2 - E6 0F
-   jr     nz, addr_09812               ; 02:97F4 - 20 1C
+   jr     nz, @move_same_x_dir_as_last_time  ; 02:97F4 - 20 1C
    call   random_A                     ; 02:97F6 - CD 25 06
    ld     bc, $0020                    ; 02:97F9 - 01 20 00
    ld     d, $00                       ; 02:97FC - 16 00
    and    $3F                          ; 02:97FE - E6 3F
    cp     $20                          ; 02:9800 - FE 20
-   jr     c, addr_09809                ; 02:9802 - 38 05
+   jr     c, @set_x_vel                ; 02:9802 - 38 05
    ld     bc, $FFE0                    ; 02:9804 - 01 E0 FF
    ld     d, $FF                       ; 02:9807 - 16 FF
 
-addr_09809:
+@set_x_vel:
    ld     (ix+7), c                    ; 02:9809 - DD 71 07
    ld     (ix+8), b                    ; 02:980C - DD 70 08
    ld     (ix+9), d                    ; 02:980F - DD 72 09
 
-addr_09812:
+@move_same_x_dir_as_last_time:
    ld     l, (ix+2)                    ; 02:9812 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9815 - DD 66 03
    ex     de, hl                       ; 02:9818 - EB
@@ -19056,48 +19056,48 @@ addr_09812:
    ld     bc, $0008                    ; 02:981C - 01 08 00
    xor    a                            ; 02:981F - AF
    sbc    hl, bc                       ; 02:9820 - ED 42
-   jr     nc, addr_09826               ; 02:9822 - 30 02
+   jr     nc, @dont_clamp_x_left_side_check  ; 02:9822 - 30 02
    ld     l, a                         ; 02:9824 - 6F
    ld     h, a                         ; 02:9825 - 67
 
-addr_09826:
+@dont_clamp_x_left_side_check:
    and    a                            ; 02:9826 - A7
    sbc    hl, de                       ; 02:9827 - ED 52
-   jr     nc, addr_0985E               ; 02:9829 - 30 33
+   jr     nc, @destroy_this_object     ; 02:9829 - 30 33
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:982B - 2A 5A D2
    ld     bc, $0100                    ; 02:982E - 01 00 01
    add    hl, bc                       ; 02:9831 - 09
    and    a                            ; 02:9832 - A7
    sbc    hl, de                       ; 02:9833 - ED 52
-   jr     c, addr_0985E                ; 02:9835 - 38 27
+   jr     c, @destroy_this_object      ; 02:9835 - 38 27
    ld     l, (ix+5)                    ; 02:9837 - DD 6E 05
    ld     h, (ix+6)                    ; 02:983A - DD 66 06
    ex     de, hl                       ; 02:983D - EB
    ld     hl, (g_water_level_y)        ; 02:983E - 2A DC D2
    and    a                            ; 02:9841 - A7
    sbc    hl, de                       ; 02:9842 - ED 52
-   jr     nc, addr_0985E               ; 02:9844 - 30 18
+   jr     nc, @destroy_this_object     ; 02:9844 - 30 18
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:9846 - 2A 5D D2
    ld     bc, $FFF0                    ; 02:9849 - 01 F0 FF
    add    hl, bc                       ; 02:984C - 09
    and    a                            ; 02:984D - A7
    sbc    hl, de                       ; 02:984E - ED 52
-   jr     nc, addr_0985E               ; 02:9850 - 30 0C
+   jr     nc, @destroy_this_object     ; 02:9850 - 30 0C
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:9852 - 2A 5D D2
    ld     bc, $00C0                    ; 02:9855 - 01 C0 00
    add    hl, bc                       ; 02:9858 - 09
    and    a                            ; 02:9859 - A7
    sbc    hl, de                       ; 02:985A - ED 52
-   jr     nc, addr_09862               ; 02:985C - 30 04
+   jr     nc, @dont_destroy_this_object  ; 02:985C - 30 04
 
-addr_0985E:
+@destroy_this_object:
    .IF 0
    ld     (ix+0), $FF                  ; 02:985E - DD 36 00 FF
    .ELSE
    call free_object
    .ENDIF
 
-addr_09862:
+@dont_destroy_this_object:
    inc    (ix+17)                      ; 02:9862 - DD 34 11
    ret                                 ; 02:9865 - C9
 
@@ -19200,8 +19200,20 @@ addr_098D3:
    ld     (sonic_vel_y_sub), hl        ; 02:9938 - 22 06 D4
    ld     (sonic_vel_y_hi), a          ; 02:993B - 32 08 D4
    ret                                 ; 02:993E - C9
-.db $3A, $E8, $D2, $2A, $E6, $D2, $22, $06, $D4, $32, $08, $D4, $11, $08, $00, $2A  ; 02:993F
-.db $03, $D4, $3A, $05, $D4, $19, $CE, $00, $22, $03, $D4, $32, $05, $D4, $C9       ; 02:994F
+
+UNUSED_0993F:
+   ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:993F - 3A E8 D2
+   ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:9942 - 2A E6 D2
+   ld     (sonic_vel_y_sub), hl        ; 02:9945 - 22 06 D4
+   ld     (sonic_vel_y_hi), a          ; 02:9948 - 32 08 D4
+   ld     de, $0008                    ; 02:994B - 11 08 00
+   ld     hl, (sonic_vel_x_sub)        ; 02:994E - 2A 03 D4
+   ld     a, (sonic_vel_x_hi)          ; 02:9951 - 3A 05 D4
+   add    hl, de                       ; 02:9954 - 19
+   adc    a, $00                       ; 02:9955 - CE 00
+   ld     (sonic_vel_x_sub), hl        ; 02:9957 - 22 03 D4
+   ld     (sonic_vel_x_hi), a          ; 02:995A - 32 05 D4
+   ret                                 ; 02:995D - C9
 
 addr_0995E:
    ld     (ix+15), UNK_09AA2&$FF       ; 02:995E - DD 36 0F A2
@@ -20778,7 +20790,7 @@ objfunc_30_UNKNOWN:
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:A9CE - 2A 3C D2
    push   af                           ; 02:A9D1 - F5
    push   hl                           ; 02:A9D2 - E5
-   ld     a, (var_D2DE)                ; 02:A9D3 - 3A DE D2
+   ld     a, (g_frontmost_sprite_table_offs)  ; 02:A9D3 - 3A DE D2
    cp     $24                          ; 02:A9D6 - FE 24
    jr     nc, addr_0AA1C               ; 02:A9D8 - 30 42
    ld     e, a                         ; 02:A9DA - 5F
@@ -20807,9 +20819,9 @@ objfunc_30_UNKNOWN:
    sbc    hl, bc                       ; 02:AA0C - ED 42
    ld     bc, UNK_0AA63                ; 02:AA0E - 01 63 AA
    call   draw_sprite_string           ; 02:AA11 - CD 0F 35
-   ld     a, (var_D2DE)                ; 02:AA14 - 3A DE D2
+   ld     a, (g_frontmost_sprite_table_offs)  ; 02:AA14 - 3A DE D2
    add    a, $0C                       ; 02:AA17 - C6 0C
-   ld     (var_D2DE), a                ; 02:AA19 - 32 DE D2
+   ld     (g_frontmost_sprite_table_offs), a  ; 02:AA19 - 32 DE D2
 
 addr_0AA1C:
    pop    hl                           ; 02:AA1C - E1
