@@ -19135,7 +19135,7 @@ objfunc_4C_flipper:
    call   check_collision_with_sonic   ; 02:98A9 - CD 56 39
    ret    c                            ; 02:98AC - D8
    ld     bc, LUT_flipper_y_offsets_00  ; 02:98AD - 01 9E 99
-   call   addr_09AAF                   ; 02:98B0 - CD AF 9A
+   call   compute_flipper_y_offset     ; 02:98B0 - CD AF 9A
    ret    nc                           ; 02:98B3 - D0
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:98B4 - 3A E8 D2
    ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:98B7 - 2A E6 D2
@@ -19162,7 +19162,7 @@ objfunc_4C_flipper:
    call   check_collision_with_sonic   ; 02:98EE - CD 56 39
    ret    c                            ; 02:98F1 - D8
    ld     bc, LUT_flipper_y_offsets_01  ; 02:98F2 - 01 BE 99
-   call   addr_09AAF                   ; 02:98F5 - CD AF 9A
+   call   compute_flipper_y_offset     ; 02:98F5 - CD AF 9A
    ret    nc                           ; 02:98F8 - D0
    ld     a, (ix+18)                   ; 02:98F9 - DD 7E 12
    cp     (ix+17)                      ; 02:98FC - DD BE 11
@@ -19231,7 +19231,7 @@ objfunc_4C_flipper:
    call   check_collision_with_sonic   ; 02:9974 - CD 56 39
    ret    c                            ; 02:9977 - D8
    ld     bc, LUT_flipper_y_offsets_02  ; 02:9978 - 01 DE 99
-   call   addr_09AAF                   ; 02:997B - CD AF 9A
+   call   compute_flipper_y_offset     ; 02:997B - CD AF 9A
    ret    nc                           ; 02:997E - D0
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:997F - 3A E8 D2
    ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:9982 - 2A E6 D2
@@ -19281,7 +19281,7 @@ SPRTAB_flipper_01:
 SPRTAB_flipper_02:
 .db $FE, $12, $14, $16, $FF, $FF, $FE, $32, $34, $36, $FF, $FF, $FF                 ; 02:9AA2
 
-addr_09AAF:
+compute_flipper_y_offset:
    ld     a, (sonic_vel_y_hi)          ; 02:9AAF - 3A 08 D4
    and    a                            ; 02:9AB2 - A7
    ret    m                            ; 02:9AB3 - F8
@@ -19294,21 +19294,21 @@ addr_09AAF:
    ld     b, $00                       ; 02:9ABF - 06 00
    ld     c, (hl)                      ; 02:9AC1 - 4E
    bit    7, c                         ; 02:9AC2 - CB 79
-   jr     z, addr_09AC7                ; 02:9AC4 - 28 01
+   jr     z, @y_offset_was_positive    ; 02:9AC4 - 28 01
    dec    b                            ; 02:9AC6 - 05
 
-addr_09AC7:
+@y_offset_was_positive:
    ld     l, (ix+5)                    ; 02:9AC7 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9ACA - DD 66 06
    add    hl, bc                       ; 02:9ACD - 09
    ld     (sonic_y), hl                ; 02:9ACE - 22 01 D4
    ld     a, (sonic_vel_y)             ; 02:9AD1 - 3A 07 D4
    cp     $03                          ; 02:9AD4 - FE 03
-   jr     nc, addr_09ADA               ; 02:9AD6 - 30 02
+   jr     nc, @bounce_sonic_up_slightly  ; 02:9AD6 - 30 02
    scf                                 ; 02:9AD8 - 37
    ret                                 ; 02:9AD9 - C9
 
-addr_09ADA:
+@bounce_sonic_up_slightly:
    ld     de, $0001                    ; 02:9ADA - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 02:9ADD - 2A 06 D4
    ld     a, l                         ; 02:9AE0 - 7D
