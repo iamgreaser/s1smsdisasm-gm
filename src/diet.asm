@@ -3507,16 +3507,7 @@ level_select_move:
    ld hl, g_level
    ld b, (hl)
    ld (hl), a
-   ld c, a
-
-   ;;
-   ;ld hl, $0000
-   ;ld (tmp_00), hl
-   ld hl, tmp_08
-   ld (hl), $FF
-
    ;; Detect a need to reload the art
-   ld a, c
    sub $09
    ld c, a
    ld a, b
