@@ -19204,6 +19204,7 @@ objfunc_4C_flipper:
    ld     (sonic_vel_y_hi), a          ; 02:993B - 32 08 D4
    ret                                 ; 02:993E - C9
 
+.IF 0
 @UNUSED_0993F:
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:993F - 3A E8 D2
    ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:9942 - 2A E6 D2
@@ -19217,6 +19218,8 @@ objfunc_4C_flipper:
    ld     (sonic_vel_x_sub), hl        ; 02:9957 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 02:995A - 32 05 D4
    ret                                 ; 02:995D - C9
+; SAVING: 31 bytes
+.ENDIF
 
 @flipper_not_01:
    ld     (ix+15), SPRTAB_flipper_02&$FF  ; 02:995E - DD 36 0F A2
