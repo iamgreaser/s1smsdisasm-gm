@@ -22,10 +22,10 @@
 ;; - $7F causes a reset.
 ;; - $80 upwards behaves a bit like $00 upwards but things are weird and you have weird starting times and the clock goes in the middle of the screen... and you're stuck on the same level repeatedly.
 ;; - Go explore if you want to find out what the out-of-range values do.
-.DEF cht_starting_level $09
+.DEF cht_starting_level $00
 
 ;; bool: No Death On Hit
-.DEF cht_no_death_on_hit 1
+.DEF cht_no_death_on_hit 0
 
 ;; bool: No Speed Cap: Go as fast as you like!
 .DEF cht_no_speed_cap 0
@@ -43,7 +43,7 @@
 
 ;; bool: Noclip on Button 1: Holding 1 allows Sonic to clip through walls.
 ;; Also, holding the button down forces Sonic to be treated as on the ground and allows Sonic to jump in mid-air.
-.DEF cht_noclip_button_1 1
+.DEF cht_noclip_button_1 0
 
 ;; bool: Boss Destroys Itself: Constantly damage the boss until it is defeated.
 ;; NOTE: DOES NOT WORK ON ALL BOSSES! GHZ+BRI+JUN+LAB are fine, SCR isn't a real boss, SKY takes 12 hits so the 8 HP logic I hijacked isn't used and thus this hack doesn't affect that boss.
