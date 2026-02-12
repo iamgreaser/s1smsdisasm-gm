@@ -19397,7 +19397,11 @@ objfunc_13_level_change_corridor:
    ld     hl, $0000                    ; 02:9B81 - 21 00 00
    ld     (tmp_06), hl                 ; 02:9B84 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B87 - CD 56 39
+.IF 0
    jr     c, @finish_tick              ; 02:9B8A - 38 45
+.ELSE
+   ret c
+.ENDIF
    ld     l, (ix+2)                    ; 02:9B8C - DD 6E 02
    ld     h, (ix+3)                    ; 02:9B8F - DD 66 03
    ld     a, l                         ; 02:9B92 - 7D
@@ -19435,17 +19439,24 @@ objfunc_13_level_change_corridor:
    ld     a, $01                       ; 02:9BC1 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 02:9BC3 - 32 89 D2
    set    4, (iy+iy_06_lvflag01-IYBASE)  ; 02:9BC6 - FD CB 06 E6
+.IF 0
    jp     @finish_tick                 ; 02:9BCA - C3 D1 9B
+.ELSE
+   ret
+.ENDIF
 
 @not_this_corridor:
    inc    hl                           ; 02:9BCD - 23
    inc    hl                           ; 02:9BCE - 23
    djnz   @each_corridor_candidate     ; 02:9BCF - 10 E2
 
+.IF 0
 @finish_tick:
    xor    a                            ; 02:9BD1 - AF
    ld     (ix+15), a                   ; 02:9BD2 - DD 77 0F
    ld     (ix+16), a                   ; 02:9BD5 - DD 77 10
+.ENDIF
+   ; SAVING: 10 bytes
    ret                                 ; 02:9BD8 - C9
 
 LUT_corridor_data:
