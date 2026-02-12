@@ -19548,7 +19548,7 @@ SPRTAB_SCR_flame_left:
 objfunc_16_SCR_ceiling_flamer:
    set    5, (ix+24)                   ; 02:9C8E - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:9C92 - DD CB 18 46
-   jr     nz, addr_09CC2               ; 02:9C96 - 20 2A
+   jr     nz, @already_initialised     ; 02:9C96 - 20 2A
    ld     l, (ix+2)                    ; 02:9C98 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9C9B - DD 66 03
    ld     de, $000C                    ; 02:9C9E - 11 0C 00
@@ -19565,7 +19565,7 @@ objfunc_16_SCR_ceiling_flamer:
    ld     (ix+17), a                   ; 02:9CBB - DD 77 11
    set    0, (ix+24)                   ; 02:9CBE - DD CB 18 C6
 
-addr_09CC2:
+@already_initialised:
    ld     l, (ix+2)                    ; 02:9CC2 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9CC5 - DD 66 03
    ld     (tmp_00), hl                 ; 02:9CC8 - 22 0E D2
@@ -19584,19 +19584,19 @@ addr_09CC2:
    add    a, a                         ; 02:9CE8 - 87
    ld     e, a                         ; 02:9CE9 - 5F
    ld     d, $00                       ; 02:9CEA - 16 00
-   ld     hl, UNK_09D6A                ; 02:9CEC - 21 6A 9D
+   ld     hl, LUT_ceiling_flame_collision_heights  ; 02:9CEC - 21 6A 9D
    add    hl, bc                       ; 02:9CEF - 09
    ld     a, (hl)                      ; 02:9CF0 - 7E
    ld     (ix+14), a                   ; 02:9CF1 - DD 77 0E
    ld     (ix+13), $06                 ; 02:9CF4 - DD 36 0D 06
-   ld     hl, PTRLUT_09D4A             ; 02:9CF8 - 21 4A 9D
+   ld     hl, PTRLUT_ceiling_flame_sprite_sequences  ; 02:9CF8 - 21 4A 9D
    add    hl, de                       ; 02:9CFB - 19
    ld     a, (hl)                      ; 02:9CFC - 7E
    inc    hl                           ; 02:9CFD - 23
    ld     h, (hl)                      ; 02:9CFE - 66
    ld     l, a                         ; 02:9CFF - 6F
    or     h                            ; 02:9D00 - B4
-   jr     z, addr_09D36                ; 02:9D01 - 28 33
+   jr     z, @skip_sonic_collision_check  ; 02:9D01 - 28 33
    ld     a, (ix+17)                   ; 02:9D03 - DD 7E 11
    add    a, a                         ; 02:9D06 - 87
    add    a, a                         ; 02:9D07 - 87
@@ -19607,7 +19607,7 @@ addr_09CC2:
    add    hl, de                       ; 02:9D0E - 19
    ld     b, $04                       ; 02:9D0F - 06 04
 
-addr_09D11:
+@each_flame_sprite:
    push   bc                           ; 02:9D11 - C5
    ld     a, (hl)                      ; 02:9D12 - 7E
    inc    hl                           ; 02:9D13 - 23
@@ -19619,16 +19619,16 @@ addr_09D11:
    call   draw_sprite                  ; 02:9D1D - CD 81 35
    pop    hl                           ; 02:9D20 - E1
    pop    bc                           ; 02:9D21 - C1
-   djnz   addr_09D11                   ; 02:9D22 - 10 ED
+   djnz   @each_flame_sprite           ; 02:9D22 - 10 ED
    ld     a, (ix+14)                   ; 02:9D24 - DD 7E 0E
    and    a                            ; 02:9D27 - A7
-   jr     z, addr_09D36                ; 02:9D28 - 28 0C
+   jr     z, @skip_sonic_collision_check  ; 02:9D28 - 28 0C
    ld     hl, $0202                    ; 02:9D2A - 21 02 02
    ld     (tmp_06), hl                 ; 02:9D2D - 22 14 D2
    call   check_collision_with_sonic   ; 02:9D30 - CD 56 39
    call   nc, damage_sonic             ; 02:9D33 - D4 FD 35
 
-addr_09D36:
+@skip_sonic_collision_check:
    inc    (ix+17)                      ; 02:9D36 - DD 34 11
    xor    a                            ; 02:9D39 - AF
    ld     (ix+15), a                   ; 02:9D3A - DD 77 0F
@@ -19640,26 +19640,26 @@ addr_09D36:
    rst    $28                          ; 02:9D48 - EF
    ret                                 ; 02:9D49 - C9
 
-PTRLUT_09D4A:
-.dw ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, addr_09D9A  ; 02:9D4A
-.dw addr_09DBA, addr_09DDA, addr_09D7A, addr_09D7A, addr_09D7A, addr_09DDA, addr_09DBA, addr_09D9A  ; 02:9D5A
+PTRLUT_ceiling_flame_sprite_sequences:
+.dw ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, ENTRY_RESET, LUT_ceiling_flame_sprites_1B  ; 02:9D4A
+.dw LUT_ceiling_flame_sprites_1F, LUT_ceiling_flame_sprites_22, LUT_ceiling_flame_sprites_25, LUT_ceiling_flame_sprites_25, LUT_ceiling_flame_sprites_25, LUT_ceiling_flame_sprites_22, LUT_ceiling_flame_sprites_1F, LUT_ceiling_flame_sprites_1B  ; 02:9D5A
 
-UNK_09D6A:
+LUT_ceiling_flame_collision_heights:
 .db $00, $00, $00, $00, $00, $00, $00, $1B, $1F, $22, $25, $25, $25, $22, $1F, $1B  ; 02:9D6A
 
-addr_09D7A:
+LUT_ceiling_flame_sprites_25:
 .db $00, $15, $1E, $0E, $1E, $07, $1E, $00, $00, $17, $1E, $10, $1E, $09, $1E, $02  ; 02:9D7A
 .db $00, $19, $1E, $12, $1E, $0B, $1E, $04, $00, $1B, $1E, $14, $1E, $0D, $1E, $06  ; 02:9D8A
 
-addr_09D9A:
+LUT_ceiling_flame_sprites_1B:
 .db $00, $0C, $1E, $08, $1E, $04, $1E, $00, $00, $0E, $1E, $0A, $1E, $06, $1E, $02  ; 02:9D9A
 .db $00, $10, $1E, $0C, $1E, $08, $1E, $04, $00, $11, $1E, $0E, $1E, $0A, $1E, $06  ; 02:9DAA
 
-addr_09DBA:
+LUT_ceiling_flame_sprites_1F:
 .db $00, $0F, $1E, $0A, $1E, $05, $1E, $00, $00, $11, $1E, $0C, $1E, $07, $1E, $02  ; 02:9DBA
 .db $00, $13, $1E, $0E, $1E, $09, $1E, $04, $00, $15, $1E, $10, $1E, $0B, $1E, $06  ; 02:9DCA
 
-addr_09DDA:
+LUT_ceiling_flame_sprites_22:
 .db $00, $12, $1E, $0C, $1E, $06, $1E, $00, $00, $14, $1E, $0E, $1E, $08, $1E, $02  ; 02:9DDA
 .db $00, $16, $1E, $10, $1E, $0A, $1E, $04, $00, $18, $1E, $12, $1E, $0C, $1E, $06  ; 02:9DEA
 
