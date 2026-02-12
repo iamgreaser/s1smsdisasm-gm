@@ -7471,7 +7471,7 @@ LUT_object_functions:
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
-.dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_UNKNOWN, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
+.dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
@@ -19104,37 +19104,37 @@ objfunc_20_air_bubble:
    inc    (ix+17)                      ; 02:9862 - DD 34 11
    ret                                 ; 02:9865 - C9
 
-objfunc_4C_UNKNOWN:
+objfunc_4C_flipper:
    set    5, (ix+24)                   ; 02:9866 - DD CB 18 EE
-   ld     (ix+15), UNK_09A7E&$FF       ; 02:986A - DD 36 0F 7E
-   ld     (ix+16), UNK_09A7E>>8        ; 02:986E - DD 36 10 9A
+   ld     (ix+15), SPRTAB_flipper_00&$FF  ; 02:986A - DD 36 0F 7E
+   ld     (ix+16), SPRTAB_flipper_00>>8  ; 02:986E - DD 36 10 9A
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 02:9872 - FD CB 03 6E
-   jr     nz, addr_0988B               ; 02:9876 - 20 13
+   jr     nz, @retract_flipper         ; 02:9876 - 20 13
    ld     a, (ix+17)                   ; 02:9878 - DD 7E 11
    ld     (ix+18), a                   ; 02:987B - DD 77 12
    ld     a, (ix+17)                   ; 02:987E - DD 7E 11
    cp     $05                          ; 02:9881 - FE 05
-   jr     nc, addr_09894               ; 02:9883 - 30 0F
+   jr     nc, @done_flipper_extension_update  ; 02:9883 - 30 0F
    inc    (ix+17)                      ; 02:9885 - DD 34 11
-   jp     addr_09894                   ; 02:9888 - C3 94 98
+   jp     @done_flipper_extension_update  ; 02:9888 - C3 94 98
 
-addr_0988B:
+@retract_flipper:
    ld     a, (ix+17)                   ; 02:988B - DD 7E 11
    and    a                            ; 02:988E - A7
-   jr     z, addr_09894                ; 02:988F - 28 03
+   jr     z, @done_flipper_extension_update  ; 02:988F - 28 03
    dec    (ix+17)                      ; 02:9891 - DD 35 11
 
-addr_09894:
+@done_flipper_extension_update:
    ld     a, (ix+17)                   ; 02:9894 - DD 7E 11
    cp     $01                          ; 02:9897 - FE 01
-   jr     nc, addr_098D3               ; 02:9899 - 30 38
+   jr     nc, @flipper_not_00          ; 02:9899 - 30 38
    ld     hl, $140C                    ; 02:989B - 21 0C 14
    ld     (tmp_06), hl                 ; 02:989E - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98A1 - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:98A5 - DD 36 0E 16
    call   check_collision_with_sonic   ; 02:98A9 - CD 56 39
    ret    c                            ; 02:98AC - D8
-   ld     bc, UNK_0999E                ; 02:98AD - 01 9E 99
+   ld     bc, LUT_flipper_y_offsets_00  ; 02:98AD - 01 9E 99
    call   addr_09AAF                   ; 02:98B0 - CD AF 9A
    ret    nc                           ; 02:98B3 - D0
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:98B4 - 3A E8 D2
@@ -19150,18 +19150,18 @@ addr_09894:
    ld     (sonic_vel_x_hi), a          ; 02:98CF - 32 05 D4
    ret                                 ; 02:98D2 - C9
 
-addr_098D3:
+@flipper_not_00:
    cp     $04                          ; 02:98D3 - FE 04
-   jp     nc, addr_0995E               ; 02:98D5 - D2 5E 99
-   ld     (ix+15), UNK_09A90&$FF       ; 02:98D8 - DD 36 0F 90
-   ld     (ix+16), UNK_09A90>>8        ; 02:98DC - DD 36 10 9A
+   jp     nc, @flipper_not_01          ; 02:98D5 - D2 5E 99
+   ld     (ix+15), SPRTAB_flipper_01&$FF  ; 02:98D8 - DD 36 0F 90
+   ld     (ix+16), SPRTAB_flipper_01>>8  ; 02:98DC - DD 36 10 9A
    ld     hl, $080F                    ; 02:98E0 - 21 0F 08
    ld     (tmp_06), hl                 ; 02:98E3 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:98E6 - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:98EA - DD 36 0E 16
    call   check_collision_with_sonic   ; 02:98EE - CD 56 39
    ret    c                            ; 02:98F1 - D8
-   ld     bc, UNK_099BE                ; 02:98F2 - 01 BE 99
+   ld     bc, LUT_flipper_y_offsets_01  ; 02:98F2 - 01 BE 99
    call   addr_09AAF                   ; 02:98F5 - CD AF 9A
    ret    nc                           ; 02:98F8 - D0
    ld     a, (ix+18)                   ; 02:98F9 - DD 7E 12
@@ -19173,7 +19173,7 @@ addr_098D3:
    add    a, a                         ; 02:9907 - 87
    ld     c, a                         ; 02:9908 - 4F
    ld     b, $00                       ; 02:9909 - 06 00
-   ld     hl, UNK_099FE                ; 02:990B - 21 FE 99
+   ld     hl, LUT_flipper_y_vel_additions_01  ; 02:990B - 21 FE 99
    add    hl, bc                       ; 02:990E - 09
    ld     e, (hl)                      ; 02:990F - 5E
    inc    hl                           ; 02:9910 - 23
@@ -19184,7 +19184,7 @@ addr_098D3:
    adc    a, $FF                       ; 02:9919 - CE FF
    ld     (sonic_vel_x_sub), hl        ; 02:991B - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 02:991E - 32 05 D4
-   ld     hl, UNK_09A3E                ; 02:9921 - 21 3E 9A
+   ld     hl, LUT_flipper_y_vel_additions_02  ; 02:9921 - 21 3E 9A
    add    hl, bc                       ; 02:9924 - 09
    ld     e, (hl)                      ; 02:9925 - 5E
    inc    hl                           ; 02:9926 - 23
@@ -19204,7 +19204,7 @@ addr_098D3:
    ld     (sonic_vel_y_hi), a          ; 02:993B - 32 08 D4
    ret                                 ; 02:993E - C9
 
-UNUSED_0993F:
+@UNUSED_0993F:
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:993F - 3A E8 D2
    ld     hl, (g_sonic_bounce_vel_y_sub)  ; 02:9942 - 2A E6 D2
    ld     (sonic_vel_y_sub), hl        ; 02:9945 - 22 06 D4
@@ -19218,16 +19218,16 @@ UNUSED_0993F:
    ld     (sonic_vel_x_hi), a          ; 02:995A - 32 05 D4
    ret                                 ; 02:995D - C9
 
-addr_0995E:
-   ld     (ix+15), UNK_09AA2&$FF       ; 02:995E - DD 36 0F A2
-   ld     (ix+16), UNK_09AA2>>8        ; 02:9962 - DD 36 10 9A
+@flipper_not_01:
+   ld     (ix+15), SPRTAB_flipper_02&$FF  ; 02:995E - DD 36 0F A2
+   ld     (ix+16), SPRTAB_flipper_02>>8  ; 02:9962 - DD 36 10 9A
    ld     hl, $021A                    ; 02:9966 - 21 1A 02
    ld     (tmp_06), hl                 ; 02:9969 - 22 14 D2
    ld     (ix+13), $1E                 ; 02:996C - DD 36 0D 1E
    ld     (ix+14), $16                 ; 02:9970 - DD 36 0E 16
    call   check_collision_with_sonic   ; 02:9974 - CD 56 39
    ret    c                            ; 02:9977 - D8
-   ld     bc, UNK_099DE                ; 02:9978 - 01 DE 99
+   ld     bc, LUT_flipper_y_offsets_02  ; 02:9978 - 01 DE 99
    call   addr_09AAF                   ; 02:997B - CD AF 9A
    ret    nc                           ; 02:997E - D0
    ld     a, (g_sonic_bounce_vel_y_pix_hi)  ; 02:997F - 3A E8 D2
@@ -19243,39 +19243,39 @@ addr_0995E:
    ld     (sonic_vel_x_hi), a          ; 02:999A - 32 05 D4
    ret                                 ; 02:999D - C9
 
-UNK_0999E:
+LUT_flipper_y_offsets_00:
 .db $FF, $FF, $FE, $FE, $FE, $FD, $FD, $FD, $FC, $FC, $FC, $FC, $FB, $FB, $FB, $FB  ; 02:999E
 .db $FA, $FA, $FA, $FA, $FA, $F9, $F9, $F9, $F9, $F9, $F9, $FA, $FA, $FB, $FC, $FE  ; 02:99AE
 
-UNK_099BE:
+LUT_flipper_y_offsets_01:
 .db $EA, $EA, $EA, $F6, $F7, $F8, $F8, $F8, $F9, $F9, $F9, $FA, $FA, $FA, $FB, $FB  ; 02:99BE
 .db $FB, $FB, $FC, $FC, $FC, $FC, $FD, $FD, $FD, $FD, $FE, $FE, $FF, $00, $02, $04  ; 02:99CE
 
-UNK_099DE:
+LUT_flipper_y_offsets_02:
 .db $EA, $EA, $EA, $EA, $EA, $EA, $EA, $EA, $EA, $EA, $EA, $EA, $EE, $ED, $EC, $EC  ; 02:99DE
 .db $EC, $ED, $EE, $EF, $F0, $F2, $F3, $F4, $F5, $F7, $F8, $F9, $FA, $FB, $FD, $FF  ; 02:99EE
 
-UNK_099FE:
-.db $00, $F8, $00, $F8, $00, $F9, $00, $FA, $00, $FB, $00, $FC, $E0, $FC, $80, $FD  ; 02:99FE
-.db $C0, $FD, $00, $FE, $40, $FE, $80, $FE, $C0, $FE, $00, $FF, $20, $FF, $40, $FF  ; 02:9A0E
-.db $60, $FF, $80, $FF, $A0, $FF, $C0, $FF, $E0, $FF, $E8, $FF, $EA, $FF, $EC, $FF  ; 02:9A1E
-.db $EE, $FF, $F0, $FF, $F2, $FF, $F4, $FF, $F6, $FF, $F8, $FF, $FC, $FF, $FE, $FF  ; 02:9A2E
+LUT_flipper_y_vel_additions_01:
+.dw $F800, $F800, $F900, $FA00, $FB00, $FC00, $FCE0, $FD80                          ; 02:99FE
+.dw $FDC0, $FE00, $FE40, $FE80, $FEC0, $FF00, $FF20, $FF40                          ; 02:9A0E
+.dw $FF60, $FF80, $FFA0, $FFC0, $FFE0, $FFE8, $FFEA, $FFEC                          ; 02:9A1E
+.dw $FFEE, $FFF0, $FFF2, $FFF4, $FFF6, $FFF8, $FFFC, $FFFE                          ; 02:9A2E
 
-UNK_09A3E:
-.db $00, $FC, $00, $FC, $00, $FC, $00, $FB, $00, $FA, $00, $F9, $00, $F8, $00, $F7  ; 02:9A3E
-.db $00, $F6, $80, $F5, $00, $F5, $C0, $F4, $80, $F4, $40, $F4, $00, $F4, $00, $F4  ; 02:9A4E
-.db $00, $F4, $00, $F4, $40, $F4, $80, $F4, $C0, $F4, $00, $F5, $00, $F6, $00, $F7  ; 02:9A5E
-.db $00, $F9, $00, $FA, $00, $FC, $80, $FC, $00, $FD, $C0, $FD, $00, $FF, $00, $FF  ; 02:9A6E
+LUT_flipper_y_vel_additions_02:
+.dw $FC00, $FC00, $FC00, $FB00, $FA00, $F900, $F800, $F700                          ; 02:9A3E
+.dw $F600, $F580, $F500, $F4C0, $F480, $F440, $F400, $F400                          ; 02:9A4E
+.dw $F400, $F400, $F440, $F480, $F4C0, $F500, $F600, $F700                          ; 02:9A5E
+.dw $F900, $FA00, $FC00, $FC80, $FD00, $FDC0, $FF00, $FF00                          ; 02:9A6E
 
-UNK_09A7E:
+SPRTAB_flipper_00:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $38, $3A, $3C, $3E, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9A7E
 .db $FF, $FF                                                                        ; 02:9A8E
 
-UNK_09A90:
+SPRTAB_flipper_01:
 .db $48, $4A, $4C, $4E, $FF, $FF, $68, $6A, $6C, $6E, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9A90
 .db $FF, $FF                                                                        ; 02:9AA0
 
-UNK_09AA2:
+SPRTAB_flipper_02:
 .db $FE, $12, $14, $16, $FF, $FF, $FE, $32, $34, $36, $FF, $FF, $FF                 ; 02:9AA2
 
 addr_09AAF:
