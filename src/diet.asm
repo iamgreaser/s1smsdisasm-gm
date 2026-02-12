@@ -7466,7 +7466,7 @@ LUT_object_functions:
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
-.dw objfunc_20_air_bubble, objfunc_21_UNKNOWN, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
+.dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
@@ -19329,32 +19329,32 @@ compute_flipper_y_offset:
    and    a                            ; 02:9AF9 - A7
    ret                                 ; 02:9AFA - C9
 
-objfunc_21_UNKNOWN:
+objfunc_21_special_stage_bouncer:
    set    5, (ix+24)                   ; 02:9AFB - DD CB 18 EE
    ld     (ix+13), $1C                 ; 02:9AFF - DD 36 0D 1C
    ld     (ix+14), $06                 ; 02:9B03 - DD 36 0E 06
-   ld     (ix+15), UNK_09B6E&$FF       ; 02:9B07 - DD 36 0F 6E
-   ld     (ix+16), UNK_09B6E>>8        ; 02:9B0B - DD 36 10 9B
+   ld     (ix+15), SPRTAB_special_stage_bouncer&$FF  ; 02:9B07 - DD 36 0F 6E
+   ld     (ix+16), SPRTAB_special_stage_bouncer>>8  ; 02:9B0B - DD 36 10 9B
    ld     hl, $0001                    ; 02:9B0F - 21 01 00
    ld     a, (ix+18)                   ; 02:9B12 - DD 7E 12
    cp     $60                          ; 02:9B15 - FE 60
-   jr     nc, addr_09B1C               ; 02:9B17 - 30 03
+   jr     nc, @selected_moving_left    ; 02:9B17 - 30 03
    ld     hl, $FFFF                    ; 02:9B19 - 21 FF FF
 
-addr_09B1C:
+@selected_moving_left:
    ld     (ix+7), $00                  ; 02:9B1C - DD 36 07 00
    ld     (ix+8), l                    ; 02:9B20 - DD 75 08
    ld     (ix+9), h                    ; 02:9B23 - DD 74 09
    inc    a                            ; 02:9B26 - 3C
    cp     $C0                          ; 02:9B27 - FE C0
-   jr     c, addr_09B2C                ; 02:9B29 - 38 01
+   jr     c, @skip_wrap_x_vel_sequence_counter  ; 02:9B29 - 38 01
    xor    a                            ; 02:9B2B - AF
 
-addr_09B2C:
+@skip_wrap_x_vel_sequence_counter:
    ld     (ix+18), a                   ; 02:9B2C - DD 77 12
    ld     a, (ix+17)                   ; 02:9B2F - DD 7E 11
    and    a                            ; 02:9B32 - A7
-   jr     nz, addr_09B6A               ; 02:9B33 - 20 35
+   jr     nz, @handle_hit_cooldown_counter  ; 02:9B33 - 20 35
    ld     hl, $0602                    ; 02:9B35 - 21 02 06
    ld     (tmp_06), hl                 ; 02:9B38 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B3B - CD 56 39
@@ -19383,11 +19383,11 @@ addr_09B2C:
    rst    $28                          ; 02:9B68 - EF
    ret                                 ; 02:9B69 - C9
 
-addr_09B6A:
+@handle_hit_cooldown_counter:
    dec    (ix+17)                      ; 02:9B6A - DD 35 11
    ret                                 ; 02:9B6D - C9
 
-UNK_09B6E:
+SPRTAB_special_stage_bouncer:
 .db $08, $0A, $28, $2A, $FF, $FF, $FF                                               ; 02:9B6E
 
 objfunc_13_UNKNOWN:
