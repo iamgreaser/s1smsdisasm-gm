@@ -7464,7 +7464,7 @@ LUT_02AD6:
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
-.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_UNKNOWN, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
@@ -19390,14 +19390,14 @@ objfunc_21_special_stage_bouncer:
 SPRTAB_special_stage_bouncer:
 .db $08, $0A, $28, $2A, $FF, $FF, $FF                                               ; 02:9B6E
 
-objfunc_13_UNKNOWN:
+objfunc_13_level_change_corridor:
    set    5, (ix+24)                   ; 02:9B75 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:9B79 - DD 36 0D 1E
    ld     (ix+14), $60                 ; 02:9B7D - DD 36 0E 60
    ld     hl, $0000                    ; 02:9B81 - 21 00 00
    ld     (tmp_06), hl                 ; 02:9B84 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B87 - CD 56 39
-   jr     c, addr_09BD1                ; 02:9B8A - 38 45
+   jr     c, @finish_tick              ; 02:9B8A - 38 45
    ld     l, (ix+2)                    ; 02:9B8C - DD 6E 02
    ld     h, (ix+3)                    ; 02:9B8F - DD 66 03
    ld     a, l                         ; 02:9B92 - 7D
@@ -19418,38 +19418,50 @@ objfunc_13_UNKNOWN:
    add    a, a                         ; 02:9BAA - 87
    rl     h                            ; 02:9BAB - CB 14
    ld     d, h                         ; 02:9BAD - 54
-   ld     hl, UNK_09BD9                ; 02:9BAE - 21 D9 9B
+   ld     hl, LUT_corridor_data        ; 02:9BAE - 21 D9 9B
    ld     b, $05                       ; 02:9BB1 - 06 05
 
-addr_09BB3:
+@each_corridor_candidate:
    ld     a, (hl)                      ; 02:9BB3 - 7E
    inc    hl                           ; 02:9BB4 - 23
    cp     e                            ; 02:9BB5 - BB
-   jr     nz, addr_09BCD               ; 02:9BB6 - 20 15
+   jr     nz, @not_this_corridor       ; 02:9BB6 - 20 15
    ld     a, (hl)                      ; 02:9BB8 - 7E
    cp     d                            ; 02:9BB9 - BA
-   jr     nz, addr_09BCD               ; 02:9BBA - 20 11
+   jr     nz, @not_this_corridor       ; 02:9BBA - 20 11
    inc    hl                           ; 02:9BBC - 23
    ld     a, (hl)                      ; 02:9BBD - 7E
    ld     (g_next_level_override_target), a  ; 02:9BBE - 32 D3 D2
    ld     a, $01                       ; 02:9BC1 - 3E 01
    ld     (g_signpost_tickdown_counter), a  ; 02:9BC3 - 32 89 D2
    set    4, (iy+iy_06_lvflag01-IYBASE)  ; 02:9BC6 - FD CB 06 E6
-   jp     addr_09BD1                   ; 02:9BCA - C3 D1 9B
+   jp     @finish_tick                 ; 02:9BCA - C3 D1 9B
 
-addr_09BCD:
+@not_this_corridor:
    inc    hl                           ; 02:9BCD - 23
    inc    hl                           ; 02:9BCE - 23
-   djnz   addr_09BB3                   ; 02:9BCF - 10 E2
+   djnz   @each_corridor_candidate     ; 02:9BCF - 10 E2
 
-addr_09BD1:
+@finish_tick:
    xor    a                            ; 02:9BD1 - AF
    ld     (ix+15), a                   ; 02:9BD2 - DD 77 0F
    ld     (ix+16), a                   ; 02:9BD5 - DD 77 10
    ret                                 ; 02:9BD8 - C9
 
-UNK_09BD9:
-.db $7D, $1A, $15, $7D, $01, $14, $01, $3C, $18, $01, $02, $19, $14, $0F, $1A       ; 02:9BD9
+LUT_corridor_data:
+.db $7D, $1A, $15                                                                   ; 02:9BD9
+
+LUT_corridor_data_1:
+.db $7D, $01, $14                                                                   ; 02:9BDC
+
+LUT_corridor_data_2:
+.db $01, $3C, $18                                                                   ; 02:9BDF
+
+LUT_corridor_data_3:
+.db $01, $02, $19                                                                   ; 02:9BE2
+
+LUT_corridor_data_4:
+.db $14, $0F, $1A                                                                   ; 02:9BE5
 
 objfunc_14_UNKNOWN:
    ld     (ix+7), $80                  ; 02:9BE8 - DD 36 07 80
