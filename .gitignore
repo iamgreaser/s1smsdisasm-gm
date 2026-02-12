@@ -10,5 +10,9 @@
 /src/whole.asm
 /src/data/
 
+# Patch junk that tends to get generated when transplaning diffs from one place to another
+*.orig
+*.rej
+
 # Python garbage
 __pycache__/
