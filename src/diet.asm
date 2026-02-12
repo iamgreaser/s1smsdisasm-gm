@@ -65,7 +65,12 @@
 
 ;; Don't show the world map between levels.
 ;; CURRENT SAVING: 1528 bytes in bank $00
-.DEF mod_skip_world_map 1
+.DEF mod_skip_world_map 0
+
+;; At the world map, use DOWN to go to the next level and UP to go to the previous.
+;; NOT COMPATIBLE WITH mod_skip_world_map.
+;; Disables the map timeout, you MUST explicitly press 2 or anything aliased to it (1 is aliased unless you have another mod enabled).
+.DEF mod_world_map_level_select 1
 
 ;; Don't show the score tally between levels.
 ;; CURRENT SAVING: 404 bytes in bank $00
@@ -3395,6 +3400,11 @@ addr_00D3F:
    add    a, a                         ; 00:0D73 - 87
    ld     e, a                         ; 00:0D74 - 5F
    ld     d, $00                       ; 00:0D75 - 16 00
+   .IF mod_world_map_level_select
+      ;; Use temporary register for old input value
+      ld a, (g_inputs_player_1)
+      ld (g_saved_vdp_reg_02_UNUSED), a
+   .ENDIF
    ld     hl, LUT_01201                ; 00:0D77 - 21 01 12
    add    hl, de                       ; 00:0D7A - 19
    ld     a, (hl)                      ; 00:0D7B - 7E
@@ -3406,10 +3416,14 @@ addr_00D3F:
 addr_00D80:
    ld     a, $01                       ; 00:0D80 - 3E 01
    ld     (tmp_00), a                  ; 00:0D82 - 32 0E D2
+   .IF !mod_world_map_level_select
    ld     bc, $012C                    ; 00:0D85 - 01 2C 01
+   .ENDIF
 
 addr_00D88:
+   .IF !mod_world_map_level_select
    push   bc                           ; 00:0D88 - C5
+   .ENDIF
    call   addr_00E86                   ; 00:0D89 - CD 86 0E
    ld     a, (tmp_00)                  ; 00:0D8C - 3A 0E D2
    dec    a                            ; 00:0D8F - 3D
@@ -3449,16 +3463,69 @@ addr_00DB7:
    call   draw_sprite_string           ; 00:0DC3 - CD 0F 35
    pop    hl                           ; 00:0DC6 - E1
    ld     (tmp_06), hl                 ; 00:0DC7 - 22 14 D2
+   .IF !mod_world_map_level_select
    pop    bc                           ; 00:0DCA - C1
    dec    bc                           ; 00:0DCB - 0B
    ld     a, b                         ; 00:0DCC - 78
    or     c                            ; 00:0DCD - B1
    ret    z                            ; 00:0DCE - C8
+   .ENDIF
+   .IF mod_world_map_level_select
+      ;; Grab previous value for comparison
+      ld hl, g_saved_vdp_reg_02_UNUSED
+      ld c, (hl)
+      ld a, (g_inputs_player_1)
+      ld (hl), a
+      ;; Compute delta - C = old, A = new, detect A=0 C=1
+      cpl
+      and c
+      ld c, a
+      ld a, (g_level)
+      ;; Now if a bit in C is 1, handle it.
+      bit 0, c
+      jp nz, level_select_up
+      bit 1, c
+      jp nz, level_select_down
+   .ENDIF
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:0DCF - FD CB 03 6E
    jp     nz, addr_00D88               ; 00:0DD3 - C2 88 0D
    ret    nz                           ; 00:0DD6 - C0
    scf                                 ; 00:0DD7 - 37
    ret                                 ; 00:0DD8 - C9
+
+.IF mod_world_map_level_select
+level_select_up:
+   cp $00
+   jp z, addr_00D88
+   dec a
+   jp level_select_move
+level_select_down:
+   cp $11
+   jp z, addr_00D88
+   inc a
+level_select_move:
+   ld hl, g_level
+   ld b, (hl)
+   ld (hl), a
+   ld c, a
+
+   ;;
+   ;ld hl, $0000
+   ;ld (tmp_00), hl
+   ld hl, tmp_08
+   ld (hl), $FF
+
+   ;; Detect a need to reload the art
+   ld a, c
+   sub $09
+   ld c, a
+   ld a, b
+   sub $09
+   xor c
+   bit 7, a
+   jp nz, addr_00C52
+   jp addr_00D3F
+.ENDIF
 
 addr_00DD9:
    ld     hl, $0000                    ; 00:0DD9 - 21 00 00
