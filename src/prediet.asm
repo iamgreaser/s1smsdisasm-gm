@@ -150,8 +150,7 @@ var_D295 dw   ; D295
 var_D297 db   ; D297
 var_D298 db   ; D298 (auto)
 g_sonic_bored_anim_countup_timer dw   ; D299
-g_sonic_underwater_countup_timer db   ; D29B
-.  dsb 1
+g_sonic_underwater_countup_timer dw   ; D29B
 var_D29D dw   ; D29D
 var_D29F dw   ; D29F
 var_D2A1 db   ; D2A1
@@ -173,16 +172,16 @@ g_pal_flash_color_value db   ; D2B3
 g_prev_sprite_count db   ; D2B4
 g_demo_next_input_relptr dw   ; D2B5
 g_camera_y_look_up_offset_px dw   ; D2B7
-var_D2B9 db   ; D2B9
-var_D2BA db   ; D2BA (auto)
+g_sonic_flags_copy db   ; D2B9
+g_score_BCD_big_endian_hi db   ; D2BA
 .  dsb 2
-var_D2BD db   ; D2BD (auto)
+g_score_BCD_big_endian_lo db   ; D2BD
 g_HUD_FFstr_buf db   ; D2BE
-var_D2BF db   ; D2BF
-var_D2C0 db   ; D2C0
-var_D2C1 db   ; D2C1
+g_HUD_FFstr_buf_1 db   ; D2BF
+g_HUD_FFstr_buf_2 db   ; D2C0
+g_HUD_FFstr_buf_3 db   ; D2C1
 .  dsb 1
-var_D2C3 db   ; D2C3 (auto)
+g_HUD_FFstr_buf_5 db   ; D2C3
 .  dsb 10
 g_time_mins db   ; D2CE
 g_time_secs_BCD db   ; D2CF
@@ -204,7 +203,7 @@ g_special_stage_round_bumper_anim_sprite_x dw   ; D2E2
 g_special_stage_round_bumper_anim_sprite_y dw   ; D2E4
 g_sonic_bounce_vel_y_sub dw   ; D2E6
 g_sonic_bounce_vel_y_pix_hi db   ; D2E8
-var_D2E9 dw   ; D2E9
+g_lightning_timer dw   ; D2E9
 .  dsb 1
 g_boss_hits_taken db   ; D2EC
 g_boss_death_next_explosion_countdown_timer db   ; D2ED
@@ -217,7 +216,7 @@ g_invincibility_sparkle_position_buffer_1 dw   ; D2F7
 .  dsb 2
 g_sonic_consume_air_bubble_countdown_timer db   ; D2FB
 g_level_music db   ; D2FC
-var_D2FD db   ; D2FD
+g_next_life_bonus_10000s_BCD db   ; D2FD
 g_good_ending_emerald_anim_countdown_timer db   ; D2FE
 var_D2FF db   ; D2FF
 .  dsb 2
@@ -2648,9 +2647,9 @@ addr_00E86:
    ld     a, l                         ; 00:0EB9 - 7D
    add    a, a                         ; 00:0EBA - 87
    add    a, $80                       ; 00:0EBB - C6 80
-   ld     (var_D2BF), a                ; 00:0EBD - 32 BF D2
+   ld     (g_HUD_FFstr_buf_1), a       ; 00:0EBD - 32 BF D2
    ld     a, $FF                       ; 00:0EC0 - 3E FF
-   ld     (var_D2C0), a                ; 00:0EC2 - 32 C0 D2
+   ld     (g_HUD_FFstr_buf_2), a       ; 00:0EC2 - 32 C0 D2
    ld     b, $A7                       ; 00:0EC5 - 06 A7
    ld     c, $28                       ; 00:0EC7 - 0E 28
    ld     hl, g_sprite_table           ; 00:0EC9 - 21 00 D0
@@ -3364,7 +3363,7 @@ handle_level_score_screen:
    ld     a, $15                       ; 00:15C6 - 3E 15
    ld     (g_HUD_FFstr_buf), a         ; 00:15C8 - 32 BE D2
    ld     a, $04                       ; 00:15CB - 3E 04
-   ld     (var_D2BF), a                ; 00:15CD - 32 BF D2
+   ld     (g_HUD_FFstr_buf_1), a       ; 00:15CD - 32 BF D2
    ld     a, (g_level)                 ; 00:15D0 - 3A 3E D2
    ld     e, a                         ; 00:15D3 - 5F
    ld     d, $00                       ; 00:15D4 - 16 00
@@ -3378,7 +3377,7 @@ handle_level_score_screen:
 -:
    push   bc                           ; 00:15E1 - C5
    push   hl                           ; 00:15E2 - E5
-   ld     de, var_D2BF                 ; 00:15E3 - 11 BF D2
+   ld     de, g_HUD_FFstr_buf_1        ; 00:15E3 - 11 BF D2
    ld     a, (de)                      ; 00:15E6 - 1A
    inc    a                            ; 00:15E7 - 3C
    ld     (de), a                      ; 00:15E8 - 12
@@ -3543,12 +3542,12 @@ addr_016F6:
    push   bc                           ; 00:16F6 - C5
    ld     hl, g_HUD_FFstr_buf          ; 00:16F7 - 21 BE D2
    call   print_positioned_FF_string   ; 00:16FA - CD AF 05
-   ld     hl, var_D2C3                 ; 00:16FD - 21 C3 D2
+   ld     hl, g_HUD_FFstr_buf_5        ; 00:16FD - 21 C3 D2
    call   print_positioned_FF_string   ; 00:1700 - CD AF 05
    ld     hl, g_HUD_FFstr_buf          ; 00:1703 - 21 BE D2
    inc    (hl)                         ; 00:1706 - 34
    inc    (hl)                         ; 00:1707 - 34
-   ld     hl, var_D2C3                 ; 00:1708 - 21 C3 D2
+   ld     hl, g_HUD_FFstr_buf_5        ; 00:1708 - 21 C3 D2
    inc    (hl)                         ; 00:170B - 34
    inc    (hl)                         ; 00:170C - 34
    pop    bc                           ; 00:170D - C1
@@ -3573,7 +3572,7 @@ addr_01726:
 
 _handle_level_score_screen_13:
    ld     a, $FF                       ; 00:172F - 3E FF
-   ld     (var_D2FD), a                ; 00:1731 - 32 FD D2
+   ld     (g_next_life_bonus_10000s_BCD), a  ; 00:1731 - 32 FD D2
    ld     c, $00                       ; 00:1734 - 0E 00
    ld     a, (g_chaos_emeralds_collected)  ; 00:1736 - 3A 7F D2
    cp     $06                          ; 00:1739 - FE 06
@@ -3744,7 +3743,7 @@ addr_01860:
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1868 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:186C - 21 00 D0
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:186F - 22 3C D2
-   ld     hl, var_D2BA                 ; 00:1872 - 21 BA D2
+   ld     hl, g_score_BCD_big_endian_hi  ; 00:1872 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1875 - 11 BE D2
    ld     b, $04                       ; 00:1878 - 06 04
    call   addr_01B13                   ; 00:187A - CD 13 1B
@@ -3933,7 +3932,7 @@ addr_01A18:
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1A18 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:1A1C - 21 00 D0
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A1F - 22 3C D2
-   ld     hl, var_D2BA                 ; 00:1A22 - 21 BA D2
+   ld     hl, g_score_BCD_big_endian_hi  ; 00:1A22 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A25 - 11 BE D2
    ld     b, $04                       ; 00:1A28 - 06 04
    call   addr_01B13                   ; 00:1A2A - CD 13 1B
@@ -4032,9 +4031,9 @@ addr_01ACA:
    ld     a, l                         ; 00:1AEB - 7D
    add    a, a                         ; 00:1AEC - 87
    add    a, $80                       ; 00:1AED - C6 80
-   ld     (var_D2BF), a                ; 00:1AEF - 32 BF D2
+   ld     (g_HUD_FFstr_buf_1), a       ; 00:1AEF - 32 BF D2
    ld     a, $FF                       ; 00:1AF2 - 3E FF
-   ld     (var_D2C0), a                ; 00:1AF4 - 32 C0 D2
+   ld     (g_HUD_FFstr_buf_2), a       ; 00:1AF4 - 32 C0 D2
    ld     c, $38                       ; 00:1AF7 - 0E 38
    ld     b, $9F                       ; 00:1AF9 - 06 9F
    ld     a, (g_level)                 ; 00:1AFB - 3A 3E D2
@@ -4144,7 +4143,7 @@ addr_01C4E:
    ld     a, $03                       ; 00:1C4E - 3E 03
    ld     (g_lives), a                 ; 00:1C50 - 32 46 D2
    ld     a, $05                       ; 00:1C53 - 3E 05
-   ld     (var_D2FD), a                ; 00:1C55 - 32 FD D2
+   ld     (g_next_life_bonus_10000s_BCD), a  ; 00:1C55 - 32 FD D2
    ld     a, $1C                       ; 00:1C58 - 3E 1C
    ld     (g_next_bonus_level), a      ; 00:1C5A - 32 3F D2
    xor    a                            ; 00:1C5D - AF
@@ -4157,7 +4156,7 @@ addr_01C4E:
    ld     hl, iy_00                    ; 00:1C6F - 21 00 D2
    ld     b, $0E                       ; 00:1C72 - 06 0E
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C74 - CD E8 1C
-   ld     hl, var_D2BA                 ; 00:1C77 - 21 BA D2
+   ld     hl, g_score_BCD_big_endian_hi  ; 00:1C77 - 21 BA D2
    ld     b, $04                       ; 00:1C7A - 06 04
    call   fill_ram_at_hl_for_b_bytes_with_a  ; 00:1C7C - CD E8 1C
    ld     hl, g_level_lives_collected_mask  ; 00:1C7F - 21 05 D3
@@ -4490,7 +4489,7 @@ addr_01F45:
    ret                                 ; 00:1F48 - C9
 
 addr_01F49:
-   ld     de, (var_D2E9)               ; 00:1F49 - ED 5B E9 D2
+   ld     de, (g_lightning_timer)      ; 00:1F49 - ED 5B E9 D2
    ld     hl, $00AA                    ; 00:1F4D - 21 AA 00
    xor    a                            ; 00:1F50 - AF
    sbc    hl, de                       ; 00:1F51 - ED 52
@@ -4543,7 +4542,7 @@ addr_01F80:
 
 addr_01F97:
    inc    de                           ; 00:1F97 - 13
-   ld     (var_D2E9), de               ; 00:1F98 - ED 53 E9 D2
+   ld     (g_lightning_timer), de      ; 00:1F98 - ED 53 E9 D2
    ret                                 ; 00:1F9C - C9
 
 LUT_01F9D:
@@ -5552,7 +5551,7 @@ addr_027A0:
 
 addr_027BA:
    push   hl                           ; 00:27BA - E5
-   ld     (var_D2C0), a                ; 00:27BB - 32 C0 D2
+   ld     (g_HUD_FFstr_buf_2), a       ; 00:27BB - 32 C0 D2
    ld     bc, $0008                    ; 00:27BE - 01 08 00
    call   addr_02718                   ; 00:27C1 - CD 18 27
    ld     hl, g_HUD_FFstr_buf          ; 00:27C4 - 21 BE D2
@@ -5846,7 +5845,7 @@ addr_02E5A:
 addr_02E72:
    add    a, a                         ; 00:2E72 - 87
    add    a, $80                       ; 00:2E73 - C6 80
-   ld     (var_D2C1), a                ; 00:2E75 - 32 C1 D2
+   ld     (g_HUD_FFstr_buf_3), a       ; 00:2E75 - 32 C1 D2
    ld     c, $10                       ; 00:2E78 - 0E 10
    ld     b, $AC                       ; 00:2E7A - 06 AC
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2E7C - 2A 3C D2
@@ -5912,9 +5911,9 @@ addr_02EE6:
    and    $0F                          ; 00:2EF7 - E6 0F
    add    a, a                         ; 00:2EF9 - 87
    add    a, $80                       ; 00:2EFA - C6 80
-   ld     (var_D2BF), a                ; 00:2EFC - 32 BF D2
+   ld     (g_HUD_FFstr_buf_1), a       ; 00:2EFC - 32 BF D2
    ld     a, $FF                       ; 00:2EFF - 3E FF
-   ld     (var_D2C0), a                ; 00:2F01 - 32 C0 D2
+   ld     (g_HUD_FFstr_buf_2), a       ; 00:2F01 - 32 C0 D2
    ld     c, $14                       ; 00:2F04 - 0E 14
    ld     b, $00                       ; 00:2F06 - 06 00
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2F08 - 2A 3C D2
@@ -7555,7 +7554,7 @@ add_A_rings:
    ret                                 ; 00:39D7 - C9
 
 addr_039D8:
-   ld     hl, var_D2BD                 ; 00:39D8 - 21 BD D2
+   ld     hl, g_score_BCD_big_endian_lo  ; 00:39D8 - 21 BD D2
    ld     a, e                         ; 00:39DB - 7B
    add    a, (hl)                      ; 00:39DC - 86
    daa                                 ; 00:39DD - 27
@@ -7576,7 +7575,7 @@ addr_039D8:
    adc    a, (hl)                      ; 00:39ED - 8E
    daa                                 ; 00:39EE - 27
    ld     (hl), a                      ; 00:39EF - 77
-   ld     hl, var_D2FD                 ; 00:39F0 - 21 FD D2
+   ld     hl, g_next_life_bonus_10000s_BCD  ; 00:39F0 - 21 FD D2
    ld     a, c                         ; 00:39F3 - 79
    cp     (hl)                         ; 00:39F4 - BE
    ret    c                            ; 00:39F5 - D8
@@ -8589,7 +8588,7 @@ objfunc_00_sonic:
 
 @continue_past_clamp_sonic_x_pos_right:
    ld     a, (sonic_flags_ix_24)       ; 01:4D81 - 3A 14 D4
-   ld     (var_D2B9), a                ; 01:4D84 - 32 B9 D2
+   ld     (g_sonic_flags_copy), a      ; 01:4D84 - 32 B9 D2
    ld     a, (sonic_anim_index_ix_20)  ; 01:4D87 - 3A 10 D4
    ld     (g_sonic_prev_anim_idx), a   ; 01:4D8A - 32 DF D2
    ld     d, $01                       ; 01:4D8D - 16 01
@@ -9005,7 +9004,7 @@ objfunc_00_sonic:
    add    a, $80                       ; 01:5053 - C6 80
    ld     (g_HUD_FFstr_buf), a         ; 01:5055 - 32 BE D2
    ld     a, $FF                       ; 01:5058 - 3E FF
-   ld     (var_D2BF), a                ; 01:505A - 32 BF D2
+   ld     (g_HUD_FFstr_buf_1), a       ; 01:505A - 32 BF D2
    ld     d, $00                       ; 01:505D - 16 00
    ld     hl, objfunc_00_sonic@beep_period_masks_per_air_countdown  ; 01:505F - 21 97 50
    add    hl, de                       ; 01:5062 - 19
@@ -9667,7 +9666,7 @@ objfunc_00_sonic:
    ret    c                            ; 01:5536 - D8
    bit    7, (ix+24)                   ; 01:5537 - DD CB 18 7E
    ret    z                            ; 01:553B - C8
-   ld     a, (var_D2B9)                ; 01:553C - 3A B9 D2
+   ld     a, (g_sonic_flags_copy)      ; 01:553C - 3A B9 D2
    and    $80                          ; 01:553F - E6 80
    ret    nz                           ; 01:5541 - C0
    res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:5542 - FD CB 06 B6
@@ -9737,7 +9736,7 @@ objfunc_00_sonic:
    ret    nc                           ; 01:55C2 - D0
    bit    7, (ix+24)                   ; 01:55C3 - DD CB 18 7E
    ret    z                            ; 01:55C7 - C8
-   ld     a, (var_D2B9)                ; 01:55C8 - 3A B9 D2
+   ld     a, (g_sonic_flags_copy)      ; 01:55C8 - 3A B9 D2
    and    $80                          ; 01:55CB - E6 80
    ret    nz                           ; 01:55CD - C0
    res    6, (iy+iy_06_lvflag01-IYBASE)  ; 01:55CE - FD CB 06 B6
@@ -10055,7 +10054,7 @@ objfunc_00_sonic:
    jp     @continue_from_other_bouncies  ; 01:57F3 - C3 BE 57
 
 @special_17_SKY1_lightning:
-   ld     hl, (var_D2E9)               ; 01:57F6 - 2A E9 D2
+   ld     hl, (g_lightning_timer)      ; 01:57F6 - 2A E9 D2
    ld     de, $0082                    ; 01:57F9 - 11 82 00
    and    a                            ; 01:57FC - A7
    sbc    hl, de                       ; 01:57FD - ED 52
