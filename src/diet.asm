@@ -74,6 +74,11 @@
 ;; I need to find a solution for the double-fade. --GM
 .DEF mod_skip_score_tally 1
 
+;; Reduce most delays to no more than 1 frame.
+;; CURRENT SAVING: 25 bytes in bank $00
+;; Use 2 frames for fades.
+.DEF mod_skip_delays 1
+
 ;; Only do boss fight levels. Probably costs 2 extra bytes.
 .DEF mod_boss_rush 0
 
@@ -2802,7 +2807,11 @@ addr_00A5F:
    .ENDIF
    ld     a, $03                       ; 00:0A76 - 3E 03
    call   signal_load_palettes         ; 00:0A78 - CD 33 03
+   .IF !mod_skip_delays
    ld     b, $0A                       ; 00:0A7B - 06 0A
+   .ELSE
+   ld b, $02
+   .ENDIF
 
 addr_00A7D:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0A7D - FD 7E 0A
@@ -2894,6 +2903,7 @@ addr_00AAE:
    res    0, (iy+iy_00-IYBASE)         ; 00:0ADF - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0AE3 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:0AE6 - FD 71 0A
+   .IF !mod_skip_delays
    ld     b, $09                       ; 00:0AE9 - 06 09
 
 addr_00AEB:
@@ -2902,6 +2912,7 @@ addr_00AEB:
    call   wait_until_irq_ticked        ; 00:0AF2 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0AF5 - FD 77 0A
    djnz   addr_00AEB                   ; 00:0AF8 - 10 F1
+   .ENDIF
    ld     b, $04                       ; 00:0AFA - 06 04
 
 addr_00AFC:
@@ -2978,14 +2989,18 @@ addr_00B2C:
    ld     hl, g_temporary_palette_buffer  ; 00:0B33 - 21 BC D3
    ld     a, $03                       ; 00:0B36 - 3E 03
    call   signal_load_palettes         ; 00:0B38 - CD 33 03
+   .IF !mod_skip_delays
    ld     b, $0A                       ; 00:0B3B - 06 0A
 
 addr_00B3D:
+   .ENDIF
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0B3D - FD 7E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:0B40 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0B44 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0B47 - FD 77 0A
+   .IF !mod_skip_delays
    djnz   addr_00B3D                   ; 00:0B4A - 10 F1
+   .ENDIF
    pop    bc                           ; 00:0B4C - C1
    djnz   addr_00AFC                   ; 00:0B4D - 10 AD
    ret                                 ; 00:0B4F - C9
@@ -3045,7 +3060,11 @@ _palette_fade_up_common:
    res    0, (iy+iy_00-IYBASE)         ; 00:0B91 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0B95 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), c  ; 00:0B98 - FD 71 0A
+   .IF !mod_skip_delays
    ld     b, $09                       ; 00:0B9B - 06 09
+   .ELSE
+   ld b, $02
+   .ENDIF
 
 -:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0B9D - FD 7E 0A
@@ -3129,7 +3148,11 @@ addr_00BAE:
    ld     hl, g_temporary_palette_buffer  ; 00:0BE5 - 21 BC D3
    ld     a, $03                       ; 00:0BE8 - 3E 03
    call   signal_load_palettes         ; 00:0BEA - CD 33 03
+   .IF !mod_skip_delays
    ld     b, $0A                       ; 00:0BED - 06 0A
+   .ELSE
+   ld b, $02
+   .ENDIF
 
 -:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0BEF - FD 7E 0A
@@ -5490,12 +5513,16 @@ addr_01CBD:
    jr     nz, addr_01CDB               ; 00:1CCD - 20 0C
 
 addr_01CCF:
+   .IF !mod_skip_delays
    ld     b, $3C                       ; 00:1CCF - 06 3C
 
 addr_01CD1:
+   .ENDIF
    res    0, (iy+iy_00-IYBASE)         ; 00:1CD1 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1CD5 - CD 1C 03
+   .IF !mod_skip_delays
    djnz   addr_01CD1                   ; 00:1CD8 - 10 F7
+   .ENDIF
    rst    $20                          ; 00:1CDA - E7
 
 addr_01CDB:
