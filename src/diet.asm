@@ -3495,14 +3495,14 @@ addr_00DB7:
 
 .IF mod_world_map_level_select
 level_select_up:
-   cp $00
-   jp z, addr_00D88
-   dec a
-   jp level_select_move
-level_select_down:
    cp $11
    jp z, addr_00D88
    inc a
+   jr level_select_move
+level_select_down:
+   cp $00
+   jp z, addr_00D88
+   dec a
 level_select_move:
    ld hl, g_level
    ld b, (hl)
