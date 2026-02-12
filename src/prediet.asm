@@ -5770,7 +5770,7 @@ LUT_02AD6:
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
-.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
@@ -16778,7 +16778,7 @@ objfunc_15_SCR_flamer_firing_left:
 SPRTAB_SCR_flame_left:
 .db $2C, $2E, $FF, $FF, $FF, $FF, $FF                                               ; 02:9C87
 
-objfunc_16_UNKNOWN:
+objfunc_16_SCR_ceiling_flamer:
    set    5, (ix+24)                   ; 02:9C8E - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:9C92 - DD CB 18 46
    jr     nz, addr_09CC2               ; 02:9C96 - 20 2A
