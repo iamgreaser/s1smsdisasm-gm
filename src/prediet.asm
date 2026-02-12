@@ -5770,7 +5770,7 @@ LUT_02AD6:
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
-.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_UNKNOWN, objfunc_15_UNKNOWN, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
+.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_UNKNOWN, objfunc_17_UNKNOWN  ; 00:2B16
 .dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
@@ -16707,17 +16707,17 @@ LUT_corridor_data_3:
 LUT_corridor_data_4:
 .db $14, $0F, $1A                                                                   ; 02:9BE5
 
-objfunc_14_UNKNOWN:
+objfunc_14_SCR_flamer_firing_right:
    ld     (ix+7), $80                  ; 02:9BE8 - DD 36 07 80
    ld     (ix+8), $01                  ; 02:9BEC - DD 36 08 01
    ld     (ix+9), $00                  ; 02:9BF0 - DD 36 09 00
-   ld     (ix+15), UNK_09C69&$FF       ; 02:9BF4 - DD 36 0F 69
-   ld     (ix+16), UNK_09C69>>8        ; 02:9BF8 - DD 36 10 9C
+   ld     (ix+15), SPRTAB_SCR_flame_right&$FF  ; 02:9BF4 - DD 36 0F 69
+   ld     (ix+16), SPRTAB_SCR_flame_right>>8  ; 02:9BF8 - DD 36 10 9C
 
-addr_09BFC:
+@common_entry:
    set    5, (ix+24)                   ; 02:9BFC - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:9C00 - DD CB 18 46
-   jr     nz, addr_09C19               ; 02:9C04 - 20 13
+   jr     nz, @already_initialised     ; 02:9C04 - 20 13
    ld     a, (ix+2)                    ; 02:9C06 - DD 7E 02
    ld     (ix+17), a                   ; 02:9C09 - DD 77 11
    ld     a, (ix+3)                    ; 02:9C0C - DD 7E 03
@@ -16726,24 +16726,24 @@ addr_09BFC:
    rst    $28                          ; 02:9C14 - EF
    set    0, (ix+24)                   ; 02:9C15 - DD CB 18 C6
 
-addr_09C19:
+@already_initialised:
    ld     (ix+13), $06                 ; 02:9C19 - DD 36 0D 06
    ld     (ix+14), $08                 ; 02:9C1D - DD 36 0E 08
    ld     a, (ix+19)                   ; 02:9C21 - DD 7E 13
    cp     $64                          ; 02:9C24 - FE 64
-   jr     nc, addr_09C34               ; 02:9C26 - 30 0C
+   jr     nc, @is_immaterial           ; 02:9C26 - 30 0C
    ld     hl, $0400                    ; 02:9C28 - 21 00 04
    ld     (tmp_06), hl                 ; 02:9C2B - 22 14 D2
    call   check_collision_with_sonic   ; 02:9C2E - CD 56 39
    call   nc, damage_sonic             ; 02:9C31 - D4 FD 35
 
-addr_09C34:
+@is_immaterial:
    inc    (ix+19)                      ; 02:9C34 - DD 34 13
    ld     a, (ix+19)                   ; 02:9C37 - DD 7E 13
    cp     $64                          ; 02:9C3A - FE 64
    ret    c                            ; 02:9C3C - D8
    cp     $F0                          ; 02:9C3D - FE F0
-   jr     c, addr_09C58                ; 02:9C3F - 38 17
+   jr     c, @reset_x_pos_and_be_invisible  ; 02:9C3F - 38 17
    xor    a                            ; 02:9C41 - AF
    ld     (ix+1), a                    ; 02:9C42 - DD 77 01
    ld     (ix+19), a                   ; 02:9C45 - DD 77 13
@@ -16755,7 +16755,7 @@ addr_09C34:
    rst    $28                          ; 02:9C56 - EF
    ret                                 ; 02:9C57 - C9
 
-addr_09C58:
+@reset_x_pos_and_be_invisible:
    xor    a                            ; 02:9C58 - AF
    ld     (ix+15), a                   ; 02:9C59 - DD 77 0F
    ld     (ix+16), a                   ; 02:9C5C - DD 77 10
@@ -16764,18 +16764,18 @@ addr_09C58:
    ld     (ix+9), a                    ; 02:9C65 - DD 77 09
    ret                                 ; 02:9C68 - C9
 
-UNK_09C69:
+SPRTAB_SCR_flame_right:
 .db $0C, $0E, $FF, $FF, $FF, $FF, $FF                                               ; 02:9C69
 
-objfunc_15_UNKNOWN:
+objfunc_15_SCR_flamer_firing_left:
    ld     (ix+7), $80                  ; 02:9C70 - DD 36 07 80
    ld     (ix+8), $FE                  ; 02:9C74 - DD 36 08 FE
    ld     (ix+9), $FF                  ; 02:9C78 - DD 36 09 FF
-   ld     (ix+15), UNK_09C87&$FF       ; 02:9C7C - DD 36 0F 87
-   ld     (ix+16), UNK_09C87>>8        ; 02:9C80 - DD 36 10 9C
-   jp     addr_09BFC                   ; 02:9C84 - C3 FC 9B
+   ld     (ix+15), SPRTAB_SCR_flame_left&$FF  ; 02:9C7C - DD 36 0F 87
+   ld     (ix+16), SPRTAB_SCR_flame_left>>8  ; 02:9C80 - DD 36 10 9C
+   jp     objfunc_14_SCR_flamer_firing_right@common_entry  ; 02:9C84 - C3 FC 9B
 
-UNK_09C87:
+SPRTAB_SCR_flame_left:
 .db $2C, $2E, $FF, $FF, $FF, $FF, $FF                                               ; 02:9C87
 
 objfunc_16_UNKNOWN:
