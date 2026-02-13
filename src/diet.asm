@@ -9892,9 +9892,9 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 3A
    .dw objinit_unused  ; 3B
    .dw objinit_unused  ; 3C
-   .dw objinit_unused  ; 3D
-   .dw objinit_unused  ; 3E
-   .dw objinit_unused  ; 3F
+   .dw objinit_3D_spinning_spike_ball  ; 3D
+   .dw objinit_3E_giant_spear  ; 3E
+   .dw objinit_3F_fireball_gargoyle  ; 3F
    .dw objinit_unused  ; 40
    .dw objinit_unused  ; 41
    .dw objinit_unused  ; 42
@@ -9909,7 +9909,7 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 4B
    .dw objinit_unused  ; 4C
    .dw objinit_unused  ; 4D
-   .dw objinit_unused  ; 4E
+   .dw objinit_4E_seesaw  ; 4E
    .dw objinit_unused  ; 4F
    .dw objinit_50_flower_raiser  ; 50
    .dw objinit_monitor  ; 51
@@ -17278,7 +17278,14 @@ SPRTAB_BRI3_boss:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 02:865A
 .db $68, $FF                                                                        ; 02:866A
 
+objinit_4E_seesaw:
+   .db 24|((1-1)<<5), $20
+   .db 17|((1-1)<<5), $1C
+   .db 2|((2-1)<<5)
+      .dw $FFF0
+   .db $FF
 objfunc_4E_seesaw:
+   .IF 0
    set    5, (ix+24)                   ; 02:866C - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:8670 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:8674 - 20 18
@@ -17292,6 +17299,7 @@ objfunc_4E_seesaw:
    set    0, (ix+24)                   ; 02:868A - DD CB 18 C6
 
 @already_initialised:
+   .ENDIF
    ld     l, (ix+20)                   ; 02:868E - DD 6E 14
    ld     h, (ix+21)                   ; 02:8691 - DD 66 15
    ld     a, (ix+22)                   ; 02:8694 - DD 7E 16
@@ -17560,10 +17568,16 @@ SPRTAB_jaws:
 .db $FF, $FF, $FF, $FF, $0E, $10, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:88DE
 .db $FF, $FF, $FF, $FF, $FF, $FF, $0E, $10, $0C, $FF, $FF, $FF, $FF                 ; 02:88EE
 
+objinit_3D_spinning_spike_ball:
+   .db 24|((1-1)<<5), $20
+   .db 13|((2-1)<<5), $08, $0C
+   .db $FF
 objfunc_3D_spinning_spike_ball:
+   .IF 0
    set    5, (ix+24)                   ; 02:88FB - DD CB 18 EE
    ld     (ix+13), $08                 ; 02:88FF - DD 36 0D 08
    ld     (ix+14), $0C                 ; 02:8903 - DD 36 0E 0C
+   .ENDIF
    bit    0, (ix+24)                   ; 02:8907 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:890B - 20 24
    ld     l, (ix+2)                    ; 02:890D - DD 6E 02
@@ -17712,7 +17726,14 @@ LUT_spinning_spike_ball_xy_positions:
 ; We save only 132 bytes if we do a 5/4 sine table instead
 .ENDIF
 
+objinit_3E_giant_spear:
+   .db 24|((1-1)<<5), $20
+   .db 13|((1-1)<<5), $01
+   .db 2|((2-1)<<5)
+      .dw $000C
+   .db $FF
 objfunc_3E_giant_spear:
+   .IF 0
    set    5, (ix+24)                   ; 02:8AF6 - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:8AFA - DD CB 18 46
    jr     nz, @already_initialised     ; 02:8AFE - 20 14
@@ -17725,6 +17746,7 @@ objfunc_3E_giant_spear:
    set    0, (ix+24)                   ; 02:8B10 - DD CB 18 C6
 
 @already_initialised:
+   .ENDIF
    ld     l, (ix+2)                    ; 02:8B14 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8B17 - DD 66 03
    ld     (tmp_00), hl                 ; 02:8B1A - 22 0E D2
@@ -17808,7 +17830,9 @@ objfunc_3E_giant_spear:
    ld     (tmp_06), de                 ; 02:8B9F - ED 53 14 D2
    inc    hl                           ; 02:8BA3 - 23
    ld     a, (hl)                      ; 02:8BA4 - 7E
+   .IF 0
    ld     (ix+13), $01                 ; 02:8BA5 - DD 36 0D 01
+   .ENDIF
    ld     (ix+14), a                   ; 02:8BA9 - DD 77 0E
    call   check_collision_with_sonic   ; 02:8BAC - CD 56 39
    call   nc, damage_sonic             ; 02:8BAF - D4 FD 35
@@ -17838,29 +17862,45 @@ LUT_giant_spear_anim_frames_n_y:
 .db $12, $18, $32, $20, $FF, $00, $16, $30, $12, $1C, $32, $20, $FF, $00, $1A, $30  ; 02:8BFE
 .db $12, $20, $FF, $00, $FF, $00, $1E, $30                                          ; 02:8C0E
 
+objinit_3F_fireball_gargoyle:
+   .db 13|((2-1)<<5), $04, $0A
+   .db 2|((2-1)<<5)
+      .dw $000A
+   .db 5|((2-1)<<5)
+      .dw $0008
+   .db 17|((1-1)<<5), $96
+   .db $FF
 objfunc_3F_fireball_gargoyle:
+   .IF 0
    res    5, (ix+24)                   ; 02:8C16 - DD CB 18 AE
    ld     (ix+13), $04                 ; 02:8C1A - DD 36 0D 04
    ld     (ix+14), $0A                 ; 02:8C1E - DD 36 0E 0A
+   .ENDIF
    bit    0, (ix+24)                   ; 02:8C22 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:8C26 - 20 46
    ld     l, (ix+2)                    ; 02:8C28 - DD 6E 02
    ld     h, (ix+3)                    ; 02:8C2B - DD 66 03
+   .IF 0
    ld     de, $000A                    ; 02:8C2E - 11 0A 00
    add    hl, de                       ; 02:8C31 - 19
    ld     (ix+2), l                    ; 02:8C32 - DD 75 02
    ld     (ix+3), h                    ; 02:8C35 - DD 74 03
+   .ENDIF
    ld     (ix+18), l                   ; 02:8C38 - DD 75 12
    ld     (ix+19), h                   ; 02:8C3B - DD 74 13
    ld     l, (ix+5)                    ; 02:8C3E - DD 6E 05
    ld     h, (ix+6)                    ; 02:8C41 - DD 66 06
+   .IF 0
    ld     de, $0008                    ; 02:8C44 - 11 08 00
    add    hl, de                       ; 02:8C47 - 19
    ld     (ix+5), l                    ; 02:8C48 - DD 75 05
    ld     (ix+6), h                    ; 02:8C4B - DD 74 06
+   .ENDIF
    ld     (ix+20), l                   ; 02:8C4E - DD 75 14
    ld     (ix+21), h                   ; 02:8C51 - DD 74 15
+   .IF 0
    ld     (ix+17), $96                 ; 02:8C54 - DD 36 11 96
+   .ENDIF
    set    0, (ix+24)                   ; 02:8C58 - DD CB 18 C6
    ld     bc, $0000                    ; 02:8C5C - 01 00 00
    ld     de, $0000                    ; 02:8C5F - 11 00 00
