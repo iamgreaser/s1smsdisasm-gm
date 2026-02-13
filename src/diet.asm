@@ -14381,12 +14381,14 @@ objfunc_0E_badnik_buzz_bomber:
    add    hl, bc                       ; 01:6C5E - 09
    ld     (ix+5), l                    ; 01:6C5F - DD 75 05
    ld     (ix+6), h                    ; 01:6C62 - DD 74 06
+   .IF 0
    ld     (ix+17), a                   ; 01:6C65 - DD 77 11
    ld     (ix+19), a                   ; 01:6C68 - DD 77 13
    ld     (ix+20), a                   ; 01:6C6B - DD 77 14
    ld     (ix+21), a                   ; 01:6C6E - DD 77 15
    ld     (ix+22), a                   ; 01:6C71 - DD 77 16
    ld     (ix+23), a                   ; 01:6C74 - DD 77 17
+   .ENDIF
    ld     (ix+7), $00                  ; 01:6C77 - DD 36 07 00
    ld     (ix+8), $FF                  ; 01:6C7B - DD 36 08 FF
    ld     (ix+9), $FF                  ; 01:6C7F - DD 36 09 FF
@@ -14712,12 +14714,14 @@ objfunc_11_badnik_newtron:
    add    hl, bc                       ; 01:6F7D - 09
    ld     (ix+5), l                    ; 01:6F7E - DD 75 05
    ld     (ix+6), h                    ; 01:6F81 - DD 74 06
+   .IF 0
    ld     (ix+17), a                   ; 01:6F84 - DD 77 11
    ld     (ix+19), a                   ; 01:6F87 - DD 77 13
    ld     (ix+20), a                   ; 01:6F8A - DD 77 14
    ld     (ix+21), a                   ; 01:6F8D - DD 77 15
    ld     (ix+22), a                   ; 01:6F90 - DD 77 16
    ld     (ix+23), a                   ; 01:6F93 - DD 77 17
+   .ENDIF
    ld     (ix+7), $00                  ; 01:6F96 - DD 36 07 00
    ld     (ix+8), $FE                  ; 01:6F9A - DD 36 08 FE
    ld     (ix+9), $FF                  ; 01:6F9E - DD 36 09 FF
@@ -17228,12 +17232,16 @@ boss_fire_fireball_pallet:
    ld     (ix+4), a                    ; 02:85F0 - DD 77 04
    ld     (ix+5), l                    ; 02:85F3 - DD 75 05
    ld     (ix+6), h                    ; 02:85F6 - DD 74 06
+   .IF 0
    ld     (ix+17), a                   ; 02:85F9 - DD 77 11
+   .ENDIF
    ld     (ix+19), c                   ; 02:85FC - DD 71 13
+   .IF 0
    ld     (ix+20), a                   ; 02:85FF - DD 77 14
    ld     (ix+21), a                   ; 02:8602 - DD 77 15
    ld     (ix+22), a                   ; 02:8605 - DD 77 16
    ld     (ix+23), a                   ; 02:8608 - DD 77 17
+   .ENDIF
    ld     hl, (tmp_04)                 ; 02:860B - 2A 12 D2
    xor    a                            ; 02:860E - AF
    bit    7, h                         ; 02:860F - CB 7C
@@ -21365,12 +21373,16 @@ init_fireball_object:
    ld     (ix+4), a                    ; 02:ACBA - DD 77 04
    ld     (ix+5), c                    ; 02:ACBD - DD 71 05
    ld     (ix+6), b                    ; 02:ACC0 - DD 70 06
+   .IF 0
    ld     (ix+17), a                   ; 02:ACC3 - DD 77 11
+   .ENDIF
    ld     (ix+19), $24                 ; 02:ACC6 - DD 36 13 24
+   .IF 0
    ld     (ix+20), a                   ; 02:ACCA - DD 77 14
    ld     (ix+21), a                   ; 02:ACCD - DD 77 15
    ld     (ix+22), a                   ; 02:ACD0 - DD 77 16
    ld     (ix+23), a                   ; 02:ACD3 - DD 77 17
+   .ENDIF
    ld     (ix+7), a                    ; 02:ACD6 - DD 77 07
    ld     hl, (tmp_04)                 ; 02:ACD9 - 2A 12 D2
    ld     (ix+8), l                    ; 02:ACDC - DD 75 08
@@ -22302,12 +22314,14 @@ addr_0B5C2:
    ld     (ix+4), a                    ; 02:B5EE - DD 77 04
    ld     (ix+5), c                    ; 02:B5F1 - DD 71 05
    ld     (ix+6), b                    ; 02:B5F4 - DD 70 06
+   .IF 0
    ld     (ix+17), a                   ; 02:B5F7 - DD 77 11
    ld     (ix+19), a                   ; 02:B5FA - DD 77 13
    ld     (ix+20), a                   ; 02:B5FD - DD 77 14
    ld     (ix+21), a                   ; 02:B600 - DD 77 15
    ld     (ix+22), a                   ; 02:B603 - DD 77 16
    ld     (ix+23), a                   ; 02:B606 - DD 77 17
+   .ENDIF
    ld     hl, (tmp_04)                 ; 02:B609 - 2A 12 D2
    bit    7, h                         ; 02:B60C - CB 7C
    jr     z, addr_0B612                ; 02:B60E - 28 02
