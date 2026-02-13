@@ -5770,8 +5770,8 @@ LUT_02AD6:
 LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
-.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_UNKNOWN  ; 00:2B16
-.dw objfunc_18_UNKNOWN, objfunc_19_UNKNOWN, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
+.dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_SCR_door_open_on_left  ; 00:2B16
+.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
@@ -16896,23 +16896,23 @@ LUT_ceiling_flame_sprites_22:
 .db $00, $12, $1E, $0C, $1E, $06, $1E, $00, $00, $14, $1E, $0E, $1E, $08, $1E, $02  ; 02:9DDA
 .db $00, $16, $1E, $10, $1E, $0A, $1E, $04, $00, $18, $1E, $12, $1E, $0C, $1E, $06  ; 02:9DEA
 
-objfunc_17_UNKNOWN:
+objfunc_17_SCR_door_open_on_left:
    set    5, (ix+24)                   ; 02:9DFA - DD CB 18 EE
-   call   addr_09ED4                   ; 02:9DFE - CD D4 9E
+   call   door_common_prep             ; 02:9DFE - CD D4 9E
    ld     a, (ix+17)                   ; 02:9E01 - DD 7E 11
    cp     $28                          ; 02:9E04 - FE 28
-   jr     nc, addr_09E33               ; 02:9E06 - 30 2B
+   jr     nc, @skip_collision_with_sonic  ; 02:9E06 - 30 2B
    ld     hl, $0005                    ; 02:9E08 - 21 05 00
    ld     (tmp_06), hl                 ; 02:9E0B - 22 14 D2
    call   check_collision_with_sonic   ; 02:9E0E - CD 56 39
-   jr     c, addr_09E33                ; 02:9E11 - 38 20
+   jr     c, @skip_collision_with_sonic  ; 02:9E11 - 38 20
    ld     de, $0005                    ; 02:9E13 - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:9E16 - 3A 05 D4
    and    a                            ; 02:9E19 - A7
-   jp     m, addr_09E20                ; 02:9E1A - FA 20 9E
+   jp     m, @sonic_was_going_left     ; 02:9E1A - FA 20 9E
    ld     de, $FFEC                    ; 02:9E1D - 11 EC FF
 
-addr_09E20:
+@sonic_was_going_left:
    ld     l, (ix+2)                    ; 02:9E20 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9E23 - DD 66 03
    add    hl, de                       ; 02:9E26 - 19
@@ -16923,7 +16923,7 @@ addr_09E20:
    ld     (sonic_vel_x_sub), hl        ; 02:9E2D - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 02:9E30 - 32 05 D4
 
-addr_09E33:
+@skip_collision_with_sonic:
    ld     l, (ix+2)                    ; 02:9E33 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9E36 - DD 66 03
    ld     de, $FFC8                    ; 02:9E39 - 11 C8 FF
@@ -16931,12 +16931,12 @@ addr_09E33:
    ld     de, (sonic_x)                ; 02:9E3D - ED 5B FE D3
    xor    a                            ; 02:9E41 - AF
    sbc    hl, de                       ; 02:9E42 - ED 52
-   jr     nc, addr_09E78               ; 02:9E44 - 30 32
+   jr     nc, @door_is_closing         ; 02:9E44 - 30 32
    ld     l, (ix+2)                    ; 02:9E46 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9E49 - DD 66 03
    and    a                            ; 02:9E4C - A7
    sbc    hl, de                       ; 02:9E4D - ED 52
-   jr     c, addr_09E78                ; 02:9E4F - 38 27
+   jr     c, @door_is_closing          ; 02:9E4F - 38 27
    ld     l, (ix+5)                    ; 02:9E51 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9E54 - DD 66 06
    ld     de, $FFE0                    ; 02:9E57 - 11 E0 FF
@@ -16944,24 +16944,24 @@ addr_09E33:
    ld     de, (sonic_y)                ; 02:9E5B - ED 5B 01 D4
    xor    a                            ; 02:9E5F - AF
    sbc    hl, de                       ; 02:9E60 - ED 52
-   jr     nc, addr_09E78               ; 02:9E62 - 30 14
+   jr     nc, @door_is_closing         ; 02:9E62 - 30 14
    ld     l, (ix+5)                    ; 02:9E64 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9E67 - DD 66 06
    ld     bc, $0050                    ; 02:9E6A - 01 50 00
    add    hl, bc                       ; 02:9E6D - 09
    and    a                            ; 02:9E6E - A7
    sbc    hl, de                       ; 02:9E6F - ED 52
-   jr     c, addr_09E78                ; 02:9E71 - 38 05
-   call   addr_09EB4                   ; 02:9E73 - CD B4 9E
-   jr     addr_09E7B                   ; 02:9E76 - 18 03
+   jr     c, @door_is_closing          ; 02:9E71 - 38 05
+   call   door_opening                 ; 02:9E73 - CD B4 9E
+   jr     @door_was_opening            ; 02:9E76 - 18 03
 
-addr_09E78:
-   call   addr_09EC4                   ; 02:9E78 - CD C4 9E
+@door_is_closing:
+   call   door_closing                 ; 02:9E78 - CD C4 9E
 
-addr_09E7B:
-   ld     de, UNK_09F2B                ; 02:9E7B - 11 2B 9F
+@door_was_opening:
+   ld     de, SPRTAB_SCR_door_open_on_left  ; 02:9E7B - 11 2B 9F
 
-addr_09E7E:
+door_common_epilogue:
    ld     a, (ix+17)                   ; 02:9E7E - DD 7E 11
    and    $0F                          ; 02:9E81 - E6 0F
    ld     c, a                         ; 02:9E83 - 4F
@@ -16992,7 +16992,7 @@ addr_09E7E:
    ld     (ix+16), h                   ; 02:9EB0 - DD 74 10
    ret                                 ; 02:9EB3 - C9
 
-addr_09EB4:
+door_opening:
    ld     a, (ix+17)                   ; 02:9EB4 - DD 7E 11
    cp     $30                          ; 02:9EB7 - FE 30
    ret    nc                           ; 02:9EB9 - D0
@@ -17004,7 +17004,7 @@ addr_09EB4:
    rst    $28                          ; 02:9EC2 - EF
    ret                                 ; 02:9EC3 - C9
 
-addr_09EC4:
+door_closing:
    ld     a, (ix+17)                   ; 02:9EC4 - DD 7E 11
    and    a                            ; 02:9EC7 - A7
    ret    z                            ; 02:9EC8 - C8
@@ -17016,7 +17016,7 @@ addr_09EC4:
    rst    $28                          ; 02:9ED2 - EF
    ret                                 ; 02:9ED3 - C9
 
-addr_09ED4:
+door_common_prep:
    ld     (ix+13), $04                 ; 02:9ED4 - DD 36 0D 04
    ld     a, (ix+17)                   ; 02:9ED8 - DD 7E 11
    srl    a                            ; 02:9EDB - CB 3F
@@ -17040,11 +17040,11 @@ addr_09ED4:
    ld     de, $0014                    ; 02:9EFE - 11 14 00
    ld     a, (hl)                      ; 02:9F01 - 7E
    cp     $A3                          ; 02:9F02 - FE A3
-   jr     z, addr_09F0D                ; 02:9F04 - 28 07
+   jr     z, @tile_was_not_A3          ; 02:9F04 - 28 07
    ld     de, $0004                    ; 02:9F06 - 11 04 00
    set    1, (ix+24)                   ; 02:9F09 - DD CB 18 CE
 
-addr_09F0D:
+@tile_was_not_A3:
    ld     l, (ix+2)                    ; 02:9F0D - DD 6E 02
    ld     h, (ix+3)                    ; 02:9F10 - DD 66 03
    add    hl, de                       ; 02:9F13 - 19
@@ -17057,29 +17057,29 @@ addr_09F0D:
    set    0, (ix+24)                   ; 02:9F26 - DD CB 18 C6
    ret                                 ; 02:9F2A - C9
 
-UNK_09F2B:
+SPRTAB_SCR_door_open_on_left:
 .db $0A, $FF, $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $0A, $FF, $FF, $FF  ; 02:9F2B
 .db $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9F3B
 .db $FF, $FF, $FF, $FF, $0A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9F4B
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:9F5B
 
-objfunc_18_UNKNOWN:
+objfunc_18_SCR_door_open_on_right:
    set    5, (ix+24)                   ; 02:9F62 - DD CB 18 EE
-   call   addr_09ED4                   ; 02:9F66 - CD D4 9E
+   call   door_common_prep             ; 02:9F66 - CD D4 9E
    ld     a, (ix+17)                   ; 02:9F69 - DD 7E 11
    cp     $28                          ; 02:9F6C - FE 28
-   jr     nc, addr_09F9C               ; 02:9F6E - 30 2C
+   jr     nc, @skip_collision_with_sonic  ; 02:9F6E - 30 2C
    ld     hl, $0005                    ; 02:9F70 - 21 05 00
    ld     (tmp_06), hl                 ; 02:9F73 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9F76 - CD 56 39
-   jr     c, addr_09F9C                ; 02:9F79 - 38 21
+   jr     c, @skip_collision_with_sonic  ; 02:9F79 - 38 21
    ld     de, $0005                    ; 02:9F7B - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:9F7E - 3A 05 D4
    and    a                            ; 02:9F81 - A7
-   jp     m, addr_09F88                ; 02:9F82 - FA 88 9F
+   jp     m, @sonic_was_going_left     ; 02:9F82 - FA 88 9F
    ld     de, $FFEC                    ; 02:9F85 - 11 EC FF
 
-addr_09F88:
+@sonic_was_going_left:
    ld     l, (ix+2)                    ; 02:9F88 - DD 6E 02
    ld     h, (ix+3)                    ; 02:9F8B - DD 66 03
    add    hl, de                       ; 02:9F8E - 19
@@ -17089,7 +17089,7 @@ addr_09F88:
    ld     (sonic_vel_x), a             ; 02:9F96 - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 02:9F99 - 32 05 D4
 
-addr_09F9C:
+@skip_collision_with_sonic:
    ld     l, (ix+2)                    ; 02:9F9C - DD 6E 02
    ld     h, (ix+3)                    ; 02:9F9F - DD 66 03
    ld     de, $FFF0                    ; 02:9FA2 - 11 F0 FF
@@ -17097,14 +17097,14 @@ addr_09F9C:
    ld     de, (sonic_x)                ; 02:9FA6 - ED 5B FE D3
    xor    a                            ; 02:9FAA - AF
    sbc    hl, de                       ; 02:9FAB - ED 52
-   jr     nc, addr_09FE5               ; 02:9FAD - 30 36
+   jr     nc, @door_is_closing         ; 02:9FAD - 30 36
    ld     l, (ix+2)                    ; 02:9FAF - DD 6E 02
    ld     h, (ix+3)                    ; 02:9FB2 - DD 66 03
    ld     bc, $0024                    ; 02:9FB5 - 01 24 00
    add    hl, bc                       ; 02:9FB8 - 09
    and    a                            ; 02:9FB9 - A7
    sbc    hl, de                       ; 02:9FBA - ED 52
-   jr     c, addr_09FE5                ; 02:9FBC - 38 27
+   jr     c, @door_is_closing          ; 02:9FBC - 38 27
    ld     l, (ix+5)                    ; 02:9FBE - DD 6E 05
    ld     h, (ix+6)                    ; 02:9FC1 - DD 66 06
    ld     de, $FFE0                    ; 02:9FC4 - 11 E0 FF
@@ -17112,47 +17112,47 @@ addr_09F9C:
    ld     de, (sonic_y)                ; 02:9FC8 - ED 5B 01 D4
    xor    a                            ; 02:9FCC - AF
    sbc    hl, de                       ; 02:9FCD - ED 52
-   jr     nc, addr_09FE5               ; 02:9FCF - 30 14
+   jr     nc, @door_is_closing         ; 02:9FCF - 30 14
    ld     l, (ix+5)                    ; 02:9FD1 - DD 6E 05
    ld     h, (ix+6)                    ; 02:9FD4 - DD 66 06
    ld     bc, $0050                    ; 02:9FD7 - 01 50 00
    add    hl, bc                       ; 02:9FDA - 09
    and    a                            ; 02:9FDB - A7
    sbc    hl, de                       ; 02:9FDC - ED 52
-   jr     c, addr_09FE5                ; 02:9FDE - 38 05
-   call   addr_09EB4                   ; 02:9FE0 - CD B4 9E
-   jr     addr_09FE8                   ; 02:9FE3 - 18 03
+   jr     c, @door_is_closing          ; 02:9FDE - 38 05
+   call   door_opening                 ; 02:9FE0 - CD B4 9E
+   jr     @door_was_opening            ; 02:9FE3 - 18 03
 
-addr_09FE5:
-   call   addr_09EC4                   ; 02:9FE5 - CD C4 9E
+@door_is_closing:
+   call   door_closing                 ; 02:9FE5 - CD C4 9E
 
-addr_09FE8:
-   ld     de, UNK_09FEE                ; 02:9FE8 - 11 EE 9F
-   jp     addr_09E7E                   ; 02:9FEB - C3 7E 9E
+@door_was_opening:
+   ld     de, SPRTAB_SCR_door_open_on_right  ; 02:9FE8 - 11 EE 9F
+   jp     door_common_epilogue         ; 02:9FEB - C3 7E 9E
 
-UNK_09FEE:
+SPRTAB_SCR_door_open_on_right:
 .db $36, $FF, $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $36, $FF, $FF, $FF  ; 02:9FEE
 .db $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $36, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:9FFE
 .db $FF, $FF, $FF, $FF, $36, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A00E
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A01E
 
-objfunc_19_UNKNOWN:
+objfunc_19_SCR_door_open_on_both_sides:
    set    5, (ix+24)                   ; 02:A025 - DD CB 18 EE
-   call   addr_09ED4                   ; 02:A029 - CD D4 9E
+   call   door_common_prep             ; 02:A029 - CD D4 9E
    ld     a, (ix+17)                   ; 02:A02C - DD 7E 11
    cp     $28                          ; 02:A02F - FE 28
-   jr     nc, addr_0A05F               ; 02:A031 - 30 2C
+   jr     nc, @skip_collision_with_sonic  ; 02:A031 - 30 2C
    ld     hl, $0005                    ; 02:A033 - 21 05 00
    ld     (tmp_06), hl                 ; 02:A036 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A039 - CD 56 39
-   jr     c, addr_0A05F                ; 02:A03C - 38 21
+   jr     c, @skip_collision_with_sonic  ; 02:A03C - 38 21
    ld     de, $0005                    ; 02:A03E - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:A041 - 3A 05 D4
    and    a                            ; 02:A044 - A7
-   jp     m, addr_0A04B                ; 02:A045 - FA 4B A0
+   jp     m, @sonic_was_going_left     ; 02:A045 - FA 4B A0
    ld     de, $FFEC                    ; 02:A048 - 11 EC FF
 
-addr_0A04B:
+@sonic_was_going_left:
    ld     l, (ix+2)                    ; 02:A04B - DD 6E 02
    ld     h, (ix+3)                    ; 02:A04E - DD 66 03
    add    hl, de                       ; 02:A051 - 19
@@ -17162,7 +17162,7 @@ addr_0A04B:
    ld     (sonic_vel_x), a             ; 02:A059 - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 02:A05C - 32 05 D4
 
-addr_0A05F:
+@skip_collision_with_sonic:
    ld     l, (ix+2)                    ; 02:A05F - DD 6E 02
    ld     h, (ix+3)                    ; 02:A062 - DD 66 03
    ld     de, $FFC8                    ; 02:A065 - 11 C8 FF
@@ -17170,14 +17170,14 @@ addr_0A05F:
    ld     de, (sonic_x)                ; 02:A069 - ED 5B FE D3
    xor    a                            ; 02:A06D - AF
    sbc    hl, de                       ; 02:A06E - ED 52
-   jr     nc, addr_0A0A8               ; 02:A070 - 30 36
+   jr     nc, @door_is_closing         ; 02:A070 - 30 36
    ld     l, (ix+2)                    ; 02:A072 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A075 - DD 66 03
    ld     bc, $0024                    ; 02:A078 - 01 24 00
    add    hl, bc                       ; 02:A07B - 09
    and    a                            ; 02:A07C - A7
    sbc    hl, de                       ; 02:A07D - ED 52
-   jr     c, addr_0A0A8                ; 02:A07F - 38 27
+   jr     c, @door_is_closing          ; 02:A07F - 38 27
    ld     l, (ix+5)                    ; 02:A081 - DD 6E 05
    ld     h, (ix+6)                    ; 02:A084 - DD 66 06
    ld     de, $FFE0                    ; 02:A087 - 11 E0 FF
@@ -17185,25 +17185,25 @@ addr_0A05F:
    ld     de, (sonic_y)                ; 02:A08B - ED 5B 01 D4
    xor    a                            ; 02:A08F - AF
    sbc    hl, de                       ; 02:A090 - ED 52
-   jr     nc, addr_0A0A8               ; 02:A092 - 30 14
+   jr     nc, @door_is_closing         ; 02:A092 - 30 14
    ld     l, (ix+5)                    ; 02:A094 - DD 6E 05
    ld     h, (ix+6)                    ; 02:A097 - DD 66 06
    ld     bc, $0050                    ; 02:A09A - 01 50 00
    add    hl, bc                       ; 02:A09D - 09
    and    a                            ; 02:A09E - A7
    sbc    hl, de                       ; 02:A09F - ED 52
-   jr     c, addr_0A0A8                ; 02:A0A1 - 38 05
-   call   addr_09EB4                   ; 02:A0A3 - CD B4 9E
-   jr     addr_0A0AB                   ; 02:A0A6 - 18 03
+   jr     c, @door_is_closing          ; 02:A0A1 - 38 05
+   call   door_opening                 ; 02:A0A3 - CD B4 9E
+   jr     @door_was_opening            ; 02:A0A6 - 18 03
 
-addr_0A0A8:
-   call   addr_09EC4                   ; 02:A0A8 - CD C4 9E
+@door_is_closing:
+   call   door_closing                 ; 02:A0A8 - CD C4 9E
 
-addr_0A0AB:
-   ld     de, UNK_0A0B1                ; 02:A0AB - 11 B1 A0
-   jp     addr_09E7E                   ; 02:A0AE - C3 7E 9E
+@door_was_opening:
+   ld     de, SPRTAB_SCR_door_open_on_both_sides  ; 02:A0AB - 11 B1 A0
+   jp     door_common_epilogue         ; 02:A0AE - C3 7E 9E
 
-UNK_0A0B1:
+SPRTAB_SCR_door_open_on_both_sides:
 .db $38, $FF, $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF  ; 02:A0B1
 .db $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A0C1
 .db $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A0D1
@@ -17558,7 +17558,7 @@ UNK_0A4A3:
 
 objfunc_1E_door_from_button:
    set    5, (ix+24)                   ; 02:A4AB - DD CB 18 EE
-   call   addr_09ED4                   ; 02:A4AF - CD D4 9E
+   call   door_common_prep             ; 02:A4AF - CD D4 9E
    ld     a, (ix+17)                   ; 02:A4B2 - DD 7E 11
    cp     $28                          ; 02:A4B5 - FE 28
    jr     nc, addr_0A4E5               ; 02:A4B7 - 30 2C
@@ -17616,7 +17616,7 @@ addr_0A509:
 
 addr_0A514:
    ld     de, UNK_0A51A                ; 02:A514 - 11 1A A5
-   jp     addr_09E7E                   ; 02:A517 - C3 7E 9E
+   jp     door_common_epilogue         ; 02:A517 - C3 7E 9E
 
 UNK_0A51A:
 .db $3E, $FF, $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF  ; 02:A51A
