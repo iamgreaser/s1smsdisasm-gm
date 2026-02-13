@@ -5771,7 +5771,7 @@ LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_SCR_door_open_on_left  ; 00:2B16
-.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
+.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
@@ -14066,7 +14066,7 @@ objfunc_2B_JUN3_boss_bomb:
    ld     (ix+8), a                    ; 02:82A4 - DD 77 08
    ld     (ix+9), a                    ; 02:82A7 - DD 77 09
    ld     bc, LUT_JUN3_boss_bomb_anim_sequence_explosion  ; 02:82AA - 01 C6 82
-   ld     de, UNK_0A3BB                ; 02:82AD - 11 BB A3
+   ld     de, SPRTAB_ballhog_bomb      ; 02:82AD - 11 BB A3
    call   do_framed_animation          ; 02:82B0 - CD 41 7C
    ld     a, (ix+18)                   ; 02:82B3 - DD 7E 12
    add    a, $12                       ; 02:82B6 - C6 12
@@ -17280,7 +17280,7 @@ SPRTAB_SCR_zapper:
 .db $FF, $FF, $FF, $FF, $FE, $FE, $16, $18, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A193
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A1A3
 
-objfunc_1B_UNKNOWN:
+objfunc_1B_badnik_ballhog:
    ld     (ix+13), $0A                 ; 02:A1AA - DD 36 0D 0A
    ld     (ix+14), $20                 ; 02:A1AE - DD 36 0E 20
    ld     hl, $0803                    ; 02:A1B2 - 21 03 08
@@ -17302,25 +17302,25 @@ objfunc_1B_UNKNOWN:
    add    hl, bc                       ; 02:A1E1 - 09
    and    a                            ; 02:A1E2 - A7
    sbc    hl, de                       ; 02:A1E3 - ED 52
-   jr     nc, addr_0A25D               ; 02:A1E5 - 30 76
-   ld     bc, UNK_0A2D2                ; 02:A1E7 - 01 D2 A2
+   jr     nc, @sonic_is_on_right       ; 02:A1E5 - 30 76
+   ld     bc, LUT_ballhog_anim_hopping  ; 02:A1E7 - 01 D2 A2
    ld     a, (ix+17)                   ; 02:A1EA - DD 7E 11
    cp     $EB                          ; 02:A1ED - FE EB
-   jr     c, addr_0A1FA                ; 02:A1EF - 38 09
-   jr     nz, addr_0A1F7               ; 02:A1F1 - 20 04
+   jr     c, @left_selected_hopping_anim  ; 02:A1EF - 38 09
+   jr     nz, @left_already_reset_attack_anim  ; 02:A1F1 - 20 04
    ld     (ix+22), $00                 ; 02:A1F3 - DD 36 16 00
 
-addr_0A1F7:
-   ld     bc, UNK_0A2D7                ; 02:A1F7 - 01 D7 A2
+@left_already_reset_attack_anim:
+   ld     bc, LUT_ballhog_anim_attack  ; 02:A1F7 - 01 D7 A2
 
-addr_0A1FA:
-   ld     de, UNK_0A2DA                ; 02:A1FA - 11 DA A2
+@left_selected_hopping_anim:
+   ld     de, SPRTAB_ballhog_left      ; 02:A1FA - 11 DA A2
    call   do_framed_animation          ; 02:A1FD - CD 41 7C
    ld     a, (ix+17)                   ; 02:A200 - DD 7E 11
    cp     $ED                          ; 02:A203 - FE ED
-   jp     nz, addr_0A2CE               ; 02:A205 - C2 CE A2
+   jp     nz, @inc_timer_and_return    ; 02:A205 - C2 CE A2
    call   spawn_object                 ; 02:A208 - CD 7B 7C
-   jp     c, addr_0A2CE                ; 02:A20B - DA CE A2
+   jp     c, @inc_timer_and_return     ; 02:A20B - DA CE A2
    ld     e, (ix+2)                    ; 02:A20E - DD 5E 02
    ld     d, (ix+3)                    ; 02:A211 - DD 56 03
    ld     c, (ix+5)                    ; 02:A214 - DD 4E 05
@@ -17348,27 +17348,27 @@ addr_0A1FA:
    ld     (ix+11), $01                 ; 02:A251 - DD 36 0B 01
    ld     (ix+12), a                   ; 02:A255 - DD 77 0C
    pop    ix                           ; 02:A258 - DD E1
-   jp     addr_0A2CE                   ; 02:A25A - C3 CE A2
+   jp     @inc_timer_and_return        ; 02:A25A - C3 CE A2
 
-addr_0A25D:
-   ld     bc, UNK_0A2D2                ; 02:A25D - 01 D2 A2
+@sonic_is_on_right:
+   ld     bc, LUT_ballhog_anim_hopping  ; 02:A25D - 01 D2 A2
    ld     a, (ix+17)                   ; 02:A260 - DD 7E 11
    cp     $EB                          ; 02:A263 - FE EB
-   jr     c, addr_0A270                ; 02:A265 - 38 09
-   jr     nz, addr_0A26D               ; 02:A267 - 20 04
+   jr     c, @right_selected_hopping_anim  ; 02:A265 - 38 09
+   jr     nz, @right_already_reset_attack_anim  ; 02:A267 - 20 04
    ld     (ix+22), $00                 ; 02:A269 - DD 36 16 00
 
-addr_0A26D:
-   ld     bc, UNK_0A2D7                ; 02:A26D - 01 D7 A2
+@right_already_reset_attack_anim:
+   ld     bc, LUT_ballhog_anim_attack  ; 02:A26D - 01 D7 A2
 
-addr_0A270:
-   ld     de, UNK_0A30B                ; 02:A270 - 11 0B A3
+@right_selected_hopping_anim:
+   ld     de, SPRTAB_ballhog_right     ; 02:A270 - 11 0B A3
    call   do_framed_animation          ; 02:A273 - CD 41 7C
    ld     a, (ix+17)                   ; 02:A276 - DD 7E 11
    cp     $ED                          ; 02:A279 - FE ED
-   jr     nz, addr_0A2CE               ; 02:A27B - 20 51
+   jr     nz, @inc_timer_and_return    ; 02:A27B - 20 51
    call   spawn_object                 ; 02:A27D - CD 7B 7C
-   jp     c, addr_0A2CE                ; 02:A280 - DA CE A2
+   jp     c, @inc_timer_and_return     ; 02:A280 - DA CE A2
    ld     e, (ix+2)                    ; 02:A283 - DD 5E 02
    ld     d, (ix+3)                    ; 02:A286 - DD 56 03
    ld     c, (ix+5)                    ; 02:A289 - DD 4E 05
@@ -17397,29 +17397,29 @@ addr_0A270:
    ld     (ix+12), a                   ; 02:A2C9 - DD 77 0C
    pop    ix                           ; 02:A2CC - DD E1
 
-addr_0A2CE:
+@inc_timer_and_return:
    inc    (ix+17)                      ; 02:A2CE - DD 34 11
    ret                                 ; 02:A2D1 - C9
 
-UNK_0A2D2:
+LUT_ballhog_anim_hopping:
 .db $00, $1C, $01, $06, $FF                                                         ; 02:A2D2
 
-UNK_0A2D7:
+LUT_ballhog_anim_attack:
 .db $02, $18, $FF                                                                   ; 02:A2D7
 
-UNK_0A2DA:
+SPRTAB_ballhog_left:
 .db $40, $42, $FF, $FF, $FF, $FF, $60, $62, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A2DA
 .db $FF, $FF, $44, $46, $FF, $FF, $FF, $FF, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A2EA
 .db $FF, $FF, $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $68, $6A, $FF, $FF, $FF, $FF  ; 02:A2FA
 .db $FF                                                                             ; 02:A30A
 
-UNK_0A30B:
+SPRTAB_ballhog_right:
 .db $50, $52, $FF, $FF, $FF, $FF, $70, $72, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A30B
 .db $FF, $FF, $4C, $4E, $FF, $FF, $FF, $FF, $6C, $6E, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A31B
 .db $FF, $FF, $FF, $FF, $50, $52, $FF, $FF, $FF, $FF, $48, $4A, $FF, $FF, $FF, $FF  ; 02:A32B
 .db $FF                                                                             ; 02:A33B
 
-objfunc_1C_UNKNOWN:
+objfunc_1C_badnik_ballhog_bomb:
    res    5, (ix+24)                   ; 02:A33C - DD CB 18 AE
    ld     (ix+13), $0A                 ; 02:A340 - DD 36 0D 0A
    ld     (ix+14), $0F                 ; 02:A344 - DD 36 0E 0F
@@ -17428,12 +17428,12 @@ objfunc_1C_UNKNOWN:
    call   check_collision_with_sonic   ; 02:A34E - CD 56 39
    call   nc, damage_sonic             ; 02:A351 - D4 FD 35
    bit    7, (ix+24)                   ; 02:A354 - DD CB 18 7E
-   jr     z, addr_0A366                ; 02:A358 - 28 0C
+   jr     z, @skip_bounce_off_ground   ; 02:A358 - 28 0C
    ld     (ix+10), $00                 ; 02:A35A - DD 36 0A 00
    ld     (ix+11), $FD                 ; 02:A35E - DD 36 0B FD
    ld     (ix+12), $FF                 ; 02:A362 - DD 36 0C FF
 
-addr_0A366:
+@skip_bounce_off_ground:
    ld     l, (ix+10)                   ; 02:A366 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:A369 - DD 66 0B
    ld     a, (ix+12)                   ; 02:A36C - DD 7E 0C
@@ -17445,24 +17445,24 @@ addr_0A366:
    ld     (ix+12), a                   ; 02:A37B - DD 77 0C
    ld     a, (ix+17)                   ; 02:A37E - DD 7E 11
    cp     $82                          ; 02:A381 - FE 82
-   jr     nc, addr_0A391               ; 02:A383 - 30 0C
-   ld     bc, UNK_0A3B1                ; 02:A385 - 01 B1 A3
-   ld     de, UNK_0A3BB                ; 02:A388 - 11 BB A3
+   jr     nc, @explode                 ; 02:A383 - 30 0C
+   ld     bc, LUT_ballhog_bomb_anim_normal  ; 02:A385 - 01 B1 A3
+   ld     de, SPRTAB_ballhog_bomb      ; 02:A388 - 11 BB A3
    call   do_framed_animation          ; 02:A38B - CD 41 7C
-   jp     addr_0A3A3                   ; 02:A38E - C3 A3 A3
+   jp     @inc_timer_and_maybe_destroy  ; 02:A38E - C3 A3 A3
 
-addr_0A391:
-   jr     nz, addr_0A39A               ; 02:A391 - 20 07
+@explode:
+   jr     nz, @skip_sound_effect_and_anim_reset  ; 02:A391 - 20 07
    ld     (ix+22), $00                 ; 02:A393 - DD 36 16 00
    ld     a, $01                       ; 02:A397 - 3E 01
    rst    $28                          ; 02:A399 - EF
 
-addr_0A39A:
-   ld     bc, UNK_0A3B4                ; 02:A39A - 01 B4 A3
-   ld     de, UNK_0A3BB                ; 02:A39D - 11 BB A3
+@skip_sound_effect_and_anim_reset:
+   ld     bc, LUT_ballhog_bomb_anim_explosion  ; 02:A39A - 01 B4 A3
+   ld     de, SPRTAB_ballhog_bomb      ; 02:A39D - 11 BB A3
    call   do_framed_animation          ; 02:A3A0 - CD 41 7C
 
-addr_0A3A3:
+@inc_timer_and_maybe_destroy:
    inc    (ix+17)                      ; 02:A3A3 - DD 34 11
    ld     a, (ix+17)                   ; 02:A3A6 - DD 7E 11
    cp     $A5                          ; 02:A3A9 - FE A5
@@ -17470,13 +17470,13 @@ addr_0A3A3:
    ld     (ix+0), $FF                  ; 02:A3AC - DD 36 00 FF
    ret                                 ; 02:A3B0 - C9
 
-UNK_0A3B1:
+LUT_ballhog_bomb_anim_normal:
 .db $00, $08, $FF                                                                   ; 02:A3B1
 
-UNK_0A3B4:
+LUT_ballhog_bomb_anim_explosion:
 .db $01, $0C, $02, $0C, $03, $0C, $FF                                               ; 02:A3B4
 
-UNK_0A3BB:
+SPRTAB_ballhog_bomb:
 .db $20, $22, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A3BB
 .db $FF, $FF, $74, $76, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A3CB
 .db $FF, $FF, $FF, $FF, $78, $7A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A3DB
