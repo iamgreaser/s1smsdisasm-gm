@@ -5771,7 +5771,7 @@ LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_SCR_door_open_on_left  ; 00:2B16
-.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_UNKNOWN, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
+.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_UNKNOWN, objfunc_1C_UNKNOWN, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
@@ -17209,12 +17209,12 @@ SPRTAB_SCR_door_open_on_both_sides:
 .db $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A0D1
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A0E1
 
-objfunc_1A_UNKNOWN:
+objfunc_1A_SCR_zapper:
    set    5, (ix+24)                   ; 02:A0E8 - DD CB 18 EE
    ld     (ix+13), $30                 ; 02:A0EC - DD 36 0D 30
    ld     (ix+14), $10                 ; 02:A0F0 - DD 36 0E 10
    bit    0, (ix+24)                   ; 02:A0F4 - DD CB 18 46
-   jr     nz, addr_0A11E               ; 02:A0F8 - 20 24
+   jr     nz, @already_initialised     ; 02:A0F8 - 20 24
    ld     l, (ix+2)                    ; 02:A0FA - DD 6E 02
    ld     h, (ix+3)                    ; 02:A0FD - DD 66 03
    ld     de, $0018                    ; 02:A100 - 11 18 00
@@ -17229,38 +17229,38 @@ objfunc_1A_UNKNOWN:
    ld     (ix+6), h                    ; 02:A117 - DD 74 06
    set    0, (ix+24)                   ; 02:A11A - DD CB 18 C6
 
-addr_0A11E:
+@already_initialised:
    ld     a, (ix+17)                   ; 02:A11E - DD 7E 11
    cp     $64                          ; 02:A121 - FE 64
-   jr     c, addr_0A142                ; 02:A123 - 38 1D
-   jr     nz, addr_0A12A               ; 02:A125 - 20 03
+   jr     c, @dont_damage_sonic        ; 02:A123 - 38 1D
+   jr     nz, @skip_sound_effect       ; 02:A125 - 20 03
    ld     a, $13                       ; 02:A127 - 3E 13
    rst    $28                          ; 02:A129 - EF
 
-addr_0A12A:
+@skip_sound_effect:
    ld     hl, $0000                    ; 02:A12A - 21 00 00
    ld     (tmp_06), hl                 ; 02:A12D - 22 14 D2
    call   check_collision_with_sonic   ; 02:A130 - CD 56 39
    call   nc, damage_sonic             ; 02:A133 - D4 FD 35
-   ld     de, UNK_0A173                ; 02:A136 - 11 73 A1
-   ld     bc, UNK_0A167                ; 02:A139 - 01 67 A1
+   ld     de, SPRTAB_SCR_zapper        ; 02:A136 - 11 73 A1
+   ld     bc, LUT_zapper_anim_zapping  ; 02:A139 - 01 67 A1
    call   do_framed_animation          ; 02:A13C - CD 41 7C
-   jp     addr_0A159                   ; 02:A13F - C3 59 A1
+   jp     @update_timer_and_return     ; 02:A13F - C3 59 A1
 
-addr_0A142:
+@dont_damage_sonic:
    cp     $46                          ; 02:A142 - FE 46
-   jr     nc, addr_0A150               ; 02:A144 - 30 0A
+   jr     nc, @show_warning_flash      ; 02:A144 - 30 0A
    xor    a                            ; 02:A146 - AF
    ld     (ix+15), a                   ; 02:A147 - DD 77 0F
    ld     (ix+16), a                   ; 02:A14A - DD 77 10
-   jp     addr_0A159                   ; 02:A14D - C3 59 A1
+   jp     @update_timer_and_return     ; 02:A14D - C3 59 A1
 
-addr_0A150:
-   ld     de, UNK_0A173                ; 02:A150 - 11 73 A1
-   ld     bc, UNK_0A16E                ; 02:A153 - 01 6E A1
+@show_warning_flash:
+   ld     de, SPRTAB_SCR_zapper        ; 02:A150 - 11 73 A1
+   ld     bc, LUT_zapper_anim_warning  ; 02:A153 - 01 6E A1
    call   do_framed_animation          ; 02:A156 - CD 41 7C
 
-addr_0A159:
+@update_timer_and_return:
    inc    (ix+17)                      ; 02:A159 - DD 34 11
    ld     a, (ix+17)                   ; 02:A15C - DD 7E 11
    cp     $A0                          ; 02:A15F - FE A0
@@ -17268,13 +17268,13 @@ addr_0A159:
    ld     (ix+17), $00                 ; 02:A162 - DD 36 11 00
    ret                                 ; 02:A166 - C9
 
-UNK_0A167:
+LUT_zapper_anim_zapping:
 .db $00, $01, $01, $01, $02, $01, $FF                                               ; 02:A167
 
-UNK_0A16E:
+LUT_zapper_anim_warning:
 .db $02, $01, $03, $01, $FF                                                         ; 02:A16E
 
-UNK_0A173:
+SPRTAB_SCR_zapper:
 .db $02, $04, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A173
 .db $FF, $FF, $FE, $FE, $FE, $FE, $02, $04, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A183
 .db $FF, $FF, $FF, $FF, $FE, $FE, $16, $18, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A193
