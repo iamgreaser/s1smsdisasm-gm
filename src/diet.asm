@@ -9844,7 +9844,7 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 0A
    .dw objinit_0B_platform_semilowering  ; 0B
    .dw objinit_0C_platform_fall_on_touch  ; 0C
-   .dw objinit_unused  ; 0D
+   .dw objinit_0D_fireball_pallet  ; 0D
    .dw objinit_0E_badnik_buzz_bomber  ; 0E
    .dw objinit_0F_platform_horizontal  ; 0F
    .dw objinit_10_badnik_motobug  ; 10
@@ -9869,15 +9869,15 @@ PTRLUT_objinit:
    .dw objinit_23_animal_0  ; 23
    .dw objinit_24_animal_1  ; 24
    .dw objinit_25_animal_capsule  ; 25
-   .dw objinit_unused  ; 26
+   .dw objinit_26_badnik_chopper  ; 26
    .dw objinit_unused  ; 27
    .dw objinit_unused  ; 28
-   .dw objinit_unused  ; 29
+   .dw objinit_29_log  ; 29
    .dw objinit_unused  ; 2A
-   .dw objinit_unused  ; 2B
-   .dw objinit_unused  ; 2C
+   .dw objinit_2B_JUN3_boss_bomb  ; 2B
+   .dw objinit_2C_JUN3_boss  ; 2C
    .dw objinit_unused  ; 2D
-   .dw objinit_unused  ; 2E
+   .dw objinit_2E_falling_bridge_piece  ; 2E
    .dw objinit_unused  ; 2F
    .dw objinit_unused  ; 30
    .dw objinit_unused  ; 31
@@ -9903,7 +9903,7 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 45
    .dw objinit_unused  ; 46
    .dw objinit_unused  ; 47
-   .dw objinit_unused  ; 48
+   .dw objinit_48_BRI3_boss  ; 48
    .dw objinit_unused  ; 49
    .dw objinit_unused  ; 4A
    .dw objinit_unused  ; 4B
@@ -9911,7 +9911,7 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 4D
    .dw objinit_unused  ; 4E
    .dw objinit_unused  ; 4F
-   .dw objinit_unused  ; 50
+   .dw objinit_50_flower_raiser  ; 50
    .dw objinit_monitor  ; 51
    .dw objinit_monitor  ; 52
    .dw objinit_unused  ; 53
@@ -9972,10 +9972,9 @@ init_object_defaults:
          rlca
          ; Now we have those bits at the bottom
          inc a
-         ld c, a
-         ld b, $00
-         ; BC = count of bytes to copy
-         ld d, b
+         ld b, a
+         ; B = count of bytes to copy
+         ld d, $00
          ; DE = destination pointer offset
          push hl
             push ix
@@ -9984,8 +9983,15 @@ init_object_defaults:
             ex de, hl
          pop hl
          ; DE = destination pointer
-         ;; Write!
-         ldir
+         ;; Add to the output!
+         or a  ; Clear CF
+         @each_byte:
+            ld a, (de)
+            adc a, (hl)
+            ld (de), a
+            inc hl
+            inc de
+            djnz @each_byte
          jp --
       @end_of_init_stream:
    ;; Restore our slot 1/2 settings
@@ -14159,10 +14165,16 @@ objfunc_0C_platform_fall_on_touch:
    jp free_object
    .ENDIF
 
+objinit_0D_fireball_pallet:
+   .db 13|((2-1)<<5), $02, $02
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_0D_fireball_pallet:
+   .IF 0
    set    5, (ix+24)                   ; 01:6AC1 - DD CB 18 EE
    ld     (ix+13), $02                 ; 01:6AC5 - DD 36 0D 02
    ld     (ix+14), $02                 ; 01:6AC9 - DD 36 0E 02
+   .ENDIF
    ld     hl, $0303                    ; 01:6ACD - 21 03 03
    ld     (tmp_06), hl                 ; 01:6AD0 - 22 14 D2
    call   check_collision_with_sonic   ; 01:6AD3 - CD 56 39
@@ -14360,6 +14372,7 @@ objfunc_0E_badnik_buzz_bomber:
    pop    ix                           ; 01:6C48 - DD E1
    xor    a                            ; 01:6C4A - AF
    ld     (ix+0), $0D                  ; 01:6C4B - DD 36 00 0D
+   call init_object_defaults
    ld     (ix+1), a                    ; 01:6C4F - DD 77 01
    ld     (ix+2), e                    ; 01:6C52 - DD 73 02
    ld     (ix+3), d                    ; 01:6C55 - DD 72 03
@@ -14690,6 +14703,7 @@ objfunc_11_badnik_newtron:
    pop    ix                           ; 01:6F67 - DD E1
    xor    a                            ; 01:6F69 - AF
    ld     (ix+0), $0D                  ; 01:6F6A - DD 36 00 0D
+   call init_object_defaults
    ld     (ix+1), a                    ; 01:6F6E - DD 77 01
    ld     (ix+2), e                    ; 01:6F71 - DD 73 02
    ld     (ix+3), d                    ; 01:6F74 - DD 72 03
@@ -14753,6 +14767,8 @@ objinit_12_GHZ_boss:
    .db 24|((1-1)<<5), $20
    .db 20|((2-1)<<5)
       .dw UNK_072A1
+   .db 5|((2-1)<<5)
+      .dw $FFF8
    .db $FF
 
 objfunc_12_GHZ_boss:
@@ -14764,12 +14780,14 @@ objfunc_12_GHZ_boss:
    call   move_locked_camera_towards_target  ; 01:7018 - CD A6 7C
    bit    0, (ix+17)                   ; 01:701B - DD CB 11 46
    jr     nz, @already_initialised     ; 01:701F - 20 42
+   .IF 0
    ld     l, (ix+5)                    ; 01:7021 - DD 6E 05
    ld     h, (ix+6)                    ; 01:7024 - DD 66 06
    ld     de, $FFF8                    ; 01:7027 - 11 F8 FF
    add    hl, de                       ; 01:702A - 19
    ld     (ix+5), l                    ; 01:702B - DD 75 05
    ld     (ix+6), h                    ; 01:702E - DD 74 06
+   .ENDIF
    ld     hl, ART_09_AEB1              ; 01:7031 - 21 B1 AE
    ld     de, $2000                    ; 01:7034 - 11 00 20
    ld     a, $09                       ; 01:7037 - 3E 09
@@ -15075,12 +15093,13 @@ PAL2_boss:
 objinit_25_animal_capsule:
    .db 13|((2-1)<<5), $1C, $40
    .db 24|((1-1)<<5), $20
+   .db 5|((2-1)<<5)
+      .dw $0010
    .db $FF
 
 objfunc_25_animal_capsule:
    .IF 0
    set    5, (ix+24)                   ; 01:732C - DD CB 18 EE
-   .ENDIF
    bit    0, (ix+24)                   ; 01:7330 - DD CB 18 46
    jr     nz, @already_initialised     ; 01:7334 - 20 14
    ld     l, (ix+5)                    ; 01:7336 - DD 6E 05
@@ -15092,7 +15111,6 @@ objfunc_25_animal_capsule:
    set    0, (ix+24)                   ; 01:7346 - DD CB 18 C6
 
 @already_initialised:
-   .IF 0
    ld     (ix+13), $1C                 ; 01:734A - DD 36 0D 1C
    ld     (ix+14), $40                 ; 01:734E - DD 36 0E 40
    .ENDIF
@@ -15846,7 +15864,12 @@ objfunc_4B_throw_sonic_into_a_pit_GHZ2:
    rst    $28                          ; 01:7AEB - EF
    ret                                 ; 01:7AEC - C9
 
+objinit_50_flower_raiser:
+   .db 17|((2-1)<<5), $32, $00
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_50_flower_raiser:
+   .IF 0
    set    5, (ix+24)                   ; 01:7AED - DD CB 18 EE
    bit    0, (ix+24)                   ; 01:7AF1 - DD CB 18 46
    jr     nz, @already_initialised     ; 01:7AF5 - 20 0C
@@ -15855,6 +15878,7 @@ objfunc_50_flower_raiser:
    set    0, (ix+24)                   ; 01:7AFF - DD CB 18 C6
 
 @already_initialised:
+   .ENDIF
    ld     bc, $0000                    ; 01:7B03 - 01 00 00
    ld     l, (ix+2)                    ; 01:7B06 - DD 6E 02
    ld     h, (ix+3)                    ; 01:7B09 - DD 66 03
@@ -16171,10 +16195,18 @@ put_sonic_y_pos_on_platform:
    set    7, (hl)                      ; 01:7CF3 - CB FE
    ret                                 ; 01:7CF5 - C9
 
+objinit_26_badnik_chopper:
+   .db 13|((2-1)<<5), $08, $0C
+   .db 24|((1-1)<<5), $20
+   .db 2|((2-1)<<5)
+      .dw $0008
+   .db $FF
 objfunc_26_badnik_chopper:
+   .IF 0
    set    5, (ix+24)                   ; 01:7CF6 - DD CB 18 EE
    ld     (ix+13), $08                 ; 01:7CFA - DD 36 0D 08
    ld     (ix+14), $0C                 ; 01:7CFE - DD 36 0E 0C
+   .ENDIF
    ld     a, (ix+20)                   ; 01:7D02 - DD 7E 14
    and    a                            ; 01:7D05 - A7
    jr     z, @not_hidden               ; 01:7D06 - 28 0B
@@ -16195,12 +16227,14 @@ objfunc_26_badnik_chopper:
    add    hl, de                       ; 01:7D28 - 19
    ld     (ix+18), l                   ; 01:7D29 - DD 75 12
    ld     (ix+19), h                   ; 01:7D2C - DD 74 13
+   .IF 1
    ld     l, (ix+2)                    ; 01:7D2F - DD 6E 02
    ld     h, (ix+3)                    ; 01:7D32 - DD 66 03
    ld     de, $0008                    ; 01:7D35 - 11 08 00
    add    hl, de                       ; 01:7D38 - 19
    ld     (ix+2), l                    ; 01:7D39 - DD 75 02
    ld     (ix+3), h                    ; 01:7D3C - DD 74 03
+   .ENDIF
    set    1, (ix+24)                   ; 01:7D3F - DD CB 18 CE
 
 @already_initialised:
@@ -16359,7 +16393,14 @@ objfunc_28_platform_downwards_wide:
 SPRITEMAP_platform_downwards_wide:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6E, $48, $FF, $FF, $FF                 ; 01:7ED9
 
+objinit_29_log:
+   .db 13|((2-1)<<5), $0A, $10
+   .db 24|((1-1)<<5), $20
+   .db 5|((2-1)<<5)
+      .dw $FFE8
+   .db $FF
 objfunc_29_log:
+   .IF 0
    set    5, (ix+24)                   ; 01:7EE6 - DD CB 18 EE
    ld     (ix+13), $0A                 ; 01:7EEA - DD 36 0D 0A
    ld     (ix+14), $10                 ; 01:7EEE - DD 36 0E 10
@@ -16374,6 +16415,7 @@ objfunc_29_log:
    set    0, (ix+24)                   ; 01:7F08 - DD CB 18 C6
 
 @already_initialised:
+   .ENDIF
    ld     (ix+10), $40                 ; 01:7F0C - DD 36 0A 40
    xor    a                            ; 01:7F10 - AF
    ld     (ix+11), a                   ; 01:7F11 - DD 77 0B
@@ -16550,10 +16592,16 @@ SPRITEMAP_log:
 .db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $4C, $4E, $FF, $FF, $FF, $FF  ; 02:8042
 .db $FF                                                                             ; 02:8052
 
+objinit_2C_JUN3_boss:
+   .db 13|((2-1)<<5), $20, $1C
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_2C_JUN3_boss:
+   .IF 0
    set    5, (ix+24)                   ; 02:8053 - DD CB 18 EE
    ld     (ix+13), $20                 ; 02:8057 - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:805B - DD 36 0E 1C
+   .ENDIF
    bit    0, (ix+24)                   ; 02:805F - DD CB 18 46
    jr     nz, @already_initialised     ; 02:8063 - 20 4B
    ld     hl, (sonic_y)                ; 02:8065 - 2A 01 D4
@@ -16693,6 +16741,7 @@ objfunc_2C_JUN3_boss:
    push   hl                           ; 02:819E - E5
    pop    ix                           ; 02:819F - DD E1
    ld     (ix+0), $2B                  ; 02:81A1 - DD 36 00 2B
+   call init_object_defaults
    xor    a                            ; 02:81A5 - AF
    ld     (ix+1), a                    ; 02:81A6 - DD 77 01
    ld     hl, $000B                    ; 02:81A9 - 21 0B 00
@@ -16734,10 +16783,15 @@ SPRTAB_JUN3_boss_facing_right:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $5A, $5C, $5E  ; 02:8206
 .db $72, $FF                                                                        ; 02:8216
 
+objinit_2B_JUN3_boss_bomb:
+   .db 13|((2-1)<<5), $0C, $10
+   .db $FF
 objfunc_2B_JUN3_boss_bomb:
+   .IF 0
    res    5, (ix+24)                   ; 02:8218 - DD CB 18 AE
    ld     (ix+13), $0C                 ; 02:821C - DD 36 0D 0C
    ld     (ix+14), $10                 ; 02:8220 - DD 36 0E 10
+   .ENDIF
    ld     hl, $0202                    ; 02:8224 - 21 02 02
    ld     (tmp_06), hl                 ; 02:8227 - 22 14 D2
    call   check_collision_with_sonic   ; 02:822A - CD 56 39
@@ -16892,10 +16946,16 @@ SPRTAB_spikeses:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $40, $42, $FF, $FF, $FF, $FF, $44, $46, $48, $FF  ; 02:83AE
 .db $FF, $FF, $FF                                                                   ; 02:83BE
 
+objinit_2E_falling_bridge_piece:
+   .db 13|((2-1)<<5), $0C, $10
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_2E_falling_bridge_piece:
+   .IF 0
    set    5, (ix+24)                   ; 02:83C1 - DD CB 18 EE
    ld     (ix+13), $0E                 ; 02:83C5 - DD 36 0D 0E
    ld     (ix+14), $08                 ; 02:83C9 - DD 36 0E 08
+   .ENDIF
    bit    0, (ix+24)                   ; 02:83CD - DD CB 18 46
    jr     nz, @already_fallen          ; 02:83D1 - 20 54
    xor    a                            ; 02:83D3 - AF
@@ -16986,13 +17046,21 @@ SPRTAB_falling_bridge_piece:
 UNK_0848E:
 .db $00, $00, $00, $00, $00, $00, $00, $00                                          ; 02:848E
 
+objinit_48_BRI3_boss:
+   .db 13|((2-1)<<5), $1E, $1C
+   .db 24|((1-1)<<5), $20
+   .db 15|((2-1)<<5)
+      .dw SPRTAB_BRI3_boss
+   .db $FF
 objfunc_48_BRI3_boss:
    set    5, (ix+24)                   ; 02:8496 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:849A - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:849E - DD 36 0E 1C
    call   move_locked_camera_towards_target  ; 02:84A2 - CD A6 7C
+   .IF 0
    ld     (ix+15), SPRTAB_BRI3_boss&$FF  ; 02:84A5 - DD 36 0F 5A
    ld     (ix+16), SPRTAB_BRI3_boss>>8  ; 02:84A9 - DD 36 10 86
+   .ENDIF
    bit    0, (ix+24)                   ; 02:84AD - DD CB 18 46
    jr     nz, @already_initialised     ; 02:84B1 - 20 27
    ld     hl, $03A0                    ; 02:84B3 - 21 A0 03
@@ -17151,6 +17219,7 @@ boss_fire_fireball_pallet:
    pop    ix                           ; 02:85DA - DD E1
    xor    a                            ; 02:85DC - AF
    ld     (ix+0), $0D                  ; 02:85DD - DD 36 00 0D
+   call init_object_defaults
    ld     hl, (tmp_00)                 ; 02:85E1 - 2A 0E D2
    ld     (ix+1), a                    ; 02:85E4 - DD 77 01
    ld     (ix+2), l                    ; 02:85E7 - DD 75 02
@@ -21289,6 +21358,7 @@ init_fireball_object:
    pop    ix                           ; 02:ACAA - DD E1
    xor    a                            ; 02:ACAC - AF
    ld     (ix+0), $0D                  ; 02:ACAD - DD 36 00 0D
+   call init_object_defaults
    ld     (ix+1), a                    ; 02:ACB1 - DD 77 01
    ld     (ix+2), e                    ; 02:ACB4 - DD 73 02
    ld     (ix+3), d                    ; 02:ACB7 - DD 72 03
@@ -22225,6 +22295,7 @@ addr_0B5C2:
    pop    ix                           ; 02:B5DE - DD E1
    xor    a                            ; 02:B5E0 - AF
    ld     (ix+0), $0D                  ; 02:B5E1 - DD 36 00 0D
+   call init_object_defaults
    ld     (ix+1), a                    ; 02:B5E5 - DD 77 01
    ld     (ix+2), e                    ; 02:B5E8 - DD 73 02
    ld     (ix+3), d                    ; 02:B5EB - DD 72 03
