@@ -14467,7 +14467,7 @@ objfunc_0F_platform_horizontal:
    .ENDIF
    ld     a, (g_level)                 ; 01:6D69 - 3A 3E D2
    cp     $07                          ; 01:6D6C - FE 07
-   jr     z, @level_was_not_JUN2_dont_break_the_camera  ; 01:6D6E - 28 18
+   jr     z, @level_was_JUN2_dont_break_the_camera  ; 01:6D6E - 28 18
    ld     hl, $0020                    ; 01:6D70 - 21 20 00
    ld     (var_D267), hl               ; 01:6D73 - 22 67 D2
    ld     hl, $0048                    ; 01:6D76 - 21 48 00
@@ -14477,7 +14477,7 @@ objfunc_0F_platform_horizontal:
    ld     hl, $0030                    ; 01:6D82 - 21 30 00
    ld     (var_D26D), hl               ; 01:6D85 - 22 6D D2
 
-@level_was_not_JUN2_dont_break_the_camera:
+@level_was_JUN2_dont_break_the_camera:
    .IF 0
    ld     (ix+13), $1A                 ; 01:6D88 - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:6D8C - DD 36 0E 10
