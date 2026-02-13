@@ -5,6 +5,7 @@
 
 # ROMs (go get your own)
 /baserom/
+*.sms
 
 # Generated source files
 /src/whole.asm
