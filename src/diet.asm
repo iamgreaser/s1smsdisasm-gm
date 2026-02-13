@@ -9850,18 +9850,18 @@ PTRLUT_objinit:
    .dw objinit_10_badnik_motobug  ; 10
    .dw objinit_11_badnik_newtron  ; 11
    .dw objinit_12_GHZ_boss  ; 12
-   .dw objinit_unused  ; 13
-   .dw objinit_unused  ; 14
-   .dw objinit_unused  ; 15
-   .dw objinit_unused  ; 16
-   .dw objinit_unused  ; 17
-   .dw objinit_unused  ; 18
-   .dw objinit_unused  ; 19
-   .dw objinit_unused  ; 1A
-   .dw objinit_unused  ; 1B
-   .dw objinit_unused  ; 1C
-   .dw objinit_unused  ; 1D
-   .dw objinit_unused  ; 1E
+   .dw objinit_13_level_change_corridor ; 13
+   .dw objinit_SCR_flamer  ; 14
+   .dw objinit_SCR_flamer  ; 15
+   .dw objinit_16_SCR_ceiling_flamer  ; 16
+   .dw objinit_door  ; 17
+   .dw objinit_door  ; 18
+   .dw objinit_door  ; 19
+   .dw objinit_1A_SCR_zapper  ; 1A
+   .dw objinit_1B_badnik_ballhog  ; 1B
+   .dw objinit_1C_badnik_ballhog_bomb  ; 1C
+   .dw objinit_1D_floorbutton  ; 1D
+   .dw objinit_door  ; 1E
    .dw objinit_unused  ; 1F
    .dw objinit_unused  ; 20
    .dw objinit_unused  ; 21
@@ -9924,15 +9924,17 @@ objinit_monitor: .db 13|((2-1)<<5), $14, $18, $FF
 
 init_object_defaults:
    ;; Range check!
+   push af
    ld a, (ix+0)
    cp $56
-   ret nc
+   jr nc, @return_quickly
 
    ;; Save our slot 1/2 settings
+   push bc
+   push de
    push hl
    ld hl, (g_committed_rompage_1)
    push hl
-   exx
       ;; Use the correct slot 1/2 settings
       ld a, $01
       call set_slot_1_2
@@ -9986,13 +9988,16 @@ init_object_defaults:
          ldir
          jp --
       @end_of_init_stream:
-   exx
    ;; Restore our slot 1/2 settings
    pop hl
    ld (g_committed_rompage_1), hl
    ld (rompage_1), hl
    pop hl
+   pop de
+   pop bc
 
+   @return_quickly:
+   pop af
    ret
 
 .IF 0
@@ -19475,10 +19480,16 @@ objfunc_21_special_stage_bouncer:
 SPRTAB_special_stage_bouncer:
 .db $08, $0A, $28, $2A, $FF, $FF, $FF                                               ; 02:9B6E
 
+objinit_13_level_change_corridor:
+   .db 13|((2-1)<<5), $1E, $60
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_13_level_change_corridor:
+   .IF 0
    set    5, (ix+24)                   ; 02:9B75 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:9B79 - DD 36 0D 1E
    ld     (ix+14), $60                 ; 02:9B7D - DD 36 0E 60
+   .ENDIF
    ld     hl, $0000                    ; 02:9B81 - 21 00 00
    ld     (tmp_06), hl                 ; 02:9B84 - 22 14 D2
    call   check_collision_with_sonic   ; 02:9B87 - CD 56 39
@@ -19559,6 +19570,10 @@ LUT_corridor_data_3:
 LUT_corridor_data_4:
 .db $14, $0F, $1A                                                                   ; 02:9BE5
 
+objinit_SCR_flamer:
+   .db 13|((2-1)<<5), $06, $08
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_14_SCR_flamer_firing_right:
    ld     (ix+7), $80                  ; 02:9BE8 - DD 36 07 80
    ld     (ix+8), $01                  ; 02:9BEC - DD 36 08 01
@@ -19567,7 +19582,9 @@ objfunc_14_SCR_flamer_firing_right:
    ld     (ix+16), SPRTAB_SCR_flame_right>>8  ; 02:9BF8 - DD 36 10 9C
 
 @common_entry:
+   .IF 0
    set    5, (ix+24)                   ; 02:9BFC - DD CB 18 EE
+   .ENDIF
    bit    0, (ix+24)                   ; 02:9C00 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:9C04 - 20 13
    ld     a, (ix+2)                    ; 02:9C06 - DD 7E 02
@@ -19579,8 +19596,10 @@ objfunc_14_SCR_flamer_firing_right:
    set    0, (ix+24)                   ; 02:9C15 - DD CB 18 C6
 
 @already_initialised:
+   .IF 0
    ld     (ix+13), $06                 ; 02:9C19 - DD 36 0D 06
    ld     (ix+14), $08                 ; 02:9C1D - DD 36 0E 08
+   .ENDIF
    ld     a, (ix+19)                   ; 02:9C21 - DD 7E 13
    cp     $64                          ; 02:9C24 - FE 64
    jr     nc, @is_immaterial           ; 02:9C26 - 30 0C
@@ -19630,8 +19649,14 @@ objfunc_15_SCR_flamer_firing_left:
 SPRTAB_SCR_flame_left:
 .db $2C, $2E, $FF, $FF, $FF, $FF, $FF                                               ; 02:9C87
 
+objinit_16_SCR_ceiling_flamer:
+   .db 13|((1-1)<<5), $06
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_16_SCR_ceiling_flamer:
+   .IF 0
    set    5, (ix+24)                   ; 02:9C8E - DD CB 18 EE
+   .ENDIF
    bit    0, (ix+24)                   ; 02:9C92 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:9C96 - 20 2A
    ld     l, (ix+2)                    ; 02:9C98 - DD 6E 02
@@ -19673,7 +19698,9 @@ objfunc_16_SCR_ceiling_flamer:
    add    hl, bc                       ; 02:9CEF - 09
    ld     a, (hl)                      ; 02:9CF0 - 7E
    ld     (ix+14), a                   ; 02:9CF1 - DD 77 0E
+   .IF 0
    ld     (ix+13), $06                 ; 02:9CF4 - DD 36 0D 06
+   .ENDIF
    ld     hl, PTRLUT_ceiling_flame_sprite_sequences  ; 02:9CF8 - 21 4A 9D
    add    hl, de                       ; 02:9CFB - 19
    ld     a, (hl)                      ; 02:9CFC - 7E
@@ -19748,8 +19775,14 @@ LUT_ceiling_flame_sprites_22:
 .db $00, $12, $1E, $0C, $1E, $06, $1E, $00, $00, $14, $1E, $0E, $1E, $08, $1E, $02  ; 02:9DDA
 .db $00, $16, $1E, $10, $1E, $0A, $1E, $04, $00, $18, $1E, $12, $1E, $0C, $1E, $06  ; 02:9DEA
 
+objinit_door:
+   .db 13|((1-1)<<5), $04
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_17_SCR_door_open_on_left:
+   .IF 0
    set    5, (ix+24)                   ; 02:9DFA - DD CB 18 EE
+   .ENDIF
    call   door_common_prep             ; 02:9DFE - CD D4 9E
    ld     a, (ix+17)                   ; 02:9E01 - DD 7E 11
    cp     $28                          ; 02:9E04 - FE 28
@@ -19880,7 +19913,9 @@ door_closing:
    ret                                 ; 02:9ED3 - C9
 
 door_common_prep:
+   .IF 0
    ld     (ix+13), $04                 ; 02:9ED4 - DD 36 0D 04
+   .ENDIF
    ld     a, (ix+17)                   ; 02:9ED8 - DD 7E 11
    .IF 0
    srl    a                            ; 02:9EDB - CB 3F
@@ -19933,7 +19968,9 @@ SPRTAB_SCR_door_open_on_left:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:9F5B
 
 objfunc_18_SCR_door_open_on_right:
+   .IF 0
    set    5, (ix+24)                   ; 02:9F62 - DD CB 18 EE
+   .ENDIF
    call   door_common_prep             ; 02:9F66 - CD D4 9E
    ld     a, (ix+17)                   ; 02:9F69 - DD 7E 11
    cp     $28                          ; 02:9F6C - FE 28
@@ -20006,7 +20043,9 @@ SPRTAB_SCR_door_open_on_right:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A01E
 
 objfunc_19_SCR_door_open_on_both_sides:
+   .IF 0
    set    5, (ix+24)                   ; 02:A025 - DD CB 18 EE
+   .ENDIF
    call   door_common_prep             ; 02:A029 - CD D4 9E
    ld     a, (ix+17)                   ; 02:A02C - DD 7E 11
    cp     $28                          ; 02:A02F - FE 28
@@ -20078,10 +20117,16 @@ SPRTAB_SCR_door_open_on_both_sides:
 .db $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A0D1
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A0E1
 
+objinit_1A_SCR_zapper:
+   .db 13|((2-1)<<5), $30, $10
+   .db 24|((1-1)<<5), $20
+   .db $FF
 objfunc_1A_SCR_zapper:
+   .IF 0
    set    5, (ix+24)                   ; 02:A0E8 - DD CB 18 EE
    ld     (ix+13), $30                 ; 02:A0EC - DD 36 0D 30
    ld     (ix+14), $10                 ; 02:A0F0 - DD 36 0E 10
+   .ENDIF
    bit    0, (ix+24)                   ; 02:A0F4 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:A0F8 - 20 24
    ld     l, (ix+2)                    ; 02:A0FA - DD 6E 02
@@ -20149,9 +20194,14 @@ SPRTAB_SCR_zapper:
 .db $FF, $FF, $FF, $FF, $FE, $FE, $16, $18, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A193
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A1A3
 
+objinit_1B_badnik_ballhog:
+   .db 13|((2-1)<<5), $0A, $20
+   .db $FF
 objfunc_1B_badnik_ballhog:
+   .IF 0
    ld     (ix+13), $0A                 ; 02:A1AA - DD 36 0D 0A
    ld     (ix+14), $20                 ; 02:A1AE - DD 36 0E 20
+   .ENDIF
    ld     hl, $0803                    ; 02:A1B2 - 21 03 08
    ld     (tmp_06), hl                 ; 02:A1B5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A1B8 - CD 56 39
@@ -20199,6 +20249,7 @@ objfunc_1B_badnik_ballhog:
    pop    ix                           ; 02:A21D - DD E1
    xor    a                            ; 02:A21F - AF
    ld     (ix+0), $1C                  ; 02:A220 - DD 36 00 1C
+   call init_object_defaults
    ld     (ix+1), a                    ; 02:A224 - DD 77 01
    ld     (ix+2), e                    ; 02:A227 - DD 73 02
    ld     (ix+3), d                    ; 02:A22A - DD 72 03
@@ -20207,9 +20258,11 @@ objfunc_1B_badnik_ballhog:
    ld     (ix+4), a                    ; 02:A231 - DD 77 04
    ld     (ix+5), l                    ; 02:A234 - DD 75 05
    ld     (ix+6), h                    ; 02:A237 - DD 74 06
+   .IF 0
    ld     (ix+17), a                   ; 02:A23A - DD 77 11
    ld     (ix+22), a                   ; 02:A23D - DD 77 16
    ld     (ix+23), a                   ; 02:A240 - DD 77 17
+   .ENDIF
    ld     (ix+7), a                    ; 02:A243 - DD 77 07
    ld     (ix+8), $FF                  ; 02:A246 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:A24A - DD 36 09 FF
@@ -20247,6 +20300,7 @@ objfunc_1B_badnik_ballhog:
    pop    ix                           ; 02:A292 - DD E1
    xor    a                            ; 02:A294 - AF
    ld     (ix+0), $1C                  ; 02:A295 - DD 36 00 1C
+   call init_object_defaults
    ld     (ix+1), a                    ; 02:A299 - DD 77 01
    ld     (ix+2), e                    ; 02:A29C - DD 73 02
    ld     (ix+3), d                    ; 02:A29F - DD 72 03
@@ -20255,9 +20309,11 @@ objfunc_1B_badnik_ballhog:
    ld     (ix+4), a                    ; 02:A2A6 - DD 77 04
    ld     (ix+5), l                    ; 02:A2A9 - DD 75 05
    ld     (ix+6), h                    ; 02:A2AC - DD 74 06
+   .IF 0
    ld     (ix+17), a                   ; 02:A2AF - DD 77 11
    ld     (ix+22), a                   ; 02:A2B2 - DD 77 16
    ld     (ix+23), a                   ; 02:A2B5 - DD 77 17
+   .ENDIF
    ld     (ix+7), a                    ; 02:A2B8 - DD 77 07
    ld     (ix+8), $01                  ; 02:A2BB - DD 36 08 01
    ld     (ix+9), a                    ; 02:A2BF - DD 77 09
@@ -20288,10 +20344,15 @@ SPRTAB_ballhog_right:
 .db $FF, $FF, $FF, $FF, $50, $52, $FF, $FF, $FF, $FF, $48, $4A, $FF, $FF, $FF, $FF  ; 02:A32B
 .db $FF                                                                             ; 02:A33B
 
+objinit_1C_badnik_ballhog_bomb:
+   .db 13|((2-1)<<5), $0A, $0F
+   .db $FF
 objfunc_1C_badnik_ballhog_bomb:
+   .IF 0
    res    5, (ix+24)                   ; 02:A33C - DD CB 18 AE
    ld     (ix+13), $0A                 ; 02:A340 - DD 36 0D 0A
    ld     (ix+14), $0F                 ; 02:A344 - DD 36 0E 0F
+   .ENDIF
    ld     hl, $0101                    ; 02:A348 - 21 01 01
    ld     (tmp_06), hl                 ; 02:A34B - 22 14 D2
    call   check_collision_with_sonic   ; 02:A34E - CD 56 39
@@ -20355,9 +20416,14 @@ SPRTAB_ballhog_bomb:
 .db $FF, $FF, $FF, $FF, $78, $7A, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A3DB
 .db $FF, $FF, $FF, $FF, $FF, $FF, $7C, $7E, $FF, $FF, $FF, $FF, $FF                 ; 02:A3EB
 
+objinit_1D_floorbutton:
+   .db 13|((2-1)<<5), $0A, $11
+   .db $FF
 objfunc_1D_floorbutton:
+   .IF 0
    ld     (ix+13), $0A                 ; 02:A3F8 - DD 36 0D 0A
    ld     (ix+14), $11                 ; 02:A3FC - DD 36 0E 11
+   .ENDIF
    bit    0, (ix+24)                   ; 02:A400 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:A404 - 20 14
    ld     l, (ix+2)                    ; 02:A406 - DD 6E 02
@@ -20430,7 +20496,9 @@ SPRTAB_floorbutton_LAB_up:
 .db $34, $36, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A4A3
 
 objfunc_1E_SCR_door_from_button:
+   .IF 0
    set    5, (ix+24)                   ; 02:A4AB - DD CB 18 EE
+   .ENDIF
    call   door_common_prep             ; 02:A4AF - CD D4 9E
    ld     a, (ix+17)                   ; 02:A4B2 - DD 7E 11
    cp     $28                          ; 02:A4B5 - FE 28
