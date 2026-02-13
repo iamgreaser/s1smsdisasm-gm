@@ -20359,7 +20359,7 @@ objfunc_1D_floorbutton:
    ld     (ix+13), $0A                 ; 02:A3F8 - DD 36 0D 0A
    ld     (ix+14), $11                 ; 02:A3FC - DD 36 0E 11
    bit    0, (ix+24)                   ; 02:A400 - DD CB 18 46
-   jr     nz, addr_0A41A               ; 02:A404 - 20 14
+   jr     nz, @already_initialised     ; 02:A404 - 20 14
    ld     l, (ix+2)                    ; 02:A406 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A409 - DD 66 03
    ld     de, $0008                    ; 02:A40C - 11 08 00
@@ -20368,28 +20368,28 @@ objfunc_1D_floorbutton:
    ld     (ix+3), h                    ; 02:A413 - DD 74 03
    set    0, (ix+24)                   ; 02:A416 - DD CB 18 C6
 
-addr_0A41A:
+@already_initialised:
    ld     hl, $0001                    ; 02:A41A - 21 01 00
    ld     (tmp_06), hl                 ; 02:A41D - 22 14 D2
    call   check_collision_with_sonic   ; 02:A420 - CD 56 39
-   jr     c, addr_0A464                ; 02:A423 - 38 3F
+   jr     c, @button_is_up             ; 02:A423 - 38 3F
    ld     a, (sonic_vel_y_hi)          ; 02:A425 - 3A 08 D4
    and    a                            ; 02:A428 - A7
-   jp     m, addr_0A464                ; 02:A429 - FA 64 A4
-   ld     (ix+15), UNK_0A48B&$FF       ; 02:A42C - DD 36 0F 8B
-   ld     (ix+16), UNK_0A48B>>8        ; 02:A430 - DD 36 10 A4
+   jp     m, @button_is_up             ; 02:A429 - FA 64 A4
+   ld     (ix+15), SPRTAB_floorbutton_SCR_down&$FF  ; 02:A42C - DD 36 0F 8B
+   ld     (ix+16), SPRTAB_floorbutton_SCR_down>>8  ; 02:A430 - DD 36 10 A4
    ld     a, (g_tile_flags_index)      ; 02:A434 - 3A D4 D2
    cp     $03                          ; 02:A437 - FE 03
-   jr     nz, addr_0A443               ; 02:A439 - 20 08
-   ld     (ix+15), UNK_0A49B&$FF       ; 02:A43B - DD 36 0F 9B
-   ld     (ix+16), UNK_0A49B>>8        ; 02:A43F - DD 36 10 A4
+   jr     nz, @down_not_LAB            ; 02:A439 - 20 08
+   ld     (ix+15), SPRTAB_floorbutton_LAB_down&$FF  ; 02:A43B - DD 36 0F 9B
+   ld     (ix+16), SPRTAB_floorbutton_LAB_down>>8  ; 02:A43F - DD 36 10 A4
 
-addr_0A443:
+@down_not_LAB:
    ld     bc, $0006                    ; 02:A443 - 01 06 00
    ld     de, $0000                    ; 02:A446 - 11 00 00
    call   put_sonic_y_pos_on_platform  ; 02:A449 - CD C1 7C
    bit    1, (ix+24)                   ; 02:A44C - DD CB 18 4E
-   jr     nz, addr_0A47F               ; 02:A450 - 20 2D
+   jr     nz, @common_epilogue         ; 02:A450 - 20 2D
    set    1, (ix+24)                   ; 02:A452 - DD CB 18 CE
    ld     hl, g_level_button_toggled_on_mask  ; 02:A456 - 21 17 D3
    call   calc_level_offset_HL_and_mask_C  ; 02:A459 - CD 02 0C
@@ -20398,35 +20398,35 @@ addr_0A443:
    ld     (hl), a                      ; 02:A45E - 77
    ld     a, $1A                       ; 02:A45F - 3E 1A
    rst    $28                          ; 02:A461 - EF
-   jr     addr_0A47F                   ; 02:A462 - 18 1B
+   jr     @common_epilogue             ; 02:A462 - 18 1B
 
-addr_0A464:
+@button_is_up:
    res    1, (ix+24)                   ; 02:A464 - DD CB 18 8E
-   ld     (ix+15), UNK_0A493&$FF       ; 02:A468 - DD 36 0F 93
-   ld     (ix+16), UNK_0A493>>8        ; 02:A46C - DD 36 10 A4
+   ld     (ix+15), SPRTAB_floorbutton_SCR_up&$FF  ; 02:A468 - DD 36 0F 93
+   ld     (ix+16), SPRTAB_floorbutton_SCR_up>>8  ; 02:A46C - DD 36 10 A4
    ld     a, (g_tile_flags_index)      ; 02:A470 - 3A D4 D2
    cp     $03                          ; 02:A473 - FE 03
-   jr     nz, addr_0A47F               ; 02:A475 - 20 08
-   ld     (ix+15), UNK_0A4A3&$FF       ; 02:A477 - DD 36 0F A3
-   ld     (ix+16), UNK_0A4A3>>8        ; 02:A47B - DD 36 10 A4
+   jr     nz, @common_epilogue         ; 02:A475 - 20 08
+   ld     (ix+15), SPRTAB_floorbutton_LAB_up&$FF  ; 02:A477 - DD 36 0F A3
+   ld     (ix+16), SPRTAB_floorbutton_LAB_up>>8  ; 02:A47B - DD 36 10 A4
 
-addr_0A47F:
+@common_epilogue:
    xor    a                            ; 02:A47F - AF
    ld     (ix+10), a                   ; 02:A480 - DD 77 0A
    ld     (ix+11), $02                 ; 02:A483 - DD 36 0B 02
    ld     (ix+12), a                   ; 02:A487 - DD 77 0C
    ret                                 ; 02:A48A - C9
 
-UNK_0A48B:
+SPRTAB_floorbutton_SCR_down:
 .db $1A, $1C, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A48B
 
-UNK_0A493:
+SPRTAB_floorbutton_SCR_up:
 .db $3A, $3C, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A493
 
-UNK_0A49B:
+SPRTAB_floorbutton_LAB_down:
 .db $38, $3A, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A49B
 
-UNK_0A4A3:
+SPRTAB_floorbutton_LAB_up:
 .db $34, $36, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A4A3
 
 objfunc_1E_door_from_button:
