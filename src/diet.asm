@@ -7550,7 +7550,7 @@ LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_SCR_door_open_on_left  ; 00:2B16
-.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
+.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
@@ -20429,23 +20429,23 @@ SPRTAB_floorbutton_LAB_down:
 SPRTAB_floorbutton_LAB_up:
 .db $34, $36, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:A4A3
 
-objfunc_1E_door_from_button:
+objfunc_1E_SCR_door_from_button:
    set    5, (ix+24)                   ; 02:A4AB - DD CB 18 EE
    call   door_common_prep             ; 02:A4AF - CD D4 9E
    ld     a, (ix+17)                   ; 02:A4B2 - DD 7E 11
    cp     $28                          ; 02:A4B5 - FE 28
-   jr     nc, addr_0A4E5               ; 02:A4B7 - 30 2C
+   jr     nc, @skip_collision_with_sonic  ; 02:A4B7 - 30 2C
    ld     hl, $0005                    ; 02:A4B9 - 21 05 00
    ld     (tmp_06), hl                 ; 02:A4BC - 22 14 D2
    call   check_collision_with_sonic   ; 02:A4BF - CD 56 39
-   jr     c, addr_0A4E5                ; 02:A4C2 - 38 21
+   jr     c, @skip_collision_with_sonic  ; 02:A4C2 - 38 21
    ld     de, $0005                    ; 02:A4C4 - 11 05 00
    ld     a, (sonic_vel_x_hi)          ; 02:A4C7 - 3A 05 D4
    and    a                            ; 02:A4CA - A7
-   jp     m, addr_0A4D1                ; 02:A4CB - FA D1 A4
+   jp     m, @sonic_was_going_left     ; 02:A4CB - FA D1 A4
    ld     de, $FFEC                    ; 02:A4CE - 11 EC FF
 
-addr_0A4D1:
+@sonic_was_going_left:
    ld     l, (ix+2)                    ; 02:A4D1 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A4D4 - DD 66 03
    add    hl, de                       ; 02:A4D7 - 19
@@ -20455,43 +20455,43 @@ addr_0A4D1:
    ld     (sonic_vel_x), a             ; 02:A4DF - 32 04 D4
    ld     (sonic_vel_x_hi), a          ; 02:A4E2 - 32 05 D4
 
-addr_0A4E5:
+@skip_collision_with_sonic:
    ld     hl, g_level_button_toggled_on_mask  ; 02:A4E5 - 21 17 D3
    call   calc_level_offset_HL_and_mask_C  ; 02:A4E8 - CD 02 0C
    bit    1, (ix+24)                   ; 02:A4EB - DD CB 18 4E
-   jr     z, addr_0A4F7                ; 02:A4EF - 28 06
+   jr     z, @detect_if_closing        ; 02:A4EF - 28 06
    ld     a, (hl)                      ; 02:A4F1 - 7E
    and    c                            ; 02:A4F2 - A1
-   jr     nz, addr_0A509               ; 02:A4F3 - 20 14
-   jr     addr_0A4FB                   ; 02:A4F5 - 18 04
+   jr     nz, @door_is_closing         ; 02:A4F3 - 20 14
+   jr     @door_is_opening             ; 02:A4F5 - 18 04
 
-addr_0A4F7:
+@detect_if_closing:
    ld     a, (hl)                      ; 02:A4F7 - 7E
    and    c                            ; 02:A4F8 - A1
-   jr     z, addr_0A509                ; 02:A4F9 - 28 0E
+   jr     z, @door_is_closing          ; 02:A4F9 - 28 0E
 
-addr_0A4FB:
+@door_is_opening:
    ld     a, (ix+17)                   ; 02:A4FB - DD 7E 11
    cp     $30                          ; 02:A4FE - FE 30
-   jr     nc, addr_0A514               ; 02:A500 - 30 12
+   jr     nc, @continue_to_epilogue    ; 02:A500 - 30 12
    inc    a                            ; 02:A502 - 3C
    inc    a                            ; 02:A503 - 3C
    ld     (ix+17), a                   ; 02:A504 - DD 77 11
-   jr     addr_0A514                   ; 02:A507 - 18 0B
+   jr     @continue_to_epilogue        ; 02:A507 - 18 0B
 
-addr_0A509:
+@door_is_closing:
    ld     a, (ix+17)                   ; 02:A509 - DD 7E 11
    and    a                            ; 02:A50C - A7
-   jr     z, addr_0A514                ; 02:A50D - 28 05
+   jr     z, @continue_to_epilogue     ; 02:A50D - 28 05
    dec    a                            ; 02:A50F - 3D
    dec    a                            ; 02:A510 - 3D
    ld     (ix+17), a                   ; 02:A511 - DD 77 11
 
-addr_0A514:
-   ld     de, UNK_0A51A                ; 02:A514 - 11 1A A5
+@continue_to_epilogue:
+   ld     de, SPRTAB_SCR_door_from_button  ; 02:A514 - 11 1A A5
    jp     door_common_epilogue         ; 02:A517 - C3 7E 9E
 
-UNK_0A51A:
+SPRTAB_SCR_door_from_button:
 .db $3E, $FF, $FF, $FF, $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF  ; 02:A51A
 .db $FF, $FF, $38, $FF, $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A52A
 .db $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A53A
