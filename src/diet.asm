@@ -7550,7 +7550,7 @@ LUT_object_functions:
 .dw objfunc_00_sonic, objfunc_01_monitor_rings, objfunc_02_monitor_speed_shoes, objfunc_03_monitor_life, objfunc_04_monitor_shield, objfunc_05_monitor_invincibility, objfunc_06_chaos_emerald, objfunc_07_signpost  ; 00:2AF6
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_SCR_door_open_on_left  ; 00:2B16
-.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_UNKNOWN  ; 00:2B26
+.dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
@@ -20497,7 +20497,7 @@ SPRTAB_SCR_door_from_button:
 .db $FF, $FF, $FF, $FF, $3E, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:A53A
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF                                               ; 02:A54A
 
-objfunc_1F_UNKNOWN:
+objfunc_1F_badnik_caterkiller:
    ld     (ix+13), $06                 ; 02:A551 - DD 36 0D 06
    ld     (ix+14), $10                 ; 02:A555 - DD 36 0E 10
    ld     a, (g_global_tick_counter)   ; 02:A559 - 3A 23 D2
@@ -20667,14 +20667,14 @@ addr_0A6A2:
    ret                                 ; 02:A6B8 - C9
 
 UNK_0A6B9:
-.db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 02:A6B9
-.db $00, $00, $00, $00, $00, $00, $E0, $FF, $E0, $FF, $E0, $FF, $E0, $FF, $C0, $FF  ; 02:A6C9
-.db $C0, $FF, $80, $FF, $80, $FF, $00, $FF, $00, $FF, $00, $FE                      ; 02:A6D9
+.dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000                          ; 02:A6B9
+.dw $0000, $0000, $0000, $FFE0, $FFE0, $FFE0, $FFE0, $FFC0                          ; 02:A6C9
+.dw $FFC0, $FF80, $FF80, $FF00, $FF00, $FE00                                        ; 02:A6D9
 
 UNK_0A6E5:
-.db $00, $FF, $80, $FF, $80, $FF, $C0, $FF, $C0, $FF, $E0, $FF, $E0, $FF, $F0, $FF  ; 02:A6E5
-.db $F0, $FF, $F0, $FF, $F0, $FF, $10, $00, $10, $00, $10, $00, $10, $00, $20, $00  ; 02:A6F5
-.db $20, $00, $40, $00, $40, $00, $80, $00, $80, $00, $00, $01                      ; 02:A705
+.dw $FF00, $FF80, $FF80, $FFC0, $FFC0, $FFE0, $FFE0, $FFF0                          ; 02:A6E5
+.dw $FFF0, $FFF0, $FFF0, $0010, $0010, $0010, $0010, $0020                          ; 02:A6F5
+.dw $0020, $0040, $0040, $0080, $0080, $0100                                        ; 02:A705
 
 UNK_0A711:
 .db $00, $01, $02, $02, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03  ; 02:A711
@@ -20685,9 +20685,9 @@ UNK_0A711:
 .db $0F, $0F, $10, $10, $11, $12, $13, $15                                          ; 02:A761
 
 UNK_0A769:
-.db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 02:A769
-.db $00, $00, $00, $00, $00, $00, $20, $00, $20, $00, $20, $00, $20, $00, $40, $00  ; 02:A779
-.db $40, $00, $80, $00, $80, $00, $00, $01, $00, $01, $00, $02                      ; 02:A789
+.dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000                          ; 02:A769
+.dw $0000, $0000, $0000, $0020, $0020, $0020, $0020, $0040                          ; 02:A779
+.dw $0040, $0080, $0080, $0100, $0100, $0200                                        ; 02:A789
 
 UNK_0A795:
 .db $15, $14, $13, $13, $12, $12, $12, $12, $12, $12, $12, $12, $12, $12, $12, $12  ; 02:A795
