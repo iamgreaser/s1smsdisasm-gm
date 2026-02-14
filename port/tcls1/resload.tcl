@@ -139,11 +139,10 @@ proc load_art {img addr pal} {
    set adatalen 0
    puts "- map data len calc: [time {
       foreach mask $maskdata {
-         for {set bi 0} {$bi < 8} {incr bi} {
-            if {($mask&(1<<$bi)) == 0} {
-               incr adatalen
-            }
-         }
+         set mask [expr {0xFF^$mask}]
+         set mask [expr {($mask&0x55)+(($mask>>1)&0x55)}]
+         set mask [expr {($mask&0x33)+(($mask>>2)&0x33)}]
+         incr adatalen [expr {($mask&0x0F)+(($mask>>4)&0x0F)}]
       }
    }]"
    binary scan $::romdata "@$adataptr iu$adatalen" planedata
