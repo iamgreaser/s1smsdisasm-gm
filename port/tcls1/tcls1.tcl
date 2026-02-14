@@ -326,10 +326,9 @@ proc load_palette {addr} {
 }
 
 proc load_level_layout {llayptr llaycsize} {
-   loading_start $llaycsize "Loading level layout"
+   # This loads so quickly now that updating the loading bar window text makes it take ~2x as long.
    set si 0
    set si_end $llaycsize
-   set progress_throttle 0
    set prev {}
    binary scan $::romdata "@$llayptr cu$llaycsize" laydata
    while {$si < $si_end} {
@@ -352,13 +351,7 @@ proc load_level_layout {llayptr llaycsize} {
          set prev {}
       }
       unset v
-      incr progress_throttle
-      if {$progress_throttle >= 100} {
-         loading_update [expr {$si-$llayptr}]
-         set progress_throttle 0
-      }
    }
-   loading_update $llaycsize
 }
 
 proc load_blob {path size} {
