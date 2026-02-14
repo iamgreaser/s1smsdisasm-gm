@@ -26,7 +26,7 @@ set ::scroll_lx 256
 set ::scroll_ly 224
 set ::render_lx 248
 set ::render_ly 192
-set ::render_scale 2
+set ::render_scale 1
 
 set ::render_palette_0 {}
 set ::render_palette_1 {}
