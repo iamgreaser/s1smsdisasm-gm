@@ -153,7 +153,6 @@ proc load_level {li} {
       binary scan $::romdata "@[expr {$::ptr_pal_bases+(2*$lpal3)}] su" lpal3ptr
       set ::render_palette_0 [load_palette [expr {$lpal3ptr+(0x10*0)}]]
       set ::render_palette_1 [load_palette [expr {$lpal3ptr+(0x10*1)}]]
-      .maincanvas configure -background [lindex $::render_palette_0 0]
 
       # Unpack the level data
       set ::levellx $lwidth
@@ -208,16 +207,15 @@ proc load_tilemap {addr} {
    binary scan $::romdata "@$addr cu[expr {0xD8*16}]" tmdata
    set addr 0
    for {set tidx 0} {$tidx < 0xD8} {incr tidx} {
-      set mtile [list]
       for {set ty 0} {$ty < 32} {incr ty 8} {
-         set indices [lrange $tmdata $addr [expr {$addr+4-1}]]
-         incr addr 4
-         set rowspecs [lmap k {v0 v1 v2 v3} v $indices {
-            list $k [lrange $::levelartdata [expr {8*$v}] [expr {(8*($v+1))-1}]]
-         }]
-         lappend mtile {*}[lmap {*}[concat {*}$rowspecs] {concat $v0 $v1 $v2 $v3}]
+         for {set tx 0} {$tx < 32} {incr tx 8} {
+            set v [lindex $tmdata $addr]
+            incr addr
+            set mtile "P6\n8 8\n255\n"
+            append mtile [string range $::levelartdata [expr {3*8*8*$v}] [expr {(3*8*8*($v+1))-1}]]
+            metatileimg put $mtile -format ppm -to [expr {(($tidx % 16)*32)+$tx}] [expr {(($tidx / 16)*32)+$ty}]
+         }
       }
-      metatileimg put $mtile -to [expr {($tidx % 16)*32}] [expr {($tidx / 16)*32}]
       incr progress_throttle
       if {$progress_throttle >= 24} {
          loading_update [expr {$tidx+1}]
@@ -262,7 +260,7 @@ proc load_art {img addr pal} {
 
    # format: a list of 8 #rgb colours
    # TODO: Consider transparency! --GM
-   set ::levelartdata [list]
+   set ::levelartdata ""
    set adataptr_img_backrefs [list]
    for {set ti 0} {$ti < $arowcount} {incr ti} {
       # Fetch mask if necessary
@@ -277,7 +275,8 @@ proc load_art {img addr pal} {
          incr adataptr
 
          # Build a column to put into the image
-         set outcol [lmap x [list 0 1 2 3 4 5 6 7] {
+         set outcol ""
+         for {set x 0} {$x < 8} {incr x} {
             set v [expr {
                (($p>> 7)&0x1)
                |(($p>>14)&0x2)
@@ -285,8 +284,8 @@ proc load_art {img addr pal} {
                |(($p>>28)&0x8)
             }]
             set p [expr {($p&0x7FFFFFFF)<<1}]
-            set v [lindex $pal $v]
-         }]
+            append outcol [lindex $pal $v]
+         }
          lappend adataptr_img_backrefs $outcol
 
       } else {
@@ -303,7 +302,7 @@ proc load_art {img addr pal} {
       }
 
       # Write it
-      lappend ::levelartdata $outcol
+      append ::levelartdata $outcol
 
       # Next mask bit!
       set mask [expr {$mask>>1}]
@@ -323,10 +322,10 @@ proc load_palette {addr} {
    set result [list]
    for {set i 0} {$i <= 0x10} {incr i} {
       binary scan $::romdata "@[expr {$i+$addr}] cu" v
-      set cr [expr {(($v>>0)&0x3)*0x5}]
-      set cg [expr {(($v>>2)&0x3)*0x5}]
-      set cb [expr {(($v>>4)&0x3)*0x5}]
-      lappend result [format {#%X%X%X} $cr $cg $cb]
+      set cr [expr {(($v>>0)&0x3)*0x55}]
+      set cg [expr {(($v>>2)&0x3)*0x55}]
+      set cb [expr {(($v>>4)&0x3)*0x55}]
+      lappend result [binary format cucucu $cr $cg $cb]
       unset v
       unset cr
       unset cg
