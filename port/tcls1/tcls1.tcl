@@ -33,6 +33,9 @@ set ::render_scale 1
 set ::render_palette_0 {}
 set ::render_palette_1 {}
 
+set ::camera_x [expr {(7)*32}]
+set ::camera_y [expr {(16-7)*32}]
+
 proc main {rompath} {
    puts "Starting!"
 
@@ -115,10 +118,11 @@ proc tick_game {} {
 proc redraw_all_tiles {} {
    for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
       set dty [expr {$mty*32}]
-      for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
+      set saddr [expr {(($mty+($::camera_y>>5))*$::levellx)+($::camera_x>>5)}]
+      for {set dtx 0} {$dtx < $::scroll_lx} {incr dtx 32} {
          set si 0
-         set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
-         set dtx [expr {$mtx*32}]
+         set mti [lindex $::leveldata $saddr]
+         incr saddr
          mainimg put [lindex $::metatiles $mti] -format ppm -to $dtx $dty
       }
    }
