@@ -46,10 +46,12 @@ proc main {rompath} {
       -height [expr {$::scroll_ly}] \
       ;
    # Create the upscaled version of the render target
-   image create photo scaleimg \
-      -width [expr {$::scroll_lx*$::render_scale}] \
-      -height [expr {$::scroll_ly*$::render_scale}] \
-      ;
+   if {$::render_scale != 1} {
+      image create photo scaleimg \
+         -width [expr {$::scroll_lx*$::render_scale}] \
+         -height [expr {$::scroll_ly*$::render_scale}] \
+         ;
+   }
 
    # Create our canvas
    canvas .maincanvas \
@@ -64,10 +66,17 @@ proc main {rompath} {
    set x1 [expr {$x0+($::scroll_lx*$::render_scale)}]
    set y1 [expr {$y0+($::scroll_ly*$::render_scale)}]
    # It's actually a lot faster to let the canvas scroll 4 images than it is to reblit scaled output every time.
-   set ::ci_scaleimg_00 [.maincanvas create image $x0 $y0 -image scaleimg -anchor nw -tags {scaleimg}]
-   set ::ci_scaleimg_01 [.maincanvas create image $x1 $y0 -image scaleimg -anchor nw -tags {scaleimg}]
-   set ::ci_scaleimg_10 [.maincanvas create image $x0 $y1 -image scaleimg -anchor nw -tags {scaleimg}]
-   set ::ci_scaleimg_11 [.maincanvas create image $x1 $y1 -image scaleimg -anchor nw -tags {scaleimg}]
+   if {$::render_scale != 1} {
+      set ::ci_scaleimg_00 [.maincanvas create image $x0 $y0 -image scaleimg -anchor nw -tags {scaleimg}]
+      set ::ci_scaleimg_01 [.maincanvas create image $x1 $y0 -image scaleimg -anchor nw -tags {scaleimg}]
+      set ::ci_scaleimg_10 [.maincanvas create image $x0 $y1 -image scaleimg -anchor nw -tags {scaleimg}]
+      set ::ci_scaleimg_11 [.maincanvas create image $x1 $y1 -image scaleimg -anchor nw -tags {scaleimg}]
+   } else {
+      set ::ci_scaleimg_00 [.maincanvas create image $x0 $y0 -image mainimg -anchor nw -tags {scaleimg}]
+      set ::ci_scaleimg_01 [.maincanvas create image $x1 $y0 -image mainimg -anchor nw -tags {scaleimg}]
+      set ::ci_scaleimg_10 [.maincanvas create image $x0 $y1 -image mainimg -anchor nw -tags {scaleimg}]
+      set ::ci_scaleimg_11 [.maincanvas create image $x1 $y1 -image mainimg -anchor nw -tags {scaleimg}]
+   }
 
    # Hide and show the main window just in case we need to update stuff
    wm withdraw .
@@ -84,7 +93,9 @@ proc async_main {} {
    load_level [expr {0x00}]
 
    # Upscale the image and render it!
-   scaleimg copy mainimg -compositingrule set -zoom $::render_scale
+   if {$::render_scale != 1} {
+      scaleimg copy mainimg -compositingrule set -zoom $::render_scale
+   }
 
    # Tick the game!
    after 20 {tick_game}
