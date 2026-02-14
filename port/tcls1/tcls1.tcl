@@ -107,8 +107,8 @@ proc tick_game {} {
    # Scroll the image.
    set prev_scroll_x $::scroll_x
    set prev_scroll_y $::scroll_y
-   set ::scroll_x [expr {($::scroll_x+5) % 256}]
-   set ::scroll_y [expr {($::scroll_y+3) % 224}]
+   set ::scroll_x [expr {($::scroll_x+5) % $::scroll_lx}]
+   set ::scroll_y [expr {($::scroll_y+3) % $::scroll_ly}]
    .maincanvas move scaleimg [expr {$::render_scale*($prev_scroll_x-$::scroll_x)}] [expr {$::render_scale*($prev_scroll_y-$::scroll_y)}]
 
    after 20 {tick_game}
@@ -170,10 +170,10 @@ proc load_level {li} {
       puts "Rendering level tiles"
       .maincanvas itemconfigure scaleimg -image {}
       puts [time {
-         loading_start 7 "Rendering level tiles"
+         loading_start [expr {$::scroll_ly/32}] "Rendering level tiles"
          set mt_prev_pos [dict create]
-         for {set mty 0} {$mty < 7} {incr mty} {
-            for {set mtx 0} {$mtx < 8} {incr mtx} {
+         for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
+            for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
                set si 0
                set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
                set mt [lindex $::tilemap $mti]
