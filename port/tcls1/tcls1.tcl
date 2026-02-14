@@ -247,7 +247,7 @@ proc load_art {img addr pal} {
          }
       }
    }]"
-   binary scan $::romdata "@$adataptr cu[expr {$adatalen*4}]" planedata
+   binary scan $::romdata "@$adataptr iu$adatalen" planedata
    set adataptr 0
 
    # format: a list of 8 #rgb colours
@@ -269,22 +269,19 @@ proc load_art {img addr pal} {
 
       if {($mask&0x1)==0} {
          # Literal row
-         lassign [lrange $planedata $adataptr [expr {$adataptr+4}]] p0 p1 p2 p3
-         incr adataptr 4
+         lassign [lindex $planedata $adataptr] p
+         incr adataptr
 
          # Build a column to put into the image
          set outcol [list]
          for {set x 0} {$x < 8} {incr x} {
             set v [expr {
-               (($p0&0x80)>>7)
-               |(($p1&0x80)>>6)
-               |(($p2&0x80)>>5)
-               |(($p3&0x80)>>4)
+               (($p>> 7)&0x1)
+               |(($p>>14)&0x2)
+               |(($p>>21)&0x4)
+               |(($p>>28)&0x8)
             }]
-            incr p0 $p0
-            incr p1 $p1
-            incr p2 $p2
-            incr p3 $p3
+            set p [expr {($p&0x7FFFFFFF)<<1}]
             lappend outcol [lindex $pal $v]
          }
          lappend adataptr_img_backrefs $outcol
