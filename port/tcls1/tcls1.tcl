@@ -327,13 +327,13 @@ proc load_palette {addr} {
 
 proc load_level_layout {llayptr llaycsize} {
    loading_start $llaycsize "Loading level layout"
-   set si [expr {$llayptr}]
-   set si_end [expr {$si+$llaycsize}]
+   set si 0
+   set si_end $llaycsize
    set progress_throttle 0
    set prev {}
+   binary scan $::romdata "@$llayptr cu$llaycsize" laydata
    while {$si < $si_end} {
-      binary scan $::romdata "@$si cu" v
-      assert {{$v ne {}}}
+      set v [lindex $laydata $si]
       incr si
       if {$v != $prev} {
          # No RLE: Add it
@@ -341,15 +341,12 @@ proc load_level_layout {llayptr llaycsize} {
          set prev $v
       } else {
          # RLE: Get length and clear previous value
-         binary scan $::romdata "@$si cu" vlen
+         set vlen [lindex $laydata $si]
          incr si
          # Handle the len=$00 case (which means $100, not $00)
-         if {$vlen<1} { incr vlen }
+         if {$vlen<1} { incr vlen 1 }
          # Append it!
-         while {$vlen>0} {
-            lappend ::leveldata $v
-            incr vlen -1
-         }
+         lappend ::leveldata {*}[lrepeat $vlen $v]
          unset vlen
          # Clear previous so we don't rematch
          set prev {}
