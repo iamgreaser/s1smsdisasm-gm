@@ -191,15 +191,16 @@ proc load_level {li} {
 }
 
 proc load_tilemap {addr} {
-   loading_start [expr {0xD8}] "Loading tilemap"
    # format: 4x4 array of {tx ty tx+8 ty+8} groups to shove into a -from
    set ::tilemap [list]
    # Worst case is 0xD8 tiles, apparently.
+   binary scan $::romdata "@$addr cu[expr {0xD8*16}]" tmdata
+   set addr 0
    for {set tidx 0} {$tidx < 0xD8} {incr tidx} {
       set mtile [list]
       for {set ty 0} {$ty < 4} {incr ty} {
          for {set tx 0} {$tx < 4} {incr tx} {
-            binary scan $::romdata "@$addr cu" v
+            set v [lindex $tmdata $addr]
             incr addr
             set stx0 [expr {($v / 16)*8}]
             set sty0 [expr {($v % 16)*8}]
@@ -210,11 +211,7 @@ proc load_tilemap {addr} {
          }
       }
       lappend ::tilemap $mtile
-      if {$tidx % 8 == 0} {
-         loading_update $tidx
-      }
    }
-   loading_update [expr {0xD8}]
 }
 
 proc load_art {img addr pal} {
