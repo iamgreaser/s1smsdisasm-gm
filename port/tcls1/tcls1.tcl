@@ -165,20 +165,8 @@ proc load_level {li} {
       # Copy art to main screen
       puts "Rendering level tiles"
       .maincanvas itemconfigure scaleimg -image {}
-      puts [time {
-         loading_start [expr {$::scroll_ly/32}] "Rendering level tiles"
-         for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
-            for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
-               set si 0
-               set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
-               set dtx [expr {$mtx*32}]
-               set dty [expr {$mty*32}]
-               set tile [lindex $::tilemap $mti]
-               mainimg put $tile -to $dtx $dty
-            }
-            loading_update [expr {$mty+1}]
-         }
-      }]
+      puts [time {redraw_all_tiles}]
+
       if {$::render_scale != 1} {
          .maincanvas itemconfigure scaleimg -image scaleimg
       } else {
@@ -186,6 +174,21 @@ proc load_level {li} {
       }
    } finally {
       loading_close
+   }
+}
+
+proc redraw_all_tiles {} {
+   loading_start [expr {$::scroll_ly/32}] "Rendering level tiles"
+   for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
+      for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
+         set si 0
+         set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
+         set dtx [expr {$mtx*32}]
+         set dty [expr {$mty*32}]
+         set tile [lindex $::tilemap $mti]
+         mainimg put $tile -to $dtx $dty
+      }
+      loading_update [expr {$mty+1}]
    }
 }
 
