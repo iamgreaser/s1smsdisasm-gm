@@ -43,6 +43,7 @@ proc load_level {li} {
 
       # Unpack the level data
       set ::levellx $lwidth
+      set ::levelly $lheight
       puts "Loading level layout"
       puts [time {load_level_layout $llayptr $llaycsize}]
 
@@ -59,6 +60,9 @@ proc load_level {li} {
       .maincanvas itemconfigure scaleimg -image {}
       update idletasks
       puts [time {redraw_all_tiles}]
+
+      # Update the scroll position
+      update_output_scroll_pos_noload
 
       if {$::render_scale != 1} {
          .maincanvas itemconfigure scaleimg -image scaleimg

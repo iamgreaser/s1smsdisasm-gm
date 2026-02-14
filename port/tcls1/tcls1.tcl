@@ -15,7 +15,6 @@ set ::romdata {}
 set ::rompath {}
 
 set ::leveldata {}
-set ::levellx {}
 
 set ::level_index_count [expr {0x25}]
 set ::ptr_pal_bases [expr {0x0627C}]
@@ -104,23 +103,91 @@ proc async_main {} {
 
 set ::scroll_x 0
 set ::scroll_y 0
+set ::scroll_dx 5
+set ::scroll_dy 3
 proc tick_game {} {
    # Scroll the image.
-   set prev_scroll_x $::scroll_x
-   set prev_scroll_y $::scroll_y
-   set ::scroll_x [expr {($::scroll_x+5) % $::scroll_lx}]
-   set ::scroll_y [expr {($::scroll_y+3) % $::scroll_ly}]
-   .maincanvas move scaleimg [expr {$::render_scale*($prev_scroll_x-$::scroll_x)}] [expr {$::render_scale*($prev_scroll_y-$::scroll_y)}]
+   set prev_cx0 [expr {$::camera_x>>5}]
+   set prev_cy0 [expr {$::camera_y>>5}]
+   set prev_cx1 [expr {$prev_cx0+($::scroll_lx>>5)}]
+   set prev_cy1 [expr {$prev_cy0+($::scroll_ly>>5)}]
+
+   incr ::camera_x $::scroll_dx
+   if {$::camera_x < 0} {
+      set ::camera_x 0
+      set ::scroll_dx 5
+   }
+   if {$::camera_x > ($::levellx<<5)-$::scroll_lx} {
+      set ::camera_x [expr {($::levellx<<5)-$::scroll_lx}]
+      set ::scroll_dx -5
+   }
+
+   incr ::camera_y $::scroll_dy
+   if {$::camera_y < 0} {
+      set ::camera_y 0
+      set ::scroll_dy 3
+   }
+   if {$::camera_y > ($::levelly<<5)-$::scroll_ly} {
+      set ::camera_y [expr {($::levelly<<5)-$::scroll_ly}]
+      set ::scroll_dy -3
+   }
+
+   set next_cx0 [expr {$::camera_x>>5}]
+   set next_cy0 [expr {$::camera_y>>5}]
+   set next_cx1 [expr {$next_cx0+($::scroll_lx>>5)}]
+   set next_cy1 [expr {$next_cy0+($::scroll_ly>>5)}]
+
+   if {abs($next_cx0-$prev_cx0) >= ($::scroll_lx>>5) || abs($next_cy0-$prev_cy0) >= ($::scroll_ly>>5)} {
+      # If we go too far, do a full redraw.
+      redraw_all_tiles
+   } else {
+      set cy0 $next_cy0
+      set cy1 $next_cy1
+      if {$next_cy0 > $prev_cy0} {
+         # Draw down
+         redraw_region $next_cx0 $prev_cy1 $next_cx1 $next_cy1
+         set cy1 $prev_cy1
+      } elseif {$next_cy0 < $prev_cy0} {
+         # Draw up
+         redraw_region $next_cx0 $next_cy0 $next_cx1 $prev_cy0
+         set cy0 $prev_cy0
+      }
+      if {$next_cx0 > $prev_cx0} {
+         # Draw right
+         redraw_region $prev_cx1 $cy0 $next_cx1 $cy1
+      } elseif {$next_cx0 < $prev_cx0} {
+         # Draw left
+         redraw_region $next_cx0 $cy0 $prev_cx0 $cy1
+      }
+   }
+
+   update_output_scroll_pos_noload
 
    after 20 {tick_game}
 }
 
+proc update_output_scroll_pos_noload {} {
+   set prev_scroll_x $::scroll_x
+   set prev_scroll_y $::scroll_y
+   set ::scroll_x [expr {$::camera_x % $::scroll_lx}]
+   set ::scroll_y [expr {$::camera_y % $::scroll_ly}]
+   .maincanvas move scaleimg [expr {$::render_scale*($prev_scroll_x-$::scroll_x)}] [expr {$::render_scale*($prev_scroll_y-$::scroll_y)}]
+}
+
 proc redraw_all_tiles {} {
-   for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
-      set dty [expr {$mty*32}]
-      set saddr [expr {(($mty+($::camera_y>>5))*$::levellx)+($::camera_x>>5)}]
-      for {set dtx 0} {$dtx < $::scroll_lx} {incr dtx 32} {
-         set si 0
+   set cx0 [expr {$::camera_x>>5}]
+   set cy0 [expr {$::camera_y>>5}]
+   set cx1 [expr {$cx0+($::scroll_lx>>5)}]
+   set cy1 [expr {$cy0+($::scroll_ly>>5)}]
+   redraw_region $cx0 $cy0 $cx1 $cy1
+}
+
+proc redraw_region {mtx0 mty0 mtx1 mty1} {
+   for {set mty $mty0} {$mty < $mty1} {incr mty} {
+      set dty [expr {($mty*32)%$::scroll_ly}]
+      set saddr [expr {($mty*$::levellx)+$mtx0}]
+      for {set mtx $mtx0} {$mtx < $mtx1} {incr mtx} {
+         set dtx [expr {($mtx*32)%$::scroll_lx}]
          set mti [lindex $::leveldata $saddr]
          incr saddr
          mainimg put [lindex $::metatiles $mti] -format ppm -to $dtx $dty
