@@ -167,24 +167,39 @@ proc load_level {li} {
       puts [time {load_tilemap $ltmapptr}]
 
       # Copy art to main screen
-      loading_start 7 "Rendering level tiles"
-      for {set mty 0} {$mty < 7} {incr mty} {
-         for {set mtx 0} {$mtx < 8} {incr mtx} {
-            set si 0
-            set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
-            set mt [lindex $::tilemap $mti]
-            for {set ty 0} {$ty < 4} {incr ty} {
-               set dty [expr {($mty*32)+($ty*8)}]
-               for {set tx 0} {$tx < 4} {incr tx} {
-                  set dtx [expr {($mtx*32)+($tx*8)}]
-                  set tsrc [lindex $mt $si]
-                  incr si
-                  mainimg copy levelartimg -from {*}$tsrc -to $dtx $dty
+      puts "Rendering level tiles"
+      puts [time {
+         loading_start 7 "Rendering level tiles"
+         set mt_prev_pos [dict create]
+         for {set mty 0} {$mty < 7} {incr mty} {
+            for {set mtx 0} {$mtx < 8} {incr mtx} {
+               set si 0
+               set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
+               set mt [lindex $::tilemap $mti]
+               if {[dict exists $mt_prev_pos $mt]} {
+                  # Go to our tile cache
+                  set tsrc [dict get $mt_prev_pos $mt]
+                  set dtx [expr {$mtx*32}]
+                  set dty [expr {$mty*32}]
+                  mainimg copy mainimg -from {*}$tsrc -to $dtx $dty
+               } else {
+                  for {set ty 0} {$ty < 4} {incr ty} {
+                     set dty [expr {($mty*32)+($ty*8)}]
+                     for {set tx 0} {$tx < 4} {incr tx} {
+                        set dtx [expr {($mtx*32)+($tx*8)}]
+                        set tsrc [lindex $mt $si]
+                        incr si
+                        mainimg copy levelartimg -from {*}$tsrc -to $dtx $dty
+                     }
+                  }
+                  set dtx [expr {$mtx*32}]
+                  set dty [expr {$mty*32}]
+                  dict set mt_prev_pos $mt [list $dtx $dty [expr {$dtx+32}] [expr {$dty+32}]]
                }
             }
+            loading_update [expr {$mty+1}]
          }
-         loading_update [expr {$mty+1}]
-      }
+      }]
    } finally {
       loading_close
    }
