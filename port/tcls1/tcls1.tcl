@@ -179,15 +179,12 @@ proc load_level {li} {
 
 proc redraw_all_tiles {} {
    for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
+      set dty [expr {$mty*32}]
       for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
          set si 0
          set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
          set dtx [expr {$mtx*32}]
-         set dty [expr {$mty*32}]
-         foreach stripe [lindex $::metatiles $mti] {
-            mainimg put $stripe -format ppm -to $dtx $dty
-            incr dtx 8
-         }
+         mainimg put [lindex $::metatiles $mti] -format ppm -to $dtx $dty
       }
    }
 }
@@ -201,17 +198,34 @@ proc load_tilemap {addr} {
    set addr 0
    for {set tidx 0} {$tidx < 0xD8} {incr tidx} {
       set stripes [list]
-      for {set tx 0} {$tx < 32} {incr tx 8} {
-         set mtile "P6\n8 32\n255\n"
-         for {set ay 0} {$ay < 16} {incr ay 4} {
-            set v [lindex $tmdata [expr {$addr+$ay}]]
-            append mtile [string range $::levelartdata [expr {3*8*8*$v}] [expr {(3*8*8*($v+1))-1}]]
-         }
+      set mtile "P6\n32 32\n255\n"
+      for {set ay 0} {$ay < 16} {incr ay 4} {
+         set v0 [lindex $tmdata $addr]
          incr addr
-         lappend stripes $mtile
+         set v1 [lindex $tmdata $addr]
+         incr addr
+         set v2 [lindex $tmdata $addr]
+         incr addr
+         set v3 [lindex $tmdata $addr]
+         incr addr
+         set v0 [expr {3*8*8*$v0}]
+         set v1 [expr {3*8*8*$v1}]
+         set v2 [expr {3*8*8*$v2}]
+         set v3 [expr {3*8*8*$v3}]
+         for {set ax 0} {$ax < 8} {incr ax} {
+            append mtile \
+               [string range $::levelartdata $v0 [expr {$v0+(3*8)-1}]] \
+               [string range $::levelartdata $v1 [expr {$v1+(3*8)-1}]] \
+               [string range $::levelartdata $v2 [expr {$v2+(3*8)-1}]] \
+               [string range $::levelartdata $v3 [expr {$v3+(3*8)-1}]] \
+               ;
+            incr v0 24
+            incr v1 24
+            incr v2 24
+            incr v3 24
+         }
       }
-      lappend ::metatiles $stripes
-      incr addr 12
+      lappend ::metatiles $mtile
       incr progress_throttle
       if {$progress_throttle >= 24} {
          loading_update [expr {$tidx+1}]
