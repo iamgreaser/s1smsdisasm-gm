@@ -255,9 +255,6 @@ proc load_art {img addr pal} {
    set ::levelartdata [list]
    set adataptr_img_backrefs [list]
    for {set ti 0} {$ti < $arowcount} {incr ti} {
-      set ty [expr {$ti % 128}]
-      set tx [expr {($ti / 128) * 8}]
-
       # Fetch mask if necessary
       if {($ti % 8) == 0} {
          set mask [lindex $maskdata $addr]
@@ -270,8 +267,7 @@ proc load_art {img addr pal} {
          incr adataptr
 
          # Build a column to put into the image
-         set outcol [list]
-         for {set x 0} {$x < 8} {incr x} {
+         set outcol [lmap x [list 0 1 2 3 4 5 6 7] {
             set v [expr {
                (($p>> 7)&0x1)
                |(($p>>14)&0x2)
@@ -279,8 +275,8 @@ proc load_art {img addr pal} {
                |(($p>>28)&0x8)
             }]
             set p [expr {($p&0x7FFFFFFF)<<1}]
-            lappend outcol [lindex $pal $v]
-         }
+            set v [lindex $pal $v]
+         }]
          lappend adataptr_img_backrefs $outcol
 
       } else {
