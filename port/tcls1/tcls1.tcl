@@ -155,13 +155,16 @@ proc load_level {li} {
 
       # Unpack the level data
       set ::levellx $lwidth
-      load_level_layout $llayptr $llaycsize
+      puts "Loading level layout"
+      puts [time {load_level_layout $llayptr $llaycsize}]
 
       # Unpack the level art
-      load_art levelartimg [expr {0x30000+$lart0ptr}] $::render_palette_0
+      puts "Loading art"
+      puts [time {load_art levelartimg [expr {0x30000+$lart0ptr}] $::render_palette_0}]
 
       # Unpack the tilemap
-      load_tilemap $ltmapptr
+      puts "Loading tilemap"
+      puts [time {load_tilemap $ltmapptr}]
 
       # Copy art to main screen
       loading_start 7 "Rendering level tiles"
@@ -224,10 +227,15 @@ proc load_art {img addr pal} {
    incr addr 8
 
    loading_start $arowcount "Loading art"
-
-   # format: list of {tx ty tx+8 ty+1}
    set progress_throttle 0
+
+   # format: a list of 8 #rgb colours
+   # TODO: Consider transparency! --GM
    set adataptr_img_backrefs [list]
+   # format: a list of *those* lists
+   set accum_rows [list]
+   set accum_tx 0
+   set accum_ty 0
    for {set ti 0} {$ti < $arowcount} {incr ti} {
       set ty [expr {$ti % 128}]
       set tx [expr {($ti / 128) * 8}]
@@ -258,9 +266,7 @@ proc load_art {img addr pal} {
             incr p3 $p3
             lappend outcol [lindex $pal $v]
          }
-         # Write it
-         $img put [list $outcol] -to $tx $ty
-         lappend adataptr_img_backrefs [list $tx $ty [expr {$tx+8}] [expr {$ty+1}]]
+         lappend adataptr_img_backrefs $outcol
 
       } else {
          # Offset row
@@ -272,9 +278,19 @@ proc load_art {img addr pal} {
             incr aoffsptr
             set offs [expr {(($offs-0xF0)<<8)+$offs_lo}]
          }
-         set srcpos [lindex $adataptr_img_backrefs $offs]
-         $img copy $img -from {*}$srcpos -to $tx $ty -compositingrule set
+         set outcol [lindex $adataptr_img_backrefs $offs]
       }
+
+      # Write it
+      if {$ty != ($accum_ty+[llength $accum_rows]) || $tx != $accum_tx} {
+         if {$accum_rows ne {}} {
+            $img put $accum_rows -to $accum_tx $accum_ty
+         }
+         set accum_rows [list]
+         set accum_tx $tx
+         set accum_ty $ty
+      }
+      lappend accum_rows $outcol
 
       # Next mask bit!
       set mask [expr {$mask>>1}]
@@ -284,6 +300,11 @@ proc load_art {img addr pal} {
          loading_update [expr {$ti+1}]
          set progress_throttle 0
       }
+   }
+
+   # Write final region
+   if {$accum_rows ne {}} {
+      $img put $accum_rows -to $accum_tx $accum_ty
    }
    loading_update $arowcount
 }
