@@ -261,7 +261,6 @@ proc load_art {img addr pal} {
          # Write it
          $img put [list $outcol] -to $tx $ty
          lappend adataptr_img_backrefs [list $tx $ty [expr {$tx+8}] [expr {$ty+1}]]
-         #lappend adataptr_img_backrefs [list $outcol]
 
       } else {
          # Offset row
@@ -274,9 +273,7 @@ proc load_art {img addr pal} {
             set offs [expr {(($offs-0xF0)<<8)+$offs_lo}]
          }
          set srcpos [lindex $adataptr_img_backrefs $offs]
-         #$img copy $img -from {*}$srcpos -to $tx $ty [expr {$tx+8}] [expr {$ty+1}] -compositingrule set
          $img copy $img -from {*}$srcpos -to $tx $ty -compositingrule set
-         #$img put $srcpos -to $tx $ty
       }
 
       # Next mask bit!
