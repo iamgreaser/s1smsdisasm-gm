@@ -36,12 +36,6 @@ proc main {rompath} {
 
    set ::rompath $rompath
 
-   # Create prerendered tile image
-   image create photo metatileimg \
-      -width [expr {16*32}] \
-      -height [expr {16*32}] \
-      ;
-
    # Create image render target
    image create photo mainimg \
       -width [expr {$::scroll_lx}] \
@@ -188,13 +182,12 @@ proc redraw_all_tiles {} {
       for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
          set si 0
          set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
-         set sx0 [expr {($mti % 16)*32}]
-         set sy0 [expr {($mti / 16)*32}]
-         set sx1 [expr {$sx0+32}]
-         set sy1 [expr {$sy0+32}]
          set dtx [expr {$mtx*32}]
          set dty [expr {$mty*32}]
-         mainimg copy metatileimg -to $dtx $dty -from $sx0 $sy0 $sx1 $sy1 -compositingrule set
+         foreach stripe [lindex $::metatiles $mti] {
+            mainimg put $stripe -format ppm -to $dtx $dty
+            incr dtx 8
+         }
       }
       loading_update [expr {$mty+1}]
    }
@@ -203,10 +196,12 @@ proc redraw_all_tiles {} {
 proc load_tilemap {addr} {
    loading_start [expr {0xD8}] "Loading tilemap"
    set progress_throttle 0
+   set ::metatiles [list]
    # Worst case is 0xD8 tiles, apparently.
    binary scan $::romdata "@$addr cu[expr {0xD8*16}]" tmdata
    set addr 0
    for {set tidx 0} {$tidx < 0xD8} {incr tidx} {
+      set stripes [list]
       for {set tx 0} {$tx < 32} {incr tx 8} {
          set mtile "P6\n8 32\n255\n"
          for {set ay 0} {$ay < 16} {incr ay 4} {
@@ -214,8 +209,9 @@ proc load_tilemap {addr} {
             append mtile [string range $::levelartdata [expr {3*8*8*$v}] [expr {(3*8*8*($v+1))-1}]]
          }
          incr addr
-         metatileimg put $mtile -format ppm -to [expr {(($tidx % 16)*32)+$tx}] [expr {($tidx / 16)*32}]
+         lappend stripes $mtile
       }
+      lappend ::metatiles $stripes
       incr addr 12
       incr progress_throttle
       if {$progress_throttle >= 24} {
