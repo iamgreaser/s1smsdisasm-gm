@@ -36,10 +36,6 @@ proc main {rompath} {
 
    set ::rompath $rompath
 
-   # Create level art image
-   # Use a 16x16 grid
-   image create photo levelartimg -width 128 -height 128
-
    # Create image render target
    image create photo mainimg \
       -width [expr {$::scroll_lx}] \
@@ -190,7 +186,7 @@ proc load_level {li} {
                         set dtx [expr {($mtx*32)+($tx*8)}]
                         set tsrc [lindex $mt $si]
                         incr si
-                        mainimg copy levelartimg -from {*}$tsrc -to $dtx $dty
+                        mainimg put [lrange $::levelartdata $tsrc [expr {$tsrc+8}]] -to $dtx $dty
                      }
                   }
                   set dtx [expr {$mtx*32}]
@@ -223,11 +219,7 @@ proc load_tilemap {addr} {
          for {set tx 0} {$tx < 4} {incr tx} {
             set v [lindex $tmdata $addr]
             incr addr
-            set stx0 [expr {($v / 16)*8}]
-            set sty0 [expr {($v % 16)*8}]
-            set stx1 [expr {$stx0+8}]
-            set sty1 [expr {$sty0+8}]
-            lappend mtile [list $stx0 $sty0 $stx1 $sty1]
+            lappend mtile [expr {$v*8}]
             unset v
          }
       }
@@ -270,11 +262,8 @@ proc load_art {img addr pal} {
 
    # format: a list of 8 #rgb colours
    # TODO: Consider transparency! --GM
+   set ::levelartdata [list]
    set adataptr_img_backrefs [list]
-   # format: a list of *those* lists
-   set accum_rows [list]
-   set accum_tx 0
-   set accum_ty 0
    for {set ti 0} {$ti < $arowcount} {incr ti} {
       set ty [expr {$ti % 128}]
       set tx [expr {($ti / 128) * 8}]
@@ -318,15 +307,7 @@ proc load_art {img addr pal} {
       }
 
       # Write it
-      if {$ty != ($accum_ty+[llength $accum_rows]) || $tx != $accum_tx} {
-         if {$accum_rows ne {}} {
-            $img put $accum_rows -to $accum_tx $accum_ty
-         }
-         set accum_rows [list]
-         set accum_tx $tx
-         set accum_ty $ty
-      }
-      lappend accum_rows $outcol
+      lappend ::levelartdata $outcol
 
       # Next mask bit!
       set mask [expr {$mask>>1}]
@@ -339,9 +320,6 @@ proc load_art {img addr pal} {
    }
 
    # Write final region
-   if {$accum_rows ne {}} {
-      $img put $accum_rows -to $accum_tx $accum_ty
-   }
    loading_update $arowcount
 }
 
