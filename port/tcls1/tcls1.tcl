@@ -168,6 +168,7 @@ proc load_level {li} {
 
       # Copy art to main screen
       puts "Rendering level tiles"
+      .maincanvas itemconfigure scaleimg -image {}
       puts [time {
          loading_start 7 "Rendering level tiles"
          set mt_prev_pos [dict create]
@@ -200,6 +201,11 @@ proc load_level {li} {
             loading_update [expr {$mty+1}]
          }
       }]
+      if {$::render_scale != 1} {
+         .maincanvas itemconfigure scaleimg -image scaleimg
+      } else {
+         .maincanvas itemconfigure scaleimg -image mainimg
+      }
    } finally {
       loading_close
    }
