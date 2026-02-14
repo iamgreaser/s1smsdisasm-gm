@@ -208,21 +208,21 @@ proc load_tilemap {addr} {
          incr addr
          set v3 [lindex $tmdata $addr]
          incr addr
-         set v0 [expr {3*8*8*$v0}]
-         set v1 [expr {3*8*8*$v1}]
-         set v2 [expr {3*8*8*$v2}]
-         set v3 [expr {3*8*8*$v3}]
+         set v0 [expr {8*$v0}]
+         set v1 [expr {8*$v1}]
+         set v2 [expr {8*$v2}]
+         set v3 [expr {8*$v3}]
          for {set ax 0} {$ax < 8} {incr ax} {
             append mtile \
-               [string range $::levelartdata $v0 [expr {$v0+(3*8)-1}]] \
-               [string range $::levelartdata $v1 [expr {$v1+(3*8)-1}]] \
-               [string range $::levelartdata $v2 [expr {$v2+(3*8)-1}]] \
-               [string range $::levelartdata $v3 [expr {$v3+(3*8)-1}]] \
+               [lindex $::levelartdata $v0] \
+               [lindex $::levelartdata $v1] \
+               [lindex $::levelartdata $v2] \
+               [lindex $::levelartdata $v3] \
                ;
-            incr v0 24
-            incr v1 24
-            incr v2 24
-            incr v3 24
+            incr v0
+            incr v1
+            incr v2
+            incr v3
          }
       }
       lappend ::metatiles $mtile
@@ -270,7 +270,7 @@ proc load_art {img addr pal} {
 
    # format: a list of 8 #rgb colours
    # TODO: Consider transparency! --GM
-   set ::levelartdata ""
+   set ::levelartdata [list]
    set adataptr_img_backrefs [list]
    for {set ti 0} {$ti < $arowcount} {incr ti} {
       # Fetch mask if necessary
@@ -312,7 +312,7 @@ proc load_art {img addr pal} {
       }
 
       # Write it
-      append ::levelartdata $outcol
+      lappend ::levelartdata $outcol
 
       # Next mask bit!
       set mask [expr {$mask>>1}]
