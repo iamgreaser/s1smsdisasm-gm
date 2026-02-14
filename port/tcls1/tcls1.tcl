@@ -207,15 +207,16 @@ proc load_tilemap {addr} {
    binary scan $::romdata "@$addr cu[expr {0xD8*16}]" tmdata
    set addr 0
    for {set tidx 0} {$tidx < 0xD8} {incr tidx} {
-      for {set ty 0} {$ty < 32} {incr ty 8} {
-         for {set tx 0} {$tx < 32} {incr tx 8} {
-            set v [lindex $tmdata $addr]
-            incr addr
-            set mtile "P6\n8 8\n255\n"
+      for {set tx 0} {$tx < 32} {incr tx 8} {
+         set mtile "P6\n8 32\n255\n"
+         for {set ay 0} {$ay < 16} {incr ay 4} {
+            set v [lindex $tmdata [expr {$addr+$ay}]]
             append mtile [string range $::levelartdata [expr {3*8*8*$v}] [expr {(3*8*8*($v+1))-1}]]
-            metatileimg put $mtile -format ppm -to [expr {(($tidx % 16)*32)+$tx}] [expr {(($tidx / 16)*32)+$ty}]
          }
+         incr addr
+         metatileimg put $mtile -format ppm -to [expr {(($tidx % 16)*32)+$tx}] [expr {($tidx / 16)*32}]
       }
+      incr addr 12
       incr progress_throttle
       if {$progress_throttle >= 24} {
          loading_update [expr {$tidx+1}]
