@@ -35,8 +35,11 @@ proc load_level {li} {
 
       # Load the palette
       binary scan $::romdata "@[expr {$::ptr_pal_bases+(2*$lpal3)}] su" lpal3ptr
-      set ::render_palette_0 [load_palette [expr {$lpal3ptr+(0x10*0)}]]
-      set ::render_palette_1 [load_palette [expr {$lpal3ptr+(0x10*1)}]]
+      puts "Loading palettes"
+      puts [time {
+         set ::render_palette_0 [load_palette [expr {$lpal3ptr+(0x10*0)}]]
+         set ::render_palette_1 [load_palette [expr {$lpal3ptr+(0x10*1)}]]
+      }]
 
       # Unpack the level data
       set ::levellx $lwidth
@@ -208,13 +211,12 @@ proc load_art {img addr pal} {
 
 proc load_palette {addr} {
    set result [list]
-   for {set i 0} {$i <= 0x10} {incr i} {
-      binary scan $::romdata "@[expr {$i+$addr}] cu" v
+   binary scan $::romdata "@$addr cu16" vlist
+   foreach v $vlist {
       set cr [expr {(($v>>0)&0x3)*0x55}]
       set cg [expr {(($v>>2)&0x3)*0x55}]
       set cb [expr {(($v>>4)&0x3)*0x55}]
       lappend result [binary format cucucu $cr $cg $cb]
-      unset v
       unset cr
       unset cg
       unset cb
