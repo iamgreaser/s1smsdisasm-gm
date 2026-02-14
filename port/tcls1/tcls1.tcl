@@ -36,6 +36,12 @@ proc main {rompath} {
 
    set ::rompath $rompath
 
+   # Create prerendered tile image
+   image create photo metatileimg \
+      -width [expr {16*32}] \
+      -height [expr {16*32}] \
+      ;
+
    # Create image render target
    image create photo mainimg \
       -width [expr {$::scroll_lx}] \
@@ -183,10 +189,13 @@ proc redraw_all_tiles {} {
       for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
          set si 0
          set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
+         set sx0 [expr {($mti % 16)*32}]
+         set sy0 [expr {($mti / 16)*32}]
+         set sx1 [expr {$sx0+32}]
+         set sy1 [expr {$sy0+32}]
          set dtx [expr {$mtx*32}]
          set dty [expr {$mty*32}]
-         set tile [lindex $::tilemap $mti]
-         mainimg put $tile -to $dtx $dty
+         mainimg copy metatileimg -to $dtx $dty -from $sx0 $sy0 $sx1 $sy1 -compositingrule set
       }
       loading_update [expr {$mty+1}]
    }
@@ -195,8 +204,6 @@ proc redraw_all_tiles {} {
 proc load_tilemap {addr} {
    loading_start [expr {0xD8}] "Loading tilemap"
    set progress_throttle 0
-   # format: 32x32 array of colours
-   set ::tilemap [list]
    # Worst case is 0xD8 tiles, apparently.
    binary scan $::romdata "@$addr cu[expr {0xD8*16}]" tmdata
    set addr 0
@@ -210,7 +217,7 @@ proc load_tilemap {addr} {
          }]
          lappend mtile {*}[lmap {*}[concat {*}$rowspecs] {concat $v0 $v1 $v2 $v3}]
       }
-      lappend ::tilemap $mtile
+      metatileimg put $mtile -to [expr {($tidx % 16)*32}] [expr {($tidx / 16)*32}]
       incr progress_throttle
       if {$progress_throttle >= 24} {
          loading_update [expr {$tidx+1}]
