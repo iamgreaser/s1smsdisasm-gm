@@ -135,14 +135,15 @@ proc load_art {img addr pal} {
    set aoffsptr 0
 
    # Compute the length of the data list
-   # This takes about 0.07 seconds on my Covington for GHZ art.
+   # This takes about 0.015 seconds on my Covington for GHZ art.
    set adatalen 0
    puts "- map data len calc: [time {
       foreach mask $maskdata {
-         set mask [expr {0xFF^$mask}]
-         set mask [expr {($mask&0x55)+(($mask>>1)&0x55)}]
-         set mask [expr {($mask&0x33)+(($mask>>2)&0x33)}]
-         incr adatalen [expr {($mask&0x0F)+(($mask>>4)&0x0F)}]
+         incr adatalen [expr {
+            ((001121223>>(3*($mask&0x7)))&0x7)
+            +((001121223>>(3*(($mask>>5))))&0x7)
+            +((0x0112>>($mask&0x0C))&0x3)
+         }]
       }
    }]"
    binary scan $::romdata "@$adataptr iu$adatalen" planedata
