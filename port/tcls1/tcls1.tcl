@@ -167,32 +167,14 @@ proc load_level {li} {
       .maincanvas itemconfigure scaleimg -image {}
       puts [time {
          loading_start [expr {$::scroll_ly/32}] "Rendering level tiles"
-         set mt_prev_pos [dict create]
          for {set mty 0} {$mty < [expr {$::scroll_ly/32}]} {incr mty} {
             for {set mtx 0} {$mtx < [expr {$::scroll_lx/32}]} {incr mtx} {
                set si 0
                set mti [lindex $::leveldata [expr {(($mty+16-7-1)*$::levellx)+$mtx+7}]]
-               set mt [lindex $::tilemap $mti]
-               if {[dict exists $mt_prev_pos $mt]} {
-                  # Go to our tile cache
-                  set tsrc [dict get $mt_prev_pos $mt]
-                  set dtx [expr {$mtx*32}]
-                  set dty [expr {$mty*32}]
-                  mainimg copy mainimg -from {*}$tsrc -to $dtx $dty
-               } else {
-                  for {set ty 0} {$ty < 4} {incr ty} {
-                     set dty [expr {($mty*32)+($ty*8)}]
-                     for {set tx 0} {$tx < 4} {incr tx} {
-                        set dtx [expr {($mtx*32)+($tx*8)}]
-                        set tsrc [lindex $mt $si]
-                        incr si
-                        mainimg put [lrange $::levelartdata $tsrc [expr {$tsrc+8}]] -to $dtx $dty
-                     }
-                  }
-                  set dtx [expr {$mtx*32}]
-                  set dty [expr {$mty*32}]
-                  dict set mt_prev_pos $mt [list $dtx $dty [expr {$dtx+32}] [expr {$dty+32}]]
-               }
+               set dtx [expr {$mtx*32}]
+               set dty [expr {$mty*32}]
+               set tile [lindex $::tilemap $mti]
+               mainimg put $tile -to $dtx $dty
             }
             loading_update [expr {$mty+1}]
          }
@@ -208,23 +190,31 @@ proc load_level {li} {
 }
 
 proc load_tilemap {addr} {
-   # format: 4x4 array of {tx ty tx+8 ty+8} groups to shove into a -from
+   loading_start [expr {0xD8}] "Loading tilemap"
+   set progress_throttle 0
+   # format: 32x32 array of colours
    set ::tilemap [list]
    # Worst case is 0xD8 tiles, apparently.
    binary scan $::romdata "@$addr cu[expr {0xD8*16}]" tmdata
    set addr 0
    for {set tidx 0} {$tidx < 0xD8} {incr tidx} {
       set mtile [list]
-      for {set ty 0} {$ty < 4} {incr ty} {
-         for {set tx 0} {$tx < 4} {incr tx} {
-            set v [lindex $tmdata $addr]
-            incr addr
-            lappend mtile [expr {$v*8}]
-            unset v
-         }
+      for {set ty 0} {$ty < 32} {incr ty 8} {
+         set indices [lrange $tmdata $addr [expr {$addr+4-1}]]
+         incr addr 4
+         set rowspecs [lmap k {v0 v1 v2 v3} v $indices {
+            list $k [lrange $::levelartdata [expr {8*$v}] [expr {(8*($v+1))-1}]]
+         }]
+         lappend mtile {*}[lmap {*}[concat {*}$rowspecs] {concat $v0 $v1 $v2 $v3}]
       }
       lappend ::tilemap $mtile
+      incr progress_throttle
+      if {$progress_throttle >= 24} {
+         loading_update [expr {$tidx+1}]
+         set progress_throttle 0
+      }
    }
+   loading_update [expr {0xD8}]
 }
 
 proc load_art {img addr pal} {
