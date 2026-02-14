@@ -229,6 +229,27 @@ proc load_art {img addr pal} {
    loading_start $arowcount "Loading art"
    set progress_throttle 0
 
+   # Load parts of data into lists
+   binary scan $::romdata "@$addr cu[expr {($arowcount+8-1)/8}]" maskdata
+   set addr 0
+   binary scan $::romdata "@$aoffsptr cu[expr {$adataptr-$aoffsptr}]" offsdata
+   set aoffsptr 0
+
+   # Compute the length of the data list
+   # This takes about 0.07 seconds on my Covington for GHZ art.
+   set adatalen 0
+   puts "- map data len calc: [time {
+      foreach mask $maskdata {
+         for {set bi 0} {$bi < 8} {incr bi} {
+            if {($mask&(1<<$bi)) == 0} {
+               incr adatalen
+            }
+         }
+      }
+   }]"
+   binary scan $::romdata "@$adataptr cu[expr {$adatalen*4}]" planedata
+   set adataptr 0
+
    # format: a list of 8 #rgb colours
    # TODO: Consider transparency! --GM
    set adataptr_img_backrefs [list]
@@ -242,13 +263,13 @@ proc load_art {img addr pal} {
 
       # Fetch mask if necessary
       if {($ti % 8) == 0} {
-         binary scan $::romdata "@$addr cu" mask
+         set mask [lindex $maskdata $addr]
          incr addr
       }
 
       if {($mask&0x1)==0} {
          # Literal row
-         binary scan $::romdata "@$adataptr cucucucu" p0 p1 p2 p3
+         lassign [lrange $planedata $adataptr [expr {$adataptr+4}]] p0 p1 p2 p3
          incr adataptr 4
 
          # Build a column to put into the image
@@ -270,11 +291,11 @@ proc load_art {img addr pal} {
 
       } else {
          # Offset row
-         binary scan $::romdata "@$aoffsptr cu" offs
+         set offs [lindex $offsdata $aoffsptr]
          incr aoffsptr
          if {$offs >= 0xF0} {
             # Fx yy = long offset to $xyy
-            binary scan $::romdata "@$aoffsptr cu" offs_lo
+            set offs_lo [lindex $offsdata $aoffsptr]
             incr aoffsptr
             set offs [expr {(($offs-0xF0)<<8)+$offs_lo}]
          }
