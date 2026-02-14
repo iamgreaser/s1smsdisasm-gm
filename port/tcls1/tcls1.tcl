@@ -22,7 +22,7 @@ set ::ptrbase_level_layouts [expr {0x14000}]
 set ::ptrbase_level_objects [expr {0x15580}]
 set ::ptr_level_headers_rel [expr {0x15580}]
 
-set ::scroll_lx 256
+set ::scroll_lx 288
 set ::scroll_ly 224
 set ::render_lx 248
 set ::render_ly 192
