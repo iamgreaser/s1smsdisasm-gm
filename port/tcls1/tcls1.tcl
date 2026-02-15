@@ -92,13 +92,10 @@ proc async_main {} {
    # Load a level
    load_level [expr {0x00}]
 
-   # Upscale the image and render it!
-   if {$::render_scale != 1} {
-      scaleimg copy mainimg -compositingrule set -zoom $::render_scale
-   }
-
    # Tick the game!
-   after 20 {tick_game}
+   set ::next_tick [clock milliseconds]
+   incr ::next_tick
+   after 1 {tick_game}
 }
 
 set ::scroll_x 0
@@ -112,24 +109,10 @@ proc tick_game {} {
    set prev_cx1 [expr {$prev_cx0+($::scroll_lx>>5)}]
    set prev_cy1 [expr {$prev_cy0+($::scroll_ly>>5)}]
 
-   incr ::camera_x $::scroll_dx
-   if {$::camera_x < 0} {
-      set ::camera_x 0
-      set ::scroll_dx 5
-   }
-   if {$::camera_x > ($::levellx<<5)-$::scroll_lx} {
-      set ::camera_x [expr {($::levellx<<5)-$::scroll_lx}]
-      set ::scroll_dx -5
-   }
-
-   incr ::camera_y $::scroll_dy
-   if {$::camera_y < 0} {
-      set ::camera_y 0
-      set ::scroll_dy 3
-   }
-   if {$::camera_y > ($::levelly<<5)-$::scroll_ly} {
-      set ::camera_y [expr {($::levelly<<5)-$::scroll_ly}]
-      set ::scroll_dy -3
+   set this_tick [clock milliseconds]
+   while {$::next_tick <= $this_tick} {
+      tick_game_logic
+      incr ::next_tick 20
    }
 
    set next_cx0 [expr {$::camera_x>>5}]
@@ -163,7 +146,31 @@ proc tick_game {} {
 
    update_output_scroll_pos_noload
 
-   after 20 {tick_game}
+   set wait_time [expr {max(1,$::next_tick-[clock milliseconds])}]
+   update idletasks
+   after $wait_time {tick_game}
+}
+
+proc tick_game_logic {} {
+   incr ::camera_x $::scroll_dx
+   if {$::camera_x < 0} {
+      set ::camera_x 0
+      set ::scroll_dx 5
+   }
+   if {$::camera_x > ($::levellx<<5)-$::scroll_lx} {
+      set ::camera_x [expr {($::levellx<<5)-$::scroll_lx}]
+      set ::scroll_dx -5
+   }
+
+   incr ::camera_y $::scroll_dy
+   if {$::camera_y < 0} {
+      set ::camera_y 0
+      set ::scroll_dy 3
+   }
+   if {$::camera_y > ($::levelly<<5)-$::scroll_ly} {
+      set ::camera_y [expr {($::levelly<<5)-$::scroll_ly}]
+      set ::scroll_dy -3
+   }
 }
 
 proc update_output_scroll_pos_noload {} {
@@ -191,6 +198,13 @@ proc redraw_region {mtx0 mty0 mtx1 mty1} {
          set mti [lindex $::leveldata $saddr]
          incr saddr
          mainimg put [lindex $::metatiles $mti] -format ppm -to $dtx $dty
+         # Upscale the image and render it!
+         if {$::render_scale != 1} {
+            scaleimg copy mainimg -compositingrule set -zoom $::render_scale \
+               -from $dtx $dty [expr {$dtx+32}] [expr {$dty+32}] \
+               -to [expr {$dtx*$::render_scale}] [expr {$dty*$::render_scale}] \
+               ;
+         }
       }
    }
 }
