@@ -184,15 +184,15 @@ proc tick_game_logic {} {
    if {$::camera_x < 0} {
       set ::camera_x 0
    }
-   if {$::camera_x > ($::levellx<<5)-$::scroll_lx} {
-      set ::camera_x [expr {($::levellx<<5)-$::scroll_lx}]
+   if {$::camera_x > ($::levellx<<5)-$::render_lx} {
+      set ::camera_x [expr {($::levellx<<5)-$::render_lx}]
    }
 
    if {$::camera_y < 0} {
       set ::camera_y 0
    }
-   if {$::camera_y > ($::levelly<<5)-$::scroll_ly} {
-      set ::camera_y [expr {($::levelly<<5)-$::scroll_ly}]
+   if {$::camera_y > ($::levelly<<5)-$::render_ly} {
+      set ::camera_y [expr {($::levelly<<5)-$::render_ly}]
    }
 }
 
