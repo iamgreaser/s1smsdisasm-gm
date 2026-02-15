@@ -35,9 +35,10 @@ set ::render_palette_1 {}
 set ::camera_x [expr {(0)*32}]
 set ::camera_y [expr {(0)*32}]
 
-proc main {rompath} {
+proc main {rompath level_idx} {
    puts "Starting!"
 
+   set ::level_idx [expr {$level_idx}]
    set ::rompath $rompath
 
    # Create image render target
@@ -90,7 +91,7 @@ proc main {rompath} {
 
 proc async_main {} {
    # Load a level
-   load_level [expr {0x00}]
+   load_level $::level_idx
 
    # Tick the game!
    set ::next_tick [clock milliseconds]
