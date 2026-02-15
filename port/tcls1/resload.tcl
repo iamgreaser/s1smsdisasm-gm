@@ -246,7 +246,7 @@ proc load_level_layout {llayptr llaycsize} {
          set vlen [lindex $laydata $si]
          incr si
          # Handle the len=$00 case (which means $100, not $00)
-         if {$vlen<1} { incr vlen 1 }
+         if {$vlen<1} { set vlen 256 }
          # Append it!
          lappend ::leveldata {*}[lrepeat $vlen $v]
          unset vlen
@@ -255,6 +255,8 @@ proc load_level_layout {llayptr llaycsize} {
       }
       unset v
    }
+   puts "- level input size: [llength $laydata]/$llaycsize/$si_end"
+   puts "- level output size: [llength $::leveldata]"
 }
 
 proc load_blob {path size} {
