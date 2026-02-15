@@ -32,8 +32,8 @@ set ::render_scale 1
 set ::render_palette_0 {}
 set ::render_palette_1 {}
 
-set ::camera_x [expr {(7)*32}]
-set ::camera_y [expr {(16-7)*32}]
+set ::camera_x [expr {(0)*32}]
+set ::camera_y [expr {(0)*32}]
 
 proc main {rompath} {
    puts "Starting!"
@@ -190,14 +190,17 @@ proc redraw_all_tiles {} {
 }
 
 proc redraw_region {mtx0 mty0 mtx1 mty1} {
+   set ldlen [llength $::leveldata]
    for {set mty $mty0} {$mty < $mty1} {incr mty} {
       set dty [expr {($mty*32)%$::scroll_ly}]
       set saddr [expr {($mty*$::levellx)+$mtx0}]
       for {set mtx $mtx0} {$mtx < $mtx1} {incr mtx} {
          set dtx [expr {($mtx*32)%$::scroll_lx}]
          set mti [lindex $::leveldata $saddr]
-         incr saddr
-         mainimg put [lindex $::metatiles $mti] -format ppm -to $dtx $dty
+         set saddr [expr {($saddr+1) % $ldlen}]
+         if {$mti ne {}} {
+            mainimg put [lindex $::metatiles $mti] -format ppm -to $dtx $dty
+         }
          # Upscale the image and render it!
          if {$::render_scale != 1} {
             scaleimg copy mainimg -compositingrule set -zoom $::render_scale \
