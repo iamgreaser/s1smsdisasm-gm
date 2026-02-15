@@ -32,6 +32,8 @@ set ::render_scale 1
 set ::render_palette_0 {}
 set ::render_palette_1 {}
 
+set ::prev_camera_x [expr {(0)*32}]
+set ::prev_camera_y [expr {(0)*32}]
 set ::camera_x [expr {(0)*32}]
 set ::camera_y [expr {(0)*32}]
 
@@ -85,6 +87,16 @@ proc main {rompath level_idx} {
    wm deiconify .
    update idletasks
 
+   # Set up binds
+   bind . <KeyPress-Up> {set ::ctl_up 1}
+   bind . <KeyRelease-Up> {set ::ctl_up 0}
+   bind . <KeyPress-Down> {set ::ctl_down 1}
+   bind . <KeyRelease-Down> {set ::ctl_down 0}
+   bind . <KeyPress-Left> {set ::ctl_left 1}
+   bind . <KeyRelease-Left> {set ::ctl_left 0}
+   bind . <KeyPress-Right> {set ::ctl_right 1}
+   bind . <KeyRelease-Right> {set ::ctl_right 0}
+
    # Dispatch main!
    after idle {async_main}
 }
@@ -99,14 +111,17 @@ proc async_main {} {
    after 1 {tick_game}
 }
 
+set ::ctl_up 0
+set ::ctl_down 0
+set ::ctl_left 0
+set ::ctl_right 0
+
 set ::scroll_x 0
 set ::scroll_y 0
-set ::scroll_dx 5
-set ::scroll_dy 3
 proc tick_game {} {
    # Scroll the image.
-   set prev_cx0 [expr {$::camera_x>>5}]
-   set prev_cy0 [expr {$::camera_y>>5}]
+   set prev_cx0 [expr {$::prev_camera_x>>5}]
+   set prev_cy0 [expr {$::prev_camera_y>>5}]
    set prev_cx1 [expr {$prev_cx0+($::scroll_lx>>5)}]
    set prev_cy1 [expr {$prev_cy0+($::scroll_ly>>5)}]
 
@@ -116,6 +131,8 @@ proc tick_game {} {
       incr ::next_tick 20
    }
 
+   set ::prev_camera_x $::camera_x
+   set ::prev_camera_y $::camera_y
    set next_cx0 [expr {$::camera_x>>5}]
    set next_cy0 [expr {$::camera_y>>5}]
    set next_cx1 [expr {$next_cx0+($::scroll_lx>>5)}]
@@ -153,24 +170,29 @@ proc tick_game {} {
 }
 
 proc tick_game_logic {} {
-   incr ::camera_x $::scroll_dx
+   if {$::ctl_left && !$::ctl_right} {
+      incr ::camera_x -5
+   } elseif {$::ctl_right && !$::ctl_left} {
+      incr ::camera_x 5
+   }
+   if {$::ctl_up && !$::ctl_down} {
+      incr ::camera_y -5
+   } elseif {$::ctl_down && !$::ctl_up} {
+      incr ::camera_y 5
+   }
+
    if {$::camera_x < 0} {
       set ::camera_x 0
-      set ::scroll_dx 5
    }
    if {$::camera_x > ($::levellx<<5)-$::scroll_lx} {
       set ::camera_x [expr {($::levellx<<5)-$::scroll_lx}]
-      set ::scroll_dx -5
    }
 
-   incr ::camera_y $::scroll_dy
    if {$::camera_y < 0} {
       set ::camera_y 0
-      set ::scroll_dy 3
    }
    if {$::camera_y > ($::levelly<<5)-$::scroll_ly} {
       set ::camera_y [expr {($::levelly<<5)-$::scroll_ly}]
-      set ::scroll_dy -3
    }
 }
 

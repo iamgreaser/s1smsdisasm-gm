@@ -47,6 +47,13 @@ proc load_level {li} {
       puts "Loading level layout"
       puts [time {load_level_layout $llayptr $llaycsize}]
 
+      # Update camera
+      set ::camera_x [expr {max(0, min(($::levellx*32)-$::scroll_lx, ($lstartx*32)+16-(($::render_lx-24)/2)))}]
+      set ::camera_y [expr {max(0, min(($::levelly*32)-$::scroll_ly, ($lstarty*32)+16-(($::render_ly-32)/2)))}]
+      set ::prev_camera_y $::camera_y
+      set ::prev_camera_x $::camera_x
+      set ::prev_camera_y $::camera_y
+
       # Unpack the level art
       puts "Loading art"
       puts [time {load_art levelartimg [expr {0x30000+$lart0ptr}] $::render_palette_0}]
