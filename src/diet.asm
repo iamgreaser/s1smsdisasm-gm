@@ -7551,7 +7551,7 @@ LUT_object_functions:
 .dw objfunc_08_badnik_crabmeat, objfunc_09_platform_swing, objfunc_0A_explosion, objfunc_0B_platform_semilowering, objfunc_0C_platform_fall_on_touch, objfunc_0D_fireball_pallet, objfunc_0E_badnik_buzz_bomber, objfunc_0F_platform_horizontal  ; 00:2B06
 .dw objfunc_10_badnik_motobug, objfunc_11_badnik_newtron, objfunc_12_GHZ_boss, objfunc_13_level_change_corridor, objfunc_14_SCR_flamer_firing_right, objfunc_15_SCR_flamer_firing_left, objfunc_16_SCR_ceiling_flamer, objfunc_17_SCR_door_open_on_left  ; 00:2B16
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
-.dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_UNKNOWN, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
+.dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
@@ -20898,11 +20898,11 @@ LUT_caterkiller_x_offsets_going_right:
 .db $00, $02, $03, $04, $05, $05, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06  ; 02:A7D7
 .db $05, $05, $04, $03, $02, $00                                                    ; 02:A7E7
 
-objfunc_22_UNKNOWN:
+objfunc_22_SCR_boss:
    ld     (ix+13), $1E                 ; 02:A7ED - DD 36 0D 1E
    ld     (ix+14), $2F                 ; 02:A7F1 - DD 36 0E 2F
    bit    0, (ix+24)                   ; 02:A7F5 - DD CB 18 46
-   jr     nz, addr_0A830               ; 02:A7F9 - 20 35
+   jr     nz, @already_initialised     ; 02:A7F9 - 20 35
    ld     hl, $0340                    ; 02:A7FB - 21 40 03
    ld     (g_level_limit_x0), hl       ; 02:A7FE - 22 73 D2
    ld     hl, $0540                    ; 02:A801 - 21 40 05
@@ -20923,13 +20923,13 @@ objfunc_22_UNKNOWN:
    rst    $18                          ; 02:A82B - DF
    set    0, (ix+24)                   ; 02:A82C - DD CB 18 C6
 
-addr_0A830:
+@already_initialised:
    bit    1, (ix+24)                   ; 02:A830 - DD CB 18 4E
-   jr     nz, addr_0A893               ; 02:A834 - 20 5D
+   jr     nz, @finished_running_to_platform  ; 02:A834 - 20 5D
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:A836 - 2A 5A D2
    ld     (g_level_limit_x0), hl       ; 02:A839 - 22 73 D2
-   ld     de, UNK_0BAF9                ; 02:A83C - 11 F9 BA
-   ld     bc, UNK_0A9B7                ; 02:A83F - 01 B7 A9
+   ld     de, SPRTAB_robotnik_running  ; 02:A83C - 11 F9 BA
+   ld     bc, LUT_SCR_boss_anim_running  ; 02:A83F - 01 B7 A9
    call   do_framed_animation          ; 02:A842 - CD 41 7C
    ld     l, (ix+2)                    ; 02:A845 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A848 - DD 66 03
@@ -20940,14 +20940,14 @@ addr_0A830:
    xor    a                            ; 02:A855 - AF
    ld     bc, (sonic_vel_x_sub)        ; 02:A856 - ED 4B 03 D4
    bit    7, b                         ; 02:A85A - CB 78
-   jr     nz, addr_0A862               ; 02:A85C - 20 04
+   jr     nz, @sonic_is_moving_left    ; 02:A85C - 20 04
    sbc    hl, de                       ; 02:A85E - ED 52
-   jr     c, addr_0A865                ; 02:A860 - 38 03
+   jr     c, @sonic_was_moving_right   ; 02:A860 - 38 03
 
-addr_0A862:
+@sonic_is_moving_left:
    ld     bc, $FF80                    ; 02:A862 - 01 80 FF
 
-addr_0A865:
+@sonic_was_moving_right:
    inc    b                            ; 02:A865 - 04
    ld     (ix+7), c                    ; 02:A866 - DD 71 07
    ld     (ix+8), b                    ; 02:A869 - DD 70 08
@@ -20957,7 +20957,7 @@ addr_0A865:
    ld     de, $05A0                    ; 02:A875 - 11 A0 05
    xor    a                            ; 02:A878 - AF
    sbc    hl, de                       ; 02:A879 - ED 52
-   jp     c, addr_0A974                ; 02:A87B - DA 74 A9
+   jp     c, @draw_platform_and_maybe_play_platform_sound  ; 02:A87B - DA 74 A9
    ld     l, a                         ; 02:A87E - 6F
    ld     h, a                         ; 02:A87F - 67
    ld     (ix+7), a                    ; 02:A880 - DD 77 07
@@ -20965,11 +20965,11 @@ addr_0A865:
    ld     (sonic_vel_x_sub), hl        ; 02:A886 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 02:A889 - 32 05 D4
    set    1, (ix+24)                   ; 02:A88C - DD CB 18 CE
-   jp     addr_0A974                   ; 02:A890 - C3 74 A9
+   jp     @draw_platform_and_maybe_play_platform_sound  ; 02:A890 - C3 74 A9
 
-addr_0A893:
+@finished_running_to_platform:
    bit    2, (ix+24)                   ; 02:A893 - DD CB 18 56
-   jr     nz, addr_0A8CD               ; 02:A897 - 20 34
+   jr     nz, @already_rode_platform_up  ; 02:A897 - 20 34
    ld     hl, $0530                    ; 02:A899 - 21 30 05
    ld     de, $0220                    ; 02:A89C - 11 20 02
    call   set_locked_camera_target     ; 02:A89F - CD 8C 7C
@@ -20978,52 +20978,52 @@ addr_0A893:
    ld     (ix+1), $00                  ; 02:A8A9 - DD 36 01 00
    ld     (ix+2), l                    ; 02:A8AD - DD 75 02
    ld     (ix+3), h                    ; 02:A8B0 - DD 74 03
-   ld     (ix+15), UNK_0BAF9&$FF       ; 02:A8B3 - DD 36 0F F9
-   ld     (ix+16), UNK_0BAF9>>8        ; 02:A8B7 - DD 36 10 BA
+   ld     (ix+15), SPRTAB_robotnik_running&$FF  ; 02:A8B3 - DD 36 0F F9
+   ld     (ix+16), SPRTAB_robotnik_running>>8  ; 02:A8B7 - DD 36 10 BA
    inc    (ix+17)                      ; 02:A8BB - DD 34 11
    ld     a, (ix+17)                   ; 02:A8BE - DD 7E 11
    cp     $C0                          ; 02:A8C1 - FE C0
-   jp     c, addr_0A974                ; 02:A8C3 - DA 74 A9
+   jp     c, @draw_platform_and_maybe_play_platform_sound  ; 02:A8C3 - DA 74 A9
    set    2, (ix+24)                   ; 02:A8C6 - DD CB 18 D6
-   jp     addr_0A974                   ; 02:A8CA - C3 74 A9
+   jp     @draw_platform_and_maybe_play_platform_sound  ; 02:A8CA - C3 74 A9
 
-addr_0A8CD:
+@already_rode_platform_up:
    bit    3, (ix+24)                   ; 02:A8CD - DD CB 18 5E
-   jr     nz, addr_0A8EB               ; 02:A8D1 - 20 18
+   jr     nz, @already_lowered_platform_for_sonic  ; 02:A8D1 - 20 18
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:A8D3 - FD 36 03 FF
    xor    a                            ; 02:A8D7 - AF
    ld     (ix+15), a                   ; 02:A8D8 - DD 77 0F
    ld     (ix+16), a                   ; 02:A8DB - DD 77 10
    dec    (ix+17)                      ; 02:A8DE - DD 35 11
-   jp     nz, addr_0A974               ; 02:A8E1 - C2 74 A9
+   jp     nz, @draw_platform_and_maybe_play_platform_sound  ; 02:A8E1 - C2 74 A9
    set    3, (ix+24)                   ; 02:A8E4 - DD CB 18 DE
-   jp     addr_0A974                   ; 02:A8E8 - C3 74 A9
+   jp     @draw_platform_and_maybe_play_platform_sound  ; 02:A8E8 - C3 74 A9
 
-addr_0A8EB:
+@already_lowered_platform_for_sonic:
    bit    4, (ix+24)                   ; 02:A8EB - DD CB 18 66
-   jr     nz, addr_0A96B               ; 02:A8EF - 20 7A
+   jr     nz, @sonic_already_landed_on_platform_and_level_is_ending  ; 02:A8EF - 20 7A
    ld     de, (sonic_x)                ; 02:A8F1 - ED 5B FE D3
    ld     hl, $0596                    ; 02:A8F5 - 21 96 05
    and    a                            ; 02:A8F8 - A7
    sbc    hl, de                       ; 02:A8F9 - ED 52
-   jr     nc, addr_0A974               ; 02:A8FB - 30 77
+   jr     nc, @draw_platform_and_maybe_play_platform_sound  ; 02:A8FB - 30 77
    ld     hl, $05C0                    ; 02:A8FD - 21 C0 05
    xor    a                            ; 02:A900 - AF
    sbc    hl, de                       ; 02:A901 - ED 52
-   jr     c, addr_0A974                ; 02:A903 - 38 6F
+   jr     c, @draw_platform_and_maybe_play_platform_sound  ; 02:A903 - 38 6F
    or     (ix+17)                      ; 02:A905 - DD B6 11
-   jr     nz, addr_0A91D               ; 02:A908 - 20 13
+   jr     nz, @platform_not_at_bottom_yet  ; 02:A908 - 20 13
    ld     hl, (sonic_y)                ; 02:A90A - 2A 01 D4
    ld     de, $028D                    ; 02:A90D - 11 8D 02
    xor    a                            ; 02:A910 - AF
    sbc    hl, de                       ; 02:A911 - ED 52
-   jr     c, addr_0A974                ; 02:A913 - 38 5F
+   jr     c, @draw_platform_and_maybe_play_platform_sound  ; 02:A913 - 38 5F
    ld     l, a                         ; 02:A915 - 6F
    ld     h, a                         ; 02:A916 - 67
    ld     (sonic_vel_x_sub), hl        ; 02:A917 - 22 03 D4
    ld     (sonic_vel_x_hi), a          ; 02:A91A - 32 05 D4
 
-addr_0A91D:
+@platform_not_at_bottom_yet:
    ld     a, $80                       ; 02:A91D - 3E 80
    ld     (sonic_flags_ix_24), a       ; 02:A91F - 32 14 D4
    ld     hl, $05A0                    ; 02:A922 - 21 A0 05
@@ -21043,7 +21043,7 @@ addr_0A91D:
    inc    (ix+17)                      ; 02:A949 - DD 34 11
    ld     a, (ix+17)                   ; 02:A94C - DD 7E 11
    cp     $C0                          ; 02:A94F - FE C0
-   jr     nz, addr_0A974               ; 02:A951 - 20 21
+   jr     nz, @draw_platform_and_maybe_play_platform_sound  ; 02:A951 - 20 21
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:A953 - 2A 5A D2
    inc    h                            ; 02:A956 - 24
    ld     (sonic_x), hl                ; 02:A957 - 22 FE D3
@@ -21055,13 +21055,13 @@ addr_0A91D:
    set    1, (iy+iy_06_lvflag01-IYBASE)  ; 02:A966 - FD CB 06 CE
    ret                                 ; 02:A96A - C9
 
-addr_0A96B:
+@sonic_already_landed_on_platform_and_level_is_ending:
    ld     a, (ix+17)                   ; 02:A96B - DD 7E 11
    and    a                            ; 02:A96E - A7
-   jr     z, addr_0A974                ; 02:A96F - 28 03
+   jr     z, @draw_platform_and_maybe_play_platform_sound  ; 02:A96F - 28 03
    dec    (ix+17)                      ; 02:A971 - DD 35 11
 
-addr_0A974:
+@draw_platform_and_maybe_play_platform_sound:
    ld     e, (ix+17)                   ; 02:A974 - DD 5E 11
    ld     d, $00                       ; 02:A977 - 16 00
    ld     hl, $0280                    ; 02:A979 - 21 80 02
@@ -21083,7 +21083,7 @@ addr_0A974:
    ld     bc, (g_level_scroll_x_pix_lo)  ; 02:A99E - ED 4B 5A D2
    and    a                            ; 02:A9A2 - A7
    sbc    hl, bc                       ; 02:A9A3 - ED 42
-   ld     bc, UNK_0A9C0                ; 02:A9A5 - 01 C0 A9
+   ld     bc, SPRTAB_SCR_boss_platform  ; 02:A9A5 - 01 C0 A9
    call   draw_sprite_string           ; 02:A9A8 - CD 0F 35
    ld     a, (ix+17)                   ; 02:A9AB - DD 7E 11
    and    $1F                          ; 02:A9AE - E6 1F
@@ -21093,10 +21093,10 @@ addr_0A974:
    rst    $28                          ; 02:A9B5 - EF
    ret                                 ; 02:A9B6 - C9
 
-UNK_0A9B7:
+LUT_SCR_boss_anim_running:
 .db $03, $08, $04, $07, $05, $08, $04, $07, $FF                                     ; 02:A9B7
 
-UNK_0A9C0:
+SPRTAB_SCR_boss_platform:
 .db $74, $76, $76, $78, $FF, $FF, $FF                                               ; 02:A9C0
 
 objfunc_30_UNKNOWN:
@@ -22765,7 +22765,7 @@ addr_0B948:
    ld     (ix+11), h                   ; 02:B94B - DD 74 0B
    ld     (ix+12), c                   ; 02:B94E - DD 71 0C
    ld     bc, UNK_0BA28                ; 02:B951 - 01 28 BA
-   ld     de, UNK_0BAF9                ; 02:B954 - 11 F9 BA
+   ld     de, SPRTAB_robotnik_running  ; 02:B954 - 11 F9 BA
    call   do_framed_animation          ; 02:B957 - CD 41 7C
    ret                                 ; 02:B95A - C9
 
@@ -22878,7 +22878,7 @@ UNK_0BA1C:
 .db $00, $00                                                                        ; 02:BA1C
 
 UNK_0BA1C_PTR:
-.dw UNK_0BAF9                                                                       ; 02:BA1E
+.dw SPRTAB_robotnik_running                                                         ; 02:BA1E
 .db $00, $02                                                                        ; 02:BA20
 .dw addr_0BB0B                                                                      ; 02:BA22
 .db $00, $07                                                                        ; 02:BA24
@@ -22907,7 +22907,7 @@ UNK_0BA45:
 .db $5C, $10, $5D, $10, $3C, $10, $00, $10, $40, $04, $A0, $01, $5E, $10, $5F, $10  ; 02:BAE5
 .db $00, $10, $2D, $10                                                              ; 02:BAF5
 
-UNK_0BAF9:
+SPRTAB_robotnik_running:
 .db $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $4A, $4C, $4E  ; 02:BAF9
 .db $FF, $FF                                                                        ; 02:BB09
 
