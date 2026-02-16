@@ -7553,7 +7553,7 @@ LUT_object_functions:
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
-.dw objfunc_30_UNKNOWN, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
+.dw objfunc_30_moving_cloud, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
@@ -21099,7 +21099,7 @@ LUT_SCR_boss_anim_running:
 SPRTAB_SCR_boss_platform:
 .db $74, $76, $76, $78, $FF, $FF, $FF                                               ; 02:A9C0
 
-objfunc_30_UNKNOWN:
+objfunc_30_moving_cloud:
    set    5, (ix+24)                   ; 02:A9C7 - DD CB 18 EE
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:A9CB - FD 7E 0A
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:A9CE - 2A 3C D2
@@ -21107,7 +21107,7 @@ objfunc_30_UNKNOWN:
    push   hl                           ; 02:A9D2 - E5
    ld     a, (g_frontmost_sprite_table_offs)  ; 02:A9D3 - 3A DE D2
    cp     $24                          ; 02:A9D6 - FE 24
-   jr     nc, addr_0AA1C               ; 02:A9D8 - 30 42
+   jr     nc, @skip_drawing_cloud      ; 02:A9D8 - 30 42
    ld     e, a                         ; 02:A9DA - 5F
    ld     d, $00                       ; 02:A9DB - 16 00
    ld     hl, g_sprite_table           ; 02:A9DD - 21 00 D0
@@ -21132,13 +21132,13 @@ objfunc_30_UNKNOWN:
    ld     bc, (g_level_scroll_x_pix_lo)  ; 02:AA07 - ED 4B 5A D2
    and    a                            ; 02:AA0B - A7
    sbc    hl, bc                       ; 02:AA0C - ED 42
-   ld     bc, UNK_0AA63                ; 02:AA0E - 01 63 AA
+   ld     bc, SPRTAB_moving_cloud      ; 02:AA0E - 01 63 AA
    call   draw_sprite_string           ; 02:AA11 - CD 0F 35
    ld     a, (g_frontmost_sprite_table_offs)  ; 02:AA14 - 3A DE D2
    add    a, $0C                       ; 02:AA17 - C6 0C
    ld     (g_frontmost_sprite_table_offs), a  ; 02:AA19 - 32 DE D2
 
-addr_0AA1C:
+@skip_drawing_cloud:
    pop    hl                           ; 02:AA1C - E1
    pop    af                           ; 02:AA1D - F1
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:AA1E - 22 3C D2
@@ -21151,7 +21151,7 @@ addr_0AA1C:
    ld     h, (ix+3)                    ; 02:AA2F - DD 66 03
    and    a                            ; 02:AA32 - A7
    sbc    hl, de                       ; 02:AA33 - ED 52
-   jr     nc, addr_0AA4E               ; 02:AA35 - 30 17
+   jr     nc, @skip_setting_new_position  ; 02:AA35 - 30 17
    call   random_A                     ; 02:AA37 - CD 25 06
    ld     b, $00                       ; 02:AA3A - 06 00
    add    a, a                         ; 02:AA3C - 87
@@ -21164,7 +21164,7 @@ addr_0AA1C:
    ld     (ix+2), l                    ; 02:AA48 - DD 75 02
    ld     (ix+3), h                    ; 02:AA4B - DD 74 03
 
-addr_0AA4E:
+@skip_setting_new_position:
    ld     (ix+7), $00                  ; 02:AA4E - DD 36 07 00
    ld     (ix+8), $FD                  ; 02:AA52 - DD 36 08 FD
    ld     (ix+9), $FF                  ; 02:AA56 - DD 36 09 FF
@@ -21172,7 +21172,7 @@ addr_0AA4E:
    ld     (ix+16), $00                 ; 02:AA5E - DD 36 10 00
    ret                                 ; 02:AA62 - C9
 
-UNK_0AA63:
+SPRTAB_moving_cloud:
 .db $40, $42, $44, $46, $FF, $FF, $FF                                               ; 02:AA63
 
 objfunc_31_UNKNOWN:
