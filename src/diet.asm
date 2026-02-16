@@ -20687,13 +20687,13 @@ objfunc_1F_badnik_caterkiller:
    ld     (ix+14), $10                 ; 02:A555 - DD 36 0E 10
    ld     a, (g_global_tick_counter)   ; 02:A559 - 3A 23 D2
    and    $01                          ; 02:A55C - E6 01
-   jr     nz, addr_0A5B3               ; 02:A55E - 20 53
-   ld     hl, UNK_0A6B9                ; 02:A560 - 21 B9 A6
+   jr     nz, @tick_mod_2_was_not_0    ; 02:A55E - 20 53
+   ld     hl, LUT_caterkiller_x_delta_going_left  ; 02:A560 - 21 B9 A6
    bit    1, (ix+24)                   ; 02:A563 - DD CB 18 4E
-   jr     z, addr_0A56C                ; 02:A567 - 28 03
-   ld     hl, UNK_0A769                ; 02:A569 - 21 69 A7
+   jr     z, @selected_left_facing_table  ; 02:A567 - 28 03
+   ld     hl, LUT_caterkiller_x_delta_going_right  ; 02:A569 - 21 69 A7
 
-addr_0A56C:
+@selected_left_facing_table:
    ld     e, (ix+17)                   ; 02:A56C - DD 5E 11
    sla    e                            ; 02:A56F - CB 23
    ld     d, $00                       ; 02:A571 - 16 00
@@ -20706,18 +20706,18 @@ addr_0A56C:
    ld     a, (ix+3)                    ; 02:A57D - DD 7E 03
    add    hl, bc                       ; 02:A580 - 09
    bit    7, b                         ; 02:A581 - CB 78
-   jr     z, addr_0A589                ; 02:A583 - 28 04
+   jr     z, @x_delta_is_positive      ; 02:A583 - 28 04
    adc    a, $FF                       ; 02:A585 - CE FF
-   jr     addr_0A58B                   ; 02:A587 - 18 02
+   jr     @x_delta_was_negative        ; 02:A587 - 18 02
 
-addr_0A589:
+@x_delta_is_positive:
    adc    a, $00                       ; 02:A589 - CE 00
 
-addr_0A58B:
+@x_delta_was_negative:
    ld     (ix+1), l                    ; 02:A58B - DD 75 01
    ld     (ix+2), h                    ; 02:A58E - DD 74 02
    ld     (ix+3), a                    ; 02:A591 - DD 77 03
-   ld     hl, UNK_0A6E5                ; 02:A594 - 21 E5 A6
+   ld     hl, LUT_caterkiller_y_out_of_line_double_delta  ; 02:A594 - 21 E5 A6
    add    hl, de                       ; 02:A597 - 19
    ld     e, (hl)                      ; 02:A598 - 5E
    inc    hl                           ; 02:A599 - 23
@@ -20729,13 +20729,13 @@ addr_0A58B:
    ld     (ix+19), h                   ; 02:A5A5 - DD 74 13
    ld     c, $00                       ; 02:A5A8 - 0E 00
    bit    7, h                         ; 02:A5AA - CB 7C
-   jr     z, addr_0A5B0                ; 02:A5AC - 28 02
+   jr     z, @y_double_delta_was_positive  ; 02:A5AC - 28 02
    ld     c, $FF                       ; 02:A5AE - 0E FF
 
-addr_0A5B0:
+@y_double_delta_was_positive:
    ld     (ix+20), c                   ; 02:A5B0 - DD 71 14
 
-addr_0A5B3:
+@tick_mod_2_was_not_0:
    ld     l, (ix+2)                    ; 02:A5B3 - DD 6E 02
    ld     h, (ix+3)                    ; 02:A5B6 - DD 66 03
    ld     (tmp_00), hl                 ; 02:A5B9 - 22 0E D2
@@ -20743,59 +20743,59 @@ addr_0A5B3:
    ld     h, (ix+6)                    ; 02:A5BF - DD 66 06
    ld     (tmp_02), hl                 ; 02:A5C2 - 22 10 D2
    bit    1, (ix+24)                   ; 02:A5C5 - DD CB 18 4E
-   jr     nz, addr_0A614               ; 02:A5C9 - 20 49
-   ld     hl, UNK_0A711                ; 02:A5CB - 21 11 A7
+   jr     nz, @sprite_drawing_goes_right  ; 02:A5C9 - 20 49
+   ld     hl, LUT_caterkiller_x_offsets_going_left  ; 02:A5CB - 21 11 A7
    ld     e, (ix+17)                   ; 02:A5CE - DD 5E 11
    ld     d, $00                       ; 02:A5D1 - 16 00
    add    hl, de                       ; 02:A5D3 - 19
    ld     a, $24                       ; 02:A5D4 - 3E 24
-   call   addr_0A688                   ; 02:A5D6 - CD 88 A6
+   call   @fn_draw_sprite_out_of_line  ; 02:A5D6 - CD 88 A6
    ld     a, $26                       ; 02:A5D9 - 3E 26
-   call   addr_0A6A2                   ; 02:A5DB - CD A2 A6
+   call   @fn_draw_sprite_in_line      ; 02:A5DB - CD A2 A6
    ld     a, $26                       ; 02:A5DE - 3E 26
-   call   addr_0A688                   ; 02:A5E0 - CD 88 A6
+   call   @fn_draw_sprite_out_of_line  ; 02:A5E0 - CD 88 A6
    ld     a, $26                       ; 02:A5E3 - 3E 26
-   call   addr_0A6A2                   ; 02:A5E5 - CD A2 A6
+   call   @fn_draw_sprite_in_line      ; 02:A5E5 - CD A2 A6
    ld     (ix+13), $06                 ; 02:A5E8 - DD 36 0D 06
    ld     hl, $0802                    ; 02:A5EC - 21 02 08
    ld     (tmp_06), hl                 ; 02:A5EF - 22 14 D2
    call   check_collision_with_sonic   ; 02:A5F2 - CD 56 39
    ld     hl, $0000                    ; 02:A5F5 - 21 00 00
    ld     (tmp_00), hl                 ; 02:A5F8 - 22 0E D2
-   jr     c, addr_0A602                ; 02:A5FB - 38 05
+   jr     c, @left_sonic_did_not_touch_damageable_box  ; 02:A5FB - 38 05
    call   enemy_touched_sonic          ; 02:A5FD - CD E5 35
-   jr     addr_0A65B                   ; 02:A600 - 18 59
+   jr     @update_indices_on_active_tick  ; 02:A600 - 18 59
 
-addr_0A602:
+@left_sonic_did_not_touch_damageable_box:
    ld     (ix+13), $16                 ; 02:A602 - DD 36 0D 16
    ld     hl, $0806                    ; 02:A606 - 21 06 08
    ld     (tmp_06), hl                 ; 02:A609 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A60C - CD 56 39
    call   nc, damage_sonic             ; 02:A60F - D4 FD 35
-   jr     addr_0A65B                   ; 02:A612 - 18 47
+   jr     @update_indices_on_active_tick  ; 02:A612 - 18 47
 
-addr_0A614:
-   ld     hl, UNK_0A795                ; 02:A614 - 21 95 A7
+@sprite_drawing_goes_right:
+   ld     hl, LUT_caterkiller_x_offsets_going_right  ; 02:A614 - 21 95 A7
    ld     e, (ix+17)                   ; 02:A617 - DD 5E 11
    ld     d, $00                       ; 02:A61A - 16 00
    add    hl, de                       ; 02:A61C - 19
    ld     a, $2A                       ; 02:A61D - 3E 2A
-   call   addr_0A688                   ; 02:A61F - CD 88 A6
+   call   @fn_draw_sprite_out_of_line  ; 02:A61F - CD 88 A6
    ld     a, $28                       ; 02:A622 - 3E 28
-   call   addr_0A6A2                   ; 02:A624 - CD A2 A6
+   call   @fn_draw_sprite_in_line      ; 02:A624 - CD A2 A6
    ld     a, $28                       ; 02:A627 - 3E 28
-   call   addr_0A688                   ; 02:A629 - CD 88 A6
+   call   @fn_draw_sprite_out_of_line  ; 02:A629 - CD 88 A6
    ld     a, $28                       ; 02:A62C - 3E 28
-   call   addr_0A6A2                   ; 02:A62E - CD A2 A6
+   call   @fn_draw_sprite_in_line      ; 02:A62E - CD A2 A6
    ld     (ix+13), $10                 ; 02:A631 - DD 36 0D 10
    ld     hl, $0401                    ; 02:A635 - 21 01 04
    ld     (tmp_06), hl                 ; 02:A638 - 22 14 D2
    call   check_collision_with_sonic   ; 02:A63B - CD 56 39
-   jr     c, addr_0A645                ; 02:A63E - 38 05
+   jr     c, @right_sonic_did_not_touch_damageable_box  ; 02:A63E - 38 05
    call   damage_sonic                 ; 02:A640 - CD FD 35
-   jr     addr_0A65B                   ; 02:A643 - 18 16
+   jr     @update_indices_on_active_tick  ; 02:A643 - 18 16
 
-addr_0A645:
+@right_sonic_did_not_touch_damageable_box:
    ld     (ix+13), $16                 ; 02:A645 - DD 36 0D 16
    ld     hl, $0410                    ; 02:A649 - 21 10 04
    ld     (tmp_06), hl                 ; 02:A64C - 22 14 D2
@@ -20804,7 +20804,7 @@ addr_0A645:
    ld     (tmp_00), hl                 ; 02:A655 - 22 0E D2
    call   nc, enemy_touched_sonic      ; 02:A658 - D4 E5 35
 
-addr_0A65B:
+@update_indices_on_active_tick:
    ld     (ix+11), $01                 ; 02:A65B - DD 36 0B 01
    ld     a, (g_global_tick_counter)   ; 02:A65F - 3A 23 D2
    and    $01                          ; 02:A662 - E6 01
@@ -20824,7 +20824,7 @@ addr_0A65B:
    ld     (ix+24), a                   ; 02:A684 - DD 77 18
    ret                                 ; 02:A687 - C9
 
-addr_0A688:
+@fn_draw_sprite_out_of_line:
    push   hl                           ; 02:A688 - E5
    ld     e, (hl)                      ; 02:A689 - 5E
    ld     d, $00                       ; 02:A68A - 16 00
@@ -20838,7 +20838,7 @@ addr_0A688:
    add    hl, de                       ; 02:A6A0 - 19
    ret                                 ; 02:A6A1 - C9
 
-addr_0A6A2:
+@fn_draw_sprite_in_line:
    push   hl                           ; 02:A6A2 - E5
    ld     e, (hl)                      ; 02:A6A3 - 5E
    ld     d, $00                       ; 02:A6A4 - 16 00
@@ -20851,36 +20851,52 @@ addr_0A6A2:
    add    hl, de                       ; 02:A6B7 - 19
    ret                                 ; 02:A6B8 - C9
 
-UNK_0A6B9:
+LUT_caterkiller_x_delta_going_left:
 .dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000                          ; 02:A6B9
 .dw $0000, $0000, $0000, $FFE0, $FFE0, $FFE0, $FFE0, $FFC0                          ; 02:A6C9
 .dw $FFC0, $FF80, $FF80, $FF00, $FF00, $FE00                                        ; 02:A6D9
 
-UNK_0A6E5:
+LUT_caterkiller_y_out_of_line_double_delta:
 .dw $FF00, $FF80, $FF80, $FFC0, $FFC0, $FFE0, $FFE0, $FFF0                          ; 02:A6E5
 .dw $FFF0, $FFF0, $FFF0, $0010, $0010, $0010, $0010, $0020                          ; 02:A6F5
 .dw $0020, $0040, $0040, $0080, $0080, $0100                                        ; 02:A705
 
-UNK_0A711:
+LUT_caterkiller_x_offsets_going_left:
 .db $00, $01, $02, $02, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03  ; 02:A711
-.db $03, $03, $02, $02, $01, $00, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07  ; 02:A721
-.db $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $0E, $0D, $0C, $0C  ; 02:A731
-.db $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0C, $0C  ; 02:A741
-.db $0D, $0E, $15, $13, $12, $11, $10, $10, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F  ; 02:A751
-.db $0F, $0F, $10, $10, $11, $12, $13, $15                                          ; 02:A761
+.db $03, $03, $02, $02, $01, $00                                                    ; 02:A721
 
-UNK_0A769:
+@spr_01:
+.db $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07, $07  ; 02:A727
+.db $07, $07, $07, $07, $07, $07                                                    ; 02:A737
+
+@spr_02:
+.db $0E, $0D, $0C, $0C, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B, $0B  ; 02:A73D
+.db $0B, $0B, $0C, $0C, $0D, $0E                                                    ; 02:A74D
+
+@spr_03:
+.db $15, $13, $12, $11, $10, $10, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F  ; 02:A753
+.db $10, $10, $11, $12, $13, $15                                                    ; 02:A763
+
+LUT_caterkiller_x_delta_going_right:
 .dw $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000                          ; 02:A769
 .dw $0000, $0000, $0000, $0020, $0020, $0020, $0020, $0040                          ; 02:A779
 .dw $0040, $0080, $0080, $0100, $0100, $0200                                        ; 02:A789
 
-UNK_0A795:
+LUT_caterkiller_x_offsets_going_right:
 .db $15, $14, $13, $13, $12, $12, $12, $12, $12, $12, $12, $12, $12, $12, $12, $12  ; 02:A795
-.db $12, $12, $13, $13, $14, $15, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E  ; 02:A7A5
-.db $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $07, $08, $09, $09  ; 02:A7B5
-.db $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $09, $09  ; 02:A7C5
-.db $08, $07, $00, $02, $03, $04, $05, $05, $06, $06, $06, $06, $06, $06, $06, $06  ; 02:A7D5
-.db $06, $06, $05, $05, $04, $03, $02, $00                                          ; 02:A7E5
+.db $12, $12, $13, $13, $14, $15                                                    ; 02:A7A5
+
+@spr_01:
+.db $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E, $0E  ; 02:A7AB
+.db $0E, $0E, $0E, $0E, $0E, $0E                                                    ; 02:A7BB
+
+@spr_02:
+.db $07, $08, $09, $09, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A  ; 02:A7C1
+.db $0A, $0A, $09, $09, $08, $07                                                    ; 02:A7D1
+
+@spr_03:
+.db $00, $02, $03, $04, $05, $05, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06  ; 02:A7D7
+.db $05, $05, $04, $03, $02, $00                                                    ; 02:A7E7
 
 objfunc_22_UNKNOWN:
    ld     (ix+13), $1E                 ; 02:A7ED - DD 36 0D 1E
