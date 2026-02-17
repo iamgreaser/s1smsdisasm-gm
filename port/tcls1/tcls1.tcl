@@ -206,6 +206,8 @@ proc tick_game_logic {} {
       #if {$sizex == 0 || $sizey == 0} { continue }
       set x [get_object_field $obj x]
       set y [get_object_field $obj y]
+      # Factor in the left 8 pixels being hidden on the real hardware
+      incr x -8
       .maincanvas create rectangle \
          [expr {$x+1-$::camera_x}] \
          [expr {$y+1-$::camera_y}] \

@@ -27,9 +27,10 @@ proc configure_object args {
       set args [lassign $args k]
       switch -exact -- $k {
          -spawnpos {
+            # Objects are spawned with the x,y coordinates at the top-left of the metatile cell.
             set args [lassign $args x y]
-            set x [expr {($x<<5)+16}]
-            set y [expr {($y<<5)+16}]
+            set x [expr {($x<<5)}]
+            set y [expr {($y<<5)}]
             lset result $::object_field_indices(x) $x
             lset result $::object_field_indices(y) $y
          }
