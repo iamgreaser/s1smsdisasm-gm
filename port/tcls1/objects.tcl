@@ -110,17 +110,19 @@ proc tick_object_at {oi} {
          set xphys [lindex $xphys [expr {$tf&0x3F}]]
          set_object_field obj phys_hit_x 0
          set hit_x [lindex $xphys [expr {($h_y>>8)&0x1F}]]
-         set cmp_x [expr {(($x>>8)&0x1F)}]
+         set cmp_x [expr {(($h_x>>8)&0x1F)}]
          if {$hit_x != -128} {
             if {$vx < 0} {
                if {$cmp_x <= $hit_x} {
                   incr x [expr {(($hit_x-$cmp_x)<<8)}]
                   set_object_field obj phys_hit_x 1
+                  set vx 0
                }
             } else {
                if {$cmp_x > $hit_x} {
                   incr x [expr {(($hit_x-$cmp_x)<<8)}]
                   set_object_field obj phys_hit_x 1
+                  set vx 0
                }
             }
          }
@@ -141,26 +143,30 @@ proc tick_object_at {oi} {
       #puts "[expr {$lower_x>>13}] [expr {$lower_y>>13}]"
       set tile [get_tile_at_subpixel $lower_x $lower_y]
       set tf [lindex $::tileflags $tile]
+      set_object_field obj phys_grounded 0
       if {($tf&0x3F) != 0} {
          set yphys [lindex $yphys [expr {$tf&0x3F}]]
-         set_object_field obj phys_grounded 0
          set hit_y [lindex $yphys [expr {($lower_x>>8)&0x1F}]]
-         set cmp_y [expr {(($y>>8)&0x1F)}]
+         set cmp_y [expr {(($lower_y>>8)&0x1F)}]
          #puts "ycmp $hit_y $cmp_y || $tile $tf || [expr {$lower_x>>13}] [expr {$lower_y>>13}]|| $yphys"
          if {$hit_y != -128} {
             if {$vy < 0} {
                if {$cmp_y < 0 || $cmp_y <= $hit_y} {
                   incr y [expr {(($hit_y-$cmp_y)<<8)}]
+                  set vy 0
+                  # Possibly unutilised, but technically in the engine.
+                  incr vx [lindex $::phys_yslidetox [expr {$tf&0x3F}]]
                }
             } else {
                if {$cmp_y < 0 || $cmp_y > $hit_y} {
                   incr y [expr {(($hit_y-$cmp_y)<<8)}]
                   set_object_field obj phys_grounded 1
+                  set vy 0
+                  incr vx [lindex $::phys_yslidetox [expr {$tf&0x3F}]]
                }
             }
          }
          # TODO: Apply table at 0x03FF0 --GM
-         # TODO: Apply slide table at 0x03F90 --GM
       }
    }
    # returns at @skip_vertical_and_all_clamping
@@ -176,30 +182,46 @@ proc tick_object_at {oi} {
 proc tick_objfunc_type_player {this_name} {
    upvar $this_name this
 
+   if {[get_object_field $this objspecifics] eq {}} {
+      set is_rolling 0
+      set jump_ticks_left 0
+   } else {
+      lassign [get_object_field $this objspecifics] is_rolling jump_ticks_left
+   }
+
    # Sonic's size actually varies.
-   configure_object this -size 24 32
+   # TODO: Handle roll and unroll so I don't have to assume the rolling hitbox all the time --GM
+   #configure_object this -size 24 32
+   configure_object this -size 24 24
 
    # Now, let's handle some movement...
    set x [get_object_field $this x]
    set y [get_object_field $this y]
    set vx [get_object_field $this vx]
    set vy [get_object_field $this vy]
-   set vx 0
-   set vy 0
+   set phys_grounded [get_object_field $this phys_grounded]
 
    if {$::ctl_left && !$::ctl_right} {
-      incr vx -1280
+      incr vx -16
    } elseif {$::ctl_right && !$::ctl_left} {
-      incr vx 1280
+      incr vx 16
    }
-   if {$::ctl_up && !$::ctl_down} {
-      incr vy -1280
-   } elseif {$::ctl_down && !$::ctl_up} {
-      incr vy 1280
+   incr vy 56
+   if {$::ctl_jump} {
+      if {$phys_grounded} {
+         set jump_ticks_left 16
+      }
+      if {$jump_ticks_left > 0} {
+         incr jump_ticks_left -1
+         set vy -896
+      }
+   } else {
+      set jump_ticks_left 0
    }
 
    set_object_field this x $x
    set_object_field this y $y
    set_object_field this vx $vx
    set_object_field this vy $vy
+   set_object_field this objspecifics [list $is_rolling $jump_ticks_left]
 }

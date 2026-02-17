@@ -7,6 +7,7 @@ set ::ptrbase_level_layouts [expr {0x14000}]
 set ::ptrbase_level_objects [expr {0x15580}]
 set ::ptr_level_headers_rel [expr {0x15580}]
 set ::ptrbase_level_tileflags [expr {0x03A65}]
+set ::ptr_phys_yslidetox [expr {0x03F90}]
 
 proc load_level {li} {
    try {
@@ -59,6 +60,7 @@ proc load_level {li} {
          set ::phys_xpos [load_phys_table 0x411E]
          set ::phys_yneg [load_phys_table 0x41EC]
          set ::phys_ypos [load_phys_table 0x448A]
+         binary scan $::romdata "@$::ptr_phys_yslidetox c47" ::phys_yslidetox
       }]
 
       # Set up some objects
