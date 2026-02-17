@@ -148,17 +148,18 @@ proc tick_object_at {oi} {
          set yphys [lindex $yphys [expr {$tf&0x3F}]]
          set hit_y [lindex $yphys [expr {($lower_x>>8)&0x1F}]]
          set cmp_y [expr {(($lower_y>>8)&0x1F)}]
+         set magnet_y [lindex $::phys_ymagnet [expr {$tf&0x3F}]]
          #puts "ycmp $hit_y $cmp_y || $tile $tf || [expr {$lower_x>>13}] [expr {$lower_y>>13}]|| $yphys"
          if {$hit_y != -128} {
             if {$vy < 0} {
-               if {$cmp_y < 0 || $cmp_y <= $hit_y} {
+               if {$cmp_y < 0 || $cmp_y+$magnet_y <= $hit_y} {
                   incr y [expr {(($hit_y-$cmp_y)<<8)}]
                   set vy 0
                   # Possibly unutilised, but technically in the engine.
                   incr vx [lindex $::phys_yslidetox [expr {$tf&0x3F}]]
                }
             } else {
-               if {$cmp_y < 0 || $cmp_y > $hit_y} {
+               if {$cmp_y < 0 || $cmp_y+$magnet_y > $hit_y} {
                   incr y [expr {(($hit_y-$cmp_y)<<8)}]
                   set_object_field obj phys_grounded 1
                   set vy 0
@@ -166,7 +167,6 @@ proc tick_object_at {oi} {
                }
             }
          }
-         # TODO: Apply table at 0x03FF0 --GM
       }
    }
    # returns at @skip_vertical_and_all_clamping
