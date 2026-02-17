@@ -41,6 +41,10 @@ proc load_level {li} {
          set ::render_palette_1 [load_palette [expr {$lpal3ptr+(0x10*1)}]]
       }]
 
+      # Set up some objects
+      set ::blank_object [make_object {}]
+      set ::level_objects [lrepeat 32 $::blank_object]
+
       # Unpack the level data
       set ::levellx $lwidth
       set ::levelly $lheight
@@ -48,9 +52,11 @@ proc load_level {li} {
       puts [time {load_level_layout $llayptr $llaycsize}]
 
       # Update camera
-      set ::camera_x [expr {max(0, min(($::levellx*32)-$::render_lx, ($lstartx*32)+16-(($::render_lx-24)/2)))}]
-      set ::camera_y [expr {max(0, min(($::levelly*32)-$::render_ly, ($lstarty*32)+16-(($::render_ly-32)/2)))}]
-      set ::prev_camera_y $::camera_y
+      lset ::level_objects 0 [make_object player -spawnpos $lstartx $lstarty]
+      set sonic_x [get_object_field [lindex $::level_objects 0] x]
+      set sonic_y [get_object_field [lindex $::level_objects 0] y]
+      set ::camera_x [expr {max(0, min(($::levellx*32)-$::render_lx, $sonic_x-(($::render_lx-24)/2)))}]
+      set ::camera_y [expr {max(0, min(($::levelly*32)-$::render_ly, $sonic_y-(($::render_ly-32)/2)))}]
       set ::prev_camera_x $::camera_x
       set ::prev_camera_y $::camera_y
 

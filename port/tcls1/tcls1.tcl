@@ -4,7 +4,9 @@
 puts "Loading code"
 
 source helpers.tcl
+
 source loadbar.tcl
+source objects.tcl
 source resload.tcl
 
 package require Tk 8.6
@@ -96,6 +98,8 @@ proc main {rompath level_idx} {
    bind . <KeyRelease-Left> {set ::ctl_left 0}
    bind . <KeyPress-Right> {set ::ctl_right 1}
    bind . <KeyRelease-Right> {set ::ctl_right 0}
+   bind . <KeyPress-a> {set ::ctl_jump 1}
+   bind . <KeyRelease-a> {set ::ctl_jump 0}
 
    # Dispatch main!
    after idle {async_main}
@@ -115,6 +119,7 @@ set ::ctl_up 0
 set ::ctl_down 0
 set ::ctl_left 0
 set ::ctl_right 0
+set ::ctl_jump 0
 
 set ::scroll_x 0
 set ::scroll_y 0
@@ -131,6 +136,8 @@ proc tick_game {} {
       incr ::next_tick 20
    }
 
+   set raw_cam_dx [expr {$::camera_x-$::prev_camera_x}]
+   set raw_cam_dy [expr {$::camera_y-$::prev_camera_y}]
    set ::prev_camera_x $::camera_x
    set ::prev_camera_y $::camera_y
    set next_cx0 [expr {$::camera_x>>5}]
@@ -170,30 +177,61 @@ proc tick_game {} {
 }
 
 proc tick_game_logic {} {
-   if {$::ctl_left && !$::ctl_right} {
-      incr ::camera_x -5
-   } elseif {$::ctl_right && !$::ctl_left} {
-      incr ::camera_x 5
+   # TODO: Activate and deactivate based on camera bounds --GM
+   # Tick all active non-Sonic objects first
+   for {set oi 1} {$oi < [llength $::level_objects]} {incr oi} {
+      # TODO: Check if activated or not --GM
+      tick_object_at $oi
    }
-   if {$::ctl_up && !$::ctl_down} {
-      incr ::camera_y -5
-   } elseif {$::ctl_down && !$::ctl_up} {
-      incr ::camera_y 5
-   }
+   # Tick Sonic
+   tick_object_at 0
 
-   if {$::camera_x < 0} {
-      set ::camera_x 0
-   }
-   if {$::camera_x > ($::levellx<<5)-$::render_lx} {
-      set ::camera_x [expr {($::levellx<<5)-$::render_lx}]
-   }
+   # Lock onto Sonic's position
+   set sonic_x [get_object_field [lindex $::level_objects 0] x]
+   set sonic_y [get_object_field [lindex $::level_objects 0] y]
+   set ::camera_x [expr {$sonic_x+12-($::render_lx/2)}]
+   set ::camera_y [expr {$sonic_y+12-($::render_ly/2)}]
 
-   if {$::camera_y < 0} {
-      set ::camera_y 0
+   # Clamp camera position
+   set ::camera_x [expr {max(0, min(($::levellx*32)-$::render_lx, $::camera_x))}]
+   set ::camera_y [expr {max(0, min(($::levelly*32)-$::render_ly, $::camera_y))}]
+
+   # Draw all objects that somehow exist
+   .maincanvas delete object_rects
+   foreach obj $::level_objects {
+      set funcname [get_object_field $obj funcname]
+      if {$funcname eq {}} { continue }
+      set sizex [get_object_field $obj sizex]
+      set sizey [get_object_field $obj sizey]
+      #if {$sizex == 0 || $sizey == 0} { continue }
+      set x [get_object_field $obj x]
+      set y [get_object_field $obj y]
+      .maincanvas create rectangle \
+         [expr {$x+1-$::camera_x}] \
+         [expr {$y+1-$::camera_y}] \
+         [expr {$x+1+$sizex-$::camera_x}] \
+         [expr {$y+1+$sizey-$::camera_y}] \
+         -width 1 \
+         -outline #000 \
+         -tags [list object_rects] \
+         ;
+      .maincanvas create rectangle \
+         [expr {$x-$::camera_x}] \
+         [expr {$y-$::camera_y}] \
+         [expr {$x+$sizex-$::camera_x}] \
+         [expr {$y+$sizey-$::camera_y}] \
+         -width 1 \
+         -outline #FFF \
+         -tags [list object_rects] \
+         ;
    }
-   if {$::camera_y > ($::levelly<<5)-$::render_ly} {
-      set ::camera_y [expr {($::levelly<<5)-$::render_ly}]
-   }
+}
+
+proc tick_object_at {oi} {
+   set obj [lindex $::level_objects $oi]
+   set funcname [get_object_field $obj funcname]
+   tick_objfunc_type_$funcname obj
+   lset ::level_objects $oi $obj
 }
 
 proc update_output_scroll_pos_noload {} {
