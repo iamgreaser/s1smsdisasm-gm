@@ -113,12 +113,12 @@ proc tick_object_at {oi} {
          set cmp_x [expr {(($x>>8)&0x1F)}]
          if {$hit_x != -128} {
             if {$vx < 0} {
-               if {$cmp_x >= 0 || $cmp_x > $hit_x} {
+               if {$cmp_x <= $hit_x} {
                   incr x [expr {(($hit_x-$cmp_x)<<8)}]
                   set_object_field obj phys_hit_x 1
                }
             } else {
-               if {$cmp_x < 0 || $cmp_x > $hit_x} {
+               if {$cmp_x > $hit_x} {
                   incr x [expr {(($hit_x-$cmp_x)<<8)}]
                   set_object_field obj phys_hit_x 1
                }
@@ -149,7 +149,7 @@ proc tick_object_at {oi} {
          #puts "ycmp $hit_y $cmp_y || $tile $tf || [expr {$lower_x>>13}] [expr {$lower_y>>13}]|| $yphys"
          if {$hit_y != -128} {
             if {$vy < 0} {
-               if {$cmp_y >= 0 || $cmp_y > $hit_y} {
+               if {$cmp_y < 0 || $cmp_y <= $hit_y} {
                   incr y [expr {(($hit_y-$cmp_y)<<8)}]
                }
             } else {
