@@ -1,0 +1,166 @@
+digraph G {
+   entry
+   -> maybe_call_fn_set_was_on_ground_bit
+   ;
+   maybe_call_fn_set_was_on_ground_bit -> sonic_is_dying;
+   maybe_call_fn_set_was_on_ground_bit
+   -> maybe_call_fn_handle_brake_sound_cooldown_timer
+   -> maybe_call_fn_handle_damage_stun_and_input_suppression
+   -> maybe_call_fn_enforce_directional_input_suppression
+   -> maybe_call_fn_forbid_rolling_in_special_stage
+   -> maybe_call_fn_handle_invincibility
+   -> maybe_call_fn_handle_air_timer_and_drowning
+   -> maybe_call_fn_handle_chaos_emerald_music_countdown_timer
+   ;
+   maybe_call_fn_handle_chaos_emerald_music_countdown_timer -> handle_teleport_start;
+   maybe_call_fn_handle_chaos_emerald_music_countdown_timer -> handle_ending_animation_teleport_in;
+   maybe_call_fn_handle_chaos_emerald_music_countdown_timer -> not_underwater_physics;
+   maybe_call_fn_handle_chaos_emerald_music_countdown_timer -> physics_selected;
+   not_underwater_physics -> is_speed_shoes_physics;
+   not_underwater_physics -> is_special_stage_air_physics;
+   not_underwater_physics -> is_normal_physics -> physics_selected;
+   is_special_stage_air_physics -> is_normal_physics;
+   is_special_stage_air_physics -> physics_selected;
+   is_speed_shoes_physics -> maybe_call_fn_handle_speed_shoes_timer -> physics_selected;
+   physics_selected
+   -> maybe_call_fn_try_to_roll
+   -> maybe_call_fn_clear_extra_rolling_flag_SEMIVESTIGIAL
+   -> CALL_TILE_SPECIAL_FUNC
+   -> return_from_tile_special
+   -> maybe_call_kill_sonic
+   -> sonic_not_bored
+   -> maybe_call_fn_set_underwater_state_based_on_water_level
+   -> maybe_call_fn_handle_sonic_bored_anim
+   -> maybe_call_fn_camera_look_up
+   -> maybe_call_fn_restore_camera_look
+   ;
+   maybe_call_fn_restore_camera_look -> sonic_is_rolling;
+   maybe_call_fn_restore_camera_look
+   -> skip_adjust_y_pos_after_roll
+   ;
+   skip_adjust_y_pos_after_roll -> handle_right_input;
+   skip_adjust_y_pos_after_roll -> handle_left_input;
+   skip_adjust_y_pos_after_roll -> update_x_velocity_from_basic_movement;
+   skip_adjust_y_pos_after_roll -> consider_coasting_x_speed_cap_moving_left;
+   consider_coasting_x_speed_cap_moving_left -> update_x_velocity_from_basic_movement;
+   update_x_velocity_from_basic_movement -> update_x_velocity_moving_left;
+   update_x_velocity_from_basic_movement -> store_updated_x_velocity;
+   update_x_velocity_moving_left -> store_updated_x_velocity;
+   store_updated_x_velocity
+   -> update_y_velocity_from_basic_movement
+   -> maybe_call_fn_handle_sonic_landing_SEMIVESTIGIAL
+   ;
+   maybe_call_fn_handle_sonic_landing_SEMIVESTIGIAL -> update_y_velocity_for_rolling;
+   maybe_call_fn_handle_sonic_landing_SEMIVESTIGIAL -> jump_continue_or_await_release;
+   maybe_call_fn_handle_sonic_landing_SEMIVESTIGIAL -> suppress_jump_button;
+   jump_continue_or_await_release -> unsuppress_jump_button;
+   jump_continue_or_await_release -> continue_jump_processing_from_rolling;
+   continue_jump_processing_from_rolling
+   -> maybe_call_fn_start_jump_timer
+   -> continue_without_applying_gravity
+   ;
+   suppress_jump_button -> stop_jump_timer;
+   unsuppress_jump_button -> stop_jump_timer;
+   stop_jump_timer -> continue_without_jumping_from_rolling;
+   continue_without_jumping_from_rolling -> continue_without_applying_gravity;
+   continue_without_jumping_from_rolling -> apply_gravity -> continue_without_applying_gravity;
+   continue_without_applying_gravity
+   -> skip_upside_down_gravity_VESTIGIAL
+   -> maybe_call_fn_set_roll_animation_for_airborne;
+   maybe_call_fn_set_roll_animation_for_airborne
+   -> skip_negating_y_vel_for_absolute_value
+   ;
+   skip_negating_y_vel_for_absolute_value -> continue_maybe_without_setting_animation;
+   skip_negating_y_vel_for_absolute_value -> select_walking_animation -> continue_maybe_without_setting_animation;
+   continue_maybe_without_setting_animation
+   -> maybe_call_fn_try_collect_ring_in_ring_tile
+   -> continue_past_basic_movement_physics
+   ;
+   continue_past_basic_movement_physics
+   -> maybe_call_fn_decrement_directional_input_suppression_timer
+   -> maybe_call_fn_handle_damage_stun_animation_and_deactivation
+   -> maybe_call_fn_handle_consuming_an_air_bubble
+   -> maybe_call_fn_throttled_play_brake_sound_effect
+   -> maybe_call_fn_reset_anim_frame_idx_on_anim_change
+   -> find_next_anim_frame
+   -> find_next_anim_frame
+   -> found_anim_frame
+   -> sprite_setting_was_facing_left
+   -> maybe_call_fn_handle_shield_animation
+   -> maybe_call_fn_use_left_facing_sonic_sprites
+   -> maybe_call_fn_use_hflipped_in_upside_down_mode_VESTIGIAL
+   -> maybe_call_fn_use_upspring_sprites
+   -> maybe_call_fn_suppress_sprite_rendering
+   -> hard_cap_x_vel_was_positive
+   -> skip_hard_cap_x_vel
+   -> hard_cap_y_vel_was_positive
+   -> skip_hard_cap_y_vel
+   -> skip_clamp_sonic_y_pos_top
+   -> maybe_call_fn_blow_a_bubble_periodically
+   -> maybe_call_fn_handle_invincibility_sparkle_sprite
+   -> maybe_call_fn_handle_round_bumper_throbbing_effect
+   -> maybe_call_fn_handle_ring_sparkle_sprites
+   ;
+   maybe_call_fn_handle_ring_sparkle_sprites -> skip_clamp_sonic_x_pos_left;
+   maybe_call_fn_handle_ring_sparkle_sprites -> continue_past_clamp_sonic_x_pos_right;
+   skip_clamp_sonic_x_pos_left -> continue_past_clamp_sonic_x_pos_right;
+   continue_past_clamp_sonic_x_pos_right -> RETURN;
+   continue_past_clamp_sonic_x_pos_right
+   -> handle_x_speed_dependent_anim
+   -> x_speed_anim_speed_was_not_negative
+   -> RETURN
+   ;
+
+   handle_teleport_start -> do_teleport;
+   handle_teleport_start -> do_teleport_spin_effect;
+   handle_teleport_start -> continue_past_basic_movement_physics;
+   do_teleport_spin_effect -> continue_past_basic_movement_physics;
+   do_teleport -> teleport_is_in_same_level;
+   do_teleport -> teleport_advance_to_next_level;
+   do_teleport -> teleport_did_want_specific_level;
+   teleport_advance_to_next_level -> teleport_did_want_specific_level;
+   teleport_did_want_specific_level -> RETURN_TELEPORT;
+   teleport_is_in_same_level
+   -> teleport_x_pos_shift_left_by_5_loop
+   -> teleport_x_pos_shift_left_by_5_loop
+   -> RETURN_TELEPORT;
+
+   handle_ending_animation_teleport_in -> continue_past_basic_movement_physics;
+
+   sonic_is_dying -> skip_sonic_vel_change_on_death;
+   sonic_is_dying -> dont_deduct_lives;
+   dont_deduct_lives -> select_sonic_drowning_y_vel_cap;
+   dont_deduct_lives -> skip_y_vel_cap_when_going_up_on_death;
+   dont_deduct_lives -> apply_sonic_y_vel_cap_on_death;
+   skip_y_vel_cap_when_going_up_on_death -> dont_cap_sonic_y_vel_on_death;
+   skip_y_vel_cap_when_going_up_on_death -> continue_from_capped_sonic_y_vel_on_death;
+   dont_cap_sonic_y_vel_on_death
+   -> continue_from_capped_sonic_y_vel_on_death
+   -> select_sonic_drowning_y_vel_cap
+   -> apply_sonic_y_vel_cap_on_death
+   -> skip_sonic_vel_change_on_death
+   -> continue_past_basic_movement_physics
+   ;
+
+   handle_right_input -> left_brake_to_right;
+   handle_right_input -> update_x_velocity_from_basic_movement;
+   left_brake_to_right -> update_x_velocity_from_basic_movement;
+
+   handle_left_input -> skip_right_brake_to_left_check -> update_x_velocity_from_basic_movement;
+   handle_left_input -> right_brake_to_left -> update_x_velocity_from_basic_movement;
+
+   sonic_is_rolling -> skip_adjust_y_pos_before_roll;
+   skip_adjust_y_pos_before_roll -> consider_camera_look_down;
+   skip_adjust_y_pos_before_roll -> dont_go_left_in_roll;
+   skip_adjust_y_pos_before_roll -> go_left_in_roll;
+   skip_adjust_y_pos_before_roll -> dont_go_right_in_roll;
+   skip_adjust_y_pos_before_roll -> right_brake_to_left;
+   go_left_in_roll -> update_x_velocity_from_basic_movement;
+   dont_go_left_in_roll -> dont_go_right_in_roll;
+   dont_go_left_in_roll -> go_right_in_roll;
+   dont_go_left_in_roll -> right_brake_to_left;
+   go_right_in_roll -> update_x_velocity_from_basic_movement;
+   dont_go_right_in_roll -> update_x_velocity_from_basic_movement;
+
+}
+
