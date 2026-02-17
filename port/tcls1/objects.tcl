@@ -106,28 +106,30 @@ proc tick_object_at {oi} {
       incr h_x [expr {$xoffs<<8}]
       set tile [get_tile_at_subpixel $h_x $h_y]
       set tf [lindex $::tileflags $tile]
-      set xphys [lindex $xphys [expr {$tf&0x3F}]]
-      set_object_field obj phys_hit_x 0
-      set hit_x [lindex $xphys [expr {($h_y>>8)&0x1F}]]
-      set cmp_x [expr {(($x>>8)&0x1F)}]
-      if {$hit_x != -128} {
-         if {$vx < 0} {
-            if {$cmp_x >= 0 || $cmp_x > $hit_x} {
-               incr x [expr {(($hit_x-$cmp_x)<<8)}]
-               set_object_field obj phys_hit_x 1
-            }
-         } else {
-            if {$cmp_x < 0 || $cmp_x > $hit_x} {
-               incr x [expr {(($hit_x-$cmp_x)<<8)}]
-               set_object_field obj phys_hit_x 1
+      if {($tf&0x3F) != 0} {
+         set xphys [lindex $xphys [expr {$tf&0x3F}]]
+         set_object_field obj phys_hit_x 0
+         set hit_x [lindex $xphys [expr {($h_y>>8)&0x1F}]]
+         set cmp_x [expr {(($x>>8)&0x1F)}]
+         if {$hit_x != -128} {
+            if {$vx < 0} {
+               if {$cmp_x >= 0 || $cmp_x > $hit_x} {
+                  incr x [expr {(($hit_x-$cmp_x)<<8)}]
+                  set_object_field obj phys_hit_x 1
+               }
+            } else {
+               if {$cmp_x < 0 || $cmp_x > $hit_x} {
+                  incr x [expr {(($hit_x-$cmp_x)<<8)}]
+                  set_object_field obj phys_hit_x 1
+               }
             }
          }
+         # There is a slide table for horizontal movement into a vertical wall but all values in that are 0, so it does nothing in practice.
       }
-      # There is a slide table for horizontal movement into a vertical wall but all values in that are 0, so it does nothing in practice.
 
       # Y stuff
       set lower_x [expr {$x+(($sizex>>1)<<8)}]
-      set lower_y [expr {$y+($sizey<<8)}]
+      set lower_y [expr {$y}]
       if {$vy < 0} {
          set yoffs 0
          set yphys [lindex $::phys_yneg]
@@ -139,24 +141,27 @@ proc tick_object_at {oi} {
       #puts "[expr {$lower_x>>13}] [expr {$lower_y>>13}]"
       set tile [get_tile_at_subpixel $lower_x $lower_y]
       set tf [lindex $::tileflags $tile]
-      set yphys [lindex $yphys [expr {$tf&0x3F}]]
-      set_object_field obj phys_grounded 0
-      set hit_y [lindex $yphys [expr {($lower_x>>8)&0x1F}]]
-      set cmp_y [expr {(($y>>8)&0x1F)}]
-      #puts "ycmp $hit_y $cmp_y || $tile $tf || [expr {$lower_x>>13}] [expr {$lower_y>>13}]|| $yphys"
-      if {$hit_y != -128} {
-         if {$vy < 0} {
-            if {$cmp_y >= 0 || $cmp_y > $hit_y} {
-               incr y [expr {(($hit_y-$cmp_y)<<8)}]
-            }
-         } else {
-            if {$cmp_y < 0 || $cmp_y > $hit_y} {
-               incr y [expr {(($hit_y-$cmp_y)<<8)}]
-               set_object_field obj phys_grounded 1
+      if {($tf&0x3F) != 0} {
+         set yphys [lindex $yphys [expr {$tf&0x3F}]]
+         set_object_field obj phys_grounded 0
+         set hit_y [lindex $yphys [expr {($lower_x>>8)&0x1F}]]
+         set cmp_y [expr {(($y>>8)&0x1F)}]
+         #puts "ycmp $hit_y $cmp_y || $tile $tf || [expr {$lower_x>>13}] [expr {$lower_y>>13}]|| $yphys"
+         if {$hit_y != -128} {
+            if {$vy < 0} {
+               if {$cmp_y >= 0 || $cmp_y > $hit_y} {
+                  incr y [expr {(($hit_y-$cmp_y)<<8)}]
+               }
+            } else {
+               if {$cmp_y < 0 || $cmp_y > $hit_y} {
+                  incr y [expr {(($hit_y-$cmp_y)<<8)}]
+                  set_object_field obj phys_grounded 1
+               }
             }
          }
+         # TODO: Apply table at 0x03FF0 --GM
+         # TODO: Apply slide table at 0x03F90 --GM
       }
-      # TODO: Apply slide table at 0x03FF0 --GM
    }
    # returns at @skip_vertical_and_all_clamping
 
