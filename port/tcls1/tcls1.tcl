@@ -18,13 +18,6 @@ set ::rompath {}
 
 set ::leveldata {}
 
-set ::level_index_count [expr {0x25}]
-set ::ptr_pal_bases [expr {0x0627C}]
-set ::ptr_pal_cycles [expr {0x0628C}]
-set ::ptrbase_level_layouts [expr {0x14000}]
-set ::ptrbase_level_objects [expr {0x15580}]
-set ::ptr_level_headers_rel [expr {0x15580}]
-
 set ::scroll_lx 288
 set ::scroll_ly 224
 set ::render_lx 248
@@ -189,8 +182,8 @@ proc tick_game_logic {} {
    # Lock onto Sonic's position
    set sonic_x [get_object_field [lindex $::level_objects 0] x]
    set sonic_y [get_object_field [lindex $::level_objects 0] y]
-   set ::camera_x [expr {$sonic_x+12-($::render_lx/2)}]
-   set ::camera_y [expr {$sonic_y+12-($::render_ly/2)}]
+   set ::camera_x [expr {($sonic_x>>8)+12-($::render_lx/2)}]
+   set ::camera_y [expr {($sonic_y>>8)+12-($::render_ly/2)}]
 
    # Clamp camera position
    set ::camera_x [expr {max(0, min(($::levellx*32)-$::render_lx, $::camera_x))}]
@@ -204,8 +197,8 @@ proc tick_game_logic {} {
       set sizex [get_object_field $obj sizex]
       set sizey [get_object_field $obj sizey]
       #if {$sizex == 0 || $sizey == 0} { continue }
-      set x [get_object_field $obj x]
-      set y [get_object_field $obj y]
+      set x [expr {[get_object_field $obj x]>>8}]
+      set y [expr {[get_object_field $obj y]>>8}]
       # Factor in the left 8 pixels being hidden on the real hardware
       incr x -8
       .maincanvas create rectangle \
@@ -227,13 +220,6 @@ proc tick_game_logic {} {
          -tags [list object_rects] \
          ;
    }
-}
-
-proc tick_object_at {oi} {
-   set obj [lindex $::level_objects $oi]
-   set funcname [get_object_field $obj funcname]
-   tick_objfunc_type_$funcname obj
-   lset ::level_objects $oi $obj
 }
 
 proc update_output_scroll_pos_noload {} {
