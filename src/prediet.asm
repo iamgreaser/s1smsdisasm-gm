@@ -5774,7 +5774,7 @@ LUT_object_functions:
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
-.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
+.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
@@ -18205,12 +18205,12 @@ LUT_SKY2_propeller_sprites_02:
 LUT_SKY2_propeller_sprites_03:
 .db $00, $08, $1A, $00, $00, $FF                                                    ; 02:AB1B
 
-objfunc_32_UNKNOWN:
+objfunc_32_badnik_bomb:
    ld     (ix+13), $0C                 ; 02:AB21 - DD 36 0D 0C
    ld     (ix+14), $10                 ; 02:AB25 - DD 36 0E 10
    ld     a, (ix+17)                   ; 02:AB29 - DD 7E 11
    cp     $64                          ; 02:AB2C - FE 64
-   jr     nc, addr_0AB5A               ; 02:AB2E - 30 2A
+   jr     nc, @dont_start_exploding    ; 02:AB2E - 30 2A
    ld     l, (ix+2)                    ; 02:AB30 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AB33 - DD 66 03
    ld     de, $FFC8                    ; 02:AB36 - 11 C8 FF
@@ -18219,7 +18219,7 @@ objfunc_32_UNKNOWN:
    ld     hl, (sonic_x)                ; 02:AB3B - 2A FE D3
    and    a                            ; 02:AB3E - A7
    sbc    hl, de                       ; 02:AB3F - ED 52
-   jr     c, addr_0AB5A                ; 02:AB41 - 38 17
+   jr     c, @dont_start_exploding     ; 02:AB41 - 38 17
    ld     l, (ix+2)                    ; 02:AB43 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AB46 - DD 66 03
    ld     de, $002C                    ; 02:AB49 - 11 2C 00
@@ -18228,46 +18228,46 @@ objfunc_32_UNKNOWN:
    ld     hl, (sonic_x)                ; 02:AB4E - 2A FE D3
    and    a                            ; 02:AB51 - A7
    sbc    hl, de                       ; 02:AB52 - ED 52
-   jr     nc, addr_0AB5A               ; 02:AB54 - 30 04
+   jr     nc, @dont_start_exploding    ; 02:AB54 - 30 04
    ld     (ix+17), $64                 ; 02:AB56 - DD 36 11 64
 
-addr_0AB5A:
+@dont_start_exploding:
    ld     a, (ix+17)                   ; 02:AB5A - DD 7E 11
    cp     $1E                          ; 02:AB5D - FE 1E
-   jr     nc, addr_0AB79               ; 02:AB5F - 30 18
+   jr     nc, @skip_left_walking       ; 02:AB5F - 30 18
    ld     (ix+7), $F8                  ; 02:AB61 - DD 36 07 F8
    ld     (ix+8), $FF                  ; 02:AB65 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:AB69 - DD 36 09 FF
-   ld     de, UNK_0AD0B                ; 02:AB6D - 11 0B AD
-   ld     bc, UNK_0ACF1                ; 02:AB70 - 01 F1 AC
+   ld     de, SPRTAB_badnik_bomb_normal  ; 02:AB6D - 11 0B AD
+   ld     bc, LUT_badnik_bomb_anim_left_walking  ; 02:AB70 - 01 F1 AC
    call   do_framed_animation          ; 02:AB73 - CD 41 7C
-   jp     addr_0AC6A                   ; 02:AB76 - C3 6A AC
+   jp     @finish_with_gravity         ; 02:AB76 - C3 6A AC
 
-addr_0AB79:
+@skip_left_walking:
    ld     a, (ix+17)                   ; 02:AB79 - DD 7E 11
    cp     $64                          ; 02:AB7C - FE 64
-   jp     c, addr_0AC1E                ; 02:AB7E - DA 1E AC
+   jp     c, @skip_explosion_flashing  ; 02:AB7E - DA 1E AC
    ld     (ix+7), $00                  ; 02:AB81 - DD 36 07 00
    ld     (ix+8), $00                  ; 02:AB85 - DD 36 08 00
    ld     (ix+9), $00                  ; 02:AB89 - DD 36 09 00
    cp     $66                          ; 02:AB8D - FE 66
-   jr     nc, addr_0AB9D               ; 02:AB8F - 30 0C
-   ld     de, UNK_0AD0B                ; 02:AB91 - 11 0B AD
-   ld     bc, UNK_0AD01                ; 02:AB94 - 01 01 AD
+   jr     nc, @do_explosion_final      ; 02:AB8F - 30 0C
+   ld     de, SPRTAB_badnik_bomb_normal  ; 02:AB91 - 11 0B AD
+   ld     bc, LUT_badnik_bomb_anim_exploding_flashing  ; 02:AB94 - 01 01 AD
    call   do_framed_animation          ; 02:AB97 - CD 41 7C
-   jp     addr_0AC6A                   ; 02:AB9A - C3 6A AC
+   jp     @finish_with_gravity         ; 02:AB9A - C3 6A AC
 
-addr_0AB9D:
-   ld     (ix+15), UNK_0AD53&$FF       ; 02:AB9D - DD 36 0F 53
-   ld     (ix+16), UNK_0AD53>>8        ; 02:ABA1 - DD 36 10 AD
+@do_explosion_final:
+   ld     (ix+15), SPRTAB_badnik_bomb_exploding&$FF  ; 02:AB9D - DD 36 0F 53
+   ld     (ix+16), SPRTAB_badnik_bomb_exploding>>8  ; 02:ABA1 - DD 36 10 AD
    cp     $67                          ; 02:ABA5 - FE 67
-   jp     nz, addr_0AC6A               ; 02:ABA7 - C2 6A AC
+   jp     nz, @finish_with_gravity     ; 02:ABA7 - C2 6A AC
    ld     hl, $FFFE                    ; 02:ABAA - 21 FE FF
    ld     (tmp_04), hl                 ; 02:ABAD - 22 12 D2
    ld     hl, $FFFC                    ; 02:ABB0 - 21 FC FF
    ld     (tmp_06), hl                 ; 02:ABB3 - 22 14 D2
    call   spawn_object                 ; 02:ABB6 - CD 7B 7C
-   jp     c, addr_0AC76                ; 02:ABB9 - DA 76 AC
+   jp     c, @finish_without_gravity   ; 02:ABB9 - DA 76 AC
    ld     de, $0000                    ; 02:ABBC - 11 00 00
    ld     c, e                         ; 02:ABBF - 4B
    ld     b, d                         ; 02:ABC0 - 42
@@ -18277,7 +18277,7 @@ addr_0AB9D:
    ld     hl, $FFFC                    ; 02:ABCA - 21 FC FF
    ld     (tmp_06), hl                 ; 02:ABCD - 22 14 D2
    call   spawn_object                 ; 02:ABD0 - CD 7B 7C
-   jp     c, addr_0AC76                ; 02:ABD3 - DA 76 AC
+   jp     c, @finish_without_gravity   ; 02:ABD3 - DA 76 AC
    ld     de, $0008                    ; 02:ABD6 - 11 08 00
    ld     bc, $0000                    ; 02:ABD9 - 01 00 00
    call   init_fireball_object         ; 02:ABDC - CD 96 AC
@@ -18286,7 +18286,7 @@ addr_0AB9D:
    ld     hl, $FFFE                    ; 02:ABE5 - 21 FE FF
    ld     (tmp_06), hl                 ; 02:ABE8 - 22 14 D2
    call   spawn_object                 ; 02:ABEB - CD 7B 7C
-   jp     c, addr_0AC76                ; 02:ABEE - DA 76 AC
+   jp     c, @finish_without_gravity   ; 02:ABEE - DA 76 AC
    ld     de, $0000                    ; 02:ABF1 - 11 00 00
    ld     bc, $0008                    ; 02:ABF4 - 01 08 00
    call   init_fireball_object         ; 02:ABF7 - CD 96 AC
@@ -18295,53 +18295,53 @@ addr_0AB9D:
    ld     hl, $FFFE                    ; 02:AC00 - 21 FE FF
    ld     (tmp_06), hl                 ; 02:AC03 - 22 14 D2
    call   spawn_object                 ; 02:AC06 - CD 7B 7C
-   jp     c, addr_0AC76                ; 02:AC09 - DA 76 AC
+   jp     c, @finish_without_gravity   ; 02:AC09 - DA 76 AC
    ld     de, $0008                    ; 02:AC0C - 11 08 00
    ld     bc, $0008                    ; 02:AC0F - 01 08 00
    call   init_fireball_object         ; 02:AC12 - CD 96 AC
    ld     (ix+0), $FF                  ; 02:AC15 - DD 36 00 FF
    ld     a, $1B                       ; 02:AC19 - 3E 1B
    rst    $28                          ; 02:AC1B - EF
-   jr     addr_0AC76                   ; 02:AC1C - 18 58
+   jr     @finish_without_gravity      ; 02:AC1C - 18 58
 
-addr_0AC1E:
+@skip_explosion_flashing:
    cp     $23                          ; 02:AC1E - FE 23
-   jr     nc, addr_0AC37               ; 02:AC20 - 30 15
+   jr     nc, @do_right                ; 02:AC20 - 30 15
    xor    a                            ; 02:AC22 - AF
    ld     (ix+7), a                    ; 02:AC23 - DD 77 07
    ld     (ix+8), a                    ; 02:AC26 - DD 77 08
    ld     (ix+9), a                    ; 02:AC29 - DD 77 09
-   ld     de, UNK_0AD0B                ; 02:AC2C - 11 0B AD
-   ld     bc, UNK_0ACF6                ; 02:AC2F - 01 F6 AC
+   ld     de, SPRTAB_badnik_bomb_normal  ; 02:AC2C - 11 0B AD
+   ld     bc, LUT_badnik_bomb_anim_left_standing  ; 02:AC2F - 01 F6 AC
    call   do_framed_animation          ; 02:AC32 - CD 41 7C
-   jr     addr_0AC6A                   ; 02:AC35 - 18 33
+   jr     @finish_with_gravity         ; 02:AC35 - 18 33
 
-addr_0AC37:
+@do_right:
    ld     a, (ix+17)                   ; 02:AC37 - DD 7E 11
    cp     $41                          ; 02:AC3A - FE 41
-   jr     nc, addr_0AC55               ; 02:AC3C - 30 17
+   jr     nc, @do_right_standing       ; 02:AC3C - 30 17
    ld     (ix+7), $08                  ; 02:AC3E - DD 36 07 08
    ld     (ix+8), $00                  ; 02:AC42 - DD 36 08 00
    ld     (ix+9), $00                  ; 02:AC46 - DD 36 09 00
-   ld     de, UNK_0AD0B                ; 02:AC4A - 11 0B AD
-   ld     bc, UNK_0ACF9                ; 02:AC4D - 01 F9 AC
+   ld     de, SPRTAB_badnik_bomb_normal  ; 02:AC4A - 11 0B AD
+   ld     bc, LUT_badnik_bomb_anim_right_walking  ; 02:AC4D - 01 F9 AC
    call   do_framed_animation          ; 02:AC50 - CD 41 7C
-   jr     addr_0AC6A                   ; 02:AC53 - 18 15
+   jr     @finish_with_gravity         ; 02:AC53 - 18 15
 
-addr_0AC55:
+@do_right_standing:
    ld     (ix+7), $00                  ; 02:AC55 - DD 36 07 00
    ld     (ix+8), $00                  ; 02:AC59 - DD 36 08 00
    ld     (ix+9), $00                  ; 02:AC5D - DD 36 09 00
-   ld     de, UNK_0AD0B                ; 02:AC61 - 11 0B AD
-   ld     bc, UNK_0ACFE                ; 02:AC64 - 01 FE AC
+   ld     de, SPRTAB_badnik_bomb_normal  ; 02:AC61 - 11 0B AD
+   ld     bc, LUT_badnik_bomb_anim_right_standing  ; 02:AC64 - 01 FE AC
    call   do_framed_animation          ; 02:AC67 - CD 41 7C
 
-addr_0AC6A:
+@finish_with_gravity:
    ld     (ix+10), $80                 ; 02:AC6A - DD 36 0A 80
    ld     (ix+11), $00                 ; 02:AC6E - DD 36 0B 00
    ld     (ix+12), $00                 ; 02:AC72 - DD 36 0C 00
 
-addr_0AC76:
+@finish_without_gravity:
    ld     hl, $0202                    ; 02:AC76 - 21 02 02
    ld     (tmp_06), hl                 ; 02:AC79 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AC7C - CD 56 39
@@ -18394,29 +18394,29 @@ init_fireball_object:
    pop    ix                           ; 02:ACEE - DD E1
    ret                                 ; 02:ACF0 - C9
 
-UNK_0ACF1:
+LUT_badnik_bomb_anim_left_walking:
 .db $00, $20, $01, $20, $FF                                                         ; 02:ACF1
 
-UNK_0ACF6:
+LUT_badnik_bomb_anim_left_standing:
 .db $01, $20, $FF                                                                   ; 02:ACF6
 
-UNK_0ACF9:
+LUT_badnik_bomb_anim_right_walking:
 .db $02, $20, $03, $20, $FF                                                         ; 02:ACF9
 
-UNK_0ACFE:
+LUT_badnik_bomb_anim_right_standing:
 .db $03, $20, $FF                                                                   ; 02:ACFE
 
-UNK_0AD01:
+LUT_badnik_bomb_anim_exploding_flashing:
 .db $01, $02, $04, $02, $FF, $03, $02, $05, $02, $FF                                ; 02:AD01
 
-UNK_0AD0B:
+SPRTAB_badnik_bomb_normal:
 .db $0A, $0C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD0B
 .db $FF, $FF, $0E, $10, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD1B
 .db $FF, $FF, $FF, $FF, $2A, $2C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD2B
 .db $FF, $FF, $FF, $FF, $FF, $FF, $2E, $30, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD3B
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF                                          ; 02:AD4B
 
-UNK_0AD53:
+SPRTAB_badnik_bomb_exploding:
 .db $12, $14, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD53
 .db $FF, $FF, $32, $34, $FF, $FF, $FF, $FF, $FF                                     ; 02:AD63
 
