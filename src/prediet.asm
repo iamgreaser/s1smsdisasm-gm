@@ -18191,8 +18191,19 @@ addr_0AADA:
    ret                                 ; 02:AB00 - C9
 
 UNK_0AB01:
-.db $09, $AB, $0F, $AB, $15, $AB, $1B, $AB, $00, $00, $1C, $00, $18, $3C, $00, $00  ; 02:AB01
-.db $1E, $00, $18, $3E, $00, $00, $38, $00, $18, $3A, $00, $08, $1A, $00, $00, $FF  ; 02:AB11
+.dw addr_0AB09, addr_0AB0F, addr_0AB15, addr_0AB1B                                  ; 02:AB01
+
+addr_0AB09:
+.db $00, $00, $1C, $00, $18, $3C                                                    ; 02:AB09
+
+addr_0AB0F:
+.db $00, $00, $1E, $00, $18, $3E                                                    ; 02:AB0F
+
+addr_0AB15:
+.db $00, $00, $38, $00, $18, $3A                                                    ; 02:AB15
+
+addr_0AB1B:
+.db $00, $08, $1A, $00, $00, $FF                                                    ; 02:AB1B
 
 objfunc_32_UNKNOWN:
    ld     (ix+13), $0C                 ; 02:AB21 - DD 36 0D 0C
