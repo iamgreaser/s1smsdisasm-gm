@@ -7553,7 +7553,7 @@ LUT_object_functions:
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
-.dw objfunc_30_moving_cloud, objfunc_31_UNKNOWN, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
+.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_UNKNOWN, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
@@ -21175,12 +21175,12 @@ objfunc_30_moving_cloud:
 SPRTAB_moving_cloud:
 .db $40, $42, $44, $46, $FF, $FF, $FF                                               ; 02:AA63
 
-objfunc_31_UNKNOWN:
+objfunc_31_SKY2_propeller:
    set    5, (ix+24)                   ; 02:AA6A - DD CB 18 EE
    ld     (ix+13), $05                 ; 02:AA6E - DD 36 0D 05
    ld     (ix+14), $14                 ; 02:AA72 - DD 36 0E 14
    bit    0, (ix+24)                   ; 02:AA76 - DD CB 18 46
-   jr     nz, addr_0AAA0               ; 02:AA7A - 20 24
+   jr     nz, @already_initialised     ; 02:AA7A - 20 24
    ld     l, (ix+2)                    ; 02:AA7C - DD 6E 02
    ld     h, (ix+3)                    ; 02:AA7F - DD 66 03
    ld     de, $000F                    ; 02:AA82 - 11 0F 00
@@ -21195,7 +21195,7 @@ objfunc_31_UNKNOWN:
    ld     (ix+6), h                    ; 02:AA99 - DD 74 06
    set    0, (ix+24)                   ; 02:AA9C - DD CB 18 C6
 
-addr_0AAA0:
+@already_initialised:
    ld     l, (ix+2)                    ; 02:AAA0 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AAA3 - DD 66 03
    ld     (tmp_00), hl                 ; 02:AAA6 - 22 0E D2
@@ -21204,14 +21204,14 @@ addr_0AAA0:
    ld     (tmp_02), hl                 ; 02:AAAF - 22 10 D2
    ld     e, (ix+17)                   ; 02:AAB2 - DD 5E 11
    ld     d, $00                       ; 02:AAB5 - 16 00
-   ld     hl, UNK_0AB01                ; 02:AAB7 - 21 01 AB
+   ld     hl, PTRTAB_SKY2_propeller_sprites_xyn  ; 02:AAB7 - 21 01 AB
    add    hl, de                       ; 02:AABA - 19
    ld     e, (hl)                      ; 02:AABB - 5E
    inc    hl                           ; 02:AABC - 23
    ld     d, (hl)                      ; 02:AABD - 56
    ld     b, $02                       ; 02:AABE - 06 02
 
-addr_0AAC0:
+@each_sprite:
    push   bc                           ; 02:AAC0 - C5
    ld     a, (de)                      ; 02:AAC1 - 1A
    ld     l, a                         ; 02:AAC2 - 6F
@@ -21225,14 +21225,14 @@ addr_0AAC0:
    ld     a, (de)                      ; 02:AACF - 1A
    inc    de                           ; 02:AAD0 - 13
    and    a                            ; 02:AAD1 - A7
-   jp     m, addr_0AADA                ; 02:AAD2 - FA DA AA
+   jp     m, @skip_drawing_sprite      ; 02:AAD2 - FA DA AA
    push   de                           ; 02:AAD5 - D5
    call   draw_sprite                  ; 02:AAD6 - CD 81 35
    pop    de                           ; 02:AAD9 - D1
 
-addr_0AADA:
+@skip_drawing_sprite:
    pop    bc                           ; 02:AADA - C1
-   djnz   addr_0AAC0                   ; 02:AADB - 10 E3
+   djnz   @each_sprite                 ; 02:AADB - 10 E3
    ld     hl, $0202                    ; 02:AADD - 21 02 02
    ld     (tmp_06), hl                 ; 02:AAE0 - 22 14 D2
    call   check_collision_with_sonic   ; 02:AAE3 - CD 56 39
@@ -21248,19 +21248,19 @@ addr_0AADA:
    ld     (ix+17), $00                 ; 02:AAFC - DD 36 11 00
    ret                                 ; 02:AB00 - C9
 
-UNK_0AB01:
-.dw addr_0AB09, addr_0AB0F, addr_0AB15, addr_0AB1B                                  ; 02:AB01
+PTRTAB_SKY2_propeller_sprites_xyn:
+.dw LUT_SKY2_propeller_sprites_00, LUT_SKY2_propeller_sprites_01, LUT_SKY2_propeller_sprites_02, LUT_SKY2_propeller_sprites_03  ; 02:AB01
 
-addr_0AB09:
+LUT_SKY2_propeller_sprites_00:
 .db $00, $00, $1C, $00, $18, $3C                                                    ; 02:AB09
 
-addr_0AB0F:
+LUT_SKY2_propeller_sprites_01:
 .db $00, $00, $1E, $00, $18, $3E                                                    ; 02:AB0F
 
-addr_0AB15:
+LUT_SKY2_propeller_sprites_02:
 .db $00, $00, $38, $00, $18, $3A                                                    ; 02:AB15
 
-addr_0AB1B:
+LUT_SKY2_propeller_sprites_03:
 .db $00, $08, $1A, $00, $00, $FF                                                    ; 02:AB1B
 
 objfunc_32_UNKNOWN:
