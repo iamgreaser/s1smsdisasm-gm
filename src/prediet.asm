@@ -5774,7 +5774,7 @@ LUT_object_functions:
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
-.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
+.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
@@ -18525,46 +18525,46 @@ objfunc_34_SKY2_cannon_shell:
 SPRTAB_SKY2_cannon_shell:
 .db $02, $04, $FF, $FF, $FF, $FF, $FF                                               ; 02:AE81
 
-objfunc_35_UNKNOWN:
+objfunc_35_badnik_orbinaut:
    set    5, (ix+24)                   ; 02:AE88 - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:AE8C - DD CB 18 46
-   jr     nz, addr_0AEA6               ; 02:AE90 - 20 14
+   jr     nz, @already_initialised     ; 02:AE90 - 20 14
    ld     (ix+17), $00                 ; 02:AE92 - DD 36 11 00
    ld     (ix+18), $2A                 ; 02:AE96 - DD 36 12 2A
    ld     (ix+19), $52                 ; 02:AE9A - DD 36 13 52
    ld     (ix+20), $7C                 ; 02:AE9E - DD 36 14 7C
    set    0, (ix+24)                   ; 02:AEA2 - DD CB 18 C6
 
-addr_0AEA6:
+@already_initialised:
    ld     l, (ix+2)                    ; 02:AEA6 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AEA9 - DD 66 03
    ld     de, (sonic_x)                ; 02:AEAC - ED 5B FE D3
    and    a                            ; 02:AEB0 - A7
    sbc    hl, de                       ; 02:AEB1 - ED 52
-   jr     c, addr_0AED8                ; 02:AEB3 - 38 23
+   jr     c, @sonic_is_on_right        ; 02:AEB3 - 38 23
    ld     (ix+7), $F8                  ; 02:AEB5 - DD 36 07 F8
    ld     (ix+8), $FF                  ; 02:AEB9 - DD 36 08 FF
    ld     (ix+9), $FF                  ; 02:AEBD - DD 36 09 FF
-   ld     (ix+15), UNK_0B0D5&$FF       ; 02:AEC1 - DD 36 0F D5
-   ld     (ix+16), UNK_0B0D5>>8        ; 02:AEC5 - DD 36 10 B0
+   ld     (ix+15), SPRTAB_orbinaut_base_left&$FF  ; 02:AEC1 - DD 36 0F D5
+   ld     (ix+16), SPRTAB_orbinaut_base_left>>8  ; 02:AEC5 - DD 36 10 B0
    ld     hl, $FF80                    ; 02:AEC9 - 21 80 FF
    ld     (tmp_08), hl                 ; 02:AECC - 22 16 D2
-   call   addr_0AF98                   ; 02:AECF - CD 98 AF
+   call   @fn_maybe_jettison_balls     ; 02:AECF - CD 98 AF
    ld     (ix+22), $01                 ; 02:AED2 - DD 36 16 01
-   jr     addr_0AEF9                   ; 02:AED6 - 18 21
+   jr     @sonic_was_on_the_left       ; 02:AED6 - 18 21
 
-addr_0AED8:
+@sonic_is_on_right:
    ld     (ix+7), $08                  ; 02:AED8 - DD 36 07 08
    ld     (ix+8), $00                  ; 02:AEDC - DD 36 08 00
    ld     (ix+9), $00                  ; 02:AEE0 - DD 36 09 00
-   ld     (ix+15), UNK_0B0E7&$FF       ; 02:AEE4 - DD 36 0F E7
-   ld     (ix+16), UNK_0B0E7>>8        ; 02:AEE8 - DD 36 10 B0
+   ld     (ix+15), SPRTAB_orbinaut_base_right&$FF  ; 02:AEE4 - DD 36 0F E7
+   ld     (ix+16), SPRTAB_orbinaut_base_right>>8  ; 02:AEE8 - DD 36 10 B0
    ld     hl, $0080                    ; 02:AEEC - 21 80 00
    ld     (tmp_08), hl                 ; 02:AEEF - 22 16 D2
-   call   addr_0AF98                   ; 02:AEF2 - CD 98 AF
+   call   @fn_maybe_jettison_balls     ; 02:AEF2 - CD 98 AF
    ld     (ix+22), $FF                 ; 02:AEF5 - DD 36 16 FF
 
-addr_0AEF9:
+@sonic_was_on_the_left:
    ld     (ix+13), $1C                 ; 02:AEF9 - DD 36 0D 1C
    ld     (ix+14), $1C                 ; 02:AEFD - DD 36 0E 1C
    ld     hl, $1212                    ; 02:AF01 - 21 12 12
@@ -18585,16 +18585,16 @@ addr_0AEF9:
    add    hl, de                       ; 02:AF2B - 19
    ld     b, $04                       ; 02:AF2C - 06 04
 
-addr_0AF2E:
+@each_ball_to_spin:
    push   bc                           ; 02:AF2E - C5
    push   hl                           ; 02:AF2F - E5
    ld     a, (hl)                      ; 02:AF30 - 7E
    cp     $FE                          ; 02:AF31 - FE FE
-   jr     z, addr_0AF6D                ; 02:AF33 - 28 38
+   jr     z, @skip_collision_with_missing_ball  ; 02:AF33 - 28 38
    and    $FE                          ; 02:AF35 - E6 FE
    ld     e, a                         ; 02:AF37 - 5F
    ld     d, $00                       ; 02:AF38 - 16 00
-   ld     hl, UNK_0B031                ; 02:AF3A - 21 31 B0
+   ld     hl, LUT_orbinaut_ball_xy_positions  ; 02:AF3A - 21 31 B0
    add    hl, de                       ; 02:AF3D - 19
    push   hl                           ; 02:AF3E - E5
    ld     e, (hl)                      ; 02:AF3F - 5E
@@ -18621,27 +18621,27 @@ addr_0AF2E:
    call   check_collision_with_sonic   ; 02:AF67 - CD 56 39
    call   nc, damage_sonic             ; 02:AF6A - D4 FD 35
 
-addr_0AF6D:
+@skip_collision_with_missing_ball:
    pop    hl                           ; 02:AF6D - E1
    pop    bc                           ; 02:AF6E - C1
    ld     a, (hl)                      ; 02:AF6F - 7E
    cp     $FE                          ; 02:AF70 - FE FE
-   jr     z, addr_0AF84                ; 02:AF72 - 28 10
+   jr     z, @update_and_handle_next_ball  ; 02:AF72 - 28 10
    add    a, (ix+22)                   ; 02:AF74 - DD 86 16
    cp     $FF                          ; 02:AF77 - FE FF
-   jr     nz, addr_0AF7F               ; 02:AF79 - 20 04
+   jr     nz, @spin_direction_is_for_moving_left  ; 02:AF79 - 20 04
    ld     a, $A3                       ; 02:AF7B - 3E A3
-   jr     addr_0AF84                   ; 02:AF7D - 18 05
+   jr     @update_and_handle_next_ball  ; 02:AF7D - 18 05
 
-addr_0AF7F:
+@spin_direction_is_for_moving_left:
    cp     $A4                          ; 02:AF7F - FE A4
-   jr     nz, addr_0AF84               ; 02:AF81 - 20 01
+   jr     nz, @update_and_handle_next_ball  ; 02:AF81 - 20 01
    xor    a                            ; 02:AF83 - AF
 
-addr_0AF84:
+@update_and_handle_next_ball:
    ld     (hl), a                      ; 02:AF84 - 77
    inc    hl                           ; 02:AF85 - 23
-   djnz   addr_0AF2E                   ; 02:AF86 - 10 A6
+   djnz   @each_ball_to_spin           ; 02:AF86 - 10 A6
    ld     a, (g_global_tick_counter)   ; 02:AF88 - 3A 23 D2
    and    $07                          ; 02:AF8B - E6 07
    ret    z                            ; 02:AF8D - C8
@@ -18651,7 +18651,7 @@ addr_0AF84:
    inc    (ix+21)                      ; 02:AF94 - DD 34 15
    ret                                 ; 02:AF97 - C9
 
-addr_0AF98:
+@fn_maybe_jettison_balls:
    ld     a, (ix+21)                   ; 02:AF98 - DD 7E 15
    cp     $C8                          ; 02:AF9B - FE C8
    ret    nz                           ; 02:AF9D - C0
@@ -18679,19 +18679,19 @@ addr_0AF98:
    add    hl, de                       ; 02:AFCA - 19
    ld     b, $04                       ; 02:AFCB - 06 04
 
-addr_0AFCD:
+@each_ball_to_jettison:
    push   bc                           ; 02:AFCD - C5
    push   hl                           ; 02:AFCE - E5
    ld     a, (hl)                      ; 02:AFCF - 7E
    cp     $4A                          ; 02:AFD0 - FE 4A
-   call   z, addr_0AFDB                ; 02:AFD2 - CC DB AF
+   call   z, @fn_jettison_ball         ; 02:AFD2 - CC DB AF
    pop    hl                           ; 02:AFD5 - E1
    pop    bc                           ; 02:AFD6 - C1
    inc    hl                           ; 02:AFD7 - 23
-   djnz   addr_0AFCD                   ; 02:AFD8 - 10 F3
+   djnz   @each_ball_to_jettison       ; 02:AFD8 - 10 F3
    ret                                 ; 02:AFDA - C9
 
-addr_0AFDB:
+@fn_jettison_ball:
    ld     (hl), $FE                    ; 02:AFDB - 36 FE
    call   spawn_object                 ; 02:AFDD - CD 7B 7C
    ret    c                            ; 02:AFE0 - D8
@@ -18719,10 +18719,10 @@ addr_0AFDB:
    ld     (ix+8), h                    ; 02:B017 - DD 74 08
    xor    a                            ; 02:B01A - AF
    bit    7, h                         ; 02:B01B - CB 7C
-   jr     z, addr_0B021                ; 02:B01D - 28 02
+   jr     z, @ball_is_to_move_right    ; 02:B01D - 28 02
    ld     a, $FF                       ; 02:B01F - 3E FF
 
-addr_0B021:
+@ball_is_to_move_right:
    ld     (ix+9), a                    ; 02:B021 - DD 77 09
    xor    a                            ; 02:B024 - AF
    ld     (ix+10), a                   ; 02:B025 - DD 77 0A
@@ -18731,7 +18731,7 @@ addr_0B021:
    pop    ix                           ; 02:B02E - DD E1
    ret                                 ; 02:B030 - C9
 
-UNK_0B031:
+LUT_orbinaut_ball_xy_positions:
 .db $0C, $03, $0D, $03, $0E, $03, $0E, $04, $0F, $04, $10, $04, $10, $05, $11, $05  ; 02:B031
 .db $11, $06, $12, $06, $12, $07, $13, $07, $13, $08, $13, $09, $14, $09, $14, $0A  ; 02:B041
 .db $14, $0B, $15, $0B, $15, $0C, $15, $0D, $15, $0E, $15, $0F, $15, $10, $15, $11  ; 02:B051
@@ -18744,14 +18744,14 @@ UNK_0B031:
 .db $05, $06, $06, $06, $06, $05, $07, $05, $07, $04, $08, $04, $09, $04, $09, $03  ; 02:B0C1
 .db $0A, $03, $0B, $03                                                              ; 02:B0D1
 
-UNK_0B0D5:
+SPRTAB_orbinaut_base_left:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $26, $28, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:B0D5
 .db $FF, $FF                                                                        ; 02:B0E5
 
-UNK_0B0E7:
+SPRTAB_orbinaut_base_right:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $20, $22, $FF, $FF, $FF, $FF                 ; 02:B0E7
 
-objfunc_36_UNKNOWN:
+objfunc_36_badnik_orbinaut_ejected_ball:
    set    5, (ix+24)                   ; 02:B0F4 - DD CB 18 EE
    ld     (ix+15), $00                 ; 02:B0F8 - DD 36 0F 00
    ld     (ix+16), $00                 ; 02:B0FC - DD 36 10 00
@@ -18770,13 +18770,13 @@ objfunc_36_UNKNOWN:
    add    hl, bc                       ; 02:B124 - 09
    and    a                            ; 02:B125 - A7
    sbc    hl, de                       ; 02:B126 - ED 52
-   jr     nc, addr_0B167               ; 02:B128 - 30 3D
+   jr     nc, @destroy_this_object     ; 02:B128 - 30 3D
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:B12A - 2A 5A D2
    ld     bc, $0110                    ; 02:B12D - 01 10 01
    add    hl, bc                       ; 02:B130 - 09
    and    a                            ; 02:B131 - A7
    sbc    hl, de                       ; 02:B132 - ED 52
-   jr     c, addr_0B167                ; 02:B134 - 38 31
+   jr     c, @destroy_this_object      ; 02:B134 - 38 31
    ld     l, (ix+5)                    ; 02:B136 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B139 - DD 66 06
    ld     (tmp_02), hl                 ; 02:B13C - 22 10 D2
@@ -18786,13 +18786,13 @@ objfunc_36_UNKNOWN:
    add    hl, bc                       ; 02:B146 - 09
    and    a                            ; 02:B147 - A7
    sbc    hl, de                       ; 02:B148 - ED 52
-   jr     nc, addr_0B167               ; 02:B14A - 30 1B
+   jr     nc, @destroy_this_object     ; 02:B14A - 30 1B
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:B14C - 2A 5D D2
    ld     bc, $00D0                    ; 02:B14F - 01 D0 00
    add    hl, bc                       ; 02:B152 - 09
    and    a                            ; 02:B153 - A7
    sbc    hl, de                       ; 02:B154 - ED 52
-   jr     c, addr_0B167                ; 02:B156 - 38 0F
+   jr     c, @destroy_this_object      ; 02:B156 - 38 0F
    ld     hl, $0000                    ; 02:B158 - 21 00 00
    ld     (tmp_04), hl                 ; 02:B15B - 22 12 D2
    ld     (tmp_06), hl                 ; 02:B15E - 22 14 D2
@@ -18800,7 +18800,7 @@ objfunc_36_UNKNOWN:
    call   draw_sprite                  ; 02:B163 - CD 81 35
    ret                                 ; 02:B166 - C9
 
-addr_0B167:
+@destroy_this_object:
    ld     (ix+0), $FF                  ; 02:B167 - DD 36 00 FF
    ret                                 ; 02:B16B - C9
 
