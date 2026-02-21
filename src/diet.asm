@@ -7554,7 +7554,7 @@ LUT_object_functions:
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
-.dw objfunc_38_SKY_platform_right, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
+.dw objfunc_38_SKY_platform_right, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -22276,20 +22276,20 @@ UNK_0B4E6:
 .db $F8, $FF, $00, $FF, $80, $FE, $80, $01, $00, $00, $10, $00, $FF, $00, $80, $01  ; 02:B4F6
 .db $80, $01, $18, $00, $10, $00, $00, $00                                          ; 02:B506
 
-objfunc_3B_UNKNOWN:
+objfunc_3B_platform_y_oscillate:
    set    5, (ix+24)                   ; 02:B50E - DD CB 18 EE
    ld     hl, SPRTAB_SKY_platform      ; 02:B512 - 21 7B B3
    ld     a, (g_tile_flags_index)      ; 02:B515 - 3A D4 D2
    cp     $01                          ; 02:B518 - FE 01
-   jr     nz, addr_0B51F               ; 02:B51A - 20 03
-   ld     hl, UNK_0B5B5                ; 02:B51C - 21 B5 B5
+   jr     nz, @not_BRI                 ; 02:B51A - 20 03
+   ld     hl, SPRTAB_platform_y_oscillate_BRI  ; 02:B51C - 21 B5 B5
 
-addr_0B51F:
+@not_BRI:
    ld     (ix+15), l                   ; 02:B51F - DD 75 0F
    ld     (ix+16), h                   ; 02:B522 - DD 74 10
    ld     a, $50                       ; 02:B525 - 3E 50
    ld     (tmp_08), a                  ; 02:B527 - 32 16 D2
-   call   addr_0B53B                   ; 02:B52A - CD 3B B5
+   call   @fn_do_y_oscillate           ; 02:B52A - CD 3B B5
    inc    (ix+17)                      ; 02:B52D - DD 34 11
    ld     a, (ix+17)                   ; 02:B530 - DD 7E 11
    cp     $A0                          ; 02:B533 - FE A0
@@ -22297,18 +22297,18 @@ addr_0B51F:
    ld     (ix+17), $00                 ; 02:B536 - DD 36 11 00
    ret                                 ; 02:B53A - C9
 
-addr_0B53B:
+@fn_do_y_oscillate:
    ld     a, (tmp_08)                  ; 02:B53B - 3A 16 D2
    ld     l, a                         ; 02:B53E - 6F
    ld     de, $0010                    ; 02:B53F - 11 10 00
    ld     c, $00                       ; 02:B542 - 0E 00
    ld     a, (ix+17)                   ; 02:B544 - DD 7E 11
    cp     l                            ; 02:B547 - BD
-   jr     c, addr_0B54E                ; 02:B548 - 38 04
+   jr     c, @accel_was_set_to_down    ; 02:B548 - 38 04
    dec    c                            ; 02:B54A - 0D
    ld     de, $FFF0                    ; 02:B54B - 11 F0 FF
 
-addr_0B54E:
+@accel_was_set_to_down:
    ld     l, (ix+10)                   ; 02:B54E - DD 6E 0A
    ld     h, (ix+11)                   ; 02:B551 - DD 66 0B
    ld     a, (ix+12)                   ; 02:B554 - DD 7E 0C
@@ -22319,7 +22319,7 @@ addr_0B54E:
    ld     (ix+12), a                   ; 02:B55F - DD 77 0C
    ld     a, h                         ; 02:B562 - 7C
    and    a                            ; 02:B563 - A7
-   jp     p, addr_0B581                ; 02:B564 - F2 81 B5
+   jp     p, @vel_is_positive          ; 02:B564 - F2 81 B5
    ld     a, l                         ; 02:B567 - 7D
    cpl                                 ; 02:B568 - 2F
    ld     l, a                         ; 02:B569 - 6F
@@ -22329,20 +22329,20 @@ addr_0B54E:
    inc    hl                           ; 02:B56D - 23
    ld     a, h                         ; 02:B56E - 7C
    cp     $02                          ; 02:B56F - FE 02
-   jr     c, addr_0B591                ; 02:B571 - 38 1E
+   jr     c, @continue_after_y_vel_clamp_check  ; 02:B571 - 38 1E
    ld     (ix+10), $00                 ; 02:B573 - DD 36 0A 00
    ld     (ix+11), $FE                 ; 02:B577 - DD 36 0B FE
    ld     (ix+12), $FF                 ; 02:B57B - DD 36 0C FF
-   jr     addr_0B591                   ; 02:B57F - 18 10
+   jr     @continue_after_y_vel_clamp_check  ; 02:B57F - 18 10
 
-addr_0B581:
+@vel_is_positive:
    cp     $02                          ; 02:B581 - FE 02
-   jr     c, addr_0B591                ; 02:B583 - 38 0C
+   jr     c, @continue_after_y_vel_clamp_check  ; 02:B583 - 38 0C
    ld     (ix+10), $00                 ; 02:B585 - DD 36 0A 00
    ld     (ix+11), $02                 ; 02:B589 - DD 36 0B 02
    ld     (ix+12), $00                 ; 02:B58D - DD 36 0C 00
 
-addr_0B591:
+@continue_after_y_vel_clamp_check:
    ld     a, (sonic_vel_y_hi)          ; 02:B591 - 3A 08 D4
    and    a                            ; 02:B594 - A7
    ret    m                            ; 02:B595 - F8
@@ -22358,7 +22358,7 @@ addr_0B591:
    call   put_sonic_y_pos_on_platform  ; 02:B5B1 - CD C1 7C
    ret                                 ; 02:B5B4 - C9
 
-UNK_0B5B5:
+SPRTAB_platform_y_oscillate_BRI:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6C, $6E, $FF, $FF, $FF                 ; 02:B5B5
 
 addr_0B5C2:
