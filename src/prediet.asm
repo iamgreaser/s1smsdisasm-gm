@@ -5774,7 +5774,7 @@ LUT_object_functions:
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
-.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_UNKNOWN  ; 00:2B56
+.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
@@ -18804,16 +18804,16 @@ objfunc_36_badnik_orbinaut_ejected_ball:
    ld     (ix+0), $FF                  ; 02:B167 - DD 36 00 FF
    ret                                 ; 02:B16B - C9
 
-objfunc_37_UNKNOWN:
+objfunc_37_SKY2_turning_gun:
    set    5, (ix+24)                   ; 02:B16C - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:B170 - DD CB 18 46
-   jr     nz, addr_0B182               ; 02:B174 - 20 0C
+   jr     nz, @already_initialised     ; 02:B174 - 20 0C
    call   random_A                     ; 02:B176 - CD 25 06
    and    $07                          ; 02:B179 - E6 07
    ld     (ix+17), a                   ; 02:B17B - DD 77 11
    set    0, (ix+24)                   ; 02:B17E - DD CB 18 C6
 
-addr_0B182:
+@already_initialised:
    ld     (ix+15), $00                 ; 02:B182 - DD 36 0F 00
    ld     (ix+16), $00                 ; 02:B186 - DD 36 10 00
    ld     l, (ix+2)                    ; 02:B18A - DD 6E 02
@@ -18828,51 +18828,51 @@ addr_0B182:
    add    a, a                         ; 02:B1A1 - 87
    ld     e, a                         ; 02:B1A2 - 5F
    ld     d, $00                       ; 02:B1A3 - 16 00
-   ld     hl, UNK_0B227                ; 02:B1A5 - 21 27 B2
+   ld     hl, LUT_SKY2_turning_gun_sprite_info  ; 02:B1A5 - 21 27 B2
    add    hl, de                       ; 02:B1A8 - 19
    ld     b, $02                       ; 02:B1A9 - 06 02
 
-addr_0B1AB:
+@each_sprite_maybe:
    push   bc                           ; 02:B1AB - C5
    ld     d, $00                       ; 02:B1AC - 16 00
    ld     e, (hl)                      ; 02:B1AE - 5E
    bit    7, e                         ; 02:B1AF - CB 7B
-   jr     z, addr_0B1B5                ; 02:B1B1 - 28 02
+   jr     z, @sprite_dx_was_positive   ; 02:B1B1 - 28 02
    ld     d, $FF                       ; 02:B1B3 - 16 FF
 
-addr_0B1B5:
+@sprite_dx_was_positive:
    ld     (tmp_04), de                 ; 02:B1B5 - ED 53 12 D2
    inc    hl                           ; 02:B1B9 - 23
    ld     d, $00                       ; 02:B1BA - 16 00
    ld     e, (hl)                      ; 02:B1BC - 5E
    bit    7, e                         ; 02:B1BD - CB 7B
-   jr     z, addr_0B1C3                ; 02:B1BF - 28 02
+   jr     z, @sprite_dy_was_positive   ; 02:B1BF - 28 02
    ld     d, $FF                       ; 02:B1C1 - 16 FF
 
-addr_0B1C3:
+@sprite_dy_was_positive:
    ld     (tmp_06), de                 ; 02:B1C3 - ED 53 14 D2
    inc    hl                           ; 02:B1C7 - 23
    ld     a, (hl)                      ; 02:B1C8 - 7E
    inc    hl                           ; 02:B1C9 - 23
    inc    hl                           ; 02:B1CA - 23
    cp     $FF                          ; 02:B1CB - FE FF
-   jr     z, addr_0B1D4                ; 02:B1CD - 28 05
+   jr     z, @skip_this_sprite         ; 02:B1CD - 28 05
    push   hl                           ; 02:B1CF - E5
    call   draw_sprite                  ; 02:B1D0 - CD 81 35
    pop    hl                           ; 02:B1D3 - E1
 
-addr_0B1D4:
+@skip_this_sprite:
    pop    bc                           ; 02:B1D4 - C1
-   djnz   addr_0B1AB                   ; 02:B1D5 - 10 D4
+   djnz   @each_sprite_maybe           ; 02:B1D5 - 10 D4
    ld     a, (g_global_tick_counter)   ; 02:B1D7 - 3A 23 D2
    and    $3F                          ; 02:B1DA - E6 3F
-   jr     nz, addr_0B1E7               ; 02:B1DC - 20 09
+   jr     nz, @skip_turning_gun_to_next_direction  ; 02:B1DC - 20 09
    ld     a, (ix+17)                   ; 02:B1DE - DD 7E 11
    inc    a                            ; 02:B1E1 - 3C
    and    $07                          ; 02:B1E2 - E6 07
    ld     (ix+17), a                   ; 02:B1E4 - DD 77 11
 
-addr_0B1E7:
+@skip_turning_gun_to_next_direction:
    inc    (ix+18)                      ; 02:B1E7 - DD 34 12
    ld     a, (ix+18)                   ; 02:B1EA - DD 7E 12
    cp     $1A                          ; 02:B1ED - FE 1A
@@ -18885,7 +18885,7 @@ addr_0B1E7:
    add    a, e                         ; 02:B1FA - 83
    ld     e, a                         ; 02:B1FB - 5F
    ld     d, $00                       ; 02:B1FC - 16 00
-   ld     hl, UNK_0B267                ; 02:B1FE - 21 67 B2
+   ld     hl, LUT_SKY2_turning_gun_bullet_directions  ; 02:B1FE - 21 67 B2
    add    hl, de                       ; 02:B201 - 19
    ld     e, (hl)                      ; 02:B202 - 5E
    inc    hl                           ; 02:B203 - 23
@@ -18900,28 +18900,28 @@ addr_0B1E7:
    ld     e, (hl)                      ; 02:B212 - 5E
    ld     d, $00                       ; 02:B213 - 16 00
    bit    7, e                         ; 02:B215 - CB 7B
-   jr     z, addr_0B21A                ; 02:B217 - 28 01
+   jr     z, @shot_dx_was_positive     ; 02:B217 - 28 01
    dec    d                            ; 02:B219 - 15
 
-addr_0B21A:
+@shot_dx_was_positive:
    inc    hl                           ; 02:B21A - 23
    ld     c, (hl)                      ; 02:B21B - 4E
    ld     b, $00                       ; 02:B21C - 06 00
    bit    7, c                         ; 02:B21E - CB 79
-   jr     z, addr_0B223                ; 02:B220 - 28 01
+   jr     z, @shot_dy_was_positive     ; 02:B220 - 28 01
    dec    b                            ; 02:B222 - 05
 
-addr_0B223:
+@shot_dy_was_positive:
    call   addr_0B5C2                   ; 02:B223 - CD C2 B5
    ret                                 ; 02:B226 - C9
 
-UNK_0B227:
+LUT_SKY2_turning_gun_sprite_info:
 .db $08, $F8, $66, $00, $00, $00, $FF, $00, $0C, $FA, $70, $00, $14, $FA, $72, $00  ; 02:B227
 .db $0F, $07, $4C, $00, $17, $07, $4E, $00, $0D, $0C, $6C, $00, $15, $0C, $6E, $00  ; 02:B237
 .db $08, $0F, $64, $00, $00, $00, $FF, $00, $FC, $0C, $68, $00, $04, $0C, $6A, $00  ; 02:B247
 .db $F9, $07, $48, $00, $01, $07, $4A, $00, $FB, $F9, $50, $00, $03, $F9, $52, $00  ; 02:B257
 
-UNK_0B267:
+LUT_SKY2_turning_gun_bullet_directions:
 .db $00, $00, $00, $FE, $08, $F0, $00, $01, $00, $FF, $18, $F8, $00, $02, $00, $00  ; 02:B267
 .db $1E, $07, $00, $01, $00, $01, $16, $16, $00, $00, $00, $02, $08, $20, $00, $FF  ; 02:B277
 .db $00, $01, $F8, $18, $00, $FE, $00, $00, $F2, $07, $00, $FF, $00, $FF, $F7, $F6  ; 02:B287
