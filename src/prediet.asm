@@ -153,9 +153,9 @@ g_sonic_bored_anim_countup_timer dw   ; D299
 g_sonic_underwater_countup_timer dw   ; D29B
 var_D29D dw   ; D29D
 var_D29F dw   ; D29F
-var_D2A1 db   ; D2A1
-var_D2A2 db   ; D2A2
-var_D2A3 db   ; D2A3
+g_y_oscillate_sub db   ; D2A1
+g_y_oscillate_pix db   ; D2A2
+g_y_oscillate_pix_hi db   ; D2A3
 g_palette_cycle_tick_remain db   ; D2A4
 g_palette_cycle_tick_period db   ; D2A5
 g_palette_cycle_index db   ; D2A6
@@ -5775,7 +5775,7 @@ LUT_object_functions:
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
-.dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
+.dw objfunc_38_SKY_platform_right, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -6284,13 +6284,13 @@ addr_03193:
    adc    a, e                         ; 00:3193 - 8B
    ld     (g_level_scroll_y_sub), hl   ; 00:3194 - 22 5C D2
    ld     (g_level_scroll_y_pix_hi), a  ; 00:3197 - 32 5E D2
-   ld     hl, (var_D2A1)               ; 00:319A - 2A A1 D2
-   ld     a, (var_D2A3)                ; 00:319D - 3A A3 D2
+   ld     hl, (g_y_oscillate_sub)      ; 00:319A - 2A A1 D2
+   ld     a, (g_y_oscillate_pix_hi)    ; 00:319D - 3A A3 D2
    add    hl, bc                       ; 00:31A0 - 09
    adc    a, e                         ; 00:31A1 - 8B
-   ld     (var_D2A1), hl               ; 00:31A2 - 22 A1 D2
-   ld     (var_D2A3), a                ; 00:31A5 - 32 A3 D2
-   ld     hl, (var_D2A2)               ; 00:31A8 - 2A A2 D2
+   ld     (g_y_oscillate_sub), hl      ; 00:31A2 - 22 A1 D2
+   ld     (g_y_oscillate_pix_hi), a    ; 00:31A5 - 32 A3 D2
+   ld     hl, (g_y_oscillate_pix)      ; 00:31A8 - 2A A2 D2
    bit    7, h                         ; 00:31AB - CB 7C
    jr     z, addr_031BE                ; 00:31AD - 28 0F
    ld     bc, $FFE0                    ; 00:31AF - 01 E0 FF
@@ -6302,7 +6302,7 @@ addr_03193:
    ret                                 ; 00:31BD - C9
 
 addr_031BE:
-   ld     hl, (var_D2A2)               ; 00:31BE - 2A A2 D2
+   ld     hl, (g_y_oscillate_pix)      ; 00:31BE - 2A A2 D2
    ld     bc, $0020                    ; 00:31C1 - 01 20 00
    and    a                            ; 00:31C4 - A7
    sbc    hl, bc                       ; 00:31C5 - ED 42
@@ -18055,9 +18055,9 @@ objfunc_30_moving_cloud:
    ld     hl, g_sprite_table           ; 02:A9DD - 21 00 D0
    add    hl, de                       ; 02:A9E0 - 19
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:A9E1 - 22 3C D2
-   ld     a, (var_D2A3)                ; 02:A9E4 - 3A A3 D2
+   ld     a, (g_y_oscillate_pix_hi)    ; 02:A9E4 - 3A A3 D2
    ld     c, a                         ; 02:A9E7 - 4F
-   ld     de, (var_D2A1)               ; 02:A9E8 - ED 5B A1 D2
+   ld     de, (g_y_oscillate_sub)      ; 02:A9E8 - ED 5B A1 D2
    ld     l, (ix+4)                    ; 02:A9EC - DD 6E 04
    ld     h, (ix+5)                    ; 02:A9EF - DD 66 05
    ld     a, (ix+6)                    ; 02:A9F2 - DD 7E 06
@@ -18926,10 +18926,10 @@ LUT_SKY2_turning_gun_bullet_directions:
 .db $1E, $07, $00, $01, $00, $01, $16, $16, $00, $00, $00, $02, $08, $20, $00, $FF  ; 02:B277
 .db $00, $01, $F8, $18, $00, $FE, $00, $00, $F2, $07, $00, $FF, $00, $FF, $F7, $F6  ; 02:B287
 
-objfunc_38_UNKNOWN:
+objfunc_38_SKY_platform_right:
    set    5, (ix+24)                   ; 02:B297 - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:B29B - DD CB 18 46
-   jr     nz, addr_0B2B7               ; 02:B29F - 20 16
+   jr     nz, @already_initialised     ; 02:B29F - 20 16
    ld     a, (ix+4)                    ; 02:B2A1 - DD 7E 04
    ld     (ix+18), a                   ; 02:B2A4 - DD 77 12
    ld     a, (ix+5)                    ; 02:B2A7 - DD 7E 05
@@ -18938,10 +18938,10 @@ objfunc_38_UNKNOWN:
    ld     (ix+20), a                   ; 02:B2B0 - DD 77 14
    set    0, (ix+24)                   ; 02:B2B3 - DD CB 18 C6
 
-addr_0B2B7:
-   ld     a, (var_D2A3)                ; 02:B2B7 - 3A A3 D2
+@already_initialised:
+   ld     a, (g_y_oscillate_pix_hi)    ; 02:B2B7 - 3A A3 D2
    ld     c, a                         ; 02:B2BA - 4F
-   ld     de, (var_D2A1)               ; 02:B2BB - ED 5B A1 D2
+   ld     de, (g_y_oscillate_sub)      ; 02:B2BB - ED 5B A1 D2
    ld     l, (ix+18)                   ; 02:B2BF - DD 6E 12
    ld     h, (ix+19)                   ; 02:B2C2 - DD 66 13
    ld     a, (ix+20)                   ; 02:B2C5 - DD 7E 14
@@ -18980,10 +18980,18 @@ addr_0B2B7:
    add    hl, de                       ; 02:B320 - 19
    adc    a, $00                       ; 02:B321 - CE 00
    ld     (sonic_x_sub), hl            ; 02:B323 - 22 FD D3
-   ld     (sonic_x_hi), a              ; 02:B326 - 32 FF D3
+   ;; FIXME: Label appears mid-op!
+.db $32                                                                             ; 02:B326
+   ;; FIXME: Word table not a multiple of 2!
+.db $FF                                                                             ; 02:B327
+
+@skip_put_sonic_on_platform:
+   ;; FIXME: Label appears mid-op!
+.db $D3                                                                             ; 02:B328
 
 addr_0B329:
-   ld     l, (ix+2)                    ; 02:B329 - DD 6E 02
+.dw $6EDD                                                                           ; 02:B329
+   ld     (bc), a                      ; 02:B32B - 02
    ld     h, (ix+3)                    ; 02:B32C - DD 66 03
    ld     (tmp_00), hl                 ; 02:B32F - 22 0E D2
    ld     l, (ix+5)                    ; 02:B332 - DD 6E 05
@@ -18993,11 +19001,11 @@ addr_0B329:
    ld     (tmp_04), hl                 ; 02:B33E - 22 12 D2
    ld     e, (ix+17)                   ; 02:B341 - DD 5E 11
    ld     d, $00                       ; 02:B344 - 16 00
-   ld     hl, UNK_0B388                ; 02:B346 - 21 88 B3
+   ld     hl, LUT_SKY_platform_right_propeller_sprites  ; 02:B346 - 21 88 B3
    add    hl, de                       ; 02:B349 - 19
    ld     b, $02                       ; 02:B34A - 06 02
 
-addr_0B34C:
+@each_propeller_sprite:
    push   bc                           ; 02:B34C - C5
    ld     e, (hl)                      ; 02:B34D - 5E
    ld     d, $00                       ; 02:B34E - 16 00
@@ -19006,16 +19014,16 @@ addr_0B34C:
    ld     a, (hl)                      ; 02:B355 - 7E
    inc    hl                           ; 02:B356 - 23
    cp     $FF                          ; 02:B357 - FE FF
-   jr     z, addr_0B360                ; 02:B359 - 28 05
+   jr     z, @skip_drawing_this_propeller_sprite  ; 02:B359 - 28 05
    push   hl                           ; 02:B35B - E5
    call   draw_sprite                  ; 02:B35C - CD 81 35
    pop    hl                           ; 02:B35F - E1
 
-addr_0B360:
+@skip_drawing_this_propeller_sprite:
    pop    bc                           ; 02:B360 - C1
-   djnz   addr_0B34C                   ; 02:B361 - 10 E9
-   ld     (ix+15), UNK_0B37B&$FF       ; 02:B363 - DD 36 0F 7B
-   ld     (ix+16), UNK_0B37B>>8        ; 02:B367 - DD 36 10 B3
+   djnz   @each_propeller_sprite       ; 02:B361 - 10 E9
+   ld     (ix+15), SPRTAB_SKY_platform&$FF  ; 02:B363 - DD 36 0F 7B
+   ld     (ix+16), SPRTAB_SKY_platform>>8  ; 02:B367 - DD 36 10 B3
    ld     a, (ix+17)                   ; 02:B36B - DD 7E 11
    add    a, $04                       ; 02:B36E - C6 04
    ld     (ix+17), a                   ; 02:B370 - DD 77 11
@@ -19024,10 +19032,10 @@ addr_0B360:
    ld     (ix+17), $00                 ; 02:B376 - DD 36 11 00
    ret                                 ; 02:B37A - C9
 
-UNK_0B37B:
+SPRTAB_SKY_platform:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $36, $36, $36, $36, $FF, $FF, $FF                 ; 02:B37B
 
-UNK_0B388:
+LUT_SKY_platform_right_propeller_sprites:
 .db $08, $1C, $18, $3C, $08, $1E, $18, $3E, $08, $38, $18, $3A, $0C, $1A, $00, $FF  ; 02:B388
 
 objfunc_39_UNKNOWN:
@@ -19195,7 +19203,7 @@ UNK_0B4E6:
 
 objfunc_3B_UNKNOWN:
    set    5, (ix+24)                   ; 02:B50E - DD CB 18 EE
-   ld     hl, UNK_0B37B                ; 02:B512 - 21 7B B3
+   ld     hl, SPRTAB_SKY_platform      ; 02:B512 - 21 7B B3
    ld     a, (g_tile_flags_index)      ; 02:B515 - 3A D4 D2
    cp     $01                          ; 02:B518 - FE 01
    jr     nz, addr_0B51F               ; 02:B51A - 20 03
