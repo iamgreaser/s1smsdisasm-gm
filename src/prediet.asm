@@ -5776,7 +5776,7 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
@@ -15449,14 +15449,14 @@ SPRTAB_badnik_burrobot:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $50, $52, $FF, $FF, $FF, $FF  ; 02:90A9
 .db $6C, $6E, $FF, $FF, $FF, $FF, $FF                                               ; 02:90B9
 
-objfunc_45_UNKNOWN:
+objfunc_45_LAB_float_up_platform:
    set    5, (ix+24)                   ; 02:90C0 - DD CB 18 EE
    ld     (ix+13), $1E                 ; 02:90C4 - DD 36 0D 1E
    ld     (ix+14), $1C                 ; 02:90C8 - DD 36 0E 1C
-   ld     (ix+15), UNK_091DE&$FF       ; 02:90CC - DD 36 0F DE
-   ld     (ix+16), UNK_091DE>>8        ; 02:90D0 - DD 36 10 91
+   ld     (ix+15), SPRTAB_LAB_float_up_platform&$FF  ; 02:90CC - DD 36 0F DE
+   ld     (ix+16), SPRTAB_LAB_float_up_platform>>8  ; 02:90D0 - DD 36 10 91
    bit    1, (ix+24)                   ; 02:90D4 - DD CB 18 4E
-   jr     nz, addr_09100               ; 02:90D8 - 20 26
+   jr     nz, @already_initialised     ; 02:90D8 - 20 26
    ld     l, (ix+2)                    ; 02:90DA - DD 6E 02
    ld     h, (ix+3)                    ; 02:90DD - DD 66 03
    ld     (ix+17), l                   ; 02:90E0 - DD 75 11
@@ -15471,7 +15471,7 @@ objfunc_45_UNKNOWN:
    ld     (ix+20), h                   ; 02:90F9 - DD 74 14
    set    1, (ix+24)                   ; 02:90FC - DD CB 18 CE
 
-addr_09100:
+@already_initialised:
    ld     bc, $0010                    ; 02:9100 - 01 10 00
    ld     de, $0020                    ; 02:9103 - 11 20 00
    call   get_obj_level_tile_ptr_in_ram  ; 02:9106 - CD F9 36
@@ -15494,9 +15494,9 @@ addr_09100:
    ld     l, c                         ; 02:9120 - 69
    ld     h, c                         ; 02:9121 - 61
    cp     $1E                          ; 02:9122 - FE 1E
-   jr     z, addr_09148                ; 02:9124 - 28 22
+   jr     z, @set_y_vel_and_continue   ; 02:9124 - 28 22
    bit    0, (ix+24)                   ; 02:9126 - DD CB 18 46
-   jr     z, addr_09151                ; 02:912A - 28 25
+   jr     z, @skip_set_y_vel           ; 02:912A - 28 25
    ld     l, (ix+10)                   ; 02:912C - DD 6E 0A
    ld     h, (ix+11)                   ; 02:912F - DD 66 0B
    ld     a, (ix+12)                   ; 02:9132 - DD 7E 0C
@@ -15507,16 +15507,16 @@ addr_09100:
    ld     a, h                         ; 02:913C - 7C
    neg                                 ; 02:913D - ED 44
    cp     $02                          ; 02:913F - FE 02
-   jr     c, addr_09148                ; 02:9141 - 38 05
+   jr     c, @set_y_vel_and_continue   ; 02:9141 - 38 05
    ld     hl, $FF00                    ; 02:9143 - 21 00 FF
    ld     c, $FF                       ; 02:9146 - 0E FF
 
-addr_09148:
+@set_y_vel_and_continue:
    ld     (ix+10), l                   ; 02:9148 - DD 75 0A
    ld     (ix+11), h                   ; 02:914B - DD 74 0B
    ld     (ix+12), c                   ; 02:914E - DD 71 0C
 
-addr_09151:
+@skip_set_y_vel:
    ld     e, (ix+2)                    ; 02:9151 - DD 5E 02
    ld     d, (ix+3)                    ; 02:9154 - DD 56 03
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:9157 - 2A 5A D2
@@ -15524,12 +15524,12 @@ addr_09151:
    add    hl, bc                       ; 02:915D - 09
    and    a                            ; 02:915E - A7
    sbc    hl, de                       ; 02:915F - ED 52
-   jr     nc, addr_0918A               ; 02:9161 - 30 27
+   jr     nc, @reset_to_spawn_position  ; 02:9161 - 30 27
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:9163 - 2A 5A D2
    inc    h                            ; 02:9166 - 24
    and    a                            ; 02:9167 - A7
    sbc    hl, de                       ; 02:9168 - ED 52
-   jr     c, addr_0918A                ; 02:916A - 38 1E
+   jr     c, @reset_to_spawn_position  ; 02:916A - 38 1E
    ld     e, (ix+5)                    ; 02:916C - DD 5E 05
    ld     d, (ix+6)                    ; 02:916F - DD 56 06
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:9172 - 2A 5D D2
@@ -15537,15 +15537,15 @@ addr_09151:
    add    hl, bc                       ; 02:9178 - 09
    and    a                            ; 02:9179 - A7
    sbc    hl, de                       ; 02:917A - ED 52
-   jr     nc, addr_0918A               ; 02:917C - 30 0C
+   jr     nc, @reset_to_spawn_position  ; 02:917C - 30 0C
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:917E - 2A 5D D2
    ld     bc, $00E0                    ; 02:9181 - 01 E0 00
    add    hl, bc                       ; 02:9184 - 09
    and    a                            ; 02:9185 - A7
    sbc    hl, de                       ; 02:9186 - ED 52
-   jr     nc, addr_091B7               ; 02:9188 - 30 2D
+   jr     nc, @skip_reset              ; 02:9188 - 30 2D
 
-addr_0918A:
+@reset_to_spawn_position:
    ld     l, (ix+17)                   ; 02:918A - DD 6E 11
    ld     h, (ix+18)                   ; 02:918D - DD 66 12
    ld     (ix+2), l                    ; 02:9190 - DD 75 02
@@ -15563,7 +15563,7 @@ addr_0918A:
    res    0, (ix+24)                   ; 02:91B2 - DD CB 18 86
    ret                                 ; 02:91B6 - C9
 
-addr_091B7:
+@skip_reset:
    ld     hl, $0E02                    ; 02:91B7 - 21 02 0E
    ld     (tmp_06), hl                 ; 02:91BA - 22 14 D2
    call   check_collision_with_sonic   ; 02:91BD - CD 56 39
@@ -15571,19 +15571,19 @@ addr_091B7:
    set    0, (ix+24)                   ; 02:91C1 - DD CB 18 C6
    ld     a, (sonic_vel_y)             ; 02:91C5 - 3A 07 D4
    and    a                            ; 02:91C8 - A7
-   jp     p, addr_091D1                ; 02:91C9 - F2 D1 91
+   jp     p, @put_sonic_on_platform    ; 02:91C9 - F2 D1 91
    neg                                 ; 02:91CC - ED 44
    cp     $02                          ; 02:91CE - FE 02
    ret    nc                           ; 02:91D0 - D0
 
-addr_091D1:
+@put_sonic_on_platform:
    ld     e, (ix+10)                   ; 02:91D1 - DD 5E 0A
    ld     d, (ix+11)                   ; 02:91D4 - DD 56 0B
    ld     bc, $0010                    ; 02:91D7 - 01 10 00
    call   put_sonic_y_pos_on_platform  ; 02:91DA - CD C1 7C
    ret                                 ; 02:91DD - C9
 
-UNK_091DE:
+SPRTAB_LAB_float_up_platform:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $16, $18, $1A, $1C, $FF, $FF, $FF                 ; 02:91DE
 
 spawn_bubble:
