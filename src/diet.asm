@@ -7553,7 +7553,7 @@ LUT_object_functions:
 .dw objfunc_18_SCR_door_open_on_right, objfunc_19_SCR_door_open_on_both_sides, objfunc_1A_SCR_zapper, objfunc_1B_badnik_ballhog, objfunc_1C_badnik_ballhog_bomb, objfunc_1D_floorbutton, objfunc_1E_SCR_door_from_button, objfunc_1F_badnik_caterkiller  ; 00:2B26
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
-.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_UNKNOWN, objfunc_34_UNKNOWN, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
+.dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_UNKNOWN, objfunc_36_UNKNOWN, objfunc_37_UNKNOWN  ; 00:2B56
 .dw objfunc_38_UNKNOWN, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_UNKNOWN, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_UNKNOWN, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
@@ -21487,10 +21487,10 @@ SPRTAB_badnik_bomb_exploding:
 .db $12, $14, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AD53
 .db $FF, $FF, $32, $34, $FF, $FF, $FF, $FF, $FF                                     ; 02:AD63
 
-objfunc_33_UNKNOWN:
+objfunc_33_SKY2_cannon:
    set    5, (ix+24)                   ; 02:AD6C - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:AD70 - DD CB 18 46
-   jr     nz, addr_0AD90               ; 02:AD74 - 20 1A
+   jr     nz, @already_initialised     ; 02:AD74 - 20 1A
    ld     l, (ix+2)                    ; 02:AD76 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AD79 - DD 66 03
    ld     de, $FFFC                    ; 02:AD7C - 11 FC FF
@@ -21501,12 +21501,12 @@ objfunc_33_UNKNOWN:
    ld     (ix+17), a                   ; 02:AD89 - DD 77 11
    set    0, (ix+24)                   ; 02:AD8C - DD CB 18 C6
 
-addr_0AD90:
+@already_initialised:
    ld     a, (ix+17)                   ; 02:AD90 - DD 7E 11
    cp     $64                          ; 02:AD93 - FE 64
-   jr     nz, addr_0ADDD               ; 02:AD95 - 20 46
+   jr     nz, @skip_spawn_cannon_shell  ; 02:AD95 - 20 46
    call   spawn_object                 ; 02:AD97 - CD 7B 7C
-   jr     c, addr_0ADDD                ; 02:AD9A - 38 41
+   jr     c, @skip_spawn_cannon_shell  ; 02:AD9A - 38 41
    push   ix                           ; 02:AD9C - DD E5
    ld     e, (ix+2)                    ; 02:AD9E - DD 5E 02
    ld     d, (ix+3)                    ; 02:ADA1 - DD 56 03
@@ -21533,33 +21533,33 @@ addr_0AD90:
    ld     (ix+22), $00                 ; 02:ADD5 - DD 36 16 00
    ld     (ix+23), $00                 ; 02:ADD9 - DD 36 17 00
 
-addr_0ADDD:
+@skip_spawn_cannon_shell:
    ld     a, (ix+18)                   ; 02:ADDD - DD 7E 12
    and    a                            ; 02:ADE0 - A7
-   jr     z, addr_0ADF3                ; 02:ADE1 - 28 10
-   ld     de, UNK_0AE04                ; 02:ADE3 - 11 04 AE
-   ld     bc, UNK_0ADFD                ; 02:ADE6 - 01 FD AD
+   jr     z, @skip_draw_cannon_shot_puff  ; 02:ADE1 - 28 10
+   ld     de, SPRTAB_SKY2_cannon_shot_puff  ; 02:ADE3 - 11 04 AE
+   ld     bc, LUT_SKY2_cannon_shot_puff  ; 02:ADE6 - 01 FD AD
    call   do_framed_animation          ; 02:ADE9 - CD 41 7C
    dec    (ix+18)                      ; 02:ADEC - DD 35 12
    inc    (ix+17)                      ; 02:ADEF - DD 34 11
    ret                                 ; 02:ADF2 - C9
 
-addr_0ADF3:
+@skip_draw_cannon_shot_puff:
    ld     (ix+15), a                   ; 02:ADF3 - DD 77 0F
    ld     (ix+16), a                   ; 02:ADF6 - DD 77 10
    inc    (ix+17)                      ; 02:ADF9 - DD 34 11
    ret                                 ; 02:ADFC - C9
 
-UNK_0ADFD:
+LUT_SKY2_cannon_shot_puff:
 .db $00, $08, $01, $08, $02, $08, $FF                                               ; 02:ADFD
 
-UNK_0AE04:
+SPRTAB_SKY2_cannon_shot_puff:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $74, $76, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AE04
 .db $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $78, $7A, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:AE14
 .db $FF, $FF, $FF, $FF, $FE, $FF, $FF, $FF, $FF, $FF, $7C, $7E, $FF, $FF, $FF, $FF  ; 02:AE24
 .db $FF                                                                             ; 02:AE34
 
-objfunc_34_UNKNOWN:
+objfunc_34_SKY2_cannon_shell:
    set    5, (ix+24)                   ; 02:AE35 - DD CB 18 EE
    ld     (ix+13), $0C                 ; 02:AE39 - DD 36 0D 0C
    ld     (ix+14), $0C                 ; 02:AE3D - DD 36 0E 0C
@@ -21570,14 +21570,14 @@ objfunc_34_UNKNOWN:
    ld     d, (ix+3)                    ; 02:AE4B - DD 56 03
    and    a                            ; 02:AE4E - A7
    sbc    hl, de                       ; 02:AE4F - ED 52
-   jr     nc, addr_0AE57               ; 02:AE51 - 30 04
+   jr     nc, @skip_despawn_right_of_screen  ; 02:AE51 - 30 04
    .IF 0
    ld     (ix+0), $FF                  ; 02:AE53 - DD 36 00 FF
    .ELSE
    call free_object
    .ENDIF
 
-addr_0AE57:
+@skip_despawn_right_of_screen:
    ld     hl, $0202                    ; 02:AE57 - 21 02 02
    ld     (tmp_06), hl                 ; 02:AE5A - 22 14 D2
    call   check_collision_with_sonic   ; 02:AE5D - CD 56 39
@@ -21589,11 +21589,11 @@ addr_0AE57:
    ld     (ix+10), a                   ; 02:AE6F - DD 77 0A
    ld     (ix+11), a                   ; 02:AE72 - DD 77 0B
    ld     (ix+12), a                   ; 02:AE75 - DD 77 0C
-   ld     (ix+15), UNK_0AE81&$FF       ; 02:AE78 - DD 36 0F 81
-   ld     (ix+16), UNK_0AE81>>8        ; 02:AE7C - DD 36 10 AE
+   ld     (ix+15), SPRTAB_SKY2_cannon_shell&$FF  ; 02:AE78 - DD 36 0F 81
+   ld     (ix+16), SPRTAB_SKY2_cannon_shell>>8  ; 02:AE7C - DD 36 10 AE
    ret                                 ; 02:AE80 - C9
 
-UNK_0AE81:
+SPRTAB_SKY2_cannon_shell:
 .db $02, $04, $FF, $FF, $FF, $FF, $FF                                               ; 02:AE81
 
 objfunc_35_UNKNOWN:
