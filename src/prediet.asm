@@ -5775,7 +5775,7 @@ LUT_object_functions:
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
-.dw objfunc_38_SKY_platform_right, objfunc_39_UNKNOWN, objfunc_3A_UNKNOWN, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
+.dw objfunc_38_SKY_platform_right, objfunc_39_UNKNOWN, objfunc_3A_SKY_fixed_gun, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -19122,10 +19122,10 @@ UNK_0B45B:
 .db $16, $18, $FF, $FF, $FF, $FF, $16, $18, $FF, $FF, $FF, $FF, $16, $18, $FF, $FF  ; 02:B45B
 .db $FF, $FF                                                                        ; 02:B46B
 
-objfunc_3A_UNKNOWN:
+objfunc_3A_SKY_fixed_gun:
    set    5, (ix+24)                   ; 02:B46D - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:B471 - DD CB 18 46
-   jr     nz, addr_0B48C               ; 02:B475 - 20 15
+   jr     nz, @already_initialised     ; 02:B475 - 20 15
    ld     bc, $0000                    ; 02:B477 - 01 00 00
    ld     e, c                         ; 02:B47A - 59
    ld     d, b                         ; 02:B47B - 50
@@ -19137,7 +19137,7 @@ objfunc_3A_UNKNOWN:
    ld     (ix+17), a                   ; 02:B485 - DD 77 11
    set    0, (ix+24)                   ; 02:B488 - DD CB 18 C6
 
-addr_0B48C:
+@already_initialised:
    inc    (ix+18)                      ; 02:B48C - DD 34 12
    ld     a, (ix+18)                   ; 02:B48F - DD 7E 12
    bit    6, a                         ; 02:B492 - CB 77
@@ -19152,7 +19152,7 @@ addr_0B48C:
    add    a, e                         ; 02:B49F - 83
    ld     e, a                         ; 02:B4A0 - 5F
    ld     d, $00                       ; 02:B4A1 - 16 00
-   ld     hl, UNK_0B4E6                ; 02:B4A3 - 21 E6 B4
+   ld     hl, LUT_SKY_fixed_gun_dir_setup  ; 02:B4A3 - 21 E6 B4
    add    hl, de                       ; 02:B4A6 - 19
    ld     e, (hl)                      ; 02:B4A7 - 5E
    inc    hl                           ; 02:B4A8 - 23
@@ -19196,10 +19196,10 @@ addr_0B48C:
    call   addr_0B5C2                   ; 02:B4E2 - CD C2 B5
    ret                                 ; 02:B4E5 - C9
 
-UNK_0B4E6:
-.db $80, $FE, $80, $FE, $00, $00, $F8, $FF, $FF, $FF, $80, $01, $80, $FE, $18, $00  ; 02:B4E6
-.db $F8, $FF, $00, $FF, $80, $FE, $80, $01, $00, $00, $10, $00, $FF, $00, $80, $01  ; 02:B4F6
-.db $80, $01, $18, $00, $10, $00, $00, $00                                          ; 02:B506
+LUT_SKY_fixed_gun_dir_setup:
+.dw $FE80, $FE80, $0000, $FFF8, $FFFF, $0180, $FE80, $0018                          ; 02:B4E6
+.dw $FFF8, $FF00, $FE80, $0180, $0000, $0010, $00FF, $0180                          ; 02:B4F6
+.dw $0180, $0018, $0010, $0000                                                      ; 02:B506
 
 objfunc_3B_platform_y_oscillate:
    set    5, (ix+24)                   ; 02:B50E - DD CB 18 EE
