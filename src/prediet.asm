@@ -20039,15 +20039,15 @@ objfunc_47_SKY3_electric_ball:
    ld     hl, $0202                    ; 02:BCE7 - 21 02 02
    ld     (tmp_06), hl                 ; 02:BCEA - 22 14 D2
    call   check_collision_with_sonic   ; 02:BCED - CD 56 39
-   jr     c, addr_0BCFC                ; 02:BCF0 - 38 0A
+   jr     c, @did_not_collide_with_sonic  ; 02:BCF0 - 38 0A
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:BCF2 - FD CB 05 46
    call   z, damage_sonic              ; 02:BCF6 - CC FD 35
-   jp     addr_0BDBE                   ; 02:BCF9 - C3 BE BD
+   jp     @destroy_this_object         ; 02:BCF9 - C3 BE BD
 
-addr_0BCFC:
+@did_not_collide_with_sonic:
    ld     a, (ix+17)                   ; 02:BCFC - DD 7E 11
    cp     $C8                          ; 02:BCFF - FE C8
-   jp     c, addr_0BDAD                ; 02:BD01 - DA AD BD
+   jp     c, @state_charging_up        ; 02:BD01 - DA AD BD
    ld     e, (ix+2)                    ; 02:BD04 - DD 5E 02
    ld     d, (ix+3)                    ; 02:BD07 - DD 56 03
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:BD0A - 2A 5A D2
@@ -20055,34 +20055,34 @@ addr_0BCFC:
    add    hl, bc                       ; 02:BD10 - 09
    and    a                            ; 02:BD11 - A7
    sbc    hl, de                       ; 02:BD12 - ED 52
-   jp     nc, addr_0BDBE               ; 02:BD14 - D2 BE BD
+   jp     nc, @destroy_this_object     ; 02:BD14 - D2 BE BD
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:BD17 - 2A 5A D2
    inc    h                            ; 02:BD1A - 24
    and    a                            ; 02:BD1B - A7
    sbc    hl, de                       ; 02:BD1C - ED 52
-   jp     c, addr_0BDBE                ; 02:BD1E - DA BE BD
+   jp     c, @destroy_this_object      ; 02:BD1E - DA BE BD
    ld     hl, (sonic_x)                ; 02:BD21 - 2A FE D3
    and    a                            ; 02:BD24 - A7
    sbc    hl, de                       ; 02:BD25 - ED 52
    ld     l, (ix+7)                    ; 02:BD27 - DD 6E 07
    ld     h, (ix+8)                    ; 02:BD2A - DD 66 08
    ld     a, (ix+9)                    ; 02:BD2D - DD 7E 09
-   jr     nc, addr_0BD40               ; 02:BD30 - 30 0E
+   jr     nc, @sonic_is_to_the_right   ; 02:BD30 - 30 0E
    ld     c, $FF                       ; 02:BD32 - 0E FF
    ld     de, $FFF4                    ; 02:BD34 - 11 F4 FF
    bit    7, a                         ; 02:BD37 - CB 7F
-   jr     nz, addr_0BD4C               ; 02:BD39 - 20 11
+   jr     nz, @x_vel_selected          ; 02:BD39 - 20 11
    ld     de, $FFE8                    ; 02:BD3B - 11 E8 FF
-   jr     addr_0BD4C                   ; 02:BD3E - 18 0C
+   jr     @x_vel_selected              ; 02:BD3E - 18 0C
 
-addr_0BD40:
+@sonic_is_to_the_right:
    ld     c, $00                       ; 02:BD40 - 0E 00
    ld     de, $000C                    ; 02:BD42 - 11 0C 00
    bit    7, a                         ; 02:BD45 - CB 7F
-   jr     z, addr_0BD4C                ; 02:BD47 - 28 03
+   jr     z, @x_vel_selected           ; 02:BD47 - 28 03
    ld     de, $0018                    ; 02:BD49 - 11 18 00
 
-addr_0BD4C:
+@x_vel_selected:
    add    hl, de                       ; 02:BD4C - 19
    adc    a, c                         ; 02:BD4D - 89
    ld     (ix+7), l                    ; 02:BD4E - DD 75 07
@@ -20095,61 +20095,61 @@ addr_0BD4C:
    add    hl, bc                       ; 02:BD63 - 09
    and    a                            ; 02:BD64 - A7
    sbc    hl, de                       ; 02:BD65 - ED 52
-   jr     nc, addr_0BDBE               ; 02:BD67 - 30 55
+   jr     nc, @destroy_this_object     ; 02:BD67 - 30 55
    ld     hl, (g_level_scroll_y_pix_lo)  ; 02:BD69 - 2A 5D D2
    ld     bc, $00C0                    ; 02:BD6C - 01 C0 00
    add    hl, de                       ; 02:BD6F - 19
    and    a                            ; 02:BD70 - A7
    sbc    hl, de                       ; 02:BD71 - ED 52
-   jr     c, addr_0BDBE                ; 02:BD73 - 38 49
+   jr     c, @destroy_this_object      ; 02:BD73 - 38 49
    ld     hl, (sonic_y)                ; 02:BD75 - 2A 01 D4
    and    a                            ; 02:BD78 - A7
    sbc    hl, de                       ; 02:BD79 - ED 52
    ld     l, (ix+10)                   ; 02:BD7B - DD 6E 0A
    ld     h, (ix+11)                   ; 02:BD7E - DD 66 0B
    ld     a, (ix+12)                   ; 02:BD81 - DD 7E 0C
-   jr     nc, addr_0BD94               ; 02:BD84 - 30 0E
+   jr     nc, @sonic_is_below          ; 02:BD84 - 30 0E
    ld     c, $FF                       ; 02:BD86 - 0E FF
    ld     de, $FFF6                    ; 02:BD88 - 11 F6 FF
    bit    7, a                         ; 02:BD8B - CB 7F
-   jr     nz, addr_0BDA0               ; 02:BD8D - 20 11
+   jr     nz, @y_vel_selected          ; 02:BD8D - 20 11
    ld     de, $FFFB                    ; 02:BD8F - 11 FB FF
-   jr     addr_0BDA0                   ; 02:BD92 - 18 0C
+   jr     @y_vel_selected              ; 02:BD92 - 18 0C
 
-addr_0BD94:
+@sonic_is_below:
    ld     de, $000A                    ; 02:BD94 - 11 0A 00
    ld     c, $00                       ; 02:BD97 - 0E 00
    bit    7, a                         ; 02:BD99 - CB 7F
-   jr     z, addr_0BDA0                ; 02:BD9B - 28 03
+   jr     z, @y_vel_selected           ; 02:BD9B - 28 03
    ld     de, $0005                    ; 02:BD9D - 11 05 00
 
-addr_0BDA0:
+@y_vel_selected:
    add    hl, de                       ; 02:BDA0 - 19
    adc    a, c                         ; 02:BDA1 - 89
    ld     (ix+10), l                   ; 02:BDA2 - DD 75 0A
    ld     (ix+11), h                   ; 02:BDA5 - DD 74 0B
    ld     (ix+12), a                   ; 02:BDA8 - DD 77 0C
-   jr     addr_0BDB0                   ; 02:BDAB - 18 03
+   jr     @do_anim_and_maybe_destroy   ; 02:BDAB - 18 03
 
-addr_0BDAD:
+@state_charging_up:
    inc    (ix+17)                      ; 02:BDAD - DD 34 11
 
-addr_0BDB0:
-   ld     bc, UNK_0BDC7                ; 02:BDB0 - 01 C7 BD
-   ld     de, UNK_0BDCE                ; 02:BDB3 - 11 CE BD
+@do_anim_and_maybe_destroy:
+   ld     bc, LUT_SKY3_electric_ball_anim  ; 02:BDB0 - 01 C7 BD
+   ld     de, SPRTAB_SKY3_electric_ball  ; 02:BDB3 - 11 CE BD
    call   do_framed_animation          ; 02:BDB6 - CD 41 7C
    bit    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:BDB9 - FD CB 08 66
    ret    nz                           ; 02:BDBD - C0
 
-addr_0BDBE:
+@destroy_this_object:
    ld     (ix+0), $FF                  ; 02:BDBE - DD 36 00 FF
    res    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:BDC2 - FD CB 08 AE
    ret                                 ; 02:BDC6 - C9
 
-UNK_0BDC7:
+LUT_SKY3_electric_ball_anim:
 .db $00, $01, $01, $01, $02, $01, $FF                                               ; 02:BDC7
 
-UNK_0BDCE:
+SPRTAB_SKY3_electric_ball:
 .db $44, $46, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:BDCE
 .db $FF, $FF, $48, $08, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:BDDE
 .db $FF, $FF, $FF, $FF, $60, $62, $FF, $FF, $FF, $FF, $FF                           ; 02:BDEE
