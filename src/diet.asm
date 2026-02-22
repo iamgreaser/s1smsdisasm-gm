@@ -7555,9 +7555,9 @@ LUT_object_functions:
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
 .dw objfunc_38_SKY_platform_right, objfunc_39_SKY2_spike_wall_right, objfunc_3A_SKY_fixed_gun, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
-.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
+.dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_SKY3_vertical_zappers, objfunc_47_SKY3_electric_ball  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_SKY3_boss, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
-.dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
+.dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_end_controller_start, objfunc_54_end_controller_good_ending_chaos_emeralds, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
 .dw $0100, $0200, $0100, $0200, $0020, $0120, $0020, $00E0                          ; 00:2BA2
@@ -22430,7 +22430,7 @@ objfunc_4A_SKY3_boss:
    call   move_locked_camera_towards_target  ; 02:B647 - CD A6 7C
    call   addr_0B7E6                   ; 02:B64A - CD E6 B7
    bit    0, (ix+24)                   ; 02:B64D - DD CB 18 46
-   jr     nz, addr_0B697               ; 02:B651 - 20 44
+   jr     nz, @already_initialised     ; 02:B651 - 20 44
    ld     hl, $0350                    ; 02:B653 - 21 50 03
    ld     de, $0120                    ; 02:B656 - 11 20 01
    call   set_locked_camera_target     ; 02:B659 - CD 8C 7C
@@ -22457,7 +22457,7 @@ objfunc_4A_SKY3_boss:
    set    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:B68F - FD CB 08 E6
    set    0, (ix+24)                   ; 02:B693 - DD CB 18 C6
 
-addr_0B697:
+@already_initialised:
    ld     a, (ix+21)                   ; 02:B697 - DD 7E 15
    and    a                            ; 02:B69A - A7
    jp     nz, addr_0B6D4               ; 02:B69B - C2 D4 B6
@@ -22945,7 +22945,7 @@ SPRTAB_SKY3_boss_UNK_0BB1D:
 SPRTAB_SKY3_boss_UNK_0BB77:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $44, $46, $FF, $FF, $FF, $FF                 ; 02:BB77
 
-objfunc_46_UNKNOWN:
+objfunc_46_SKY3_vertical_zappers:
    set    5, (ix+24)                   ; 02:BB84 - DD CB 18 EE
    ld     hl, $0008                    ; 02:BB88 - 21 08 00
    ld     (var_D26B), hl               ; 02:BB8B - 22 6B D2
@@ -23118,7 +23118,7 @@ UNK_0BCC7:
 UNK_0BCDD:
 .db $40, $42                                                                        ; 02:BCDD
 
-objfunc_47_UNKNOWN:
+objfunc_47_SKY3_electric_ball:
    set    5, (ix+24)                   ; 02:BCDF - DD CB 18 EE
    set    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:BCE3 - FD CB 08 EE
    ld     hl, $0202                    ; 02:BCE7 - 21 02 02
@@ -23244,7 +23244,7 @@ UNK_0BDCE:
 .db $FF, $FF, $48, $08, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 02:BDDE
 .db $FF, $FF, $FF, $FF, $60, $62, $FF, $FF, $FF, $FF, $FF                           ; 02:BDEE
 
-objfunc_53_UNKNOWN:
+objfunc_53_end_controller_start:
    set    5, (ix+24)                   ; 02:BDF9 - DD CB 18 EE
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:BDFD - FD 36 03 FF
    bit    1, (ix+24)                   ; 02:BE01 - DD CB 18 4E
@@ -23309,8 +23309,8 @@ addr_0BE5C:
    ld     (g_level_scroll_x_pix_lo), de  ; 02:BE92 - ED 53 5A D2
 
 addr_0BE96:
-   ld     (ix+15), UNK_0BF21&$FF       ; 02:BE96 - DD 36 0F 21
-   ld     (ix+16), UNK_0BF21>>8        ; 02:BE9A - DD 36 10 BF
+   ld     (ix+15), SPRTAB_end_controller_start_UNK_0BF21&$FF  ; 02:BE96 - DD 36 0F 21
+   ld     (ix+16), SPRTAB_end_controller_start_UNK_0BF21>>8  ; 02:BE9A - DD 36 10 BF
    bit    0, (ix+24)                   ; 02:BE9E - DD CB 18 46
    jr     nz, addr_0BED7               ; 02:BEA2 - 20 33
    ld     hl, $1008                    ; 02:BEA4 - 21 08 10
@@ -23345,8 +23345,8 @@ addr_0BED7:
    ld     (ix+10), $40                 ; 02:BEE0 - DD 36 0A 40
    ld     (ix+11), a                   ; 02:BEE4 - DD 77 0B
    ld     (ix+12), a                   ; 02:BEE7 - DD 77 0C
-   ld     (ix+15), UNK_0BF33&$FF       ; 02:BEEA - DD 36 0F 33
-   ld     (ix+16), UNK_0BF33>>8        ; 02:BEEE - DD 36 10 BF
+   ld     (ix+15), SPRTAB_end_controller_start_UNK_0BF33&$FF  ; 02:BEEA - DD 36 0F 33
+   ld     (ix+16), SPRTAB_end_controller_start_UNK_0BF33>>8  ; 02:BEEE - DD 36 10 BF
    dec    (ix+17)                      ; 02:BEF2 - DD 35 11
    ret    nz                           ; 02:BEF5 - C0
    call   spawn_explosion              ; 02:BEF6 - CD 3A 7A
@@ -23372,15 +23372,15 @@ addr_0BF12:
    set    2, (iy+iy_0D-IYBASE)         ; 02:BF1C - FD CB 0D D6
    ret                                 ; 02:BF20 - C9
 
-UNK_0BF21:
+SPRTAB_end_controller_start_UNK_0BF21:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 02:BF21
 .db $72, $FF                                                                        ; 02:BF31
 
-UNK_0BF33:
+SPRTAB_end_controller_start_UNK_0BF33:
 .db $2A, $34, $36, $38, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 02:BF33
 .db $72, $FF, $5C, $5E, $FF, $FF, $FF, $FF, $FF                                     ; 02:BF43
 
-objfunc_54_UNKNOWN:
+objfunc_54_end_controller_good_ending_chaos_emeralds:
    set    5, (ix+24)                   ; 02:BF4C - DD CB 18 EE
    ld     hl, $5400                    ; 02:BF50 - 21 00 54
    call   write_partial_monitor_art    ; 02:BF53 - CD 1D 0C
@@ -23413,7 +23413,7 @@ addr_0BF89:
    ld     (ix+12), $FF                 ; 02:BF91 - DD 36 0C FF
 
 addr_0BF95:
-   ld     hl, UNK_0BFF1                ; 02:BF95 - 21 F1 BF
+   ld     hl, SPRTAB_end_chaos_emerald  ; 02:BF95 - 21 F1 BF
    ld     a, (g_global_tick_counter)   ; 02:BF98 - 3A 23 D2
    rrca                                ; 02:BF9B - 0F
    jr     nc, addr_0BFD5               ; 02:BF9C - 30 37
@@ -23434,7 +23434,7 @@ addr_0BF95:
    ld     bc, (g_level_scroll_x_pix_lo)  ; 02:BFC0 - ED 4B 5A D2
    and    a                            ; 02:BFC4 - A7
    sbc    hl, bc                       ; 02:BFC5 - ED 42
-   ld     bc, UNK_0BFF1                ; 02:BFC7 - 01 F1 BF
+   ld     bc, SPRTAB_end_chaos_emerald  ; 02:BFC7 - 01 F1 BF
    call   draw_sprite_string           ; 02:BFCA - CD 0F 35
    pop    hl                           ; 02:BFCD - E1
    pop    af                           ; 02:BFCE - F1
@@ -23455,7 +23455,7 @@ addr_0BFD5:
    set    2, (iy+iy_0D-IYBASE)         ; 02:BFEC - FD CB 0D D6
    ret                                 ; 02:BFF0 - C9
 
-UNK_0BFF1:
+SPRTAB_end_chaos_emerald:
 .db $5C, $5E, $FF, $FF, $FF, $FF, $FF                                               ; 02:BFF1
 
 .IF 0
