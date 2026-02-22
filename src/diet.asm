@@ -7556,7 +7556,7 @@ LUT_object_functions:
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
 .dw objfunc_38_SKY_platform_right, objfunc_39_SKY2_spike_wall_right, objfunc_3A_SKY_fixed_gun, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
-.dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
+.dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_SKY3_boss, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
 
 LUT_object_offscreen_activation_bounds:
@@ -21987,7 +21987,7 @@ objfunc_37_SKY2_turning_gun:
    dec    b                            ; 02:B222 - 05
 
 @shot_dy_was_positive:
-   call   addr_0B5C2                   ; 02:B223 - CD C2 B5
+   call   shoot_straight_fireball      ; 02:B223 - CD C2 B5
    ret                                 ; 02:B226 - C9
 
 LUT_SKY2_turning_gun_sprite_info:
@@ -22268,7 +22268,7 @@ objfunc_3A_SKY_fixed_gun:
    exx                                 ; 02:B4DF - D9
    cp     (hl)                         ; 02:B4E0 - BE
    ret    nz                           ; 02:B4E1 - C0
-   call   addr_0B5C2                   ; 02:B4E2 - CD C2 B5
+   call   shoot_straight_fireball      ; 02:B4E2 - CD C2 B5
    ret                                 ; 02:B4E5 - C9
 
 LUT_SKY_fixed_gun_dir_setup:
@@ -22361,7 +22361,7 @@ objfunc_3B_platform_y_oscillate:
 SPRTAB_platform_y_oscillate_BRI:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $6C, $6E, $6C, $6E, $FF, $FF, $FF                 ; 02:B5B5
 
-addr_0B5C2:
+shoot_straight_fireball:
    push   bc                           ; 02:B5C2 - C5
    push   de                           ; 02:B5C3 - D5
    call   spawn_object                 ; 02:B5C4 - CD 7B 7C
@@ -22399,20 +22399,20 @@ addr_0B5C2:
    .ENDIF
    ld     hl, (tmp_04)                 ; 02:B609 - 2A 12 D2
    bit    7, h                         ; 02:B60C - CB 7C
-   jr     z, addr_0B612                ; 02:B60E - 28 02
+   jr     z, @x_vel_was_positive       ; 02:B60E - 28 02
    ld     a, $FF                       ; 02:B610 - 3E FF
 
-addr_0B612:
+@x_vel_was_positive:
    ld     (ix+7), l                    ; 02:B612 - DD 75 07
    ld     (ix+8), h                    ; 02:B615 - DD 74 08
    ld     (ix+9), a                    ; 02:B618 - DD 77 09
    xor    a                            ; 02:B61B - AF
    ld     hl, (tmp_06)                 ; 02:B61C - 2A 14 D2
    bit    7, h                         ; 02:B61F - CB 7C
-   jr     z, addr_0B625                ; 02:B621 - 28 02
+   jr     z, @y_vel_was_positive       ; 02:B621 - 28 02
    ld     a, $FF                       ; 02:B623 - 3E FF
 
-addr_0B625:
+@y_vel_was_positive:
    ld     (ix+10), l                   ; 02:B625 - DD 75 0A
    ld     (ix+11), h                   ; 02:B628 - DD 74 0B
    ld     (ix+12), a                   ; 02:B62B - DD 77 0C
@@ -22421,7 +22421,7 @@ addr_0B625:
    rst    $28                          ; 02:B632 - EF
    ret                                 ; 02:B633 - C9
 
-objfunc_4A_UNKNOWN:
+objfunc_4A_SKY3_boss:
    ld     (ix+13), $1E                 ; 02:B634 - DD 36 0D 1E
    ld     (ix+14), $2F                 ; 02:B638 - DD 36 0E 2F
    set    5, (ix+24)                   ; 02:B63C - DD CB 18 EE
@@ -22498,8 +22498,8 @@ addr_0B6D4:
    add    hl, de                       ; 02:B6EF - 19
    ld     (ix+2), l                    ; 02:B6F0 - DD 75 02
    ld     (ix+3), h                    ; 02:B6F3 - DD 74 03
-   ld     (ix+15), UNK_0BB1D&$FF       ; 02:B6F6 - DD 36 0F 1D
-   ld     (ix+16), UNK_0BB1D>>8        ; 02:B6FA - DD 36 10 BB
+   ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB1D&$FF  ; 02:B6F6 - DD 36 0F 1D
+   ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB1D>>8  ; 02:B6FA - DD 36 10 BB
    jp     addr_0B793                   ; 02:B6FE - C3 93 B7
 
 addr_0B701:
@@ -22522,8 +22522,8 @@ addr_0B720:
    ld     (ix+10), l                   ; 02:B720 - DD 75 0A
    ld     (ix+11), h                   ; 02:B723 - DD 74 0B
    ld     (ix+12), c                   ; 02:B726 - DD 71 0C
-   ld     (ix+15), UNK_0BB1D&$FF       ; 02:B729 - DD 36 0F 1D
-   ld     (ix+16), UNK_0BB1D>>8        ; 02:B72D - DD 36 10 BB
+   ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB1D&$FF  ; 02:B729 - DD 36 0F 1D
+   ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB1D>>8  ; 02:B72D - DD 36 10 BB
    ld     l, (ix+5)                    ; 02:B731 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B734 - DD 66 06
    dec    hl                           ; 02:B737 - 2B
@@ -22808,8 +22808,8 @@ addr_0B97D:
    ld     a, c                         ; 02:B97D - 79
    cp     $2C                          ; 02:B97E - FE 2C
    ret    c                            ; 02:B980 - D8
-   ld     (ix+15), UNK_0BB77&$FF       ; 02:B981 - DD 36 0F 77
-   ld     (ix+16), UNK_0BB77>>8        ; 02:B985 - DD 36 10 BB
+   ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB77&$FF  ; 02:B981 - DD 36 0F 77
+   ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB77>>8  ; 02:B985 - DD 36 10 BB
    ret                                 ; 02:B989 - C9
 
 addr_0B98A:
@@ -22899,9 +22899,9 @@ UNK_0BA1C:
 UNK_0BA1C_PTR:
 .dw SPRTAB_robotnik_running                                                         ; 02:BA1E
 .db $00, $02                                                                        ; 02:BA20
-.dw addr_0BB0B                                                                      ; 02:BA22
+.dw SPRTAB_robotnik_running_02                                                      ; 02:BA22
 .db $00, $07                                                                        ; 02:BA24
-.dw addr_0BB0B                                                                      ; 02:BA26
+.dw SPRTAB_robotnik_running_02                                                      ; 02:BA26
 
 UNK_0BA28:
 .db $03, $08, $04, $07, $05, $08, $04, $07, $FF                                     ; 02:BA28
@@ -22930,11 +22930,11 @@ SPRTAB_robotnik_running:
 .db $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $4A, $4C, $4E  ; 02:BAF9
 .db $FF, $FF                                                                        ; 02:BB09
 
-addr_0BB0B:
+SPRTAB_robotnik_running_02:
 .db $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $02, $04, $06  ; 02:BB0B
 .db $FF, $FF                                                                        ; 02:BB1B
 
-UNK_0BB1D:
+SPRTAB_SKY3_boss_UNK_0BB1D:
 .db $10, $12, $14, $16, $FF, $FF, $30, $32, $34, $FE, $FF, $FF, $50, $52, $54, $FE  ; 02:BB1D
 .db $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E, $FF, $FF, $FE, $64  ; 02:BB2D
 .db $66, $68, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E, $FF, $FF  ; 02:BB3D
@@ -22942,7 +22942,7 @@ UNK_0BB1D:
 .db $FF, $FF, $70, $72, $5A, $5C, $5E, $FF, $00, $0A, $0C, $0E, $FF, $FF, $28, $2A  ; 02:BB5D
 .db $2C, $2E, $FF, $FF, $00, $4A, $4C, $4E, $FF, $FF                                ; 02:BB6D
 
-UNK_0BB77:
+SPRTAB_SKY3_boss_UNK_0BB77:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $44, $46, $FF, $FF, $FF, $FF                 ; 02:BB77
 
 objfunc_46_UNKNOWN:
