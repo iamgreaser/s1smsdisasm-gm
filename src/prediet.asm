@@ -5775,7 +5775,7 @@ LUT_object_functions:
 .dw objfunc_20_air_bubble, objfunc_21_special_stage_bouncer, objfunc_22_SCR_boss, objfunc_23_animal_0, objfunc_24_animal_1, objfunc_25_animal_capsule, objfunc_26_badnik_chopper, objfunc_27_platform_downwards_tall  ; 00:2B36
 .dw objfunc_28_platform_downwards_wide, objfunc_29_log, objfunc_2A_LAB3_boss_rocket_puff, objfunc_2B_JUN3_boss_bomb, objfunc_2C_JUN3_boss, objfunc_2D_badnik_spikeses, objfunc_2E_falling_bridge_piece, objfunc_2F_LAB3_boss_rocket  ; 00:2B46
 .dw objfunc_30_moving_cloud, objfunc_31_SKY2_propeller, objfunc_32_badnik_bomb, objfunc_33_SKY2_cannon, objfunc_34_SKY2_cannon_shell, objfunc_35_badnik_orbinaut, objfunc_36_badnik_orbinaut_ejected_ball, objfunc_37_SKY2_turning_gun  ; 00:2B56
-.dw objfunc_38_SKY_platform_right, objfunc_39_UNKNOWN, objfunc_3A_SKY_fixed_gun, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
+.dw objfunc_38_SKY_platform_right, objfunc_39_SKY2_spike_wall_right, objfunc_3A_SKY_fixed_gun, objfunc_3B_platform_y_oscillate, objfunc_3C_badnik_jaws, objfunc_3D_spinning_spike_ball, objfunc_3E_giant_spear, objfunc_3F_fireball_gargoyle  ; 00:2B66
 .dw objfunc_40_waterline, objfunc_41_air_bubble_spawner, objfunc_42_small_bubble, objfunc_43_nothing_UNUSED_MAYBE, objfunc_44_badnik_burrobot, objfunc_45_LAB_float_up_platform, objfunc_46_UNKNOWN, objfunc_47_UNKNOWN  ; 00:2B76
 .dw objfunc_48_BRI3_boss, objfunc_49_LAB3_boss, objfunc_4A_UNKNOWN, objfunc_4B_throw_sonic_into_a_pit_GHZ2, objfunc_4C_flipper, ENTRY_RESET, objfunc_4E_seesaw, ENTRY_RESET  ; 00:2B86
 .dw objfunc_50_flower_raiser, objfunc_51_monitor_checkpoint, objfunc_52_monitor_continue, objfunc_53_UNKNOWN, objfunc_54_UNKNOWN, objfunc_55_thrown_ring_on_sonic_damage  ; 00:2B96
@@ -19038,21 +19038,21 @@ SPRTAB_SKY_platform:
 LUT_SKY_platform_right_propeller_sprites:
 .db $08, $1C, $18, $3C, $08, $1E, $18, $3E, $08, $38, $18, $3A, $0C, $1A, $00, $FF  ; 02:B388
 
-objfunc_39_UNKNOWN:
+objfunc_39_SKY2_spike_wall_right:
    set    5, (ix+24)                   ; 02:B398 - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:B39C - DD CB 18 46
-   jr     nz, addr_0B3B2               ; 02:B3A0 - 20 10
+   jr     nz, @already_initialised     ; 02:B3A0 - 20 10
    ld     l, (ix+2)                    ; 02:B3A2 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B3A5 - DD 66 03
    ld     (ix+17), l                   ; 02:B3A8 - DD 75 11
    ld     (ix+18), h                   ; 02:B3AB - DD 74 12
    set    0, (ix+24)                   ; 02:B3AE - DD CB 18 C6
 
-addr_0B3B2:
+@already_initialised:
    ld     (ix+13), $0C                 ; 02:B3B2 - DD 36 0D 0C
    ld     (ix+14), $2E                 ; 02:B3B6 - DD 36 0E 2E
-   ld     (ix+15), UNK_0B45B&$FF       ; 02:B3BA - DD 36 0F 5B
-   ld     (ix+16), UNK_0B45B>>8        ; 02:B3BE - DD 36 10 B4
+   ld     (ix+15), SPRTAB_SKY2_spike_wall_right&$FF  ; 02:B3BA - DD 36 0F 5B
+   ld     (ix+16), SPRTAB_SKY2_spike_wall_right>>8  ; 02:B3BE - DD 36 10 B4
    ld     hl, $0202                    ; 02:B3C2 - 21 02 02
    ld     (tmp_06), hl                 ; 02:B3C5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:B3C8 - CD 56 39
@@ -19095,13 +19095,13 @@ addr_0B3B2:
    ld     de, (g_level_scroll_y_pix_lo)  ; 02:B427 - ED 5B 5D D2
    and    a                            ; 02:B42B - A7
    sbc    hl, de                       ; 02:B42C - ED 52
-   jr     nc, addr_0B43C               ; 02:B42E - 30 0C
+   jr     nc, @skip_position_reset_when_above_camera  ; 02:B42E - 30 0C
    ld     a, (ix+17)                   ; 02:B430 - DD 7E 11
    ld     (ix+2), a                    ; 02:B433 - DD 77 02
    ld     a, (ix+18)                   ; 02:B436 - DD 7E 12
    ld     (ix+3), a                    ; 02:B439 - DD 77 03
 
-addr_0B43C:
+@skip_position_reset_when_above_camera:
    ld     de, (sonic_y)                ; 02:B43C - ED 5B 01 D4
    ld     hl, $FFE0                    ; 02:B440 - 21 E0 FF
    add    hl, bc                       ; 02:B443 - 09
@@ -19118,7 +19118,7 @@ addr_0B43C:
    ld     (ix+9), a                    ; 02:B457 - DD 77 09
    ret                                 ; 02:B45A - C9
 
-UNK_0B45B:
+SPRTAB_SKY2_spike_wall_right:
 .db $16, $18, $FF, $FF, $FF, $FF, $16, $18, $FF, $FF, $FF, $FF, $16, $18, $FF, $FF  ; 02:B45B
 .db $FF, $FF                                                                        ; 02:B46B
 
