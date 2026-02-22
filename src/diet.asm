@@ -22426,9 +22426,9 @@ objfunc_4A_SKY3_boss:
    ld     (ix+14), $2F                 ; 02:B638 - DD 36 0E 2F
    set    5, (ix+24)                   ; 02:B63C - DD CB 18 EE
    bit    2, (ix+24)                   ; 02:B640 - DD CB 18 56
-   jp     nz, addr_0B821               ; 02:B644 - C2 21 B8
+   jp     nz, @TODO_B821               ; 02:B644 - C2 21 B8
    call   move_locked_camera_towards_target  ; 02:B647 - CD A6 7C
-   call   addr_0B7E6                   ; 02:B64A - CD E6 B7
+   call   @TODO_B7E6                   ; 02:B64A - CD E6 B7
    bit    0, (ix+24)                   ; 02:B64D - DD CB 18 46
    jr     nz, @already_initialised     ; 02:B651 - 20 44
    ld     hl, $0350                    ; 02:B653 - 21 50 03
@@ -22460,34 +22460,34 @@ objfunc_4A_SKY3_boss:
 @already_initialised:
    ld     a, (ix+21)                   ; 02:B697 - DD 7E 15
    and    a                            ; 02:B69A - A7
-   jp     nz, addr_0B6D4               ; 02:B69B - C2 D4 B6
-   call   addr_0B99F                   ; 02:B69E - CD 9F B9
+   jp     nz, @not_state_00            ; 02:B69B - C2 D4 B6
+   call   @fn_TODO_B99F                ; 02:B69E - CD 9F B9
    ld     a, (g_global_tick_counter)   ; 02:B6A1 - 3A 23 D2
    and    $07                          ; 02:B6A4 - E6 07
-   jp     nz, addr_0B793               ; 02:B6A6 - C2 93 B7
+   jp     nz, @continue_after_state_execution  ; 02:B6A6 - C2 93 B7
    ld     a, (ix+22)                   ; 02:B6A9 - DD 7E 16
    cp     $1C                          ; 02:B6AC - FE 1C
-   jr     nc, addr_0B6BB               ; 02:B6AE - 30 0B
+   jr     nc, @TODO_B6BB               ; 02:B6AE - 30 0B
    inc    (ix+23)                      ; 02:B6B0 - DD 34 17
    ld     a, (ix+23)                   ; 02:B6B3 - DD 7E 17
    cp     $02                          ; 02:B6B6 - FE 02
-   jp     c, addr_0B6BF                ; 02:B6B8 - DA BF B6
+   jp     c, @TODO_B6BF                ; 02:B6B8 - DA BF B6
 
-addr_0B6BB:
+@TODO_B6BB:
    ld     (ix+23), $00                 ; 02:B6BB - DD 36 17 00
 
-addr_0B6BF:
+@TODO_B6BF:
    inc    (ix+22)                      ; 02:B6BF - DD 34 16
    ld     a, (ix+22)                   ; 02:B6C2 - DD 7E 16
    cp     $28                          ; 02:B6C5 - FE 28
-   jp     c, addr_0B793                ; 02:B6C7 - DA 93 B7
+   jp     c, @continue_after_state_execution  ; 02:B6C7 - DA 93 B7
    ld     (ix+22), $00                 ; 02:B6CA - DD 36 16 00
    inc    (ix+21)                      ; 02:B6CE - DD 34 15
-   jp     addr_0B793                   ; 02:B6D1 - C3 93 B7
+   jp     @continue_after_state_execution  ; 02:B6D1 - C3 93 B7
 
-addr_0B6D4:
+@not_state_00:
    dec    a                            ; 02:B6D4 - 3D
-   jr     nz, addr_0B701               ; 02:B6D5 - 20 2A
+   jr     nz, @not_state_01_robotnik_jump_start  ; 02:B6D5 - 20 2A
    ld     (ix+10), $40                 ; 02:B6D7 - DD 36 0A 40
    ld     (ix+11), $FE                 ; 02:B6DB - DD 36 0B FE
    ld     (ix+12), $FF                 ; 02:B6DF - DD 36 0C FF
@@ -22500,11 +22500,11 @@ addr_0B6D4:
    ld     (ix+3), h                    ; 02:B6F3 - DD 74 03
    ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB1D&$FF  ; 02:B6F6 - DD 36 0F 1D
    ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB1D>>8  ; 02:B6FA - DD 36 10 BB
-   jp     addr_0B793                   ; 02:B6FE - C3 93 B7
+   jp     @continue_after_state_execution  ; 02:B6FE - C3 93 B7
 
-addr_0B701:
+@not_state_01_robotnik_jump_start:
    dec    a                            ; 02:B701 - 3D
-   jp     nz, addr_0B75C               ; 02:B702 - C2 5C B7
+   jp     nz, @not_state_02            ; 02:B702 - C2 5C B7
    ld     l, (ix+10)                   ; 02:B705 - DD 6E 0A
    ld     h, (ix+11)                   ; 02:B708 - DD 66 0B
    ld     a, (ix+12)                   ; 02:B70B - DD 7E 0C
@@ -22512,13 +22512,13 @@ addr_0B701:
    add    hl, de                       ; 02:B711 - 19
    adc    a, $00                       ; 02:B712 - CE 00
    ld     c, a                         ; 02:B714 - 4F
-   jp     m, addr_0B720                ; 02:B715 - FA 20 B7
+   jp     m, @skip_clamp_jump_vel_y    ; 02:B715 - FA 20 B7
    ld     a, h                         ; 02:B718 - 7C
    cp     $02                          ; 02:B719 - FE 02
-   jr     c, addr_0B720                ; 02:B71B - 38 03
+   jr     c, @skip_clamp_jump_vel_y    ; 02:B71B - 38 03
    ld     hl, $0200                    ; 02:B71D - 21 00 02
 
-addr_0B720:
+@skip_clamp_jump_vel_y:
    ld     (ix+10), l                   ; 02:B720 - DD 75 0A
    ld     (ix+11), h                   ; 02:B723 - DD 74 0B
    ld     (ix+12), c                   ; 02:B726 - DD 71 0C
@@ -22531,7 +22531,7 @@ addr_0B720:
    ld     d, (ix+20)                   ; 02:B73B - DD 56 14
    and    a                            ; 02:B73E - A7
    sbc    hl, de                       ; 02:B73F - ED 52
-   jr     c, addr_0B793                ; 02:B741 - 38 50
+   jr     c, @continue_after_state_execution  ; 02:B741 - 38 50
    ld     (ix+5), e                    ; 02:B743 - DD 73 05
    ld     (ix+6), d                    ; 02:B746 - DD 72 06
    xor    a                            ; 02:B749 - AF
@@ -22540,37 +22540,37 @@ addr_0B720:
    ld     (ix+11), a                   ; 02:B750 - DD 77 0B
    ld     (ix+12), a                   ; 02:B753 - DD 77 0C
    inc    (ix+21)                      ; 02:B756 - DD 34 15
-   jp     addr_0B793                   ; 02:B759 - C3 93 B7
+   jp     @continue_after_state_execution  ; 02:B759 - C3 93 B7
 
-addr_0B75C:
+@not_state_02:
    dec    a                            ; 02:B75C - 3D
-   jp     nz, addr_0B793               ; 02:B75D - C2 93 B7
+   jp     nz, @continue_after_state_execution  ; 02:B75D - C2 93 B7
    ld     l, (ix+17)                   ; 02:B760 - DD 6E 11
    ld     h, (ix+18)                   ; 02:B763 - DD 66 12
    ld     (ix+2), l                    ; 02:B766 - DD 75 02
    ld     (ix+3), h                    ; 02:B769 - DD 74 03
    ld     a, (ix+22)                   ; 02:B76C - DD 7E 16
    and    a                            ; 02:B76F - A7
-   call   z, addr_0B9D5                ; 02:B770 - CC D5 B9
+   call   z, @fn_spawn_electric_ball_at_fixed_pos  ; 02:B770 - CC D5 B9
    ld     (ix+23), $02                 ; 02:B773 - DD 36 17 02
    set    1, (ix+24)                   ; 02:B777 - DD CB 18 CE
-   call   addr_0B99F                   ; 02:B77B - CD 9F B9
+   call   @fn_TODO_B99F                ; 02:B77B - CD 9F B9
    inc    (ix+22)                      ; 02:B77E - DD 34 16
    ld     a, (ix+22)                   ; 02:B781 - DD 7E 16
    cp     $12                          ; 02:B784 - FE 12
-   jr     c, addr_0B793                ; 02:B786 - 38 0B
+   jr     c, @continue_after_state_execution  ; 02:B786 - 38 0B
    res    1, (ix+24)                   ; 02:B788 - DD CB 18 8E
    xor    a                            ; 02:B78C - AF
    ld     (ix+21), a                   ; 02:B78D - DD 77 15
    ld     (ix+22), a                   ; 02:B790 - DD 77 16
 
-addr_0B793:
+@continue_after_state_execution:
    ld     hl, UNK_0BA31                ; 02:B793 - 21 31 BA
    bit    1, (ix+24)                   ; 02:B796 - DD CB 18 4E
-   jr     z, addr_0B79F                ; 02:B79A - 28 03
+   jr     z, @TODO_B79F                ; 02:B79A - 28 03
    ld     hl, UNK_0BA3B                ; 02:B79C - 21 3B BA
 
-addr_0B79F:
+@TODO_B79F:
    ld     de, tmp_00                   ; 02:B79F - 11 0E D2
    ldi                                 ; 02:B7A2 - ED A0
    ldi                                 ; 02:B7A4 - ED A0
@@ -22606,7 +22606,7 @@ addr_0B79F:
    rst    $28                          ; 02:B7E4 - EF
    ret                                 ; 02:B7E5 - C9
 
-addr_0B7E6:
+@TODO_B7E6:
    ld     a, (g_pal_flash_countdown_timer)  ; 02:B7E6 - 3A B1 D2
    and    a                            ; 02:B7E9 - A7
    ret    nz                           ; 02:B7EA - C0
@@ -22614,11 +22614,11 @@ addr_0B7E6:
    ret    nz                           ; 02:B7EF - C0
    ld     a, (sonic_flags_ix_24)       ; 02:B7F0 - 3A 14 D4
    rrca                                ; 02:B7F3 - 0F
-   jr     c, addr_0B7F9                ; 02:B7F4 - 38 03
+   jr     c, @TODO_B7F9                ; 02:B7F4 - 38 03
    and    $02                          ; 02:B7F6 - E6 02
    ret    z                            ; 02:B7F8 - C8
 
-addr_0B7F9:
+@TODO_B7F9:
    ld     hl, (sonic_x)                ; 02:B7F9 - 2A FE D3
    ld     de, $0410                    ; 02:B7FC - 11 10 04
    and    a                            ; 02:B7FF - A7
@@ -22640,13 +22640,13 @@ addr_0B7F9:
    inc    (hl)                         ; 02:B81F - 34
    ret                                 ; 02:B820 - C9
 
-addr_0B821:
+@TODO_B821:
    bit    3, (ix+24)                   ; 02:B821 - DD CB 18 5E
-   jp     nz, addr_0B95B               ; 02:B825 - C2 5B B9
+   jp     nz, @TODO_B95B               ; 02:B825 - C2 5B B9
    res    5, (ix+24)                   ; 02:B828 - DD CB 18 AE
    ld     a, (ix+17)                   ; 02:B82C - DD 7E 11
    cp     $0F                          ; 02:B82F - FE 0F
-   jr     nc, addr_0B86A               ; 02:B831 - 30 37
+   jr     nc, @TODO_B86A               ; 02:B831 - 30 37
    add    a, a                         ; 02:B833 - 87
    add    a, a                         ; 02:B834 - 87
    ld     e, a                         ; 02:B835 - 5F
@@ -22670,24 +22670,24 @@ addr_0B821:
    inc    (ix+17)                      ; 02:B852 - DD 34 11
    ld     a, (ix+17)                   ; 02:B855 - DD 7E 11
    cp     $0F                          ; 02:B858 - FE 0F
-   jr     nz, addr_0B86A               ; 02:B85A - 20 0E
+   jr     nz, @TODO_B86A               ; 02:B85A - 20 0E
    set    5, (iy+iy_00-IYBASE)         ; 02:B85C - FD CB 00 EE
    res    1, (iy+iy_02-IYBASE)         ; 02:B860 - FD CB 02 8E
    ld     hl, $0550                    ; 02:B864 - 21 50 05
    ld     (g_level_limit_x1), hl       ; 02:B867 - 22 75 D2
 
-addr_0B86A:
+@TODO_B86A:
    ld     e, (ix+2)                    ; 02:B86A - DD 5E 02
    ld     d, (ix+3)                    ; 02:B86D - DD 56 03
    ld     hl, $05E0                    ; 02:B870 - 21 E0 05
    xor    a                            ; 02:B873 - AF
    sbc    hl, de                       ; 02:B874 - ED 52
-   jr     nc, addr_0B87D               ; 02:B876 - 30 05
+   jr     nc, @TODO_B87D               ; 02:B876 - 30 05
    ld     c, a                         ; 02:B878 - 4F
    ld     b, a                         ; 02:B879 - 47
-   jp     addr_0B899                   ; 02:B87A - C3 99 B8
+   jp     @TODO_B899                   ; 02:B87A - C3 99 B8
 
-addr_0B87D:
+@TODO_B87D:
    ex     de, hl                       ; 02:B87D - EB
    ld     de, (sonic_x)                ; 02:B87E - ED 5B FE D3
    xor    a                            ; 02:B882 - AF
@@ -22696,33 +22696,33 @@ addr_0B87D:
    xor    a                            ; 02:B888 - AF
    ld     bc, (sonic_vel_x_sub)        ; 02:B889 - ED 4B 03 D4
    bit    7, b                         ; 02:B88D - CB 78
-   jr     nz, addr_0B895               ; 02:B88F - 20 04
+   jr     nz, @TODO_B895               ; 02:B88F - 20 04
    sbc    hl, de                       ; 02:B891 - ED 52
-   jr     c, addr_0B898                ; 02:B893 - 38 03
+   jr     c, @TODO_B898                ; 02:B893 - 38 03
 
-addr_0B895:
+@TODO_B895:
    ld     bc, $FF80                    ; 02:B895 - 01 80 FF
 
-addr_0B898:
+@TODO_B898:
    inc    b                            ; 02:B898 - 04
 
-addr_0B899:
+@TODO_B899:
    ld     (ix+7), c                    ; 02:B899 - DD 71 07
    ld     (ix+8), b                    ; 02:B89C - DD 70 08
    ld     (ix+9), a                    ; 02:B89F - DD 77 09
    ld     a, (ix+23)                   ; 02:B8A2 - DD 7E 17
    cp     $06                          ; 02:B8A5 - FE 06
-   jr     nz, addr_0B8C1               ; 02:B8A7 - 20 18
+   jr     nz, @TODO_B8C1               ; 02:B8A7 - 20 18
    ld     a, (ix+22)                   ; 02:B8A9 - DD 7E 16
    dec    a                            ; 02:B8AC - 3D
-   jr     nz, addr_0B8C1               ; 02:B8AD - 20 12
+   jr     nz, @TODO_B8C1               ; 02:B8AD - 20 12
    bit    7, (ix+24)                   ; 02:B8AF - DD CB 18 7E
-   jr     z, addr_0B8C1                ; 02:B8B3 - 28 0C
+   jr     z, @TODO_B8C1                ; 02:B8B3 - 28 0C
    ld     (ix+10), $00                 ; 02:B8B5 - DD 36 0A 00
    ld     (ix+11), $FF                 ; 02:B8B9 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:B8BD - DD 36 0C FF
 
-addr_0B8C1:
+@TODO_B8C1:
    ld     de, $0017                    ; 02:B8C1 - 11 17 00
    ld     bc, $0036                    ; 02:B8C4 - 01 36 00
    call   get_obj_level_tile_ptr_in_ram  ; 02:B8C7 - CD F9 36
@@ -22733,22 +22733,22 @@ addr_0B8C1:
    ld     a, (hl)                      ; 02:B8D1 - 7E
    and    $3F                          ; 02:B8D2 - E6 3F
    and    a                            ; 02:B8D4 - A7
-   jr     z, addr_0B8E9                ; 02:B8D5 - 28 12
+   jr     z, @TODO_B8E9                ; 02:B8D5 - 28 12
    bit    7, (ix+24)                   ; 02:B8D7 - DD CB 18 7E
-   jr     z, addr_0B8E9                ; 02:B8DB - 28 0C
+   jr     z, @TODO_B8E9                ; 02:B8DB - 28 0C
    ld     (ix+10), $80                 ; 02:B8DD - DD 36 0A 80
    ld     (ix+11), $FD                 ; 02:B8E1 - DD 36 0B FD
    ld     (ix+12), $FF                 ; 02:B8E5 - DD 36 0C FF
 
-addr_0B8E9:
+@TODO_B8E9:
    ld     de, $0000                    ; 02:B8E9 - 11 00 00
    ld     bc, $0008                    ; 02:B8EC - 01 08 00
    call   get_obj_level_tile_ptr_in_ram  ; 02:B8EF - CD F9 36
    ld     a, (hl)                      ; 02:B8F2 - 7E
    cp     $49                          ; 02:B8F3 - FE 49
-   jr     nz, addr_0B92D               ; 02:B8F5 - 20 36
+   jr     nz, @TODO_B92D               ; 02:B8F5 - 20 36
    bit    7, (ix+24)                   ; 02:B8F7 - DD CB 18 7E
-   jr     z, addr_0B92D                ; 02:B8FB - 28 30
+   jr     z, @TODO_B92D                ; 02:B8FB - 28 30
    xor    a                            ; 02:B8FD - AF
    ld     (ix+22), a                   ; 02:B8FE - DD 77 16
    ld     (ix+23), a                   ; 02:B901 - DD 77 17
@@ -22763,9 +22763,9 @@ addr_0B8E9:
    ld     de, $0120                    ; 02:B920 - 11 20 01
    call   set_locked_camera_target     ; 02:B923 - CD 8C 7C
    set    3, (ix+24)                   ; 02:B926 - DD CB 18 DE
-   jp     addr_0B95B                   ; 02:B92A - C3 5B B9
+   jp     @TODO_B95B                   ; 02:B92A - C3 5B B9
 
-addr_0B92D:
+@TODO_B92D:
    ld     l, (ix+10)                   ; 02:B92D - DD 6E 0A
    ld     h, (ix+11)                   ; 02:B930 - DD 66 0B
    ld     a, (ix+12)                   ; 02:B933 - DD 7E 0C
@@ -22773,13 +22773,13 @@ addr_0B92D:
    add    hl, de                       ; 02:B939 - 19
    adc    a, $00                       ; 02:B93A - CE 00
    ld     c, a                         ; 02:B93C - 4F
-   jp     m, addr_0B948                ; 02:B93D - FA 48 B9
+   jp     m, @TODO_B948                ; 02:B93D - FA 48 B9
    ld     a, h                         ; 02:B940 - 7C
    cp     $02                          ; 02:B941 - FE 02
-   jr     c, addr_0B948                ; 02:B943 - 38 03
+   jr     c, @TODO_B948                ; 02:B943 - 38 03
    ld     hl, $0200                    ; 02:B945 - 21 00 02
 
-addr_0B948:
+@TODO_B948:
    ld     (ix+10), l                   ; 02:B948 - DD 75 0A
    ld     (ix+11), h                   ; 02:B94B - DD 74 0B
    ld     (ix+12), c                   ; 02:B94E - DD 71 0C
@@ -22788,23 +22788,23 @@ addr_0B948:
    call   do_framed_animation          ; 02:B957 - CD 41 7C
    ret                                 ; 02:B95A - C9
 
-addr_0B95B:
+@TODO_B95B:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:B95B - FD 36 03 FF
-   call   addr_0B99F                   ; 02:B95F - CD 9F B9
+   call   @fn_TODO_B99F                ; 02:B95F - CD 9F B9
    ld     a, (ix+22)                   ; 02:B962 - DD 7E 16
    cp     $30                          ; 02:B965 - FE 30
-   jr     nc, addr_0B98A               ; 02:B967 - 30 21
+   jr     nc, @TODO_B98A               ; 02:B967 - 30 21
    ld     c, a                         ; 02:B969 - 4F
    ld     a, (g_global_tick_counter)   ; 02:B96A - 3A 23 D2
    and    $07                          ; 02:B96D - E6 07
-   jr     nz, addr_0B97D               ; 02:B96F - 20 0C
+   jr     nz, @TODO_B97D               ; 02:B96F - 20 0C
    ld     a, (ix+23)                   ; 02:B971 - DD 7E 17
    inc    a                            ; 02:B974 - 3C
    and    $01                          ; 02:B975 - E6 01
    ld     (ix+23), a                   ; 02:B977 - DD 77 17
    inc    (ix+22)                      ; 02:B97A - DD 34 16
 
-addr_0B97D:
+@TODO_B97D:
    ld     a, c                         ; 02:B97D - 79
    cp     $2C                          ; 02:B97E - FE 2C
    ret    c                            ; 02:B980 - D8
@@ -22812,7 +22812,7 @@ addr_0B97D:
    ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB77>>8  ; 02:B985 - DD 36 10 BB
    ret                                 ; 02:B989 - C9
 
-addr_0B98A:
+@TODO_B98A:
    xor    a                            ; 02:B98A - AF
    ld     (ix+15), a                   ; 02:B98B - DD 77 0F
    ld     (ix+16), a                   ; 02:B98E - DD 77 10
@@ -22827,7 +22827,7 @@ addr_0B98A:
    jp free_object
    .ENDIF
 
-addr_0B99F:
+@fn_TODO_B99F:
    ld     hl, UNK_0BA1C                ; 02:B99F - 21 1C BA
    ld     a, (ix+23)                   ; 02:B9A2 - DD 7E 17
    add    a, a                         ; 02:B9A5 - 87
@@ -22858,7 +22858,7 @@ addr_0B99F:
    ld     (ix+6), h                    ; 02:B9D1 - DD 74 06
    ret                                 ; 02:B9D4 - C9
 
-addr_0B9D5:
+@fn_spawn_electric_ball_at_fixed_pos:
    bit    5, (iy+iy_08_lvflag03-IYBASE)  ; 02:B9D5 - FD CB 08 6E
    ret    nz                           ; 02:B9D9 - C0
    call   spawn_object                 ; 02:B9DA - CD 7B 7C
