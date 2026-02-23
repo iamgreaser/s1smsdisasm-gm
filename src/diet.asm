@@ -14770,7 +14770,7 @@ objinit_12_GHZ_boss:
    .db 13|((2-1)<<5), $20, $1C
    .db 24|((1-1)<<5), $20
    .db 20|((2-1)<<5)
-      .dw UNK_072A1
+      .dw LUT_GHZ3boss_seq_01_fly_high_left
    .db 5|((2-1)<<5)
       .dw $FFF8
    .db $FF
@@ -14805,8 +14805,8 @@ objfunc_12_GHZ_boss:
    ld     (g_boss_hits_taken), a       ; 01:7048 - 32 EC D2
    .IF 0
    ld     (ix+18), a                   ; 01:704B - DD 77 12
-   ld     (ix+20), UNK_072A1&$FF       ; 01:704E - DD 36 14 A1
-   ld     (ix+21), UNK_072A1>>8        ; 01:7052 - DD 36 15 72
+   ld     (ix+20), LUT_GHZ3boss_seq_01_fly_high_left&$FF  ; 01:704E - DD 36 14 A1
+   ld     (ix+21), LUT_GHZ3boss_seq_01_fly_high_left>>8  ; 01:7052 - DD 36 15 72
    .ENDIF
    ld     hl, $0760                    ; 01:7056 - 21 60 07
    ld     de, $00E8                    ; 01:7059 - 11 E8 00
@@ -14862,7 +14862,7 @@ objfunc_12_GHZ_boss:
    ld     l, a                         ; 01:70AA - 6F
    jp     (hl)                         ; 01:70AB - E9
 
-@state_01:
+@state_01_fly_high_left:
    ld     hl, (g_level_limit_x0)       ; 01:70AC - 2A 73 D2
    ld     de, $0006                    ; 01:70AF - 11 06 00
    add    hl, de                       ; 01:70B2 - 19
@@ -14875,19 +14875,19 @@ objfunc_12_GHZ_boss:
    jp     c, @continue                 ; 01:70C1 - DA 05 72
    ld     (ix+18), $00                 ; 01:70C4 - DD 36 12 00
    bit    1, (ix+17)                   ; 01:70C8 - DD CB 11 4E
-   jr     nz, @TODO_70DD               ; 01:70CC - 20 0F
-   ld     (ix+20), UNK_072A4&$FF       ; 01:70CE - DD 36 14 A4
-   ld     (ix+21), UNK_072A4>>8        ; 01:70D2 - DD 36 15 72
+   jr     nz, @do_lowering_on_left     ; 01:70CC - 20 0F
+   ld     (ix+20), LUT_GHZ3boss_seq_02_fly_high_right&$FF  ; 01:70CE - DD 36 14 A4
+   ld     (ix+21), LUT_GHZ3boss_seq_02_fly_high_right>>8  ; 01:70D2 - DD 36 15 72
    set    1, (ix+17)                   ; 01:70D6 - DD CB 11 CE
    jp     @continue                    ; 01:70DA - C3 05 72
 
-@TODO_70DD:
-   ld     (ix+20), UNK_072A7&$FF       ; 01:70DD - DD 36 14 A7
-   ld     (ix+21), UNK_072A7>>8        ; 01:70E1 - DD 36 15 72
+@do_lowering_on_left:
+   ld     (ix+20), LUT_GHZ3boss_seq_03_lowering_on_left&$FF  ; 01:70DD - DD 36 14 A7
+   ld     (ix+21), LUT_GHZ3boss_seq_03_lowering_on_left>>8  ; 01:70E1 - DD 36 15 72
    res    1, (ix+17)                   ; 01:70E5 - DD CB 11 8E
    jp     @continue                    ; 01:70E9 - C3 05 72
 
-@state_02:
+@state_02_fly_high_right:
    ld     hl, (g_level_limit_x0)       ; 01:70EC - 2A 73 D2
    ld     de, $00E0                    ; 01:70EF - 11 E0 00
    add    hl, de                       ; 01:70F2 - 19
@@ -14900,19 +14900,19 @@ objfunc_12_GHZ_boss:
    jp     nc, @continue                ; 01:7101 - D2 05 72
    ld     (ix+18), $00                 ; 01:7104 - DD 36 12 00
    bit    2, (ix+17)                   ; 01:7108 - DD CB 11 56
-   jr     nz, @TODO_711D               ; 01:710C - 20 0F
-   ld     (ix+20), UNK_072A1&$FF       ; 01:710E - DD 36 14 A1
-   ld     (ix+21), UNK_072A1>>8        ; 01:7112 - DD 36 15 72
+   jr     nz, @do_lowering_on_right    ; 01:710C - 20 0F
+   ld     (ix+20), LUT_GHZ3boss_seq_01_fly_high_left&$FF  ; 01:710E - DD 36 14 A1
+   ld     (ix+21), LUT_GHZ3boss_seq_01_fly_high_left>>8  ; 01:7112 - DD 36 15 72
    set    2, (ix+17)                   ; 01:7116 - DD CB 11 D6
    jp     @continue                    ; 01:711A - C3 05 72
 
-@TODO_711D:
-   ld     (ix+20), UNK_072AA&$FF       ; 01:711D - DD 36 14 AA
-   ld     (ix+21), UNK_072AA>>8        ; 01:7121 - DD 36 15 72
+@do_lowering_on_right:
+   ld     (ix+20), LUT_GHZ3boss_seq_05_lowering_on_right&$FF  ; 01:711D - DD 36 14 AA
+   ld     (ix+21), LUT_GHZ3boss_seq_05_lowering_on_right>>8  ; 01:7121 - DD 36 15 72
    res    2, (ix+17)                   ; 01:7125 - DD CB 11 96
    jp     @continue                    ; 01:7129 - C3 05 72
 
-@state_03:
+@state_03_lowering_on_left:
    ld     (ix+10), $60                 ; 01:712C - DD 36 0A 60
    ld     (ix+11), $00                 ; 01:7130 - DD 36 0B 00
    ld     (ix+12), $00                 ; 01:7134 - DD 36 0C 00
@@ -14928,16 +14928,16 @@ objfunc_12_GHZ_boss:
    ld     h, c                         ; 01:714A - 61
    jp     nc, @continue                ; 01:714B - D2 05 72
    ld     (ix+18), $00                 ; 01:714E - DD 36 12 00
-   ld     (ix+20), UNK_072B0&$FF       ; 01:7152 - DD 36 14 B0
-   ld     (ix+21), UNK_072B0>>8        ; 01:7156 - DD 36 15 72
+   ld     (ix+20), LUT_GHZ3boss_seq_wait_then_zip_low_towards_right&$FF  ; 01:7152 - DD 36 14 B0
+   ld     (ix+21), LUT_GHZ3boss_seq_wait_then_zip_low_towards_right>>8  ; 01:7156 - DD 36 15 72
    jp     @continue                    ; 01:715A - C3 05 72
 
-@state_04:
+@state_04_zip_low_towards_right:
    ld     c, $00                       ; 01:715D - 0E 00
    ld     hl, $0400                    ; 01:715F - 21 00 04
    jp     @continue                    ; 01:7162 - C3 05 72
 
-@state_05:
+@state_05_lowering_on_right:
    ld     (ix+10), $60                 ; 01:7165 - DD 36 0A 60
    ld     (ix+11), $00                 ; 01:7169 - DD 36 0B 00
    ld     (ix+12), $00                 ; 01:716D - DD 36 0C 00
@@ -14953,32 +14953,32 @@ objfunc_12_GHZ_boss:
    ld     h, c                         ; 01:7183 - 61
    jp     nc, @continue                ; 01:7184 - D2 05 72
    ld     (ix+18), $00                 ; 01:7187 - DD 36 12 00
-   ld     (ix+20), UNK_072BC&$FF       ; 01:718B - DD 36 14 BC
-   ld     (ix+21), UNK_072BC>>8        ; 01:718F - DD 36 15 72
+   ld     (ix+20), LUT_GHZ3boss_seq_wait_then_zip_low_towards_left&$FF  ; 01:718B - DD 36 14 BC
+   ld     (ix+21), LUT_GHZ3boss_seq_wait_then_zip_low_towards_left>>8  ; 01:718F - DD 36 15 72
    jp     @continue                    ; 01:7193 - C3 05 72
 
-@state_06:
+@state_06_zip_low_towards_left:
    ld     c, $FF                       ; 01:7196 - 0E FF
    ld     hl, $FC00                    ; 01:7198 - 21 00 FC
    jr     @continue                    ; 01:719B - 18 68
 
-@state_07_0B:
+@state_07_0B_wait_before_zip:
    ld     c, $00                       ; 01:719D - 0E 00
    ld     l, c                         ; 01:719F - 69
    ld     h, c                         ; 01:71A0 - 61
    jr     @continue                    ; 01:71A1 - 18 62
 
-@state_08:
+@state_08_stop_now_and_start_rising:
    ld     c, $00                       ; 01:71A3 - 0E 00
    ld     l, c                         ; 01:71A5 - 69
    ld     h, c                         ; 01:71A6 - 61
-   ld     (ix+20), UNK_072AD&$FF       ; 01:71A7 - DD 36 14 AD
-   ld     (ix+21), UNK_072AD>>8        ; 01:71AB - DD 36 15 72
+   ld     (ix+20), LUT_GHZ3boss_seq_09_rise_up_off_screen&$FF  ; 01:71A7 - DD 36 14 AD
+   ld     (ix+21), LUT_GHZ3boss_seq_09_rise_up_off_screen>>8  ; 01:71AB - DD 36 15 72
    ld     (ix+18), c                   ; 01:71AF - DD 71 12
    ld     (ix+19), c                   ; 01:71B2 - DD 71 13
    jr     @continue                    ; 01:71B5 - 18 4E
 
-@state_09:
+@state_09_rise_up_off_screen:
    ld     (ix+10), $00                 ; 01:71B7 - DD 36 0A 00
    ld     (ix+11), $FF                 ; 01:71BB - DD 36 0B FF
    ld     (ix+12), $FF                 ; 01:71BF - DD 36 0C FF
@@ -15001,15 +15001,15 @@ objfunc_12_GHZ_boss:
    ld     c, a                         ; 01:71E6 - 4F
    ld     l, c                         ; 01:71E7 - 69
    ld     h, c                         ; 01:71E8 - 61
-   jr     c, @TODO_71F8                ; 01:71E9 - 38 0D
-   ld     (ix+20), UNK_072A1&$FF       ; 01:71EB - DD 36 14 A1
-   ld     (ix+21), UNK_072A1>>8        ; 01:71EF - DD 36 15 72
+   jr     c, @next_fly_dir_go_right    ; 01:71E9 - 38 0D
+   ld     (ix+20), LUT_GHZ3boss_seq_01_fly_high_left&$FF  ; 01:71EB - DD 36 14 A1
+   ld     (ix+21), LUT_GHZ3boss_seq_01_fly_high_left>>8  ; 01:71EF - DD 36 15 72
    ld     (ix+18), a                   ; 01:71F3 - DD 77 12
    jr     @continue                    ; 01:71F6 - 18 0D
 
-@TODO_71F8:
-   ld     (ix+20), UNK_072A4&$FF       ; 01:71F8 - DD 36 14 A4
-   ld     (ix+21), UNK_072A4>>8        ; 01:71FC - DD 36 15 72
+@next_fly_dir_go_right:
+   ld     (ix+20), LUT_GHZ3boss_seq_02_fly_high_right&$FF  ; 01:71F8 - DD 36 14 A4
+   ld     (ix+21), LUT_GHZ3boss_seq_02_fly_high_right>>8  ; 01:71FC - DD 36 15 72
    ld     (ix+18), a                   ; 01:7200 - DD 77 12
    jr     @continue                    ; 01:7203 - 18 00
 
@@ -15020,15 +15020,15 @@ objfunc_12_GHZ_boss:
    ld     hl, (tmp_06)                 ; 01:720E - 2A 14 D2
    ld     e, (hl)                      ; 01:7211 - 5E
    ld     d, $00                       ; 01:7212 - 16 00
-   ld     hl, UNK_072C8                ; 01:7214 - 21 C8 72
+   ld     hl, LUT_GHZ3boss_spr_dir_tab  ; 01:7214 - 21 C8 72
    add    hl, de                       ; 01:7217 - 19
    ld     a, (hl)                      ; 01:7218 - 7E
-   ld     hl, SPRTAB_GHZ3boss_UNK_072F8  ; 01:7219 - 21 F8 72
+   ld     hl, SPRTAB_GHZ3boss_facing_left  ; 01:7219 - 21 F8 72
    and    a                            ; 01:721C - A7
-   jr     z, @TODO_7222                ; 01:721D - 28 03
-   ld     hl, SPRTAB_GHZ3boss_UNK_0730A  ; 01:721F - 21 0A 73
+   jr     z, @was_facing_left          ; 01:721D - 28 03
+   ld     hl, SPRTAB_GHZ3boss_facing_right  ; 01:721F - 21 0A 73
 
-@TODO_7222:
+@was_facing_left:
    ld     e, a                         ; 01:7222 - 5F
    ld     a, (ix+24)                   ; 01:7223 - DD 7E 18
    and    $FD                          ; 01:7226 - E6 FD
@@ -15048,8 +15048,8 @@ objfunc_12_GHZ_boss:
    ret                                 ; 01:724A - C9
 
 CODEPTRTAB_GHZ3boss_states:
-.dw objfunc_12_GHZ_boss@state_01, objfunc_12_GHZ_boss@state_02, objfunc_12_GHZ_boss@state_03, objfunc_12_GHZ_boss@state_04, objfunc_12_GHZ_boss@state_05, objfunc_12_GHZ_boss@state_06, objfunc_12_GHZ_boss@state_07_0B, objfunc_12_GHZ_boss@state_08  ; 01:724B
-.dw objfunc_12_GHZ_boss@state_09, ENTRY_RESET, objfunc_12_GHZ_boss@state_07_0B      ; 01:725B
+.dw objfunc_12_GHZ_boss@state_01_fly_high_left, objfunc_12_GHZ_boss@state_02_fly_high_right, objfunc_12_GHZ_boss@state_03_lowering_on_left, objfunc_12_GHZ_boss@state_04_zip_low_towards_right, objfunc_12_GHZ_boss@state_05_lowering_on_right, objfunc_12_GHZ_boss@state_06_zip_low_towards_left, objfunc_12_GHZ_boss@state_07_0B_wait_before_zip, objfunc_12_GHZ_boss@state_08_stop_now_and_start_rising  ; 01:724B
+.dw objfunc_12_GHZ_boss@state_09_rise_up_off_screen, ENTRY_RESET, objfunc_12_GHZ_boss@state_07_0B_wait_before_zip  ; 01:725B
 
 LUT_GHZ3boss_y_velocities:
 .db $00, $14, $28, $28, $3C, $3C, $3C, $50, $50, $50, $50, $64, $64, $64, $64, $64  ; 01:7261
@@ -15057,37 +15057,37 @@ LUT_GHZ3boss_y_velocities:
 .db $00, $EC, $D8, $D8, $C4, $C4, $C4, $B0, $B0, $B0, $B0, $9C, $9C, $9C, $9C, $9C  ; 01:7281
 .db $9C, $9C, $9C, $9C, $9C, $B0, $B0, $B0, $B0, $C4, $C4, $C4, $D8, $D8, $EC, $00  ; 01:7291
 
-UNK_072A1:
+LUT_GHZ3boss_seq_01_fly_high_left:
 .db $01, $00, $00                                                                   ; 01:72A1
 
-UNK_072A4:
+LUT_GHZ3boss_seq_02_fly_high_right:
 .db $02, $00, $00                                                                   ; 01:72A4
 
-UNK_072A7:
+LUT_GHZ3boss_seq_03_lowering_on_left:
 .db $03, $00, $00                                                                   ; 01:72A7
 
-UNK_072AA:
+LUT_GHZ3boss_seq_05_lowering_on_right:
 .db $05, $00, $00                                                                   ; 01:72AA
 
-UNK_072AD:
+LUT_GHZ3boss_seq_09_rise_up_off_screen:
 .db $09, $00, $00                                                                   ; 01:72AD
 
-UNK_072B0:
+LUT_GHZ3boss_seq_wait_then_zip_low_towards_right:
 .db $07, $07, $07, $07, $04, $04, $04, $04, $04, $08, $00, $00                      ; 01:72B0
 
-UNK_072BC:
+LUT_GHZ3boss_seq_wait_then_zip_low_towards_left:
 .db $0B, $0B, $0B, $0B, $06, $06, $06, $06, $06, $08, $00, $00                      ; 01:72BC
 
-UNK_072C8:
+LUT_GHZ3boss_spr_dir_tab:
 .db $00, $00, $02, $02, $02, $00, $00, $02, $02, $00, $02, $00, $00, $00, $01, $04  ; 01:72C8
 .db $01, $00, $01, $04, $01, $01, $01, $04, $01, $01, $01, $04, $01, $FF, $02, $02  ; 01:72D8
 .db $01, $05, $01, $02, $01, $05, $01, $03, $01, $05, $01, $03, $01, $05, $01, $FF  ; 01:72E8
 
-SPRTAB_GHZ3boss_UNK_072F8:
+SPRTAB_GHZ3boss_facing_left:
 .db $20, $22, $24, $26, $28, $FF, $40, $42, $44, $46, $48, $FF, $60, $62, $64, $66  ; 01:72F8
 .db $68, $FF                                                                        ; 01:7308
 
-SPRTAB_GHZ3boss_UNK_0730A:
+SPRTAB_GHZ3boss_facing_right:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 01:730A
 .db $72, $FF                                                                        ; 01:731A
 
