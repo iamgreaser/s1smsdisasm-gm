@@ -20158,7 +20158,7 @@ objfunc_53_end_controller_start:
    set    5, (ix+24)                   ; 02:BDF9 - DD CB 18 EE
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:BDFD - FD 36 03 FF
    bit    1, (ix+24)                   ; 02:BE01 - DD CB 18 4E
-   jr     nz, addr_0BE26               ; 02:BE05 - 20 1F
+   jr     nz, @already_initialised     ; 02:BE05 - 20 1F
    ld     hl, PAL2_boss                ; 02:BE07 - 21 1C 73
    ld     a, $02                       ; 02:BE0A - 3E 02
    call   signal_load_palettes         ; 02:BE0C - CD 33 03
@@ -20170,15 +20170,15 @@ objfunc_53_end_controller_start:
    set    6, (iy+iy_07_lvflag02-IYBASE)  ; 02:BE1E - FD CB 07 F6
    set    1, (ix+24)                   ; 02:BE22 - DD CB 18 CE
 
-addr_0BE26:
+@already_initialised:
    ld     a, (g_global_tick_counter)   ; 02:BE26 - 3A 23 D2
    rrca                                ; 02:BE29 - 0F
-   jr     c, addr_0BE5C                ; 02:BE2A - 38 30
+   jr     c, @skip_sonic_spawn_in      ; 02:BE2A - 38 30
    ld     a, (ix+18)                   ; 02:BE2C - DD 7E 12
    and    a                            ; 02:BE2F - A7
-   jr     z, addr_0BE5C                ; 02:BE30 - 28 2A
+   jr     z, @skip_sonic_spawn_in      ; 02:BE30 - 28 2A
    dec    (ix+18)                      ; 02:BE32 - DD 35 12
-   jr     nz, addr_0BE5C               ; 02:BE35 - 20 25
+   jr     nz, @skip_sonic_spawn_in     ; 02:BE35 - 20 25
    ld     l, (ix+2)                    ; 02:BE37 - DD 6E 02
    ld     h, (ix+3)                    ; 02:BE3A - DD 66 03
    ld     de, $003C                    ; 02:BE3D - 11 3C 00
@@ -20195,7 +20195,7 @@ addr_0BE26:
    ld     a, $06                       ; 02:BE59 - 3E 06
    rst    $28                          ; 02:BE5B - EF
 
-addr_0BE5C:
+@skip_sonic_spawn_in:
    ld     (ix+13), $20                 ; 02:BE5C - DD 36 0D 20
    ld     (ix+14), $1C                 ; 02:BE60 - DD 36 0E 1C
    xor    a                            ; 02:BE64 - AF
@@ -20206,7 +20206,7 @@ addr_0BE5C:
    ld     (ix+11), a                   ; 02:BE72 - DD 77 0B
    ld     (ix+12), a                   ; 02:BE75 - DD 77 0C
    bit    6, (iy+iy_07_lvflag02-IYBASE)  ; 02:BE78 - FD CB 07 76
-   jr     z, addr_0BE96                ; 02:BE7C - 28 18
+   jr     z, @skip_level_x_scroll      ; 02:BE7C - 28 18
    ld     de, (g_level_scroll_x_pix_lo)  ; 02:BE7E - ED 5B 5A D2
    ld     hl, $0040                    ; 02:BE82 - 21 40 00
    add    hl, de                       ; 02:BE85 - 19
@@ -20214,19 +20214,19 @@ addr_0BE5C:
    ld     b, (ix+3)                    ; 02:BE89 - DD 46 03
    and    a                            ; 02:BE8C - A7
    sbc    hl, bc                       ; 02:BE8D - ED 42
-   jr     nc, addr_0BE96               ; 02:BE8F - 30 05
+   jr     nc, @skip_level_x_scroll     ; 02:BE8F - 30 05
    inc    de                           ; 02:BE91 - 13
    ld     (g_level_scroll_x_pix_lo), de  ; 02:BE92 - ED 53 5A D2
 
-addr_0BE96:
-   ld     (ix+15), SPRTAB_end_controller_start_UNK_0BF21&$FF  ; 02:BE96 - DD 36 0F 21
-   ld     (ix+16), SPRTAB_end_controller_start_UNK_0BF21>>8  ; 02:BE9A - DD 36 10 BF
+@skip_level_x_scroll:
+   ld     (ix+15), SPRTAB_end_controller_start_flying&$FF  ; 02:BE96 - DD 36 0F 21
+   ld     (ix+16), SPRTAB_end_controller_start_flying>>8  ; 02:BE9A - DD 36 10 BF
    bit    0, (ix+24)                   ; 02:BE9E - DD CB 18 46
-   jr     nz, addr_0BED7               ; 02:BEA2 - 20 33
+   jr     nz, @did_not_get_hit_by_sonic  ; 02:BEA2 - 20 33
    ld     hl, $1008                    ; 02:BEA4 - 21 08 10
    ld     (tmp_06), hl                 ; 02:BEA7 - 22 14 D2
    call   check_collision_with_sonic   ; 02:BEAA - CD 56 39
-   jr     c, addr_0BED7                ; 02:BEAD - 38 28
+   jr     c, @did_not_get_hit_by_sonic  ; 02:BEAD - 38 28
    ld     de, $0001                    ; 02:BEAF - 11 01 00
    ld     hl, (sonic_vel_y_sub)        ; 02:BEB2 - 2A 06 D4
    ld     a, l                         ; 02:BEB5 - 7D
@@ -20247,7 +20247,7 @@ addr_0BE96:
    ld     a, $01                       ; 02:BED4 - 3E 01
    rst    $28                          ; 02:BED6 - EF
 
-addr_0BED7:
+@did_not_get_hit_by_sonic:
    call   boss_render_jet_engine_flame  ; 02:BED7 - CD FA 79
    bit    0, (ix+24)                   ; 02:BEDA - DD CB 18 46
    ret    z                            ; 02:BEDE - C8
@@ -20255,8 +20255,8 @@ addr_0BED7:
    ld     (ix+10), $40                 ; 02:BEE0 - DD 36 0A 40
    ld     (ix+11), a                   ; 02:BEE4 - DD 77 0B
    ld     (ix+12), a                   ; 02:BEE7 - DD 77 0C
-   ld     (ix+15), SPRTAB_end_controller_start_UNK_0BF33&$FF  ; 02:BEEA - DD 36 0F 33
-   ld     (ix+16), SPRTAB_end_controller_start_UNK_0BF33>>8  ; 02:BEEE - DD 36 10 BF
+   ld     (ix+15), SPRTAB_end_controller_start_exploding&$FF  ; 02:BEEA - DD 36 0F 33
+   ld     (ix+16), SPRTAB_end_controller_start_exploding>>8  ; 02:BEEE - DD 36 10 BF
    dec    (ix+17)                      ; 02:BEF2 - DD 35 11
    ret    nz                           ; 02:BEF5 - C0
    call   spawn_explosion              ; 02:BEF6 - CD 3A 7A
@@ -20267,11 +20267,11 @@ addr_0BED7:
    ret    c                            ; 02:BF05 - D8
    ld     a, (g_chaos_emeralds_collected)  ; 02:BF06 - 3A 7F D2
    cp     $06                          ; 02:BF09 - FE 06
-   jr     c, addr_0BF12                ; 02:BF0B - 38 05
+   jr     c, @no_good_ending_for_you   ; 02:BF0B - 38 05
    set    7, (iy+iy_08_lvflag03-IYBASE)  ; 02:BF0D - FD CB 08 FE
    ret                                 ; 02:BF11 - C9
 
-addr_0BF12:
+@no_good_ending_for_you:
    ld     a, (g_signpost_tickdown_counter)  ; 02:BF12 - 3A 89 D2
    and    a                            ; 02:BF15 - A7
    ret    nz                           ; 02:BF16 - C0
@@ -20280,11 +20280,11 @@ addr_0BF12:
    set    2, (iy+iy_0D-IYBASE)         ; 02:BF1C - FD CB 0D D6
    ret                                 ; 02:BF20 - C9
 
-SPRTAB_end_controller_start_UNK_0BF21:
+SPRTAB_end_controller_start_flying:
 .db $2A, $2C, $2E, $30, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 02:BF21
 .db $72, $FF                                                                        ; 02:BF31
 
-SPRTAB_end_controller_start_UNK_0BF33:
+SPRTAB_end_controller_start_exploding:
 .db $2A, $34, $36, $38, $32, $FF, $4A, $4C, $4E, $50, $52, $FF, $6A, $6C, $6E, $70  ; 02:BF33
 .db $72, $FF, $5C, $5E, $FF, $FF, $FF, $FF, $FF                                     ; 02:BF43
 
@@ -20293,7 +20293,7 @@ objfunc_54_end_controller_good_ending_chaos_emeralds:
    ld     hl, $5400                    ; 02:BF50 - 21 00 54
    call   write_partial_monitor_art    ; 02:BF53 - CD 1D 0C
    bit    0, (ix+24)                   ; 02:BF56 - DD CB 18 46
-   jr     nz, addr_0BF7E               ; 02:BF5A - 20 22
+   jr     nz, @already_initialised     ; 02:BF5A - 20 22
    xor    a                            ; 02:BF5C - AF
    ld     (ix+15), a                   ; 02:BF5D - DD 77 0F
    ld     (ix+16), a                   ; 02:BF60 - DD 77 10
@@ -20308,23 +20308,23 @@ objfunc_54_end_controller_good_ending_chaos_emeralds:
    ld     (ix+17), $64                 ; 02:BF79 - DD 36 11 64
    ret                                 ; 02:BF7D - C9
 
-addr_0BF7E:
+@already_initialised:
    ld     a, (ix+17)                   ; 02:BF7E - DD 7E 11
    and    a                            ; 02:BF81 - A7
-   jr     z, addr_0BF89                ; 02:BF82 - 28 05
+   jr     z, @fly_up                   ; 02:BF82 - 28 05
    dec    (ix+17)                      ; 02:BF84 - DD 35 11
-   jr     addr_0BF95                   ; 02:BF87 - 18 0C
+   jr     @skip_flying_up              ; 02:BF87 - 18 0C
 
-addr_0BF89:
+@fly_up:
    ld     (ix+10), $80                 ; 02:BF89 - DD 36 0A 80
    ld     (ix+11), $FF                 ; 02:BF8D - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:BF91 - DD 36 0C FF
 
-addr_0BF95:
+@skip_flying_up:
    ld     hl, SPRTAB_end_chaos_emerald  ; 02:BF95 - 21 F1 BF
    ld     a, (g_global_tick_counter)   ; 02:BF98 - 3A 23 D2
    rrca                                ; 02:BF9B - 0F
-   jr     nc, addr_0BFD5               ; 02:BF9C - 30 37
+   jr     nc, @skip_sprite_draw_on_odd_tick  ; 02:BF9C - 30 37
    ld     a, (iy+g_sprite_count-IYBASE)  ; 02:BF9E - FD 7E 0A
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 02:BFA1 - 2A 3C D2
    push   af                           ; 02:BFA4 - F5
@@ -20349,7 +20349,7 @@ addr_0BF95:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 02:BFCF - 22 3C D2
    ld     (iy+g_sprite_count-IYBASE), a  ; 02:BFD2 - FD 77 0A
 
-addr_0BFD5:
+@skip_sprite_draw_on_odd_tick:
    ld     l, (ix+5)                    ; 02:BFD5 - DD 6E 05
    ld     h, (ix+6)                    ; 02:BFD8 - DD 66 06
    ld     de, $0020                    ; 02:BFDB - 11 20 00
