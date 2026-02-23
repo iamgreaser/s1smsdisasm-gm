@@ -272,7 +272,7 @@ sonic_flags_ix_24 db   ; D414
 object_list_past_sonic db   ; D416
 .  dsb 2029
 var_DC04 db   ; DC04
-var_DC05 db   ; DC05
+snd_sfx_channel_idx db   ; DC05
 var_DC06 db   ; DC06
 var_DC07 db   ; DC07
 var_DC08 db   ; DC08
@@ -284,48 +284,108 @@ var_DC0D db   ; DC0D
 var_DC0E dw   ; DC0E
 var_DC10 dw   ; DC10
 var_DC12 dw   ; DC12
-var_DC14 dw   ; DC14
-var_DC16 dw   ; DC16
-var_DC18 dw   ; DC18
-var_DC1A dw   ; DC1A
-var_DC1C dw   ; DC1C
-var_DC1E dw   ; DC1E
-var_DC20 dw   ; DC20
-var_DC22 dw   ; DC22
-var_DC24 dw   ; DC24
-var_DC26 db   ; DC26 (auto)
-.  dsb 4
+snd_achn_00_ptr dw   ; DC14
+snd_achn_01_ptr dw   ; DC16
+snd_achn_02_ptr dw   ; DC18
+snd_achn_03_ptr dw   ; DC1A
+snd_stream_00_read_ptr dw   ; DC1C
+snd_stream_01_read_ptr dw   ; DC1E
+snd_stream_02_read_ptr dw   ; DC20
+snd_stream_03_read_ptr dw   ; DC22
+snd_stream_04_read_ptr dw   ; DC24
+snd_s00_ix00_psgmask_vol db   ; DC26
+snd_s00_ix01_psgmask_period db   ; DC27
+var_DC28 db   ; DC28 (auto)
+.  dsb 2
 var_DC2B db   ; DC2B
-.  dsb 34
-var_DC4E db   ; DC4E
+.  dsb 2
+var_DC2E db   ; DC2E (auto)
+.  dsb 11
+var_DC3A db   ; DC3A (auto)
+var_DC3B db   ; DC3B (auto)
+.  dsb 1
+var_DC3D db   ; DC3D (auto)
+.  dsb 4
+var_DC42 db   ; DC42 (auto)
+.  dsb 3
+var_DC46 db   ; DC46 (auto)
+.  dsb 1
+var_DC48 db   ; DC48 (auto)
+.  dsb 5
+snd_s00_ix40_flags db   ; DC4E
 var_DC4F dw   ; DC4F
-.  dsb 1
+var_DC51 db   ; DC51 (auto)
 var_DC52 db   ; DC52
-var_DC53 db   ; DC53 (auto)
-.  dsb 4
+snd_s01_ix00_psgmask_vol db   ; DC53
+snd_s01_ix01_psgmask_period db   ; DC54
+var_DC55 db   ; DC55 (auto)
+.  dsb 2
 var_DC58 db   ; DC58
-.  dsb 34
-var_DC7B db   ; DC7B
+.  dsb 2
+var_DC5B db   ; DC5B (auto)
+.  dsb 11
+var_DC67 db   ; DC67 (auto)
+var_DC68 db   ; DC68 (auto)
+.  dsb 1
+var_DC6A db   ; DC6A (auto)
+.  dsb 4
+var_DC6F db   ; DC6F (auto)
+.  dsb 3
+var_DC73 db   ; DC73 (auto)
+.  dsb 1
+var_DC75 db   ; DC75 (auto)
+.  dsb 5
+snd_s01_ix40_flags db   ; DC7B
 var_DC7C dw   ; DC7C
-.  dsb 1
+var_DC7E db   ; DC7E (auto)
 var_DC7F db   ; DC7F
-var_DC80 db   ; DC80 (auto)
-.  dsb 4
+snd_s02_ix00_psgmask_vol db   ; DC80
+snd_s02_ix01_psgmask_period db   ; DC81
+var_DC82 db   ; DC82 (auto)
+.  dsb 2
 var_DC85 db   ; DC85
-.  dsb 34
-var_DCA8 db   ; DCA8
-var_DCA9 dw   ; DCA9
+.  dsb 2
+var_DC88 db   ; DC88 (auto)
+.  dsb 11
+var_DC94 db   ; DC94 (auto)
+var_DC95 db   ; DC95 (auto)
 .  dsb 1
-var_DCAC db   ; DCAC
-var_DCAD db   ; DCAD (auto)
+var_DC97 db   ; DC97 (auto)
 .  dsb 4
-var_DCB2 db   ; DCB2
-.  dsb 34
-var_DCD5 db   ; DCD5
-var_DCD6 dw   ; DCD6
+var_DC9C db   ; DC9C (auto)
+.  dsb 3
+var_DCA0 db   ; DCA0 (auto)
 .  dsb 1
+var_DCA2 db   ; DCA2 (auto)
+.  dsb 5
+snd_s02_ix40_flags db   ; DCA8
+var_DCA9 dw   ; DCA9
+var_DCAB db   ; DCAB (auto)
+var_DCAC db   ; DCAC
+snd_s03_ix00_psgmask_vol db   ; DCAD
+snd_s03_ix01_psgmask_period db   ; DCAE
+var_DCAF db   ; DCAF (auto)
+.  dsb 2
+var_DCB2 db   ; DCB2
+.  dsb 2
+var_DCB5 db   ; DCB5 (auto)
+.  dsb 11
+var_DCC1 db   ; DCC1 (auto)
+var_DCC2 db   ; DCC2 (auto)
+.  dsb 1
+var_DCC4 db   ; DCC4 (auto)
+.  dsb 4
+var_DCC9 db   ; DCC9 (auto)
+.  dsb 3
+var_DCCD db   ; DCCD (auto)
+.  dsb 1
+var_DCCF db   ; DCCF (auto)
+.  dsb 5
+snd_s03_ix40_flags db   ; DCD5
+var_DCD6 dw   ; DCD6
+var_DCD8 db   ; DCD8 (auto)
 var_DCD9 db   ; DCD9
-var_DCDA db   ; DCDA
+snd_s04_ix00_base db   ; DCDA
 var_DCDB db   ; DCDB
 var_DCDC dw   ; DCDC
 .  dsb 4
@@ -339,10 +399,14 @@ var_DCFA dw   ; DCFA
 var_DCFC dw   ; DCFC
 .  dsb 2
 var_DD00 dw   ; DD00
-var_DD02 db   ; DD02
+snd_s04_ix40_flags db   ; DD02
 var_DD03 dw   ; DD03
 var_DD05 db   ; DD05
-.  dsb 5
+.  dsb 1
+var_DD07 db   ; DD07 (auto)
+var_DD08 db   ; DD08 (auto)
+var_DD09 db   ; DD09 (auto)
+var_DD0A db   ; DD0A (auto)
 var_DD0B db   ; DD0B (auto)
 .ENDS
 
@@ -20373,13 +20437,13 @@ BANK02_JUNK_END_BFF8:
 .SECTION "Bank03" SLOT 1 BANK $03 FORCE ORG $0000
 
 snddrv_update:
-   jp     addr_03_423A                 ; 03:4000 - C3 3A 42
+   jp     snddrv_update_unvectored     ; 03:4000 - C3 3A 42
 
-snddrv_UNK_4003:
-   jp     addr_03_4018                 ; 03:4003 - C3 18 40
+snddrv_play_music_from_ptr_UNUSED_VECTOR:
+   jp     snddrv_play_music_from_ptr_unvectored  ; 03:4003 - C3 18 40
 
 snddrv_stop:
-   jp     addr_03_412D                 ; 03:4006 - C3 2D 41
+   jp     snddrv_stop_unvectored       ; 03:4006 - C3 2D 41
 
 snddrv_UNK_4009:
    jp     addr_03_41E5                 ; 03:4009 - C3 E5 41
@@ -20391,12 +20455,12 @@ snddrv_UNK_400F:
    jp     addr_03_4171                 ; 03:400F - C3 71 41
 
 snddrv_play_music:
-   jp     addr_03_46EB                 ; 03:4012 - C3 EB 46
+   jp     snddrv_play_music_unvectored  ; 03:4012 - C3 EB 46
 
 snddrv_play_sound:
    jp     addr_03_46FF                 ; 03:4015 - C3 FF 46
 
-addr_03_4018:
+snddrv_play_music_from_ptr_unvectored:
    push   af                           ; 03:4018 - F5
    push   bc                           ; 03:4019 - C5
    push   de                           ; 03:401A - D5
@@ -20404,10 +20468,10 @@ addr_03_4018:
    push   ix                           ; 03:401C - DD E5
    ld     c, l                         ; 03:401E - 4D
    ld     b, h                         ; 03:401F - 44
-   ld     ix, var_DC1C                 ; 03:4020 - DD 21 1C DC
+   ld     ix, snd_stream_00_read_ptr   ; 03:4020 - DD 21 1C DC
    ld     a, $05                       ; 03:4024 - 3E 05
 
-addr_03_4026:
+@each_channel_ptr:
    ld     e, (hl)                      ; 03:4026 - 5E
    inc    hl                           ; 03:4027 - 23
    ld     d, (hl)                      ; 03:4028 - 56
@@ -20420,36 +20484,36 @@ addr_03_4026:
    inc    ix                           ; 03:4034 - DD 23
    ex     de, hl                       ; 03:4036 - EB
    dec    a                            ; 03:4037 - 3D
-   jp     nz, addr_03_4026             ; 03:4038 - C2 26 40
-   ld     hl, UNK_03_4070              ; 03:403B - 21 70 40
+   jp     nz, @each_channel_ptr        ; 03:4038 - C2 26 40
+   ld     hl, LUT_snddrv_init_words    ; 03:403B - 21 70 40
 
-addr_03_403E:
+@each_initial_word:
    ld     e, (hl)                      ; 03:403E - 5E
    inc    hl                           ; 03:403F - 23
    ld     d, (hl)                      ; 03:4040 - 56
    ld     a, d                         ; 03:4041 - 7A
    inc    a                            ; 03:4042 - 3C
-   jr     z, addr_03_404D              ; 03:4043 - 28 08
+   jr     z, @loaded_initial_words     ; 03:4043 - 28 08
    inc    hl                           ; 03:4045 - 23
    ldi                                 ; 03:4046 - ED A0
    ldi                                 ; 03:4048 - ED A0
-   jp     addr_03_403E                 ; 03:404A - C3 3E 40
+   jp     @each_initial_word           ; 03:404A - C3 3E 40
 
-addr_03_404D:
-   ld     hl, UNK_03_40D6              ; 03:404D - 21 D6 40
+@loaded_initial_words:
+   ld     hl, LUT_snddrv_init_bytes    ; 03:404D - 21 D6 40
 
-addr_03_4050:
+@each_initial_byte:
    ld     e, (hl)                      ; 03:4050 - 5E
    inc    hl                           ; 03:4051 - 23
    ld     d, (hl)                      ; 03:4052 - 56
    ld     a, d                         ; 03:4053 - 7A
    inc    a                            ; 03:4054 - 3C
-   jr     z, addr_03_405D              ; 03:4055 - 28 06
+   jr     z, @loaded_initial_bytes     ; 03:4055 - 28 06
    inc    hl                           ; 03:4057 - 23
    ldi                                 ; 03:4058 - ED A0
-   jp     addr_03_4050                 ; 03:405A - C3 50 40
+   jp     @each_initial_byte           ; 03:405A - C3 50 40
 
-addr_03_405D:
+@loaded_initial_bytes:
    pop    ix                           ; 03:405D - DD E1
    pop    hl                           ; 03:405F - E1
    pop    de                           ; 03:4060 - D1
@@ -20461,45 +20525,141 @@ addr_03_405D:
    ld     (var_DCD6), hl               ; 03:406C - 22 D6 DC
    ret                                 ; 03:406F - C9
 
-UNK_03_4070:
-.db $48, $DC, $00, $00, $75, $DC, $00, $00, $A2, $DC, $00, $00, $CF, $DC, $00, $00  ; 03:4070
-.db $46, $DC, $07, $DD, $73, $DC, $08, $DD, $A0, $DC, $09, $DD, $CD, $DC, $0A, $DD  ; 03:4080
-.db $28, $DC, $01, $00, $55, $DC, $01, $00, $82, $DC, $01, $00, $AF, $DC, $01, $00  ; 03:4090
-.db $3D, $DC, $00, $00, $42, $DC, $00, $00, $6A, $DC, $00, $00, $6F, $DC, $00, $00  ; 03:40A0
-.db $97, $DC, $00, $00, $9C, $DC, $00, $00, $C4, $DC, $00, $00, $C9, $DC, $00, $00  ; 03:40B0
-.db $2E, $DC, $00, $00, $5B, $DC, $00, $00, $88, $DC, $00, $00, $B5, $DC, $00, $00  ; 03:40C0
-.db $0A, $DC, $01, $00, $FF, $FF                                                    ; 03:40D0
+LUT_snddrv_init_words:
+.dw var_DC48                                                                        ; 03:4070
 
-UNK_03_40D6:
-.db $26, $DC, $80, $27, $DC, $90, $53, $DC, $A0, $54, $DC, $B0, $80, $DC, $C0, $81  ; 03:40D6
-.db $DC, $D0, $AD, $DC, $E0, $AE, $DC, $F0, $4E, $DC, $02, $7B, $DC, $02, $A8, $DC  ; 03:40E6
-.db $02, $D5, $DC, $02, $02, $DD, $00, $3A, $DC, $00, $67, $DC, $00, $94, $DC, $00  ; 03:40F6
-.db $C1, $DC, $00, $3B, $DC, $00, $68, $DC, $00, $95, $DC, $00, $C2, $DC, $00, $51  ; 03:4106
-.db $DC, $00, $7E, $DC, $01, $AB, $DC, $02, $D8, $DC, $03, $06, $DC, $00, $04, $DC  ; 03:4116
-.db $00, $FF, $FF                                                                   ; 03:4126
+LUT_snddrv_init_words_values:
+.dw $0000                                                                           ; 03:4072
+.dw var_DC75                                                                        ; 03:4074
+.dw $0000                                                                           ; 03:4076
+.dw var_DCA2                                                                        ; 03:4078
+.dw $0000                                                                           ; 03:407A
+.dw var_DCCF                                                                        ; 03:407C
+.dw $0000                                                                           ; 03:407E
+.dw var_DC46                                                                        ; 03:4080
+
+LUT_snddrv_init_words_values_4:
+.dw var_DD07, var_DC73, var_DD08, var_DCA0, var_DD09, var_DCCD, var_DD0A, var_DC28  ; 03:4082
+
+LUT_snddrv_init_words_values_8:
+.dw $0001                                                                           ; 03:4092
+.dw var_DC55                                                                        ; 03:4094
+.dw $0001                                                                           ; 03:4096
+.dw var_DC82                                                                        ; 03:4098
+.dw $0001                                                                           ; 03:409A
+.dw var_DCAF                                                                        ; 03:409C
+.dw $0001                                                                           ; 03:409E
+.dw var_DC3D                                                                        ; 03:40A0
+.dw $0000                                                                           ; 03:40A2
+.dw var_DC42                                                                        ; 03:40A4
+.dw $0000                                                                           ; 03:40A6
+.dw var_DC6A                                                                        ; 03:40A8
+.dw $0000                                                                           ; 03:40AA
+.dw var_DC6F                                                                        ; 03:40AC
+.dw $0000                                                                           ; 03:40AE
+.dw var_DC97                                                                        ; 03:40B0
+.dw $0000                                                                           ; 03:40B2
+.dw var_DC9C                                                                        ; 03:40B4
+.dw $0000                                                                           ; 03:40B6
+.dw var_DCC4                                                                        ; 03:40B8
+.dw $0000                                                                           ; 03:40BA
+.dw var_DCC9                                                                        ; 03:40BC
+.dw $0000                                                                           ; 03:40BE
+.dw var_DC2E                                                                        ; 03:40C0
+.dw $0000                                                                           ; 03:40C2
+.dw var_DC5B                                                                        ; 03:40C4
+.dw $0000                                                                           ; 03:40C6
+.dw var_DC88                                                                        ; 03:40C8
+.dw $0000                                                                           ; 03:40CA
+.dw var_DCB5                                                                        ; 03:40CC
+.dw $0000                                                                           ; 03:40CE
+.dw var_DC0A                                                                        ; 03:40D0
+.dw $0001                                                                           ; 03:40D2
+
+LUT_snddrv_init_words_terminator:
+.dw $FFFF                                                                           ; 03:40D4
+
+LUT_snddrv_init_bytes:
+.dw snd_s00_ix00_psgmask_vol                                                        ; 03:40D6
+.db $80                                                                             ; 03:40D8
+.dw snd_s00_ix01_psgmask_period                                                     ; 03:40D9
+.db $90                                                                             ; 03:40DB
+.dw snd_s01_ix00_psgmask_vol                                                        ; 03:40DC
+.db $A0                                                                             ; 03:40DE
+.dw snd_s01_ix01_psgmask_period                                                     ; 03:40DF
+.db $B0                                                                             ; 03:40E1
+.dw snd_s02_ix00_psgmask_vol                                                        ; 03:40E2
+.db $C0                                                                             ; 03:40E4
+.dw snd_s02_ix01_psgmask_period                                                     ; 03:40E5
+.db $D0                                                                             ; 03:40E7
+.dw snd_s03_ix00_psgmask_vol                                                        ; 03:40E8
+.db $E0                                                                             ; 03:40EA
+.dw snd_s03_ix01_psgmask_period                                                     ; 03:40EB
+.db $F0                                                                             ; 03:40ED
+.dw snd_s00_ix40_flags                                                              ; 03:40EE
+.db $02                                                                             ; 03:40F0
+.dw snd_s01_ix40_flags                                                              ; 03:40F1
+.db $02                                                                             ; 03:40F3
+.dw snd_s02_ix40_flags                                                              ; 03:40F4
+.db $02                                                                             ; 03:40F6
+.dw snd_s03_ix40_flags                                                              ; 03:40F7
+.db $02                                                                             ; 03:40F9
+.dw snd_s04_ix40_flags                                                              ; 03:40FA
+.db $00                                                                             ; 03:40FC
+.dw var_DC3A                                                                        ; 03:40FD
+.db $00                                                                             ; 03:40FF
+.dw var_DC67                                                                        ; 03:4100
+.db $00                                                                             ; 03:4102
+.dw var_DC94                                                                        ; 03:4103
+.db $00                                                                             ; 03:4105
+.dw var_DCC1                                                                        ; 03:4106
+.db $00                                                                             ; 03:4108
+.dw var_DC3B                                                                        ; 03:4109
+.db $00                                                                             ; 03:410B
+.dw var_DC68                                                                        ; 03:410C
+.db $00                                                                             ; 03:410E
+.dw var_DC95                                                                        ; 03:410F
+.db $00                                                                             ; 03:4111
+.dw var_DCC2                                                                        ; 03:4112
+.db $00                                                                             ; 03:4114
+.dw var_DC51                                                                        ; 03:4115
+.db $00                                                                             ; 03:4117
+.dw var_DC7E                                                                        ; 03:4118
+.db $01                                                                             ; 03:411A
+.dw var_DCAB                                                                        ; 03:411B
+.db $02                                                                             ; 03:411D
+.dw var_DCD8                                                                        ; 03:411E
+.db $03                                                                             ; 03:4120
+.dw var_DC06                                                                        ; 03:4121
+.db $00                                                                             ; 03:4123
+.dw var_DC04                                                                        ; 03:4124
+.db $00                                                                             ; 03:4126
+
+LUT_snddrv_init_bytes_terminator:
+.dw $FFFF                                                                           ; 03:4127
 
 psg_silence_outputs_str:
 .db $9F, $BF, $DF, $FF                                                              ; 03:4129
 
-addr_03_412D:
+snddrv_stop_unvectored:
    push   af                           ; 03:412D - F5
    push   hl                           ; 03:412E - E5
    push   bc                           ; 03:412F - C5
-   ld     a, (var_DC4E)                ; 03:4130 - 3A 4E DC
+   ld     a, (snd_s00_ix40_flags)      ; 03:4130 - 3A 4E DC
    and    $FD                          ; 03:4133 - E6 FD
-   ld     (var_DC4E), a                ; 03:4135 - 32 4E DC
-   ld     a, (var_DC7B)                ; 03:4138 - 3A 7B DC
+   ld     (snd_s00_ix40_flags), a      ; 03:4135 - 32 4E DC
+   ld     a, (snd_s01_ix40_flags)      ; 03:4138 - 3A 7B DC
    and    $FD                          ; 03:413B - E6 FD
-   ld     (var_DC7B), a                ; 03:413D - 32 7B DC
-   ld     a, (var_DCA8)                ; 03:4140 - 3A A8 DC
+   ld     (snd_s01_ix40_flags), a      ; 03:413D - 32 7B DC
+   ld     a, (snd_s02_ix40_flags)      ; 03:4140 - 3A A8 DC
    and    $FD                          ; 03:4143 - E6 FD
-   ld     (var_DCA8), a                ; 03:4145 - 32 A8 DC
-   ld     a, (var_DCD5)                ; 03:4148 - 3A D5 DC
+   ld     (snd_s02_ix40_flags), a      ; 03:4145 - 32 A8 DC
+   ld     a, (snd_s03_ix40_flags)      ; 03:4148 - 3A D5 DC
    and    $FD                          ; 03:414B - E6 FD
-   ld     (var_DCD5), a                ; 03:414D - 32 D5 DC
-   ld     a, (var_DD02)                ; 03:4150 - 3A 02 DD
+   ld     (snd_s03_ix40_flags), a      ; 03:414D - 32 D5 DC
+   ld     a, (snd_s04_ix40_flags)      ; 03:4150 - 3A 02 DD
    and    $FD                          ; 03:4153 - E6 FD
-   ld     (var_DD02), a                ; 03:4155 - 32 02 DD
+   ld     (snd_s04_ix40_flags), a      ; 03:4155 - 32 02 DD
    xor    a                            ; 03:4158 - AF
    ld     (var_DC06), a                ; 03:4159 - 32 06 DC
    ld     b, $04                       ; 03:415C - 06 04
@@ -20533,7 +20693,7 @@ addr_03_417E:
    or     $0F                          ; 03:4188 - F6 0F
    out    ($7F), a                     ; 03:418A - D3 7F
    ld     a, (hl)                      ; 03:418C - 7E
-   ld     (var_DC05), a                ; 03:418D - 32 05 DC
+   ld     (snd_sfx_channel_idx), a     ; 03:418D - 32 05 DC
    inc    hl                           ; 03:4190 - 23
    ld     e, (hl)                      ; 03:4191 - 5E
    inc    hl                           ; 03:4192 - 23
@@ -20546,14 +20706,14 @@ addr_03_417E:
    inc    hl                           ; 03:419C - 23
    ld     (var_DC0E), de               ; 03:419D - ED 53 0E DC
    inc    hl                           ; 03:41A1 - 23
-   ld     (var_DC24), hl               ; 03:41A2 - 22 24 DC
+   ld     (snd_stream_04_read_ptr), hl  ; 03:41A2 - 22 24 DC
    ld     hl, UNK_03_41DD              ; 03:41A5 - 21 DD 41
    add    a, a                         ; 03:41A8 - 87
    ld     e, a                         ; 03:41A9 - 5F
    ld     d, $00                       ; 03:41AA - 16 00
    add    hl, de                       ; 03:41AC - 19
    ld     a, (hl)                      ; 03:41AD - 7E
-   ld     (var_DCDA), a                ; 03:41AE - 32 DA DC
+   ld     (snd_s04_ix00_base), a       ; 03:41AE - 32 DA DC
    inc    hl                           ; 03:41B1 - 23
    ld     a, (hl)                      ; 03:41B2 - 7E
    ld     (var_DCDB), a                ; 03:41B3 - 32 DB DC
@@ -20569,7 +20729,7 @@ addr_03_417E:
    ld     hl, var_DD0B                 ; 03:41CE - 21 0B DD
    ld     (var_DCFA), hl               ; 03:41D1 - 22 FA DC
    ld     a, $02                       ; 03:41D4 - 3E 02
-   ld     (var_DD02), a                ; 03:41D6 - 32 02 DD
+   ld     (snd_s04_ix40_flags), a      ; 03:41D6 - 32 02 DD
 
 addr_03_41D9:
    pop    hl                           ; 03:41D9 - E1
@@ -20582,18 +20742,18 @@ UNK_03_41DD:
 
 addr_03_41E5:
    push   af                           ; 03:41E5 - F5
-   ld     a, (var_DC4E)                ; 03:41E6 - 3A 4E DC
+   ld     a, (snd_s00_ix40_flags)      ; 03:41E6 - 3A 4E DC
    or     $02                          ; 03:41E9 - F6 02
-   ld     (var_DC4E), a                ; 03:41EB - 32 4E DC
-   ld     a, (var_DC7B)                ; 03:41EE - 3A 7B DC
+   ld     (snd_s00_ix40_flags), a      ; 03:41EB - 32 4E DC
+   ld     a, (snd_s01_ix40_flags)      ; 03:41EE - 3A 7B DC
    or     $02                          ; 03:41F1 - F6 02
-   ld     (var_DC7B), a                ; 03:41F3 - 32 7B DC
-   ld     a, (var_DCA8)                ; 03:41F6 - 3A A8 DC
+   ld     (snd_s01_ix40_flags), a      ; 03:41F3 - 32 7B DC
+   ld     a, (snd_s02_ix40_flags)      ; 03:41F6 - 3A A8 DC
    or     $02                          ; 03:41F9 - F6 02
-   ld     (var_DCA8), a                ; 03:41FB - 32 A8 DC
-   ld     a, (var_DCD5)                ; 03:41FE - 3A D5 DC
+   ld     (snd_s02_ix40_flags), a      ; 03:41FB - 32 A8 DC
+   ld     a, (snd_s03_ix40_flags)      ; 03:41FE - 3A D5 DC
    or     $02                          ; 03:4201 - F6 02
-   ld     (var_DCD5), a                ; 03:4203 - 32 D5 DC
+   ld     (snd_s03_ix40_flags), a      ; 03:4203 - 32 D5 DC
    ld     a, (var_DC52)                ; 03:4206 - 3A 52 DC
    ld     (var_DC2B), a                ; 03:4209 - 32 2B DC
    ld     a, (var_DC7F)                ; 03:420C - 3A 7F DC
@@ -20620,57 +20780,57 @@ addr_03_4224:
    pop    af                           ; 03:4238 - F1
    ret                                 ; 03:4239 - C9
 
-addr_03_423A:
-   ld     ix, var_DC26                 ; 03:423A - DD 21 26 DC
-   ld     de, (var_DC1C)               ; 03:423E - ED 5B 1C DC
+snddrv_update_unvectored:
+   ld     ix, snd_s00_ix00_psgmask_vol  ; 03:423A - DD 21 26 DC
+   ld     de, (snd_stream_00_read_ptr)  ; 03:423E - ED 5B 1C DC
    ld     bc, (var_DC0A)               ; 03:4242 - ED 4B 0A DC
-   call   addr_03_42F4                 ; 03:4246 - CD F4 42
-   ld     (var_DC14), ix               ; 03:4249 - DD 22 14 DC
-   ld     (var_DC1C), de               ; 03:424D - ED 53 1C DC
-   ld     ix, var_DC53                 ; 03:4251 - DD 21 53 DC
-   ld     de, (var_DC1E)               ; 03:4255 - ED 5B 1E DC
+   call   snddrv_fn_update_stream      ; 03:4246 - CD F4 42
+   ld     (snd_achn_00_ptr), ix        ; 03:4249 - DD 22 14 DC
+   ld     (snd_stream_00_read_ptr), de  ; 03:424D - ED 53 1C DC
+   ld     ix, snd_s01_ix00_psgmask_vol  ; 03:4251 - DD 21 53 DC
+   ld     de, (snd_stream_01_read_ptr)  ; 03:4255 - ED 5B 1E DC
    ld     bc, (var_DC0A)               ; 03:4259 - ED 4B 0A DC
-   call   addr_03_42F4                 ; 03:425D - CD F4 42
-   ld     (var_DC16), ix               ; 03:4260 - DD 22 16 DC
-   ld     (var_DC1E), de               ; 03:4264 - ED 53 1E DC
-   ld     ix, var_DC80                 ; 03:4268 - DD 21 80 DC
-   ld     de, (var_DC20)               ; 03:426C - ED 5B 20 DC
+   call   snddrv_fn_update_stream      ; 03:425D - CD F4 42
+   ld     (snd_achn_01_ptr), ix        ; 03:4260 - DD 22 16 DC
+   ld     (snd_stream_01_read_ptr), de  ; 03:4264 - ED 53 1E DC
+   ld     ix, snd_s02_ix00_psgmask_vol  ; 03:4268 - DD 21 80 DC
+   ld     de, (snd_stream_02_read_ptr)  ; 03:426C - ED 5B 20 DC
    ld     bc, (var_DC0A)               ; 03:4270 - ED 4B 0A DC
-   call   addr_03_42F4                 ; 03:4274 - CD F4 42
-   ld     (var_DC18), ix               ; 03:4277 - DD 22 18 DC
-   ld     (var_DC20), de               ; 03:427B - ED 53 20 DC
-   ld     ix, var_DCAD                 ; 03:427F - DD 21 AD DC
-   ld     de, (var_DC22)               ; 03:4283 - ED 5B 22 DC
+   call   snddrv_fn_update_stream      ; 03:4274 - CD F4 42
+   ld     (snd_achn_02_ptr), ix        ; 03:4277 - DD 22 18 DC
+   ld     (snd_stream_02_read_ptr), de  ; 03:427B - ED 53 20 DC
+   ld     ix, snd_s03_ix00_psgmask_vol  ; 03:427F - DD 21 AD DC
+   ld     de, (snd_stream_03_read_ptr)  ; 03:4283 - ED 5B 22 DC
    ld     bc, (var_DC0A)               ; 03:4287 - ED 4B 0A DC
-   call   addr_03_42F4                 ; 03:428B - CD F4 42
-   ld     (var_DC1A), ix               ; 03:428E - DD 22 1A DC
-   ld     (var_DC22), de               ; 03:4292 - ED 53 22 DC
-   ld     ix, var_DCDA                 ; 03:4296 - DD 21 DA DC
-   ld     de, (var_DC24)               ; 03:429A - ED 5B 24 DC
+   call   snddrv_fn_update_stream      ; 03:428B - CD F4 42
+   ld     (snd_achn_03_ptr), ix        ; 03:428E - DD 22 1A DC
+   ld     (snd_stream_03_read_ptr), de  ; 03:4292 - ED 53 22 DC
+   ld     ix, snd_s04_ix00_base        ; 03:4296 - DD 21 DA DC
+   ld     de, (snd_stream_04_read_ptr)  ; 03:429A - ED 5B 24 DC
    ld     bc, (var_DC0E)               ; 03:429E - ED 4B 0E DC
-   call   addr_03_42F4                 ; 03:42A2 - CD F4 42
-   ld     (var_DC24), de               ; 03:42A5 - ED 53 24 DC
+   call   snddrv_fn_update_stream      ; 03:42A2 - CD F4 42
+   ld     (snd_stream_04_read_ptr), de  ; 03:42A5 - ED 53 24 DC
    bit    1, (ix+40)                   ; 03:42A9 - DD CB 28 4E
    jr     z, addr_03_42BF              ; 03:42AD - 28 10
-   ld     hl, var_DC14                 ; 03:42AF - 21 14 DC
-   ld     a, (var_DC05)                ; 03:42B2 - 3A 05 DC
+   ld     hl, snd_achn_00_ptr          ; 03:42AF - 21 14 DC
+   ld     a, (snd_sfx_channel_idx)     ; 03:42B2 - 3A 05 DC
    add    a, a                         ; 03:42B5 - 87
    ld     c, a                         ; 03:42B6 - 4F
    ld     b, $00                       ; 03:42B7 - 06 00
    add    hl, bc                       ; 03:42B9 - 09
-   ld     (hl), $DA                    ; 03:42BA - 36 DA
+   ld     (hl), snd_s04_ix00_base&$FF  ; 03:42BA - 36 DA
    inc    hl                           ; 03:42BC - 23
-   ld     (hl), $DC                    ; 03:42BD - 36 DC
+   ld     (hl), snd_s04_ix00_base>>8   ; 03:42BD - 36 DC
 
 addr_03_42BF:
-   ld     ix, (var_DC14)               ; 03:42BF - DD 2A 14 DC
-   call   addr_03_43DE                 ; 03:42C3 - CD DE 43
-   ld     ix, (var_DC16)               ; 03:42C6 - DD 2A 16 DC
-   call   addr_03_43DE                 ; 03:42CA - CD DE 43
-   ld     ix, (var_DC18)               ; 03:42CD - DD 2A 18 DC
-   call   addr_03_43DE                 ; 03:42D1 - CD DE 43
-   ld     ix, (var_DC1A)               ; 03:42D4 - DD 2A 1A DC
-   call   addr_03_43DE                 ; 03:42D8 - CD DE 43
+   ld     ix, (snd_achn_00_ptr)        ; 03:42BF - DD 2A 14 DC
+   call   snddrv_fn_update_audio_channel  ; 03:42C3 - CD DE 43
+   ld     ix, (snd_achn_01_ptr)        ; 03:42C6 - DD 2A 16 DC
+   call   snddrv_fn_update_audio_channel  ; 03:42CA - CD DE 43
+   ld     ix, (snd_achn_02_ptr)        ; 03:42CD - DD 2A 18 DC
+   call   snddrv_fn_update_audio_channel  ; 03:42D1 - CD DE 43
+   ld     ix, (snd_achn_03_ptr)        ; 03:42D4 - DD 2A 1A DC
+   call   snddrv_fn_update_audio_channel  ; 03:42D8 - CD DE 43
    ld     a, (var_DC04)                ; 03:42DB - 3A 04 DC
    and    $08                          ; 03:42DE - E6 08
    ret    z                            ; 03:42E0 - C8
@@ -20679,13 +20839,13 @@ addr_03_42BF:
    and    a                            ; 03:42E8 - A7
    sbc    hl, bc                       ; 03:42E9 - ED 42
    jr     nc, addr_03_42F0             ; 03:42EB - 30 03
-   call   addr_03_412D                 ; 03:42ED - CD 2D 41
+   call   snddrv_stop_unvectored       ; 03:42ED - CD 2D 41
 
 addr_03_42F0:
    ld     (var_DC10), hl               ; 03:42F0 - 22 10 DC
    ret                                 ; 03:42F3 - C9
 
-addr_03_42F4:
+snddrv_fn_update_stream:
    bit    1, (ix+40)                   ; 03:42F4 - DD CB 28 4E
    ret    z                            ; 03:42F8 - C8
    ld     l, (ix+2)                    ; 03:42F9 - DD 6E 02
@@ -20694,15 +20854,15 @@ addr_03_42F4:
    sbc    hl, bc                       ; 03:4300 - ED 42
    ld     (ix+2), l                    ; 03:4302 - DD 75 02
    ld     (ix+3), h                    ; 03:4305 - DD 74 03
-   jr     z, addr_03_430D              ; 03:4308 - 28 03
+   jr     z, snddrv_next_stream_cmd    ; 03:4308 - 28 03
    jp     nc, addr_03_43C9             ; 03:430A - D2 C9 43
 
-addr_03_430D:
+snddrv_next_stream_cmd:
    ld     a, (de)                      ; 03:430D - 1A
    and    a                            ; 03:430E - A7
    jp     m, addr_03_44F3              ; 03:430F - FA F3 44
    cp     $70                          ; 03:4312 - FE 70
-   jr     c, addr_03_434B              ; 03:4314 - 38 35
+   jr     c, snddrv_stream_play_note   ; 03:4314 - 38 35
    cp     $7F                          ; 03:4316 - FE 7F
    jr     nz, addr_03_4321             ; 03:4318 - 20 07
    ld     (ix+30), $00                 ; 03:431A - DD 36 1E 00
@@ -20735,7 +20895,7 @@ addr_03_4321:
    pop    de                           ; 03:4347 - D1
    jp     addr_03_436E                 ; 03:4348 - C3 6E 43
 
-addr_03_434B:
+snddrv_stream_play_note:
    and    $0F                          ; 03:434B - E6 0F
    ld     hl, psg_note_periods         ; 03:434D - 21 D5 44
    add    a, a                         ; 03:4350 - 87
@@ -20811,7 +20971,7 @@ addr_03_43C9:
 UNK_03_43CE:
 .db $05, $FF, $BE, $0A, $04, $05, $02, $00, $05, $E6, $24, $5A, $14, $28, $08, $00  ; 03:43CE
 
-addr_03_43DE:
+snddrv_fn_update_audio_channel:
    bit    1, (ix+40)                   ; 03:43DE - DD CB 28 4E
    ret    z                            ; 03:43E2 - C8
    ld     a, (ix+13)                   ; 03:43E3 - DD 7E 0D
@@ -20961,7 +21121,7 @@ addr_03_44F3:
    cp     $FE                          ; 03:44F8 - FE FE
    jp     z, addr_03_4519              ; 03:44FA - CA 19 45
    inc    de                           ; 03:44FD - 13
-   ld     hl, CODEPTRLUT_03_4529       ; 03:44FE - 21 29 45
+   ld     hl, CODEPTRLUT_snddrv_cmd_list  ; 03:44FE - 21 29 45
    add    a, a                         ; 03:4501 - 87
    ld     c, a                         ; 03:4502 - 4F
    ld     b, $00                       ; 03:4503 - 06 00
@@ -20979,7 +21139,7 @@ addr_03_450B:
    or     h                            ; 03:4512 - B4
    jr     z, addr_03_451D              ; 03:4513 - 28 08
    ex     de, hl                       ; 03:4515 - EB
-   jp     addr_03_430D                 ; 03:4516 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:4516 - C3 0D 43
 
 addr_03_4519:
    xor    a                            ; 03:4519 - AF
@@ -20992,9 +21152,9 @@ addr_03_451D:
    out    ($7F), a                     ; 03:4526 - D3 7F
    ret                                 ; 03:4528 - C9
 
-CODEPTRLUT_03_4529:
-.dw addr_03_45AE, addr_03_45D1, addr_03_45F2, addr_03_460A, addr_03_4620, addr_03_462D, addr_03_4632, addr_03_4647  ; 03:4529
-.dw addr_03_467D, addr_03_4686, addr_03_468E, addr_03_4696, addr_03_46B4, addr_03_46D1  ; 03:4539
+CODEPTRLUT_snddrv_cmd_list:
+.dw snddrv_cmd_80, snddrv_cmd_81, snddrv_cmd_82, snddrv_cmd_83, snddrv_cmd_84, snddrv_cmd_85, snddrv_cmd_86, snddrv_cmd_87  ; 03:4529
+.dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B, snddrv_cmd_8C, snddrv_cmd_8D  ; 03:4539
 
 addr_03_4545:
    ld     a, (ix+14)                   ; 03:4545 - DD 7E 0E
@@ -21050,7 +21210,7 @@ addr_03_45A2:
    inc    (ix+13)                      ; 03:45A8 - DD 34 0D
    jp     addr_03_43F6                 ; 03:45AB - C3 F6 43
 
-addr_03_45AE:
+snddrv_cmd_80:
    ld     a, (de)                      ; 03:45AE - 1A
    ld     (ix+38), a                   ; 03:45AF - DD 77 26
    ld     (var_DC08), a                ; 03:45B2 - 32 08 DC
@@ -21067,9 +21227,9 @@ addr_03_45AE:
    ld     (var_DC0B), a                ; 03:45C7 - 32 0B DC
    ld     (var_DC0D), a                ; 03:45CA - 32 0D DC
    inc    de                           ; 03:45CD - 13
-   jp     addr_03_430D                 ; 03:45CE - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:45CE - C3 0D 43
 
-addr_03_45D1:
+snddrv_cmd_81:
    ld     a, (de)                      ; 03:45D1 - 1A
    ld     (ix+44), a                   ; 03:45D2 - DD 77 2C
    inc    de                           ; 03:45D5 - 13
@@ -21078,15 +21238,15 @@ addr_03_45D1:
    jr     z, addr_03_45E5              ; 03:45DB - 28 08
    ld     a, (var_DC04)                ; 03:45DD - 3A 04 DC
    and    $08                          ; 03:45E0 - E6 08
-   jp     nz, addr_03_430D             ; 03:45E2 - C2 0D 43
+   jp     nz, snddrv_next_stream_cmd   ; 03:45E2 - C2 0D 43
 
 addr_03_45E5:
    ld     a, (ix+44)                   ; 03:45E5 - DD 7E 2C
    ld     (ix+5), a                    ; 03:45E8 - DD 77 05
    ld     (ix+4), $00                  ; 03:45EB - DD 36 04 00
-   jp     addr_03_430D                 ; 03:45EF - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:45EF - C3 0D 43
 
-addr_03_45F2:
+snddrv_cmd_82:
    push   ix                           ; 03:45F2 - DD E5
    pop    hl                           ; 03:45F4 - E1
    ld     bc, $000E                    ; 03:45F5 - 01 0E 00
@@ -21099,9 +21259,9 @@ addr_03_45F2:
    ldi                                 ; 03:4602 - ED A0
    ldi                                 ; 03:4604 - ED A0
    ex     de, hl                       ; 03:4606 - EB
-   jp     addr_03_430D                 ; 03:4607 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:4607 - C3 0D 43
 
-addr_03_460A:
+snddrv_cmd_83:
    push   ix                           ; 03:460A - DD E5
    pop    hl                           ; 03:460C - E1
    ld     bc, $0014                    ; 03:460D - 01 14 00
@@ -21113,23 +21273,23 @@ addr_03_460A:
    ldi                                 ; 03:4618 - ED A0
    ldi                                 ; 03:461A - ED A0
    ex     de, hl                       ; 03:461C - EB
-   jp     addr_03_430D                 ; 03:461D - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:461D - C3 0D 43
 
-addr_03_4620:
+snddrv_cmd_84:
    ld     a, (de)                      ; 03:4620 - 1A
    ld     (ix+8), a                    ; 03:4621 - DD 77 08
    inc    de                           ; 03:4624 - 13
    ld     a, (de)                      ; 03:4625 - 1A
    ld     (ix+9), a                    ; 03:4626 - DD 77 09
    inc    de                           ; 03:4629 - 13
-   jp     addr_03_430D                 ; 03:462A - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:462A - C3 0D 43
 
-addr_03_462D:
+snddrv_cmd_85:
    ld     a, (de)                      ; 03:462D - 1A
    inc    de                           ; 03:462E - 13
-   jp     addr_03_430D                 ; 03:462F - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:462F - C3 0D 43
 
-addr_03_4632:
+snddrv_cmd_86:
    ld     l, (ix+32)                   ; 03:4632 - DD 6E 20
    ld     h, (ix+33)                   ; 03:4635 - DD 66 21
    ld     (hl), $00                    ; 03:4638 - 36 00
@@ -21137,9 +21297,9 @@ addr_03_4632:
    add    hl, bc                       ; 03:463D - 09
    ld     (ix+32), l                   ; 03:463E - DD 75 20
    ld     (ix+33), h                   ; 03:4641 - DD 74 21
-   jp     addr_03_430D                 ; 03:4644 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:4644 - C3 0D 43
 
-addr_03_4647:
+snddrv_cmd_87:
    ld     l, (ix+32)                   ; 03:4647 - DD 6E 20
    ld     h, (ix+33)                   ; 03:464A - DD 66 21
    ld     bc, $FFFB                    ; 03:464D - 01 FB FF
@@ -21168,7 +21328,7 @@ addr_03_4660:
    ld     b, (ix+42)                   ; 03:4669 - DD 46 2A
    add    hl, bc                       ; 03:466C - 09
    ex     de, hl                       ; 03:466D - EB
-   jp     addr_03_430D                 ; 03:466E - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:466E - C3 0D 43
 
 addr_03_4671:
    ld     (ix+32), l                   ; 03:4671 - DD 75 20
@@ -21176,26 +21336,26 @@ addr_03_4671:
    inc    de                           ; 03:4677 - 13
    inc    de                           ; 03:4678 - 13
    inc    de                           ; 03:4679 - 13
-   jp     addr_03_430D                 ; 03:467A - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:467A - C3 0D 43
 
-addr_03_467D:
+snddrv_cmd_88:
    ld     (ix+34), e                   ; 03:467D - DD 73 22
    ld     (ix+35), d                   ; 03:4680 - DD 72 23
-   jp     addr_03_430D                 ; 03:4683 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:4683 - C3 0D 43
 
-addr_03_4686:
+snddrv_cmd_89:
    ld     a, (de)                      ; 03:4686 - 1A
    ld     (ix+37), a                   ; 03:4687 - DD 77 25
    inc    de                           ; 03:468A - 13
-   jp     addr_03_430D                 ; 03:468B - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:468B - C3 0D 43
 
-addr_03_468E:
+snddrv_cmd_8A:
    ld     a, (de)                      ; 03:468E - 1A
    ld     (ix+36), a                   ; 03:468F - DD 77 24
    inc    de                           ; 03:4692 - 13
-   jp     addr_03_430D                 ; 03:4693 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:4693 - C3 0D 43
 
-addr_03_4696:
+snddrv_cmd_8B:
    ld     a, (ix+44)                   ; 03:4696 - DD 7E 2C
    inc    a                            ; 03:4699 - 3C
    cp     $10                          ; 03:469A - FE 10
@@ -21206,12 +21366,12 @@ addr_03_46A0:
    ld     (ix+44), a                   ; 03:46A0 - DD 77 2C
    ld     a, (var_DC04)                ; 03:46A3 - 3A 04 DC
    and    $08                          ; 03:46A6 - E6 08
-   jp     nz, addr_03_430D             ; 03:46A8 - C2 0D 43
+   jp     nz, snddrv_next_stream_cmd   ; 03:46A8 - C2 0D 43
    ld     a, (ix+44)                   ; 03:46AB - DD 7E 2C
    ld     (ix+5), a                    ; 03:46AE - DD 77 05
-   jp     addr_03_430D                 ; 03:46B1 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:46B1 - C3 0D 43
 
-addr_03_46B4:
+snddrv_cmd_8C:
    ld     a, (ix+44)                   ; 03:46B4 - DD 7E 2C
    dec    a                            ; 03:46B7 - 3D
    cp     $10                          ; 03:46B8 - FE 10
@@ -21222,14 +21382,14 @@ addr_03_46BD:
    ld     (ix+44), a                   ; 03:46BD - DD 77 2C
    ld     a, (var_DC04)                ; 03:46C0 - 3A 04 DC
    and    $08                          ; 03:46C3 - E6 08
-   jp     nz, addr_03_430D             ; 03:46C5 - C2 0D 43
+   jp     nz, snddrv_next_stream_cmd   ; 03:46C5 - C2 0D 43
    ld     a, (ix+44)                   ; 03:46C8 - DD 7E 2C
    ld     (ix+5), a                    ; 03:46CB - DD 77 05
-   jp     addr_03_430D                 ; 03:46CE - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:46CE - C3 0D 43
 
-addr_03_46D1:
+snddrv_cmd_8D:
    set    0, (ix+40)                   ; 03:46D1 - DD CB 28 C6
-   jp     addr_03_430D                 ; 03:46D5 - C3 0D 43
+   jp     snddrv_next_stream_cmd       ; 03:46D5 - C3 0D 43
 
 addr_03_46D8:
    xor    a                            ; 03:46D8 - AF
@@ -21251,7 +21411,7 @@ addr_03_46E4:
    add    hl, de                       ; 03:46E9 - 19
    ret                                 ; 03:46EA - C9
 
-addr_03_46EB:
+snddrv_play_music_unvectored:
    push   hl                           ; 03:46EB - E5
    ld     hl, song_ptr_table           ; 03:46EC - 21 16 47
    add    a, a                         ; 03:46EF - 87
@@ -21264,7 +21424,7 @@ addr_03_46EB:
    inc    hl                           ; 03:46F7 - 23
    ld     h, (hl)                      ; 03:46F8 - 66
    ld     l, a                         ; 03:46F9 - 6F
-   call   addr_03_4018                 ; 03:46FA - CD 18 40
+   call   snddrv_play_music_from_ptr_unvectored  ; 03:46FA - CD 18 40
    pop    hl                           ; 03:46FD - E1
    ret                                 ; 03:46FE - C9
 
