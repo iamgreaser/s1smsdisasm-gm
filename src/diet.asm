@@ -9941,7 +9941,7 @@ PTRLUT_objinit:
    .dw objinit_2E_falling_bridge_piece  ; 2E
    .dw objinit_unused  ; 2F
    .dw objinit_unused  ; 30
-   .dw objinit_unused  ; 31
+   .dw objinit_31_SKY2_propeller  ; 31
    .dw objinit_unused  ; 32
    .dw objinit_unused  ; 33
    .dw objinit_unused  ; 34
@@ -21242,7 +21242,16 @@ objfunc_30_moving_cloud:
 SPRTAB_moving_cloud:
 .db $40, $42, $44, $46, $FF, $FF, $FF                                               ; 02:AA63
 
+objinit_31_SKY2_propeller:
+   .db 13|((2-1)<<5), $05, $14
+   .db 24|((1-1)<<5), $20
+   .db 2|((2-1)<<5)
+      .dw $000F
+   .db 5|((2-1)<<5)
+      .dw $FFFA
+   .db $FF
 objfunc_31_SKY2_propeller:
+   .IF 0
    set    5, (ix+24)                   ; 02:AA6A - DD CB 18 EE
    ld     (ix+13), $05                 ; 02:AA6E - DD 36 0D 05
    ld     (ix+14), $14                 ; 02:AA72 - DD 36 0E 14
@@ -21263,6 +21272,7 @@ objfunc_31_SKY2_propeller:
    set    0, (ix+24)                   ; 02:AA9C - DD CB 18 C6
 
 @already_initialised:
+   .ENDIF
    ld     l, (ix+2)                    ; 02:AAA0 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AAA3 - DD 66 03
    ld     (tmp_00), hl                 ; 02:AAA6 - 22 0E D2
