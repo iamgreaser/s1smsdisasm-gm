@@ -9926,7 +9926,7 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 1F
    .dw objinit_unused  ; 20
    .dw objinit_unused  ; 21
-   .dw objinit_unused  ; 22
+   .dw objinit_22_SCR_boss  ; 22
    .dw objinit_23_animal_0  ; 23
    .dw objinit_24_animal_1  ; 24
    .dw objinit_25_animal_capsule  ; 25
@@ -20959,9 +20959,15 @@ LUT_caterkiller_x_offsets_going_right:
 .db $00, $02, $03, $04, $05, $05, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06  ; 02:A7D7
 .db $05, $05, $04, $03, $02, $00                                                    ; 02:A7E7
 
+objinit_22_SCR_boss:
+   .db 13|((2-1)<<5), $1E, $2F
+   .db $FF
+
 objfunc_22_SCR_boss:
+   .IF 0
    ld     (ix+13), $1E                 ; 02:A7ED - DD 36 0D 1E
    ld     (ix+14), $2F                 ; 02:A7F1 - DD 36 0E 2F
+   .ENDIF
    bit    0, (ix+24)                   ; 02:A7F5 - DD CB 18 46
    jr     nz, @already_initialised     ; 02:A7F9 - 20 35
    ld     hl, $0340                    ; 02:A7FB - 21 40 03
