@@ -9945,7 +9945,7 @@ PTRLUT_objinit:
    .dw objinit_unused  ; 32
    .dw objinit_unused  ; 33
    .dw objinit_unused  ; 34
-   .dw objinit_unused  ; 35
+   .dw objinit_35_badnik_orbinaut  ; 35
    .dw objinit_unused  ; 36
    .dw objinit_unused  ; 37
    .dw objinit_unused  ; 38
@@ -21673,7 +21673,14 @@ objfunc_34_SKY2_cannon_shell:
 SPRTAB_SKY2_cannon_shell:
 .db $02, $04, $FF, $FF, $FF, $FF, $FF                                               ; 02:AE81
 
+objinit_35_badnik_orbinaut:
+   ; The size varies and it's annoying.
+   ;.db 13|((2-1)<<5), $1C, $1C
+   .db 24|((1-1)<<5), $20
+   .db 18|((3-1)<<5), $2A, $52, $7C
+   .db $FF
 objfunc_35_badnik_orbinaut:
+   .IF 0
    set    5, (ix+24)                   ; 02:AE88 - DD CB 18 EE
    bit    0, (ix+24)                   ; 02:AE8C - DD CB 18 46
    jr     nz, @already_initialised     ; 02:AE90 - 20 14
@@ -21684,6 +21691,7 @@ objfunc_35_badnik_orbinaut:
    set    0, (ix+24)                   ; 02:AEA2 - DD CB 18 C6
 
 @already_initialised:
+   .ENDIF
    ld     l, (ix+2)                    ; 02:AEA6 - DD 6E 02
    ld     h, (ix+3)                    ; 02:AEA9 - DD 66 03
    ld     de, (sonic_x)                ; 02:AEAC - ED 5B FE D3
