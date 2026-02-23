@@ -22088,13 +22088,13 @@ objfunc_38_SKY_platform_right:
    ld     (ix+6), a                    ; 02:B2D0 - DD 77 06
    ld     a, (sonic_vel_y_hi)          ; 02:B2D3 - 3A 08 D4
    and    a                            ; 02:B2D6 - A7
-   jp     m, addr_0B329                ; 02:B2D7 - FA 29 B3
+   jp     m, @skip_put_sonic_on_platform  ; 02:B2D7 - FA 29 B3
    ld     (ix+13), $1E                 ; 02:B2DA - DD 36 0D 1E
    ld     (ix+14), $10                 ; 02:B2DE - DD 36 0E 10
    ld     hl, $0A02                    ; 02:B2E2 - 21 02 0A
    ld     (tmp_06), hl                 ; 02:B2E5 - 22 14 D2
    call   check_collision_with_sonic   ; 02:B2E8 - CD 56 39
-   jr     c, addr_0B329                ; 02:B2EB - 38 3C
+   jr     c, @skip_put_sonic_on_platform  ; 02:B2EB - 38 3C
    ld     hl, $0030                    ; 02:B2ED - 21 30 00
    ld     (var_D26B), hl               ; 02:B2F0 - 22 6B D2
    ld     hl, $0030                    ; 02:B2F3 - 21 30 00
@@ -22116,18 +22116,10 @@ objfunc_38_SKY_platform_right:
    add    hl, de                       ; 02:B320 - 19
    adc    a, $00                       ; 02:B321 - CE 00
    ld     (sonic_x_sub), hl            ; 02:B323 - 22 FD D3
-   ;; FIXME: Label appears mid-op!
-.db $32                                                                             ; 02:B326
-   ;; FIXME: Word table not a multiple of 2!
-.db $FF                                                                             ; 02:B327
+   ld     (sonic_x_hi), a              ; 02:B326 - 32 FF D3
 
 @skip_put_sonic_on_platform:
-   ;; FIXME: Label appears mid-op!
-.db $D3                                                                             ; 02:B328
-
-addr_0B329:
-.dw $6EDD                                                                           ; 02:B329
-   ld     (bc), a                      ; 02:B32B - 02
+   ld     l, (ix+2)                    ; 02:B329 - DD 6E 02
    ld     h, (ix+3)                    ; 02:B32C - DD 66 03
    ld     (tmp_00), hl                 ; 02:B32F - 22 0E D2
    ld     l, (ix+5)                    ; 02:B332 - DD 6E 05
