@@ -361,7 +361,7 @@ object_list_past_sonic db   ; D416
 .  dsb 2029
 var_DC04 db   ; DC04
 snd_sfx_channel_idx db   ; DC05
-var_DC06 db   ; DC06
+snd_sfx_current_priority db   ; DC06
 var_DC07 db   ; DC07
 var_DC08 db   ; DC08
 var_DC09 db   ; DC09
@@ -473,8 +473,8 @@ snd_s03_ix40_flags db   ; DCD5
 var_DCD6 dw   ; DCD6
 var_DCD8 db   ; DCD8 (auto)
 var_DCD9 db   ; DCD9
-snd_s04_ix00_base db   ; DCDA
-var_DCDB db   ; DCDB
+snd_s04_ix00_psgmask_vol db   ; DCDA
+snd_s04_ix01_psgmask_period db   ; DCDB
 var_DCDC dw   ; DCDC
 .  dsb 4
 var_DCE2 dw   ; DCE2
@@ -23547,14 +23547,14 @@ snddrv_UNK_4009:
 snddrv_UNK_400C:
    jp     addr_03_4224                 ; 03:400C - C3 24 42
 
-snddrv_UNK_400F:
-   jp     addr_03_4171                 ; 03:400F - C3 71 41
+snddrv_play_sound_from_ptr_UNUSED_VECTOR:
+   jp     snddrv_play_sound_from_ptr_unvectored  ; 03:400F - C3 71 41
 
 snddrv_play_music:
    jp     snddrv_play_music_unvectored  ; 03:4012 - C3 EB 46
 
 snddrv_play_sound:
-   jp     addr_03_46FF                 ; 03:4015 - C3 FF 46
+   jp     snddrv_play_sound_unvectored  ; 03:4015 - C3 FF 46
 
 snddrv_play_music_from_ptr_unvectored:
    push   af                           ; 03:4018 - F5
@@ -23726,7 +23726,7 @@ LUT_snddrv_init_bytes:
 .db $02                                                                             ; 03:411D
 .dw var_DCD8                                                                        ; 03:411E
 .db $03                                                                             ; 03:4120
-.dw var_DC06                                                                        ; 03:4121
+.dw snd_sfx_current_priority                                                        ; 03:4121
 .db $00                                                                             ; 03:4123
 .dw var_DC04                                                                        ; 03:4124
 .db $00                                                                             ; 03:4126
@@ -23757,7 +23757,7 @@ snddrv_stop_unvectored:
    and    $FD                          ; 03:4153 - E6 FD
    ld     (snd_s04_ix40_flags), a      ; 03:4155 - 32 02 DD
    xor    a                            ; 03:4158 - AF
-   ld     (var_DC06), a                ; 03:4159 - 32 06 DC
+   ld     (snd_sfx_current_priority), a  ; 03:4159 - 32 06 DC
    ld     b, $04                       ; 03:415C - 06 04
    ld     c, $7F                       ; 03:415E - 0E 7F
    ld     hl, psg_silence_outputs_str  ; 03:4160 - 21 29 41
@@ -23770,22 +23770,22 @@ snddrv_stop_unvectored:
    pop    af                           ; 03:416F - F1
    ret                                 ; 03:4170 - C9
 
-addr_03_4171:
+snddrv_play_sound_from_ptr_unvectored:
    push   af                           ; 03:4171 - F5
    push   de                           ; 03:4172 - D5
    push   hl                           ; 03:4173 - E5
    ld     e, a                         ; 03:4174 - 5F
-   ld     a, (var_DC06)                ; 03:4175 - 3A 06 DC
+   ld     a, (snd_sfx_current_priority)  ; 03:4175 - 3A 06 DC
    and    a                            ; 03:4178 - A7
-   jr     z, addr_03_417E              ; 03:4179 - 28 03
+   jr     z, @priority_ok              ; 03:4179 - 28 03
    cp     e                            ; 03:417B - BB
-   jr     c, addr_03_41D9              ; 03:417C - 38 5B
+   jr     c, @priority_lower_than_currently_playing  ; 03:417C - 38 5B
 
-addr_03_417E:
+@priority_ok:
    ld     a, e                         ; 03:417E - 7B
-   ld     (var_DC06), a                ; 03:417F - 32 06 DC
+   ld     (snd_sfx_current_priority), a  ; 03:417F - 32 06 DC
    ld     (var_DD03), hl               ; 03:4182 - 22 03 DD
-   ld     a, (var_DCDB)                ; 03:4185 - 3A DB DC
+   ld     a, (snd_s04_ix01_psgmask_period)  ; 03:4185 - 3A DB DC
    or     $0F                          ; 03:4188 - F6 0F
    out    ($7F), a                     ; 03:418A - D3 7F
    ld     a, (hl)                      ; 03:418C - 7E
@@ -23803,16 +23803,16 @@ addr_03_417E:
    ld     (var_DC0E), de               ; 03:419D - ED 53 0E DC
    inc    hl                           ; 03:41A1 - 23
    ld     (snd_stream_04_read_ptr), hl  ; 03:41A2 - 22 24 DC
-   ld     hl, UNK_03_41DD              ; 03:41A5 - 21 DD 41
+   ld     hl, LUT_snddrv_per_channel_psgmasks  ; 03:41A5 - 21 DD 41
    add    a, a                         ; 03:41A8 - 87
    ld     e, a                         ; 03:41A9 - 5F
    ld     d, $00                       ; 03:41AA - 16 00
    add    hl, de                       ; 03:41AC - 19
    ld     a, (hl)                      ; 03:41AD - 7E
-   ld     (snd_s04_ix00_base), a       ; 03:41AE - 32 DA DC
+   ld     (snd_s04_ix00_psgmask_vol), a  ; 03:41AE - 32 DA DC
    inc    hl                           ; 03:41B1 - 23
    ld     a, (hl)                      ; 03:41B2 - 7E
-   ld     (var_DCDB), a                ; 03:41B3 - 32 DB DC
+   ld     (snd_s04_ix01_psgmask_period), a  ; 03:41B3 - 32 DB DC
    ld     hl, $0000                    ; 03:41B6 - 21 00 00
    ld     (var_DCFC), hl               ; 03:41B9 - 22 FC DC
    ld     (var_DCF1), hl               ; 03:41BC - 22 F1 DC
@@ -23827,13 +23827,13 @@ addr_03_417E:
    ld     a, $02                       ; 03:41D4 - 3E 02
    ld     (snd_s04_ix40_flags), a      ; 03:41D6 - 32 02 DD
 
-addr_03_41D9:
+@priority_lower_than_currently_playing:
    pop    hl                           ; 03:41D9 - E1
    pop    de                           ; 03:41DA - D1
    pop    af                           ; 03:41DB - F1
    ret                                 ; 03:41DC - C9
 
-UNK_03_41DD:
+LUT_snddrv_per_channel_psgmasks:
 .db $80, $90, $A0, $B0, $C0, $D0, $E0, $F0                                          ; 03:41DD
 
 addr_03_41E5:
@@ -23901,24 +23901,24 @@ snddrv_update_unvectored:
    call   snddrv_fn_update_stream      ; 03:428B - CD F4 42
    ld     (snd_achn_03_ptr), ix        ; 03:428E - DD 22 1A DC
    ld     (snd_stream_03_read_ptr), de  ; 03:4292 - ED 53 22 DC
-   ld     ix, snd_s04_ix00_base        ; 03:4296 - DD 21 DA DC
+   ld     ix, snd_s04_ix00_psgmask_vol  ; 03:4296 - DD 21 DA DC
    ld     de, (snd_stream_04_read_ptr)  ; 03:429A - ED 5B 24 DC
    ld     bc, (var_DC0E)               ; 03:429E - ED 4B 0E DC
    call   snddrv_fn_update_stream      ; 03:42A2 - CD F4 42
    ld     (snd_stream_04_read_ptr), de  ; 03:42A5 - ED 53 24 DC
    bit    1, (ix+40)                   ; 03:42A9 - DD CB 28 4E
-   jr     z, addr_03_42BF              ; 03:42AD - 28 10
+   jr     z, @skip_playing_sound_effect  ; 03:42AD - 28 10
    ld     hl, snd_achn_00_ptr          ; 03:42AF - 21 14 DC
    ld     a, (snd_sfx_channel_idx)     ; 03:42B2 - 3A 05 DC
    add    a, a                         ; 03:42B5 - 87
    ld     c, a                         ; 03:42B6 - 4F
    ld     b, $00                       ; 03:42B7 - 06 00
    add    hl, bc                       ; 03:42B9 - 09
-   ld     (hl), snd_s04_ix00_base&$FF  ; 03:42BA - 36 DA
+   ld     (hl), snd_s04_ix00_psgmask_vol&$FF  ; 03:42BA - 36 DA
    inc    hl                           ; 03:42BC - 23
-   ld     (hl), snd_s04_ix00_base>>8   ; 03:42BD - 36 DC
+   ld     (hl), snd_s04_ix00_psgmask_vol>>8  ; 03:42BD - 36 DC
 
-addr_03_42BF:
+@skip_playing_sound_effect:
    ld     ix, (snd_achn_00_ptr)        ; 03:42BF - DD 2A 14 DC
    call   snddrv_fn_update_audio_channel  ; 03:42C3 - CD DE 43
    ld     ix, (snd_achn_01_ptr)        ; 03:42C6 - DD 2A 16 DC
@@ -23934,10 +23934,10 @@ addr_03_42BF:
    ld     bc, (var_DC12)               ; 03:42E4 - ED 4B 12 DC
    and    a                            ; 03:42E8 - A7
    sbc    hl, bc                       ; 03:42E9 - ED 42
-   jr     nc, addr_03_42F0             ; 03:42EB - 30 03
+   jr     nc, @dont_stop_playback      ; 03:42EB - 30 03
    call   snddrv_stop_unvectored       ; 03:42ED - CD 2D 41
 
-addr_03_42F0:
+@dont_stop_playback:
    ld     (var_DC10), hl               ; 03:42F0 - 22 10 DC
    ret                                 ; 03:42F3 - C9
 
@@ -23956,7 +23956,7 @@ snddrv_fn_update_stream:
 snddrv_next_stream_cmd:
    ld     a, (de)                      ; 03:430D - 1A
    and    a                            ; 03:430E - A7
-   jp     m, addr_03_44F3              ; 03:430F - FA F3 44
+   jp     m, snddrv_handle_non_note_cmd  ; 03:430F - FA F3 44
    cp     $70                          ; 03:4312 - FE 70
    jr     c, snddrv_stream_play_note   ; 03:4314 - 38 35
    cp     $7F                          ; 03:4316 - FE 7F
@@ -24211,11 +24211,11 @@ psg_note_periods:
 .dw $0356, $0326, $02F9, $02CE, $02A5, $0280, $025C, $023A                          ; 03:44D5
 .dw $021A, $01FB, $01DF, $01C4, $03F7, $03BE, $0388                                 ; 03:44E5
 
-addr_03_44F3:
+snddrv_handle_non_note_cmd:
    cp     $FF                          ; 03:44F3 - FE FF
-   jp     z, addr_03_450B              ; 03:44F5 - CA 0B 45
+   jp     z, snddrv_cmd_FF             ; 03:44F5 - CA 0B 45
    cp     $FE                          ; 03:44F8 - FE FE
-   jp     z, addr_03_4519              ; 03:44FA - CA 19 45
+   jp     z, snddrv_cmd_FE_stop_sound  ; 03:44FA - CA 19 45
    inc    de                           ; 03:44FD - 13
    ld     hl, CODEPTRLUT_snddrv_cmd_list  ; 03:44FE - 21 29 45
    add    a, a                         ; 03:4501 - 87
@@ -24228,20 +24228,20 @@ addr_03_44F3:
    ld     l, a                         ; 03:4509 - 6F
    jp     (hl)                         ; 03:450A - E9
 
-addr_03_450B:
+snddrv_cmd_FF:
    ld     l, (ix+34)                   ; 03:450B - DD 6E 22
    ld     h, (ix+35)                   ; 03:450E - DD 66 23
    ld     a, l                         ; 03:4511 - 7D
    or     h                            ; 03:4512 - B4
-   jr     z, addr_03_451D              ; 03:4513 - 28 08
+   jr     z, snddrv_stop_music_channel_in_cmd_FF  ; 03:4513 - 28 08
    ex     de, hl                       ; 03:4515 - EB
    jp     snddrv_next_stream_cmd       ; 03:4516 - C3 0D 43
 
-addr_03_4519:
+snddrv_cmd_FE_stop_sound:
    xor    a                            ; 03:4519 - AF
-   ld     (var_DC06), a                ; 03:451A - 32 06 DC
+   ld     (snd_sfx_current_priority), a  ; 03:451A - 32 06 DC
 
-addr_03_451D:
+snddrv_stop_music_channel_in_cmd_FF:
    res    1, (ix+40)                   ; 03:451D - DD CB 28 8E
    ld     a, $0F                       ; 03:4521 - 3E 0F
    or     (ix+1)                       ; 03:4523 - DD B6 01
@@ -24524,10 +24524,10 @@ snddrv_play_music_unvectored:
    pop    hl                           ; 03:46FD - E1
    ret                                 ; 03:46FE - C9
 
-addr_03_46FF:
+snddrv_play_sound_unvectored:
    push   hl                           ; 03:46FF - E5
    push   de                           ; 03:4700 - D5
-   ld     hl, UNK_03_4740              ; 03:4701 - 21 40 47
+   ld     hl, sound_effect_ptr_table   ; 03:4701 - 21 40 47
    add    a, a                         ; 03:4704 - 87
    add    a, a                         ; 03:4705 - 87
    ld     e, a                         ; 03:4706 - 5F
@@ -24539,7 +24539,7 @@ addr_03_46FF:
    inc    hl                           ; 03:470D - 23
    ld     a, (hl)                      ; 03:470E - 7E
    ex     de, hl                       ; 03:470F - EB
-   call   addr_03_4171                 ; 03:4710 - CD 71 41
+   call   snddrv_play_sound_from_ptr_unvectored  ; 03:4710 - CD 71 41
    pop    de                           ; 03:4713 - D1
    pop    hl                           ; 03:4714 - E1
    ret                                 ; 03:4715 - C9
@@ -24549,7 +24549,7 @@ song_ptr_table:
 .dw SONG_invincibility, SONG_level_end, SONG_death, SONG_boss, SONG_boss, SONG_boss, SONG_credits, SONG_GHZ  ; 03:4726
 .dw SONG_special, SONG_GHZ, SONG_GHZ, SONG_good_ending_sfx, SONG_chaos_emerald      ; 03:4736
 
-UNK_03_4740:
+sound_effect_ptr_table:
 .dw addr_03_7B27                                                                    ; 03:4740
 .db $02, $00                                                                        ; 03:4742
 .dw addr_03_7B43                                                                    ; 03:4744
