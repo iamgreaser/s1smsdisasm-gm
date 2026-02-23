@@ -22937,6 +22937,7 @@ objfunc_4A_SKY3_boss:
    ld     hl, $012F                    ; 02:B9F7 - 21 2F 01
    ld     (ix+5), l                    ; 02:B9FA - DD 75 05
    ld     (ix+6), h                    ; 02:B9FD - DD 74 06
+   .IF 0
    ld     (ix+17), a                   ; 02:BA00 - DD 77 11
    ld     (ix+24), a                   ; 02:BA03 - DD 77 18
    ld     (ix+7), a                    ; 02:BA06 - DD 77 07
@@ -22945,6 +22946,7 @@ objfunc_4A_SKY3_boss:
    ld     (ix+10), a                   ; 02:BA0F - DD 77 0A
    ld     (ix+11), a                   ; 02:BA12 - DD 77 0B
    ld     (ix+12), a                   ; 02:BA15 - DD 77 0C
+   .ENDIF
    pop    ix                           ; 02:BA18 - DD E1
    ret                                 ; 02:BA1A - C9
 
