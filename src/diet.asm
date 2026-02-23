@@ -22950,7 +22950,7 @@ objfunc_46_SKY3_vertical_zappers:
    ld     hl, $0008                    ; 02:BB88 - 21 08 00
    ld     (var_D26B), hl               ; 02:BB8B - 22 6B D2
    bit    0, (ix+24)                   ; 02:BB8E - DD CB 18 46
-   jr     nz, addr_0BBA7               ; 02:BB92 - 20 13
+   jr     nz, @already_initialised     ; 02:BB92 - 20 13
    ld     hl, ART_0C_EF3F              ; 02:BB94 - 21 3F EF
    ld     de, $2000                    ; 02:BB97 - 11 00 20
    ld     a, $0C                       ; 02:BB9A - 3E 0C
@@ -22958,7 +22958,7 @@ objfunc_46_SKY3_vertical_zappers:
    ld     (ix+18), $01                 ; 02:BB9F - DD 36 12 01
    set    0, (ix+24)                   ; 02:BBA3 - DD CB 18 C6
 
-addr_0BBA7:
+@already_initialised:
    ld     hl, $0390                    ; 02:BBA7 - 21 90 03
    ld     (tmp_00), hl                 ; 02:BBAA - 22 0E D2
    ld     l, (ix+17)                   ; 02:BBAD - DD 6E 11
@@ -22967,33 +22967,33 @@ addr_0BBA7:
    ld     l, h                         ; 02:BBB5 - 6C
    ld     (tmp_06), hl                 ; 02:BBB6 - 22 14 D2
    ld     de, $011A                    ; 02:BBB9 - 11 1A 01
-   ld     hl, UNK_0BCDD                ; 02:BBBC - 21 DD BC
-   call   addr_0BCA5                   ; 02:BBBF - CD A5 BC
+   ld     hl, LUT_SKY3_vertical_zapper_track_ball_sprites  ; 02:BBBC - 21 DD BC
+   call   @fn_draw_sprite_pair         ; 02:BBBF - CD A5 BC
    ld     e, (ix+17)                   ; 02:BBC2 - DD 5E 11
    ld     d, $00                       ; 02:BBC5 - 16 00
    ld     (tmp_04), de                 ; 02:BBC7 - ED 53 12 D2
    ld     de, $01D2                    ; 02:BBCB - 11 D2 01
-   ld     hl, UNK_0BCDD                ; 02:BBCE - 21 DD BC
-   call   addr_0BCA5                   ; 02:BBD1 - CD A5 BC
+   ld     hl, LUT_SKY3_vertical_zapper_track_ball_sprites  ; 02:BBCE - 21 DD BC
+   call   @fn_draw_sprite_pair         ; 02:BBD1 - CD A5 BC
    bit    4, (iy+iy_08_lvflag03-IYBASE)  ; 02:BBD4 - FD CB 08 66
    ret    z                            ; 02:BBD8 - C8
    bit    1, (ix+24)                   ; 02:BBD9 - DD CB 18 4E
-   jr     z, addr_0BC2B                ; 02:BBDD - 28 4C
+   jr     z, @end_vzap_logic           ; 02:BBDD - 28 4C
    ld     a, (g_global_tick_counter)   ; 02:BBDF - 3A 23 D2
    bit    0, a                         ; 02:BBE2 - CB 47
    ret    nz                           ; 02:BBE4 - C0
    and    $02                          ; 02:BBE5 - E6 02
    ld     e, a                         ; 02:BBE7 - 5F
    ld     d, $00                       ; 02:BBE8 - 16 00
-   ld     hl, UNK_0BCC7                ; 02:BBEA - 21 C7 BC
+   ld     hl, LUT_SKY3_vertical_zapper_vzap_sprites  ; 02:BBEA - 21 C7 BC
    add    hl, de                       ; 02:BBED - 19
    ld     b, $0A                       ; 02:BBEE - 06 0A
    ld     de, $0130                    ; 02:BBF0 - 11 30 01
 
-addr_0BBF3:
+@each_vzap_sprite_pair:
    push   bc                           ; 02:BBF3 - C5
    push   de                           ; 02:BBF4 - D5
-   call   addr_0BCA5                   ; 02:BBF5 - CD A5 BC
+   call   @fn_draw_sprite_pair         ; 02:BBF5 - CD A5 BC
    pop    de                           ; 02:BBF8 - D1
    push   hl                           ; 02:BBF9 - E5
    ld     hl, $0010                    ; 02:BBFA - 21 10 00
@@ -23001,7 +23001,7 @@ addr_0BBF3:
    ex     de, hl                       ; 02:BBFE - EB
    pop    hl                           ; 02:BBFF - E1
    pop    bc                           ; 02:BC00 - C1
-   djnz   addr_0BBF3                   ; 02:BC01 - 10 F0
+   djnz   @each_vzap_sprite_pair       ; 02:BC01 - 10 F0
    ld     hl, $0390                    ; 02:BC03 - 21 90 03
    ld     c, (ix+17)                   ; 02:BC06 - DD 4E 11
    ld     b, $00                       ; 02:BC09 - 06 00
@@ -23013,21 +23013,21 @@ addr_0BBF3:
    ld     de, (sonic_x)                ; 02:BC12 - ED 5B FE D3
    and    a                            ; 02:BC16 - A7
    sbc    hl, de                       ; 02:BC17 - ED 52
-   jr     c, addr_0BC2B                ; 02:BC19 - 38 10
+   jr     c, @end_vzap_logic           ; 02:BC19 - 38 10
    ld     hl, $000E                    ; 02:BC1B - 21 0E 00
    add    hl, de                       ; 02:BC1E - 19
    and    a                            ; 02:BC1F - A7
    sbc    hl, bc                       ; 02:BC20 - ED 42
-   jr     c, addr_0BC2B                ; 02:BC22 - 38 07
+   jr     c, @end_vzap_logic           ; 02:BC22 - 38 07
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 02:BC24 - FD CB 05 46
    call   z, damage_sonic              ; 02:BC28 - CC FD 35
 
-addr_0BC2B:
+@end_vzap_logic:
    ld     a, (g_boss_hits_taken)       ; 02:BC2B - 3A EC D2
    cp     $06                          ; 02:BC2E - FE 06
-   jr     nc, addr_0BC65               ; 02:BC30 - 30 33
+   jr     nc, @start_part_2_logic      ; 02:BC30 - 30 33
    bit    1, (ix+24)                   ; 02:BC32 - DD CB 18 4E
-   jr     nz, addr_0BC4E               ; 02:BC36 - 20 16
+   jr     nz, @pt1_do_vzap             ; 02:BC36 - 20 16
    ld     a, (ix+17)                   ; 02:BC38 - DD 7E 11
    inc    a                            ; 02:BC3B - 3C
    ld     (ix+17), a                   ; 02:BC3C - DD 77 11
@@ -23040,40 +23040,40 @@ addr_0BC2B:
    set    1, (ix+24)                   ; 02:BC49 - DD CB 18 CE
    ret                                 ; 02:BC4D - C9
 
-addr_0BC4E:
+@pt1_do_vzap:
    ld     a, (g_global_tick_counter)   ; 02:BC4E - 3A 23 D2
    and    $0F                          ; 02:BC51 - E6 0F
-   jr     nz, addr_0BC58               ; 02:BC53 - 20 03
+   jr     nz, @pt1_already_playing_zap_sound  ; 02:BC53 - 20 03
    ld     a, $13                       ; 02:BC55 - 3E 13
    rst    $28                          ; 02:BC57 - EF
 
-addr_0BC58:
+@pt1_already_playing_zap_sound:
    dec    (ix+17)                      ; 02:BC58 - DD 35 11
    ret    nz                           ; 02:BC5B - C0
    ld     (ix+17), $00                 ; 02:BC5C - DD 36 11 00
    res    1, (ix+24)                   ; 02:BC60 - DD CB 18 8E
    ret                                 ; 02:BC64 - C9
 
-addr_0BC65:
+@start_part_2_logic:
    ld     hl, (sonic_x)                ; 02:BC65 - 2A FE D3
    ld     e, (ix+2)                    ; 02:BC68 - DD 5E 02
    ld     d, (ix+3)                    ; 02:BC6B - DD 56 03
    and    a                            ; 02:BC6E - A7
    sbc    hl, de                       ; 02:BC6F - ED 52
-   jr     nc, addr_0BC7E               ; 02:BC71 - 30 0B
+   jr     nc, @pt2_sonic_is_to_the_right  ; 02:BC71 - 30 0B
    ld     a, (ix+17)                   ; 02:BC73 - DD 7E 11
    and    a                            ; 02:BC76 - A7
-   jr     z, addr_0BC88                ; 02:BC77 - 28 0F
+   jr     z, @pt2_after_maybe_updating_pos  ; 02:BC77 - 28 0F
    dec    (ix+17)                      ; 02:BC79 - DD 35 11
-   jr     addr_0BC88                   ; 02:BC7C - 18 0A
+   jr     @pt2_after_maybe_updating_pos  ; 02:BC7C - 18 0A
 
-addr_0BC7E:
+@pt2_sonic_is_to_the_right:
    ld     a, (ix+17)                   ; 02:BC7E - DD 7E 11
    cp     $80                          ; 02:BC81 - FE 80
-   jr     nc, addr_0BC88               ; 02:BC83 - 30 03
+   jr     nc, @pt2_after_maybe_updating_pos  ; 02:BC83 - 30 03
    inc    (ix+17)                      ; 02:BC85 - DD 34 11
 
-addr_0BC88:
+@pt2_after_maybe_updating_pos:
    res    1, (ix+24)                   ; 02:BC88 - DD CB 18 8E
    ld     a, (g_global_tick_counter)   ; 02:BC8C - 3A 23 D2
    ld     c, a                         ; 02:BC8F - 4F
@@ -23090,7 +23090,7 @@ addr_0BC88:
    rst    $28                          ; 02:BCA3 - EF
    ret                                 ; 02:BCA4 - C9
 
-addr_0BCA5:
+@fn_draw_sprite_pair:
    ld     (tmp_02), de                 ; 02:BCA5 - ED 53 10 D2
    ld     a, (hl)                      ; 02:BCA9 - 7E
    inc    hl                           ; 02:BCAA - 23
@@ -23111,11 +23111,11 @@ addr_0BCA5:
    pop    hl                           ; 02:BCC5 - E1
    ret                                 ; 02:BCC6 - C9
 
-UNK_0BCC7:
+LUT_SKY3_vertical_zapper_vzap_sprites:
 .db $36, $38, $56, $58, $36, $38, $56, $58, $36, $38, $56, $58, $36, $38, $56, $58  ; 02:BCC7
 .db $36, $38, $56, $58, $36, $38                                                    ; 02:BCD7
 
-UNK_0BCDD:
+LUT_SKY3_vertical_zapper_track_ball_sprites:
 .db $40, $42                                                                        ; 02:BCDD
 
 objfunc_47_SKY3_electric_ball:
