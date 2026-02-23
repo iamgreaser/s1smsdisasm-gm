@@ -17870,7 +17870,7 @@ objfunc_22_SCR_boss:
    jr     nz, @finished_running_to_platform  ; 02:A834 - 20 5D
    ld     hl, (g_level_scroll_x_pix_lo)  ; 02:A836 - 2A 5A D2
    ld     (g_level_limit_x0), hl       ; 02:A839 - 22 73 D2
-   ld     de, SPRTAB_robotnik_running  ; 02:A83C - 11 F9 BA
+   ld     de, SPRTAB_robotnik_idling   ; 02:A83C - 11 F9 BA
    ld     bc, LUT_SCR_boss_anim_running  ; 02:A83F - 01 B7 A9
    call   do_framed_animation          ; 02:A842 - CD 41 7C
    ld     l, (ix+2)                    ; 02:A845 - DD 6E 02
@@ -17920,8 +17920,8 @@ objfunc_22_SCR_boss:
    ld     (ix+1), $00                  ; 02:A8A9 - DD 36 01 00
    ld     (ix+2), l                    ; 02:A8AD - DD 75 02
    ld     (ix+3), h                    ; 02:A8B0 - DD 74 03
-   ld     (ix+15), SPRTAB_robotnik_running&$FF  ; 02:A8B3 - DD 36 0F F9
-   ld     (ix+16), SPRTAB_robotnik_running>>8  ; 02:A8B7 - DD 36 10 BA
+   ld     (ix+15), SPRTAB_robotnik_idling&$FF  ; 02:A8B3 - DD 36 0F F9
+   ld     (ix+16), SPRTAB_robotnik_idling>>8  ; 02:A8B7 - DD 36 10 BA
    inc    (ix+17)                      ; 02:A8BB - DD 34 11
    ld     a, (ix+17)                   ; 02:A8BE - DD 7E 11
    cp     $C0                          ; 02:A8C1 - FE C0
@@ -19383,22 +19383,22 @@ objfunc_4A_SKY3_boss:
    ld     a, (ix+21)                   ; 02:B697 - DD 7E 15
    and    a                            ; 02:B69A - A7
    jp     nz, @not_state_00            ; 02:B69B - C2 D4 B6
-   call   @fn_TODO_B99F                ; 02:B69E - CD 9F B9
+   call   @fn_update_main_anim         ; 02:B69E - CD 9F B9
    ld     a, (g_global_tick_counter)   ; 02:B6A1 - 3A 23 D2
    and    $07                          ; 02:B6A4 - E6 07
    jp     nz, @continue_after_state_execution  ; 02:B6A6 - C2 93 B7
    ld     a, (ix+22)                   ; 02:B6A9 - DD 7E 16
    cp     $1C                          ; 02:B6AC - FE 1C
-   jr     nc, @TODO_B6BB               ; 02:B6AE - 30 0B
+   jr     nc, @s00_skip_to_ix23_00     ; 02:B6AE - 30 0B
    inc    (ix+23)                      ; 02:B6B0 - DD 34 17
    ld     a, (ix+23)                   ; 02:B6B3 - DD 7E 17
    cp     $02                          ; 02:B6B6 - FE 02
-   jp     c, @TODO_B6BF                ; 02:B6B8 - DA BF B6
+   jp     c, @s00_skip_setting_ix23_00  ; 02:B6B8 - DA BF B6
 
-@TODO_B6BB:
+@s00_skip_to_ix23_00:
    ld     (ix+23), $00                 ; 02:B6BB - DD 36 17 00
 
-@TODO_B6BF:
+@s00_skip_setting_ix23_00:
    inc    (ix+22)                      ; 02:B6BF - DD 34 16
    ld     a, (ix+22)                   ; 02:B6C2 - DD 7E 16
    cp     $28                          ; 02:B6C5 - FE 28
@@ -19420,8 +19420,8 @@ objfunc_4A_SKY3_boss:
    add    hl, de                       ; 02:B6EF - 19
    ld     (ix+2), l                    ; 02:B6F0 - DD 75 02
    ld     (ix+3), h                    ; 02:B6F3 - DD 74 03
-   ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB1D&$FF  ; 02:B6F6 - DD 36 0F 1D
-   ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB1D>>8  ; 02:B6FA - DD 36 10 BB
+   ld     (ix+15), SPRTAB_SKY3_boss_jumping&$FF  ; 02:B6F6 - DD 36 0F 1D
+   ld     (ix+16), SPRTAB_SKY3_boss_jumping>>8  ; 02:B6FA - DD 36 10 BB
    jp     @continue_after_state_execution  ; 02:B6FE - C3 93 B7
 
 @not_state_01_robotnik_jump_start:
@@ -19444,8 +19444,8 @@ objfunc_4A_SKY3_boss:
    ld     (ix+10), l                   ; 02:B720 - DD 75 0A
    ld     (ix+11), h                   ; 02:B723 - DD 74 0B
    ld     (ix+12), c                   ; 02:B726 - DD 71 0C
-   ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB1D&$FF  ; 02:B729 - DD 36 0F 1D
-   ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB1D>>8  ; 02:B72D - DD 36 10 BB
+   ld     (ix+15), SPRTAB_SKY3_boss_jumping&$FF  ; 02:B729 - DD 36 0F 1D
+   ld     (ix+16), SPRTAB_SKY3_boss_jumping>>8  ; 02:B72D - DD 36 10 BB
    ld     l, (ix+5)                    ; 02:B731 - DD 6E 05
    ld     h, (ix+6)                    ; 02:B734 - DD 66 06
    dec    hl                           ; 02:B737 - 2B
@@ -19476,7 +19476,7 @@ objfunc_4A_SKY3_boss:
    call   z, @fn_spawn_electric_ball_at_fixed_pos  ; 02:B770 - CC D5 B9
    ld     (ix+23), $02                 ; 02:B773 - DD 36 17 02
    set    1, (ix+24)                   ; 02:B777 - DD CB 18 CE
-   call   @fn_TODO_B99F                ; 02:B77B - CD 9F B9
+   call   @fn_update_main_anim         ; 02:B77B - CD 9F B9
    inc    (ix+22)                      ; 02:B77E - DD 34 16
    ld     a, (ix+22)                   ; 02:B781 - DD 7E 16
    cp     $12                          ; 02:B784 - FE 12
@@ -19604,12 +19604,12 @@ objfunc_4A_SKY3_boss:
    ld     hl, $05E0                    ; 02:B870 - 21 E0 05
    xor    a                            ; 02:B873 - AF
    sbc    hl, de                       ; 02:B874 - ED 52
-   jr     nc, @TODO_B87D               ; 02:B876 - 30 05
+   jr     nc, @x_not_at_teleporter     ; 02:B876 - 30 05
    ld     c, a                         ; 02:B878 - 4F
    ld     b, a                         ; 02:B879 - 47
-   jp     @TODO_B899                   ; 02:B87A - C3 99 B8
+   jp     @set_x_vel_and_continue      ; 02:B87A - C3 99 B8
 
-@TODO_B87D:
+@x_not_at_teleporter:
    ex     de, hl                       ; 02:B87D - EB
    ld     de, (sonic_x)                ; 02:B87E - ED 5B FE D3
    xor    a                            ; 02:B882 - AF
@@ -19618,17 +19618,17 @@ objfunc_4A_SKY3_boss:
    xor    a                            ; 02:B888 - AF
    ld     bc, (sonic_vel_x_sub)        ; 02:B889 - ED 4B 03 D4
    bit    7, b                         ; 02:B88D - CB 78
-   jr     nz, @TODO_B895               ; 02:B88F - 20 04
+   jr     nz, @sonic_x_vel_is_negative  ; 02:B88F - 20 04
    sbc    hl, de                       ; 02:B891 - ED 52
-   jr     c, @TODO_B898                ; 02:B893 - 38 03
+   jr     c, @sonic_is_close_to_me     ; 02:B893 - 38 03
 
-@TODO_B895:
+@sonic_x_vel_is_negative:
    ld     bc, $FF80                    ; 02:B895 - 01 80 FF
 
-@TODO_B898:
+@sonic_is_close_to_me:
    inc    b                            ; 02:B898 - 04
 
-@TODO_B899:
+@set_x_vel_and_continue:
    ld     (ix+7), c                    ; 02:B899 - DD 71 07
    ld     (ix+8), b                    ; 02:B89C - DD 70 08
    ld     (ix+9), a                    ; 02:B89F - DD 77 09
@@ -19705,36 +19705,36 @@ objfunc_4A_SKY3_boss:
    ld     (ix+10), l                   ; 02:B948 - DD 75 0A
    ld     (ix+11), h                   ; 02:B94B - DD 74 0B
    ld     (ix+12), c                   ; 02:B94E - DD 71 0C
-   ld     bc, UNK_0BA28                ; 02:B951 - 01 28 BA
-   ld     de, SPRTAB_robotnik_running  ; 02:B954 - 11 F9 BA
+   ld     bc, LUT_robotnik_running_anim  ; 02:B951 - 01 28 BA
+   ld     de, SPRTAB_robotnik_idling   ; 02:B954 - 11 F9 BA
    call   do_framed_animation          ; 02:B957 - CD 41 7C
    ret                                 ; 02:B95A - C9
 
 @suppress_inputs_and_let_robotnik_exit:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:B95B - FD 36 03 FF
-   call   @fn_TODO_B99F                ; 02:B95F - CD 9F B9
+   call   @fn_update_main_anim         ; 02:B95F - CD 9F B9
    ld     a, (ix+22)                   ; 02:B962 - DD 7E 16
    cp     $30                          ; 02:B965 - FE 30
-   jr     nc, @TODO_B98A               ; 02:B967 - 30 21
+   jr     nc, @teleported_waiting_to_despawn  ; 02:B967 - 30 21
    ld     c, a                         ; 02:B969 - 4F
    ld     a, (g_global_tick_counter)   ; 02:B96A - 3A 23 D2
    and    $07                          ; 02:B96D - E6 07
-   jr     nz, @TODO_B97D               ; 02:B96F - 20 0C
+   jr     nz, @ticks_not_divisible_by_8  ; 02:B96F - 20 0C
    ld     a, (ix+23)                   ; 02:B971 - DD 7E 17
    inc    a                            ; 02:B974 - 3C
    and    $01                          ; 02:B975 - E6 01
    ld     (ix+23), a                   ; 02:B977 - DD 77 17
    inc    (ix+22)                      ; 02:B97A - DD 34 16
 
-@TODO_B97D:
+@ticks_not_divisible_by_8:
    ld     a, c                         ; 02:B97D - 79
    cp     $2C                          ; 02:B97E - FE 2C
    ret    c                            ; 02:B980 - D8
-   ld     (ix+15), SPRTAB_SKY3_boss_UNK_0BB77&$FF  ; 02:B981 - DD 36 0F 77
-   ld     (ix+16), SPRTAB_SKY3_boss_UNK_0BB77>>8  ; 02:B985 - DD 36 10 BB
+   ld     (ix+15), SPRTAB_SKY3_boss_teleporting&$FF  ; 02:B981 - DD 36 0F 77
+   ld     (ix+16), SPRTAB_SKY3_boss_teleporting>>8  ; 02:B985 - DD 36 10 BB
    ret                                 ; 02:B989 - C9
 
-@TODO_B98A:
+@teleported_waiting_to_despawn:
    xor    a                            ; 02:B98A - AF
    ld     (ix+15), a                   ; 02:B98B - DD 77 0F
    ld     (ix+16), a                   ; 02:B98E - DD 77 10
@@ -19745,8 +19745,8 @@ objfunc_4A_SKY3_boss:
    ld     (ix+0), $FF                  ; 02:B99A - DD 36 00 FF
    ret                                 ; 02:B99E - C9
 
-@fn_TODO_B99F:
-   ld     hl, UNK_0BA1C                ; 02:B99F - 21 1C BA
+@fn_update_main_anim:
+   ld     hl, LUT_robotnik_main_anim   ; 02:B99F - 21 1C BA
    ld     a, (ix+23)                   ; 02:B9A2 - DD 7E 17
    add    a, a                         ; 02:B9A5 - 87
    add    a, a                         ; 02:B9A6 - 87
@@ -19808,17 +19808,17 @@ objfunc_4A_SKY3_boss:
 UNUSED_0BA1B:
    ret                                 ; 02:BA1B - C9
 
-UNK_0BA1C:
+LUT_robotnik_main_anim:
 .db $00, $00                                                                        ; 02:BA1C
 
-UNK_0BA1C_PTR:
-.dw SPRTAB_robotnik_running                                                         ; 02:BA1E
+LUT_robotnik_main_anim_PTR:
+.dw SPRTAB_robotnik_idling                                                          ; 02:BA1E
 .db $00, $02                                                                        ; 02:BA20
-.dw SPRTAB_robotnik_running_02                                                      ; 02:BA22
+.dw SPRTAB_robotnik_idling_02                                                       ; 02:BA22
 .db $00, $07                                                                        ; 02:BA24
-.dw SPRTAB_robotnik_running_02                                                      ; 02:BA26
+.dw SPRTAB_robotnik_idling_02                                                       ; 02:BA26
 
-UNK_0BA28:
+LUT_robotnik_running_anim:
 .db $03, $08, $04, $07, $05, $08, $04, $07, $FF                                     ; 02:BA28
 
 SKY3_boss_spritespec_button_up:
@@ -19841,15 +19841,15 @@ LUT_SKY3_boss_glass_crack_tile_anim:
 .dw $105C, $105D, $103C, $1000, $0440, $01A0, $105E, $105F                          ; 02:BAE5
 .dw $1000, $102D                                                                    ; 02:BAF5
 
-SPRTAB_robotnik_running:
+SPRTAB_robotnik_idling:
 .db $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $4A, $4C, $4E  ; 02:BAF9
 .db $FF, $FF                                                                        ; 02:BB09
 
-SPRTAB_robotnik_running_02:
+SPRTAB_robotnik_idling_02:
 .db $FE, $0A, $0C, $0E, $FF, $FF, $28, $2A, $2C, $2E, $FF, $FF, $FE, $02, $04, $06  ; 02:BB0B
 .db $FF, $FF                                                                        ; 02:BB1B
 
-SPRTAB_SKY3_boss_UNK_0BB1D:
+SPRTAB_SKY3_boss_jumping:
 .db $10, $12, $14, $16, $FF, $FF, $30, $32, $34, $FE, $FF, $FF, $50, $52, $54, $FE  ; 02:BB1D
 .db $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E, $FF, $FF, $FE, $64  ; 02:BB2D
 .db $66, $68, $FF, $FF, $18, $1A, $1C, $1E, $FF, $FF, $FE, $3A, $3C, $3E, $FF, $FF  ; 02:BB3D
@@ -19857,7 +19857,7 @@ SPRTAB_SKY3_boss_UNK_0BB1D:
 .db $FF, $FF, $70, $72, $5A, $5C, $5E, $FF, $00, $0A, $0C, $0E, $FF, $FF, $28, $2A  ; 02:BB5D
 .db $2C, $2E, $FF, $FF, $00, $4A, $4C, $4E, $FF, $FF                                ; 02:BB6D
 
-SPRTAB_SKY3_boss_UNK_0BB77:
+SPRTAB_SKY3_boss_teleporting:
 .db $FE, $FF, $FF, $FF, $FF, $FF, $FE, $44, $46, $FF, $FF, $FF, $FF                 ; 02:BB77
 
 objfunc_46_SKY3_vertical_zappers:
