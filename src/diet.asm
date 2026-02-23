@@ -22426,9 +22426,9 @@ objfunc_4A_SKY3_boss:
    ld     (ix+14), $2F                 ; 02:B638 - DD 36 0E 2F
    set    5, (ix+24)                   ; 02:B63C - DD CB 18 EE
    bit    2, (ix+24)                   ; 02:B640 - DD CB 18 56
-   jp     nz, @TODO_B821               ; 02:B644 - C2 21 B8
+   jp     nz, @start_robotnik_running_away  ; 02:B644 - C2 21 B8
    call   move_locked_camera_towards_target  ; 02:B647 - CD A6 7C
-   call   @TODO_B7E6                   ; 02:B64A - CD E6 B7
+   call   @fn_update_damage            ; 02:B64A - CD E6 B7
    bit    0, (ix+24)                   ; 02:B64D - DD CB 18 46
    jr     nz, @already_initialised     ; 02:B651 - 20 44
    ld     hl, $0350                    ; 02:B653 - 21 50 03
@@ -22565,12 +22565,12 @@ objfunc_4A_SKY3_boss:
    ld     (ix+22), a                   ; 02:B790 - DD 77 16
 
 @continue_after_state_execution:
-   ld     hl, UNK_0BA31                ; 02:B793 - 21 31 BA
+   ld     hl, SKY3_boss_spritespec_button_up  ; 02:B793 - 21 31 BA
    bit    1, (ix+24)                   ; 02:B796 - DD CB 18 4E
-   jr     z, @TODO_B79F                ; 02:B79A - 28 03
-   ld     hl, UNK_0BA3B                ; 02:B79C - 21 3B BA
+   jr     z, @big_button_not_currently_pressed  ; 02:B79A - 28 03
+   ld     hl, SKY3_boss_spritespec_button_pressed  ; 02:B79C - 21 3B BA
 
-@TODO_B79F:
+@big_button_not_currently_pressed:
    ld     de, tmp_00                   ; 02:B79F - 11 0E D2
    ldi                                 ; 02:B7A2 - ED A0
    ldi                                 ; 02:B7A4 - ED A0
@@ -22606,7 +22606,7 @@ objfunc_4A_SKY3_boss:
    rst    $28                          ; 02:B7E4 - EF
    ret                                 ; 02:B7E5 - C9
 
-@TODO_B7E6:
+@fn_update_damage:
    ld     a, (g_pal_flash_countdown_timer)  ; 02:B7E6 - 3A B1 D2
    and    a                            ; 02:B7E9 - A7
    ret    nz                           ; 02:B7EA - C0
@@ -22614,11 +22614,11 @@ objfunc_4A_SKY3_boss:
    ret    nz                           ; 02:B7EF - C0
    ld     a, (sonic_flags_ix_24)       ; 02:B7F0 - 3A 14 D4
    rrca                                ; 02:B7F3 - 0F
-   jr     c, @TODO_B7F9                ; 02:B7F4 - 38 03
+   jr     c, @sonic_is_rolling_to_damage_us  ; 02:B7F4 - 38 03
    and    $02                          ; 02:B7F6 - E6 02
    ret    z                            ; 02:B7F8 - C8
 
-@TODO_B7F9:
+@sonic_is_rolling_to_damage_us:
    ld     hl, (sonic_x)                ; 02:B7F9 - 2A FE D3
    ld     de, $0410                    ; 02:B7FC - 11 10 04
    and    a                            ; 02:B7FF - A7
@@ -22640,9 +22640,9 @@ objfunc_4A_SKY3_boss:
    inc    (hl)                         ; 02:B81F - 34
    ret                                 ; 02:B820 - C9
 
-@TODO_B821:
+@start_robotnik_running_away:
    bit    3, (ix+24)                   ; 02:B821 - DD CB 18 5E
-   jp     nz, @TODO_B95B               ; 02:B825 - C2 5B B9
+   jp     nz, @suppress_inputs_and_let_robotnik_exit  ; 02:B825 - C2 5B B9
    res    5, (ix+24)                   ; 02:B828 - DD CB 18 AE
    ld     a, (ix+17)                   ; 02:B82C - DD 7E 11
    cp     $0F                          ; 02:B82F - FE 0F
@@ -22712,17 +22712,17 @@ objfunc_4A_SKY3_boss:
    ld     (ix+9), a                    ; 02:B89F - DD 77 09
    ld     a, (ix+23)                   ; 02:B8A2 - DD 7E 17
    cp     $06                          ; 02:B8A5 - FE 06
-   jr     nz, @TODO_B8C1               ; 02:B8A7 - 20 18
+   jr     nz, @dont_jump_type_1        ; 02:B8A7 - 20 18
    ld     a, (ix+22)                   ; 02:B8A9 - DD 7E 16
    dec    a                            ; 02:B8AC - 3D
-   jr     nz, @TODO_B8C1               ; 02:B8AD - 20 12
+   jr     nz, @dont_jump_type_1        ; 02:B8AD - 20 12
    bit    7, (ix+24)                   ; 02:B8AF - DD CB 18 7E
-   jr     z, @TODO_B8C1                ; 02:B8B3 - 28 0C
+   jr     z, @dont_jump_type_1         ; 02:B8B3 - 28 0C
    ld     (ix+10), $00                 ; 02:B8B5 - DD 36 0A 00
    ld     (ix+11), $FF                 ; 02:B8B9 - DD 36 0B FF
    ld     (ix+12), $FF                 ; 02:B8BD - DD 36 0C FF
 
-@TODO_B8C1:
+@dont_jump_type_1:
    ld     de, $0017                    ; 02:B8C1 - 11 17 00
    ld     bc, $0036                    ; 02:B8C4 - 01 36 00
    call   get_obj_level_tile_ptr_in_ram  ; 02:B8C7 - CD F9 36
@@ -22733,22 +22733,22 @@ objfunc_4A_SKY3_boss:
    ld     a, (hl)                      ; 02:B8D1 - 7E
    and    $3F                          ; 02:B8D2 - E6 3F
    and    a                            ; 02:B8D4 - A7
-   jr     z, @TODO_B8E9                ; 02:B8D5 - 28 12
+   jr     z, @dont_jump_type_2         ; 02:B8D5 - 28 12
    bit    7, (ix+24)                   ; 02:B8D7 - DD CB 18 7E
-   jr     z, @TODO_B8E9                ; 02:B8DB - 28 0C
+   jr     z, @dont_jump_type_2         ; 02:B8DB - 28 0C
    ld     (ix+10), $80                 ; 02:B8DD - DD 36 0A 80
    ld     (ix+11), $FD                 ; 02:B8E1 - DD 36 0B FD
    ld     (ix+12), $FF                 ; 02:B8E5 - DD 36 0C FF
 
-@TODO_B8E9:
+@dont_jump_type_2:
    ld     de, $0000                    ; 02:B8E9 - 11 00 00
    ld     bc, $0008                    ; 02:B8EC - 01 08 00
    call   get_obj_level_tile_ptr_in_ram  ; 02:B8EF - CD F9 36
    ld     a, (hl)                      ; 02:B8F2 - 7E
    cp     $49                          ; 02:B8F3 - FE 49
-   jr     nz, @TODO_B92D               ; 02:B8F5 - 20 36
+   jr     nz, @dont_lock_inputs_for_teleport_cutscene  ; 02:B8F5 - 20 36
    bit    7, (ix+24)                   ; 02:B8F7 - DD CB 18 7E
-   jr     z, @TODO_B92D                ; 02:B8FB - 28 30
+   jr     z, @dont_lock_inputs_for_teleport_cutscene  ; 02:B8FB - 28 30
    xor    a                            ; 02:B8FD - AF
    ld     (ix+22), a                   ; 02:B8FE - DD 77 16
    ld     (ix+23), a                   ; 02:B901 - DD 77 17
@@ -22763,9 +22763,9 @@ objfunc_4A_SKY3_boss:
    ld     de, $0120                    ; 02:B920 - 11 20 01
    call   set_locked_camera_target     ; 02:B923 - CD 8C 7C
    set    3, (ix+24)                   ; 02:B926 - DD CB 18 DE
-   jp     @TODO_B95B                   ; 02:B92A - C3 5B B9
+   jp     @suppress_inputs_and_let_robotnik_exit  ; 02:B92A - C3 5B B9
 
-@TODO_B92D:
+@dont_lock_inputs_for_teleport_cutscene:
    ld     l, (ix+10)                   ; 02:B92D - DD 6E 0A
    ld     h, (ix+11)                   ; 02:B930 - DD 66 0B
    ld     a, (ix+12)                   ; 02:B933 - DD 7E 0C
@@ -22773,13 +22773,13 @@ objfunc_4A_SKY3_boss:
    add    hl, de                       ; 02:B939 - 19
    adc    a, $00                       ; 02:B93A - CE 00
    ld     c, a                         ; 02:B93C - 4F
-   jp     m, @TODO_B948                ; 02:B93D - FA 48 B9
+   jp     m, @dont_clamp_y_vel_falling  ; 02:B93D - FA 48 B9
    ld     a, h                         ; 02:B940 - 7C
    cp     $02                          ; 02:B941 - FE 02
-   jr     c, @TODO_B948                ; 02:B943 - 38 03
+   jr     c, @dont_clamp_y_vel_falling  ; 02:B943 - 38 03
    ld     hl, $0200                    ; 02:B945 - 21 00 02
 
-@TODO_B948:
+@dont_clamp_y_vel_falling:
    ld     (ix+10), l                   ; 02:B948 - DD 75 0A
    ld     (ix+11), h                   ; 02:B94B - DD 74 0B
    ld     (ix+12), c                   ; 02:B94E - DD 71 0C
@@ -22788,7 +22788,7 @@ objfunc_4A_SKY3_boss:
    call   do_framed_animation          ; 02:B957 - CD 41 7C
    ret                                 ; 02:B95A - C9
 
-@TODO_B95B:
+@suppress_inputs_and_let_robotnik_exit:
    ld     (iy+g_inputs_player_1-IYBASE), $FF  ; 02:B95B - FD 36 03 FF
    call   @fn_TODO_B99F                ; 02:B95F - CD 9F B9
    ld     a, (ix+22)                   ; 02:B962 - DD 7E 16
@@ -22906,10 +22906,10 @@ UNK_0BA1C_PTR:
 UNK_0BA28:
 .db $03, $08, $04, $07, $05, $08, $04, $07, $FF                                     ; 02:BA28
 
-UNK_0BA31:
+SKY3_boss_spritespec_button_up:
 .db $30, $04, $A0, $01, $00, $00, $00, $00, $20, $22                                ; 02:BA31
 
-UNK_0BA3B:
+SKY3_boss_spritespec_button_pressed:
 .db $30, $04, $A0, $01, $00, $00, $00, $00, $24, $26                                ; 02:BA3B
 
 UNK_0BA45:
