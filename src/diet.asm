@@ -2825,7 +2825,7 @@ unpack_level_layout_into_ram:
    ret                                 ; 00:0A3F - C9
 .ENDIF
 
-addr_00A40:
+fade_screen_to_black:
    ld     a, $01                       ; 00:0A40 - 3E 01
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -2849,7 +2849,7 @@ addr_00A40:
    ld c, $04
    .ENDIF
 
-addr_00A5F:
+@each_fade_step:
    .IF 0
    ;; See above, B is safe now.
    push   bc                           ; 00:0A5F - C5
@@ -2879,19 +2879,19 @@ addr_00A5F:
    ld b, $02
    .ENDIF
 
-addr_00A7D:
+@wait_10_frames:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0A7D - FD 7E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:0A80 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0A84 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0A87 - FD 77 0A
-   djnz   addr_00A7D                   ; 00:0A8A - 10 F1
+   djnz   @wait_10_frames              ; 00:0A8A - 10 F1
    .IF 0
    ;; See above, B is safe now.
    pop    bc                           ; 00:0A8C - C1
-   djnz   addr_00A5F                   ; 00:0A8D - 10 D0
+   djnz   @each_fade_step              ; 00:0A8D - 10 D0
    .ELSE
    dec c
-   jr nz, addr_00A5F
+   jr nz, @each_fade_step
    ; SAVING: 1 byte
    .ENDIF
    ret                                 ; 00:0A8F - C9
@@ -5624,7 +5624,7 @@ addr_01C9F:
    .ENDIF
 
 addr_01CBD:
-   call   addr_00A40                   ; 00:1CBD - CD 40 0A
+   call   fade_screen_to_black         ; 00:1CBD - CD 40 0A
    call   clear_sprite_table           ; 00:1CC0 - CD E2 05
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CC3 - FD CB 05 46
    jr     nz, addr_01CCF               ; 00:1CC7 - 20 06
@@ -6090,7 +6090,7 @@ update_signpost_timer:
    jp     (hl)                         ; 00:1FC3 - E9
 
 @go_to_next_level:
-   call   addr_00A40                   ; 00:1FC4 - CD 40 0A
+   call   fade_screen_to_black         ; 00:1FC4 - CD 40 0A
    pop    hl                           ; 00:1FC7 - E1
    res    5, (iy+iy_00-IYBASE)         ; 00:1FC8 - FD CB 00 AE
    bit    2, (iy+iy_0D-IYBASE)         ; 00:1FCC - FD CB 0D 56
@@ -6196,7 +6196,7 @@ addr_0207E:
    and    a                            ; 00:2088 - A7
    ld     a, $02                       ; 00:2089 - 3E 02
    ret    nz                           ; 00:208B - C0
-   call   addr_00A40                   ; 00:208C - CD 40 0A
+   call   fade_screen_to_black         ; 00:208C - CD 40 0A
    call   clear_sprite_table           ; 00:208F - CD E2 05
    res    5, (iy+iy_00-IYBASE)         ; 00:2092 - FD CB 00 AE
    call   addr_01401                   ; 00:2096 - CD 01 14
@@ -6230,7 +6230,7 @@ addr_020B8:
    .ENDIF
    ld     hl, $0028                    ; 00:20C0 - 21 28 00
    call   snddrv_UNK_400C              ; 00:20C3 - CD 0C 40
-   call   addr_00A40                   ; 00:20C6 - CD 40 0A
+   call   fade_screen_to_black         ; 00:20C6 - CD 40 0A
    xor    a                            ; 00:20C9 - AF
    ret                                 ; 00:20CA - C9
 
@@ -7122,7 +7122,7 @@ addr_02693:
    call   handle_level_score_screen    ; 00:2699 - CD 5E 15
    ld     bc, $00F0                    ; 00:269C - 01 F0 00
    call   addr_02745                   ; 00:269F - CD 45 27
-   call   addr_00A40                   ; 00:26A2 - CD 40 0A
+   call   fade_screen_to_black         ; 00:26A2 - CD 40 0A
    ld     bc, $0078                    ; 00:26A5 - 01 78 00
    call   addr_02745                   ; 00:26A8 - CD 45 27
    ld     hl, ART_0C_1801              ; 00:26AB - 21 01 18
