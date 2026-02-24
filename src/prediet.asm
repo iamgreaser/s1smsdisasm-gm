@@ -119,8 +119,8 @@ var_D267 dw   ; D267
 var_D269 dw   ; D269
 var_D26B dw   ; D26B
 var_D26D dw   ; D26D
-var_D26F dw   ; D26F
-var_D271 dw   ; D271
+g_displayed_level_scroll_x_pix_lo dw   ; D26F
+g_displayed_level_scroll_y_pix_lo dw   ; D271
 g_level_limit_x0 dw   ; D273
 g_level_limit_x1 dw   ; D275
 g_level_limit_y0 dw   ; D277
@@ -1381,54 +1381,54 @@ random_A:
    pop    hl                           ; 00:063C - E1
    ret                                 ; 00:063D - C9
 
-addr_0063E:
+update_active_scroll_pos_and_ptrs:
    ld     bc, (g_vdp_scroll_x)         ; 00:063E - ED 4B 51 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:0642 - 2A 5A D2
-   ld     de, (var_D26F)               ; 00:0645 - ED 5B 6F D2
+   ld     de, (g_displayed_level_scroll_x_pix_lo)  ; 00:0645 - ED 5B 6F D2
    and    a                            ; 00:0649 - A7
    sbc    hl, de                       ; 00:064A - ED 52
-   jr     c, addr_00658                ; 00:064C - 38 0A
+   jr     c, @camera_is_moving_left    ; 00:064C - 38 0A
    ld     a, l                         ; 00:064E - 7D
    add    a, c                         ; 00:064F - 81
    ld     c, a                         ; 00:0650 - 4F
    res    6, (iy+iy_00-IYBASE)         ; 00:0651 - FD CB 00 B6
-   jp     addr_0065F                   ; 00:0655 - C3 5F 06
+   jp     @camera_was_moving_right     ; 00:0655 - C3 5F 06
 
-addr_00658:
+@camera_is_moving_left:
    ld     a, l                         ; 00:0658 - 7D
    add    a, c                         ; 00:0659 - 81
    ld     c, a                         ; 00:065A - 4F
    set    6, (iy+iy_00-IYBASE)         ; 00:065B - FD CB 00 F6
 
-addr_0065F:
+@camera_was_moving_right:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:065F - 2A 5D D2
-   ld     de, (var_D271)               ; 00:0662 - ED 5B 71 D2
+   ld     de, (g_displayed_level_scroll_y_pix_lo)  ; 00:0662 - ED 5B 71 D2
    and    a                            ; 00:0666 - A7
    sbc    hl, de                       ; 00:0667 - ED 52
-   jr     c, addr_0067B                ; 00:0669 - 38 10
+   jr     c, @camera_is_moving_up      ; 00:0669 - 38 10
    ld     a, l                         ; 00:066B - 7D
    add    a, b                         ; 00:066C - 80
    cp     $E0                          ; 00:066D - FE E0
-   jr     c, addr_00673                ; 00:066F - 38 02
+   jr     c, @down_skip_y_scroll_discontinuity  ; 00:066F - 38 02
    add    a, $20                       ; 00:0671 - C6 20
 
-addr_00673:
+@down_skip_y_scroll_discontinuity:
    ld     b, a                         ; 00:0673 - 47
    res    7, (iy+iy_00-IYBASE)         ; 00:0674 - FD CB 00 BE
-   jp     addr_00688                   ; 00:0678 - C3 88 06
+   jp     @camera_was_moving_down      ; 00:0678 - C3 88 06
 
-addr_0067B:
+@camera_is_moving_up:
    ld     a, l                         ; 00:067B - 7D
    add    a, b                         ; 00:067C - 80
    cp     $E0                          ; 00:067D - FE E0
-   jr     c, addr_00683                ; 00:067F - 38 02
+   jr     c, @up_skip_y_scroll_discontinuity  ; 00:067F - 38 02
    sub    $20                          ; 00:0681 - D6 20
 
-addr_00683:
+@up_skip_y_scroll_discontinuity:
    ld     b, a                         ; 00:0683 - 47
    set    7, (iy+iy_00-IYBASE)         ; 00:0684 - FD CB 00 FE
 
-addr_00688:
+@camera_was_moving_down:
    ld     (g_vdp_scroll_x), bc         ; 00:0688 - ED 43 51 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:068C - 2A 5A D2
    sla    l                            ; 00:068F - CB 25
@@ -1448,12 +1448,12 @@ addr_00688:
    ld     b, h                         ; 00:06AB - 44
    ld     (g_level_scroll_tile_x), bc  ; 00:06AC - ED 43 57 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:06B0 - 2A 5A D2
-   ld     (var_D26F), hl               ; 00:06B3 - 22 6F D2
+   ld     (g_displayed_level_scroll_x_pix_lo), hl  ; 00:06B3 - 22 6F D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:06B6 - 2A 5D D2
-   ld     (var_D271), hl               ; 00:06B9 - 22 71 D2
+   ld     (g_displayed_level_scroll_y_pix_lo), hl  ; 00:06B9 - 22 71 D2
    ret                                 ; 00:06BC - C9
 
-addr_006BD:
+load_scroll_tile_list_buffers:
    bit    5, (iy+iy_00-IYBASE)         ; 00:06BD - FD CB 00 6E
    ret    z                            ; 00:06C1 - C8
    di                                  ; 00:06C2 - F3
@@ -1476,14 +1476,14 @@ addr_006BD:
    ld     l, a                         ; 00:06E2 - 6F
    ld     (tmp_02), hl                 ; 00:06E3 - 22 10 D2
    bit    0, (iy+iy_02-IYBASE)         ; 00:06E6 - FD CB 02 46
-   jp     z, addr_00772                ; 00:06EA - CA 72 07
+   jp     z, @skip_vertical_tile_update  ; 00:06EA - CA 72 07
    bit    6, (iy+iy_00-IYBASE)         ; 00:06ED - FD CB 00 76
-   jr     nz, addr_006FA               ; 00:06F1 - 20 07
+   jr     nz, @camera_is_moving_left   ; 00:06F1 - 20 07
    ld     b, $00                       ; 00:06F3 - 06 00
    ld     c, $08                       ; 00:06F5 - 0E 08
-   jp     addr_0070B                   ; 00:06F7 - C3 0B 07
+   jp     @camera_was_moving_right     ; 00:06F7 - C3 0B 07
 
-addr_006FA:
+@camera_is_moving_left:
    ld     a, (g_vdp_scroll_x)          ; 00:06FA - 3A 51 D2
    and    $1F                          ; 00:06FD - E6 1F
    add    a, $08                       ; 00:06FF - C6 08
@@ -1496,14 +1496,14 @@ addr_006FA:
    ld     b, $00                       ; 00:0708 - 06 00
    ld     c, a                         ; 00:070A - 4F
 
-addr_0070B:
+@camera_was_moving_right:
    call   get_screen_tile_ptr_in_ram   ; 00:070B - CD D5 08
    ld     a, (g_vdp_scroll_x)          ; 00:070E - 3A 51 D2
    bit    6, (iy+iy_00-IYBASE)         ; 00:0711 - FD CB 00 76
-   jr     z, addr_00719                ; 00:0715 - 28 02
+   jr     z, @skip_camera_moving_left_offset  ; 00:0715 - 28 02
    add    a, $08                       ; 00:0717 - C6 08
 
-addr_00719:
+@skip_camera_moving_left_offset:
    and    $1F                          ; 00:0719 - E6 1F
    srl    a                            ; 00:071B - CB 3F
    srl    a                            ; 00:071D - CB 3F
@@ -1517,7 +1517,7 @@ addr_00719:
    ld     de, (g_level_width)          ; 00:072D - ED 5B 38 D2
    ld     b, $07                       ; 00:0731 - 06 07
 
-addr_00733:
+@each_vertical_metatile:
    ld     a, (hl)                      ; 00:0733 - 7E
    exx                                 ; 00:0734 - D9
    ld     c, a                         ; 00:0735 - 4F
@@ -1563,22 +1563,22 @@ addr_00733:
    inc    e                            ; 00:076D - 1C
    exx                                 ; 00:076E - D9
    add    hl, de                       ; 00:076F - 19
-   djnz   addr_00733                   ; 00:0770 - 10 C1
+   djnz   @each_vertical_metatile      ; 00:0770 - 10 C1
 
-addr_00772:
+@skip_vertical_tile_update:
    bit    1, (iy+iy_02-IYBASE)         ; 00:0772 - FD CB 02 4E
-   jp     z, addr_007DA                ; 00:0776 - CA DA 07
+   jp     z, @skip_horizontal_tile_update  ; 00:0776 - CA DA 07
    bit    7, (iy+iy_00-IYBASE)         ; 00:0779 - FD CB 00 7E
-   jr     nz, addr_00786               ; 00:077D - 20 07
+   jr     nz, @camera_is_moving_up     ; 00:077D - 20 07
    ld     b, $06                       ; 00:077F - 06 06
    ld     c, $00                       ; 00:0781 - 0E 00
-   jp     addr_00789                   ; 00:0783 - C3 89 07
+   jp     @camera_was_moving_down      ; 00:0783 - C3 89 07
 
-addr_00786:
+@camera_is_moving_up:
    ld     b, $00                       ; 00:0786 - 06 00
    ld     c, b                         ; 00:0788 - 48
 
-addr_00789:
+@camera_was_moving_down:
    call   get_screen_tile_ptr_in_ram   ; 00:0789 - CD D5 08
    ld     a, (g_vdp_scroll_y)          ; 00:078C - 3A 52 D2
    and    $1F                          ; 00:078F - E6 1F
@@ -1592,7 +1592,7 @@ addr_00789:
    exx                                 ; 00:07A0 - D9
    ld     b, $09                       ; 00:07A1 - 06 09
 
-addr_007A3:
+@each_horizontal_metatile:
    ld     a, (hl)                      ; 00:07A3 - 7E
    exx                                 ; 00:07A4 - D9
    ld     c, a                         ; 00:07A5 - 4F
@@ -1632,9 +1632,9 @@ addr_007A3:
    inc    e                            ; 00:07D5 - 1C
    exx                                 ; 00:07D6 - D9
    inc    hl                           ; 00:07D7 - 23
-   djnz   addr_007A3                   ; 00:07D8 - 10 C9
+   djnz   @each_horizontal_metatile    ; 00:07D8 - 10 C9
 
-addr_007DA:
+@skip_horizontal_tile_update:
    ret                                 ; 00:07DA - C9
 
 dispatch_scrolling_tile_updates_IRQ:
@@ -4342,8 +4342,8 @@ addr_01D42:
    ld     (rompage_2), a               ; 00:1D89 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:1D8C - 32 36 D2
    call   addr_02E5A                   ; 00:1D8F - CD 5A 2E
-   call   addr_0063E                   ; 00:1D92 - CD 3E 06
-   call   addr_006BD                   ; 00:1D95 - CD BD 06
+   call   update_active_scroll_pos_and_ptrs  ; 00:1D92 - CD 3E 06
+   call   load_scroll_tile_list_buffers  ; 00:1D95 - CD BD 06
    set    5, (iy+iy_00-IYBASE)         ; 00:1D98 - FD CB 00 EE
    pop    bc                           ; 00:1D9C - C1
    djnz   addr_01D42                   ; 00:1D9D - 10 A3
@@ -4431,8 +4431,8 @@ addr_01E48:
    ld     (rompage_2), a               ; 00:1E5A - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:1E5D - 32 36 D2
    call   addr_02E5A                   ; 00:1E60 - CD 5A 2E
-   call   addr_0063E                   ; 00:1E63 - CD 3E 06
-   call   addr_006BD                   ; 00:1E66 - CD BD 06
+   call   update_active_scroll_pos_and_ptrs  ; 00:1E63 - CD 3E 06
+   call   load_scroll_tile_list_buffers  ; 00:1E66 - CD BD 06
    ld     hl, g_saved_vdp_reg_01       ; 00:1E69 - 21 19 D2
    set    6, (hl)                      ; 00:1E6C - CB F6
    bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1E6E - FD CB 07 5E
@@ -4921,7 +4921,7 @@ addr_021CD:
    and    $1F                          ; 00:21DB - E6 1F
    ld     d, a                         ; 00:21DD - 57
    ld     (g_level_scroll_x_pix_lo), de  ; 00:21DE - ED 53 5A D2
-   ld     (var_D26F), de               ; 00:21E2 - ED 53 6F D2
+   ld     (g_displayed_level_scroll_x_pix_lo), de  ; 00:21E2 - ED 53 6F D2
    inc    hl                           ; 00:21E6 - 23
    ld     a, (hl)                      ; 00:21E7 - 7E
    sub    $03                          ; 00:21E8 - D6 03
@@ -4940,7 +4940,7 @@ addr_021ED:
    and    $1F                          ; 00:21FB - E6 1F
    ld     d, a                         ; 00:21FD - 57
    ld     (g_level_scroll_y_pix_lo), de  ; 00:21FE - ED 53 5D D2
-   ld     (var_D271), de               ; 00:2202 - ED 53 71 D2
+   ld     (g_displayed_level_scroll_y_pix_lo), de  ; 00:2202 - ED 53 71 D2
    pop    hl                           ; 00:2206 - E1
    inc    hl                           ; 00:2207 - 23
    inc    hl                           ; 00:2208 - 23
