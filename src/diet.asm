@@ -2941,7 +2941,7 @@ palette_fade_to_black:
    djnz   palette_fade_to_black        ; 00:0AAB - 10 E3
    ret                                 ; 00:0AAD - C9
 
-addr_00AAE:
+fade_screen_down_to_palette:
    ld     (tmp_06), hl                 ; 00:0AAE - 22 14 D2
    ld     hl, (g_current_displayed_palette_0)  ; 00:0AB1 - 2A 30 D2
    ld     de, g_temporary_palette_buffer  ; 00:0AB4 - 11 BC D3
@@ -2972,22 +2972,22 @@ addr_00AAE:
    .IF !mod_skip_delays
    ld     b, $09                       ; 00:0AE9 - 06 09
 
-addr_00AEB:
+@pre_wait_9_frames:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0AEB - FD 7E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:0AEE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0AF2 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0AF5 - FD 77 0A
-   djnz   addr_00AEB                   ; 00:0AF8 - 10 F1
+   djnz   @pre_wait_9_frames           ; 00:0AF8 - 10 F1
    .ENDIF
    ld     b, $04                       ; 00:0AFA - 06 04
 
-addr_00AFC:
+@each_fade_step:
    push   bc                           ; 00:0AFC - C5
    ld     hl, (tmp_06)                 ; 00:0AFD - 2A 14 D2
    ld     de, g_temporary_palette_buffer  ; 00:0B00 - 11 BC D3
    ld     b, $20                       ; 00:0B03 - 06 20
 
-addr_00B05:
+@each_color:
    ;; FIXME: I need to find out where this code gets called! --GM
 .IF 1
    ;; Original code
@@ -2998,10 +2998,10 @@ addr_00B05:
    ld     a, (de)                      ; 00:0B0A - 1A
    and    $03                          ; 00:0B0B - E6 03
    cp     b                            ; 00:0B0D - B8
-   jr     z, addr_00B11                ; 00:0B0E - 28 01
+   jr     z, @clamp_red                ; 00:0B0E - 28 01
    dec    a                            ; 00:0B10 - 3D
 
-addr_00B11:
+@clamp_red:
    ld     c, a                         ; 00:0B11 - 4F
    ld     a, (hl)                      ; 00:0B12 - 7E
    and    $0C                          ; 00:0B13 - E6 0C
@@ -3009,10 +3009,10 @@ addr_00B11:
    ld     a, (de)                      ; 00:0B16 - 1A
    and    $0C                          ; 00:0B17 - E6 0C
    cp     b                            ; 00:0B19 - B8
-   jr     z, addr_00B1E                ; 00:0B1A - 28 02
+   jr     z, @clamp_green              ; 00:0B1A - 28 02
    sub    $04                          ; 00:0B1C - D6 04
 
-addr_00B1E:
+@clamp_green:
    or     c                            ; 00:0B1E - B1
    ld     c, a                         ; 00:0B1F - 4F
    ld     a, (hl)                      ; 00:0B20 - 7E
@@ -3021,10 +3021,10 @@ addr_00B1E:
    ld     a, (de)                      ; 00:0B24 - 1A
    and    $30                          ; 00:0B25 - E6 30
    cp     b                            ; 00:0B27 - B8
-   jr     z, addr_00B2C                ; 00:0B28 - 28 02
+   jr     z, @clamp_blue               ; 00:0B28 - 28 02
    sub    $10                          ; 00:0B2A - D6 10
 
-addr_00B2C:
+@clamp_blue:
    or     c                            ; 00:0B2C - B1
    ld     (de), a                      ; 00:0B2D - 12
    inc    hl                           ; 00:0B2E - 23
@@ -3051,24 +3051,24 @@ addr_00B2C:
    inc de      ; 0B11 1
    ; 0B31 -> 0B12 - SAVING: 31 bytes
 .ENDIF
-   djnz   addr_00B05                   ; 00:0B31 - 10 D2
+   djnz   @each_color                  ; 00:0B31 - 10 D2
    ld     hl, g_temporary_palette_buffer  ; 00:0B33 - 21 BC D3
    ld     a, $03                       ; 00:0B36 - 3E 03
    call   signal_load_palettes         ; 00:0B38 - CD 33 03
    .IF !mod_skip_delays
    ld     b, $0A                       ; 00:0B3B - 06 0A
 
-addr_00B3D:
+@mid_wait_10_frames:
    .ENDIF
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:0B3D - FD 7E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:0B40 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:0B44 - CD 1C 03
    ld     (iy+g_sprite_count-IYBASE), a  ; 00:0B47 - FD 77 0A
    .IF !mod_skip_delays
-   djnz   addr_00B3D                   ; 00:0B4A - 10 F1
+   djnz   @mid_wait_10_frames          ; 00:0B4A - 10 F1
    .ENDIF
    pop    bc                           ; 00:0B4C - C1
-   djnz   addr_00AFC                   ; 00:0B4D - 10 AD
+   djnz   @each_fade_step              ; 00:0B4D - 10 AD
    ret                                 ; 00:0B4F - C9
 
 palette_fade_in_banks_01_02:
@@ -7114,7 +7114,7 @@ addr_0262E:
    ld     (tmp_00), a                  ; 00:2687 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:268A - CD 01 05
    ld     hl, PAL3_ending_tally        ; 00:268D - 21 28 28
-   call   addr_00AAE                   ; 00:2690 - CD AE 0A
+   call   fade_screen_down_to_palette  ; 00:2690 - CD AE 0A
 
 addr_02693:
    ld     bc, $00F0                    ; 00:2693 - 01 F0 00
