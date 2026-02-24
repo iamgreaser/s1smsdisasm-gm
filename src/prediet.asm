@@ -2344,9 +2344,9 @@ calc_level_offset_HL_and_mask_C:
    ld     b, a                         ; 00:0C16 - 47
    ld     a, c                         ; 00:0C17 - 79
 
-addr_00C18:
+@each_shift_amount:
    rlca                                ; 00:0C18 - 07
-   djnz   addr_00C18                   ; 00:0C19 - 10 FD
+   djnz   @each_shift_amount           ; 00:0C19 - 10 FD
    ld     c, a                         ; 00:0C1B - 4F
    ret                                 ; 00:0C1C - C9
 

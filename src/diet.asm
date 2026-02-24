@@ -3261,9 +3261,9 @@ calc_level_offset_HL_and_mask_C:
    ; SAVING: 1 byte
 
    .IF 0
-addr_00C18:
+@each_shift_amount:
    rlca                                ; 00:0C18 - 07
-   djnz   addr_00C18                   ; 00:0C19 - 10 FD
+   djnz   @each_shift_amount           ; 00:0C19 - 10 FD
    ld     c, a                         ; 00:0C1B - 4F
    .ELSE
    -:
