@@ -1893,7 +1893,7 @@ get_screen_tile_ptr_in_ram:
    add    hl, de                       ; 00:0964 - 19
    ret                                 ; 00:0965 - C9
 
-addr_00966:
+draw_initial_screen_tiles:
    di                                  ; 00:0966 - F3
    ld     a, $04                       ; 00:0967 - 3E 04
    ld     (rompage_1), a               ; 00:0969 - 32 FE FF
@@ -1906,13 +1906,13 @@ addr_00966:
    ld     de, $3800                    ; 00:097D - 11 00 38
    ld     b, $06                       ; 00:0980 - 06 06
 
-addr_00982:
+@each_metatile_y:
    push   bc                           ; 00:0982 - C5
    push   hl                           ; 00:0983 - E5
    push   de                           ; 00:0984 - D5
    ld     b, $08                       ; 00:0985 - 06 08
 
-addr_00987:
+@each_metatile_x:
    push   bc                           ; 00:0987 - C5
    push   hl                           ; 00:0988 - E5
    push   de                           ; 00:0989 - D5
@@ -1949,7 +1949,7 @@ addr_00987:
    ex     de, hl                       ; 00:09B3 - EB
    ld     b, $04                       ; 00:09B4 - 06 04
 
-addr_009B6:
+@each_x_span_within_metatile:
    ld     a, l                         ; 00:09B6 - 7D
    out    ($BF), a                     ; 00:09B7 - D3 BF
    ld     a, h                         ; 00:09B9 - 7C
@@ -1993,7 +1993,7 @@ addr_009B6:
    ld     bc, $0040                    ; 00:09E9 - 01 40 00
    add    hl, bc                       ; 00:09EC - 09
    ld     b, a                         ; 00:09ED - 47
-   djnz   addr_009B6                   ; 00:09EE - 10 C6
+   djnz   @each_x_span_within_metatile  ; 00:09EE - 10 C6
    pop    de                           ; 00:09F0 - D1
    pop    hl                           ; 00:09F1 - E1
    inc    hl                           ; 00:09F2 - 23
@@ -2002,7 +2002,7 @@ addr_009B6:
    add    hl, bc                       ; 00:09F7 - 09
    ex     de, hl                       ; 00:09F8 - EB
    pop    bc                           ; 00:09F9 - C1
-   djnz   addr_00987                   ; 00:09FA - 10 8B
+   djnz   @each_metatile_x             ; 00:09FA - 10 8B
    pop    de                           ; 00:09FC - D1
    pop    hl                           ; 00:09FD - E1
    ld     bc, (g_level_width)          ; 00:09FE - ED 4B 38 D2
@@ -2013,7 +2013,7 @@ addr_009B6:
    ex     de, hl                       ; 00:0A08 - EB
    pop    bc                           ; 00:0A09 - C1
    dec    b                            ; 00:0A0A - 05
-   jp     nz, addr_00982               ; 00:0A0B - C2 82 09
+   jp     nz, @each_metatile_y         ; 00:0A0B - C2 82 09
    ei                                  ; 00:0A0E - FB
    ret                                 ; 00:0A0F - C9
 
@@ -5035,7 +5035,7 @@ addr_0223E:
    call   signal_load_palettes         ; 00:2294 - CD 33 03
    res    0, (iy+iy_00-IYBASE)         ; 00:2297 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:229B - CD 1C 03
-   call   addr_00966                   ; 00:229E - CD 66 09
+   call   draw_initial_screen_tiles    ; 00:229E - CD 66 09
    pop    hl                           ; 00:22A1 - E1
    inc    hl                           ; 00:22A2 - 23
    ld     de, g_palette_cycle_tick_remain  ; 00:22A3 - 11 A4 D2
