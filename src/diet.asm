@@ -3322,7 +3322,7 @@ write_partial_monitor_art:
    ret                                 ; 00:0C51 - C9
 
 .IF !mod_skip_world_map
-addr_00C52:
+run_world_map:
    xor    a                            ; 00:0C52 - AF
    ld     (g_vdp_scroll_x), a          ; 00:0C53 - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:0C56 - 32 52 D2
@@ -3575,7 +3575,7 @@ level_select_move:
    sub $09
    xor c
    bit 7, a
-   jp nz, addr_00C52
+   jp nz, run_world_map
    jp addr_00D3F
 .ENDIF
 
@@ -5610,7 +5610,7 @@ addr_01C9F:
    ld a, $FF
    ld (g_current_music), a
 .ELSE
-   call   addr_00C52                   ; 00:1CB1 - CD 52 0C
+   call   run_world_map                ; 00:1CB1 - CD 52 0C
 .ENDIF
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CB4 - FD CB 05 4E
    jr     z, addr_01CBD                ; 00:1CB8 - 28 03

@@ -2387,7 +2387,7 @@ write_partial_monitor_art:
    ei                                  ; 00:0C50 - FB
    ret                                 ; 00:0C51 - C9
 
-addr_00C52:
+run_world_map:
    xor    a                            ; 00:0C52 - AF
    ld     (g_vdp_scroll_x), a          ; 00:0C53 - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:0C56 - 32 52 D2
@@ -4241,7 +4241,7 @@ addr_01C9F:
    res    0, (iy+iy_02-IYBASE)         ; 00:1CA6 - FD CB 02 86
    res    1, (iy+iy_02-IYBASE)         ; 00:1CAA - FD CB 02 8E
    call   clear_sprite_table           ; 00:1CAE - CD E2 05
-   call   addr_00C52                   ; 00:1CB1 - CD 52 0C
+   call   run_world_map                ; 00:1CB1 - CD 52 0C
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CB4 - FD CB 05 4E
    jr     z, addr_01CBD                ; 00:1CB8 - 28 03
    jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
