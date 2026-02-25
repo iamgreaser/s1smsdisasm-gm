@@ -217,7 +217,7 @@ g_level_lives_collected db   ; D280
 var_D281 db   ; D281
 var_D282 db   ; D282
 var_D283 db   ; D283
-var_D284 db   ; D284
+g_continues db   ; D284
 var_D285 db   ; D285
 var_D286 db   ; D286
 g_level_restart_countdown_timer db   ; D287
@@ -4322,7 +4322,7 @@ SPRTAB_title_screen_sonic_hand_2:
 PAL3_title_screen:
 .INCBIN "src/data/title_screen.pal3"
 
-addr_01401:
+run_game_over_screen:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1401 - 3A 19 D2
    and    $BF                          ; 00:1404 - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:1406 - 32 19 D2
@@ -4354,19 +4354,19 @@ addr_01401:
    ei                                  ; 00:1444 - FB
    ld     b, $78                       ; 00:1445 - 06 78
 
-addr_01447:
+@wait_for_120_frames:
    ld     a, (g_saved_vdp_reg_01)      ; 00:1447 - 3A 19 D2
    or     $40                          ; 00:144A - F6 40
    ld     (g_saved_vdp_reg_01), a      ; 00:144C - 32 19 D2
    res    0, (iy+iy_00-IYBASE)         ; 00:144F - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1453 - CD 1C 03
-   djnz   addr_01447                   ; 00:1456 - 10 EF
-   ld     a, (var_D284)                ; 00:1458 - 3A 84 D2
+   djnz   @wait_for_120_frames         ; 00:1456 - 10 EF
+   ld     a, (g_continues)             ; 00:1458 - 3A 84 D2
    and    a                            ; 00:145B - A7
-   jr     nz, addr_01477               ; 00:145C - 20 19
+   jr     nz, @player_has_continues    ; 00:145C - 20 19
    ld     bc, $00B4                    ; 00:145E - 01 B4 00
 
-addr_01461:
+@wait_for_button_1_2_or_180_frame_timeout:
    push   bc                           ; 00:1461 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:1462 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1466 - CD 1C 03
@@ -4376,25 +4376,25 @@ addr_01461:
    or     c                            ; 00:146C - B1
    ret    z                            ; 00:146D - C8
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:146E - FD CB 03 6E
-   jp     nz, addr_01461               ; 00:1472 - C2 61 14
+   jp     nz, @wait_for_button_1_2_or_180_frame_timeout  ; 00:1472 - C2 61 14
    and    a                            ; 00:1475 - A7
    ret                                 ; 00:1476 - C9
 
-addr_01477:
-   ld     hl, LUT_014DE                ; 00:1477 - 21 DE 14
+@player_has_continues:
+   ld     hl, LUT_continue_icon_16x16text  ; 00:1477 - 21 DE 14
    ld     c, $0B                       ; 00:147A - 0E 0B
-   call   addr_016D9                   ; 00:147C - CD D9 16
-   ld     hl, LUT_014E6                ; 00:147F - 21 E6 14
+   call   draw_repeated_16x16_tile_string  ; 00:147C - CD D9 16
+   ld     hl, sprtext_game_over_continue_row_0  ; 00:147F - 21 E6 14
    call   print_positioned_FF_string   ; 00:1482 - CD AF 05
-   ld     hl, LUT_014F1                ; 00:1485 - 21 F1 14
+   ld     hl, sprtext_game_over_continue_row_1  ; 00:1485 - 21 F1 14
    call   print_positioned_FF_string   ; 00:1488 - CD AF 05
    ld     a, $09                       ; 00:148B - 3E 09
    ld     (tmp_08), a                  ; 00:148D - 32 16 D2
 
-addr_01490:
+@each_continue_countdown_number:
    ld     b, $3C                       ; 00:1490 - 06 3C
 
-addr_01492:
+@wait_for_60_frames_or_button_1_2:
    push   bc                           ; 00:1492 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:1493 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1497 - CD 1C 03
@@ -4411,8 +4411,8 @@ addr_01492:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:14B4 - 22 3C D2
    pop    bc                           ; 00:14B7 - C1
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:14B8 - FD CB 03 6E
-   jr     z, addr_014CC                ; 00:14BC - 28 0E
-   djnz   addr_01492                   ; 00:14BE - 10 D2
+   jr     z, @clear_level_checkpoint_and_continue  ; 00:14BC - 28 0E
+   djnz   @wait_for_60_frames_or_button_1_2  ; 00:14BE - 10 D2
    ld     a, $1A                       ; 00:14C0 - 3E 1A
    rst    $28                          ; 00:14C2 - EF
    ld     hl, tmp_08                   ; 00:14C3 - 21 16 D2
@@ -4420,9 +4420,9 @@ addr_01492:
    and    a                            ; 00:14C7 - A7
    ret    z                            ; 00:14C8 - C8
    dec    (hl)                         ; 00:14C9 - 35
-   jr     addr_01490                   ; 00:14CA - 18 C4
+   jr     @each_continue_countdown_number  ; 00:14CA - 18 C4
 
-addr_014CC:
+@clear_level_checkpoint_and_continue:
    ld     hl, g_level_has_checkpoint_mask  ; 00:14CC - 21 11 D3
    call   calc_level_offset_HL_and_mask_C  ; 00:14CF - CD 02 0C
    ld     a, c                         ; 00:14D2 - 79
@@ -4431,18 +4431,18 @@ addr_014CC:
    ld     a, (hl)                      ; 00:14D5 - 7E
    and    c                            ; 00:14D6 - A1
    ld     (hl), a                      ; 00:14D7 - 77
-   ld     hl, var_D284                 ; 00:14D8 - 21 84 D2
+   ld     hl, g_continues              ; 00:14D8 - 21 84 D2
    dec    (hl)                         ; 00:14DB - 35
    scf                                 ; 00:14DC - 37
    ret                                 ; 00:14DD - C9
 
-LUT_014DE:
+LUT_continue_icon_16x16text:
 .db $0F, $80, $81, $FF, $10, $90, $91, $FF                                          ; 00:14DE
 
-LUT_014E6:
+sprtext_game_over_continue_row_0:
 .db $08, $0C, $67, $68, $69, $6A, $6B, $6C, $6D, $6E, $FF                           ; 00:14E6
 
-LUT_014F1:
+sprtext_game_over_continue_row_1:
 .db $08, $0D, $77, $78, $79, $7A, $7B, $7C, $7D, $7E, $FF                           ; 00:14F1
 
 PAL3_game_over:
@@ -4519,11 +4519,11 @@ handle_level_score_screen:
    xor    a                            ; 00:15AC - AF
    ld     (tmp_00), a                  ; 00:15AD - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:15B0 - CD 01 05
-   ld     hl, LUT_01711                ; 00:15B3 - 21 11 17
+   ld     hl, LUT_chaos_emerald_icon_16x16text  ; 00:15B3 - 21 11 17
    ld     c, $10                       ; 00:15B6 - 0E 10
    ld     a, (g_chaos_emeralds_collected)  ; 00:15B8 - 3A 7F D2
    and    a                            ; 00:15BB - A7
-   call   nz, addr_016D9               ; 00:15BC - C4 D9 16
+   call   nz, draw_repeated_16x16_tile_string  ; 00:15BC - C4 D9 16
    ld     a, (g_level)                 ; 00:15BF - 3A 3E D2
    cp     $1C                          ; 00:15C2 - FE 1C
    jr     nc, _handle_level_score_screen_bonus  ; 00:15C4 - 30 37
@@ -4686,7 +4686,7 @@ _handle_level_score_screen_UNK_01658:
    ret                                 ; 00:16D8 - C9
 .ENDIF  ; IF !mod_skip_score_tally
 
-addr_016D9:
+draw_repeated_16x16_tile_string:
    ld     b, a                         ; 00:16D9 - 47
    push   bc                           ; 00:16DA - C5
    ld     de, g_HUD_FFstr_buf          ; 00:16DB - 11 BE D2
@@ -4723,7 +4723,7 @@ addr_016F6:
    ret                                 ; 00:1710 - C9
 
 .IF !mod_skip_score_tally
-LUT_01711:
+LUT_chaos_emerald_icon_16x16text:
 .db $14, $AD, $AE, $FF, $15, $BD, $BE, $FF                                          ; 00:1711
 
 addr_01719:
@@ -4734,7 +4734,7 @@ addr_01719:
    ret                                 ; 00:1725 - C9
 
 addr_01726:
-   ld     hl, var_D284                 ; 00:1726 - 21 84 D2
+   ld     hl, g_continues              ; 00:1726 - 21 84 D2
    inc    (hl)                         ; 00:1729 - 34
    res    3, (iy+iy_09-IYBASE)         ; 00:172A - FD CB 09 9E
    ret                                 ; 00:172E - C9
@@ -5206,7 +5206,7 @@ addr_01A80:
    ret                                 ; 00:1AAF - C9
 
 addr_01AB0:
-   ld     hl, var_D284                 ; 00:1AB0 - 21 84 D2
+   ld     hl, g_continues              ; 00:1AB0 - 21 84 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1AB3 - 11 BE D2
    ld     b, $01                       ; 00:1AB6 - 06 01
    call   addr_01B13                   ; 00:1AB8 - CD 13 1B
@@ -6195,7 +6195,7 @@ addr_0207E:
    call   fade_screen_to_black         ; 00:208C - CD 40 0A
    call   clear_sprite_table           ; 00:208F - CD E2 05
    res    5, (iy+iy_00-IYBASE)         ; 00:2092 - FD CB 00 AE
-   call   addr_01401                   ; 00:2096 - CD 01 14
+   call   run_game_over_screen         ; 00:2096 - CD 01 14
    ld     a, $00                       ; 00:2099 - 3E 00
    ret    nc                           ; 00:209B - D0
    ld     a, $03                       ; 00:209C - 3E 03
