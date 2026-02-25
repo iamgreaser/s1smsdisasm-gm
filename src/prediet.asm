@@ -10375,7 +10375,7 @@ objfunc_01_monitor_rings:
    ld     (tmp_06), hl                 ; 01:5B17 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5B1A - CD 56 39
    jr     c, monitor_common_set_art_and_go_to_main  ; 01:5B1D - 38 12
-   call   addr_05DEB                   ; 01:5B1F - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5B1F - CD EB 5D
    jr     c, monitor_common_set_art_and_go_to_main  ; 01:5B22 - 38 0D
 
 @on_hit:
@@ -10462,7 +10462,7 @@ objfunc_02_monitor_speed_shoes:
    ld     (tmp_06), hl                 ; 01:5BE7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5BEA - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5BED - 38 10
-   call   addr_05DEB                   ; 01:5BEF - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5BEF - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5BF2 - 38 0B
    ld     a, $F0                       ; 01:5BF4 - 3E F0
    ld     (sonic_speed_shoes_countdown_timer_ix_21), a  ; 01:5BF6 - 32 11 D4
@@ -10491,7 +10491,7 @@ objfunc_03_monitor_life:
    ld     (tmp_06), hl                 ; 01:5C24 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5C27 - CD 56 39
    jr     c, @check_level_specific_kludges  ; 01:5C2A - 38 2E
-   call   addr_05DEB                   ; 01:5C2C - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5C2C - CD EB 5D
    jr     c, @check_level_specific_kludges  ; 01:5C2F - 38 29
    bit    2, (ix+24)                   ; 01:5C31 - DD CB 18 56
    jp     nz, objfunc_01_monitor_rings@on_hit  ; 01:5C35 - C2 24 5B
@@ -10583,7 +10583,7 @@ objfunc_04_monitor_shield:
    ld     (tmp_06), hl                 ; 01:5CE5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5CE8 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5CEB - 38 0C
-   call   addr_05DEB                   ; 01:5CED - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5CED - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5CF0 - 38 07
    set    5, (iy+iy_06_lvflag01-IYBASE)  ; 01:5CF2 - FD CB 06 EE
    jp     monitor_common_destroy_after_hit  ; 01:5CF6 - C3 29 5B
@@ -10600,7 +10600,7 @@ objfunc_05_monitor_invincibility:
    ld     (tmp_06), hl                 ; 01:5D0D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D10 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5D13 - 38 14
-   call   addr_05DEB                   ; 01:5D15 - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5D15 - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5D18 - 38 0F
    set    0, (iy+iy_08_lvflag03-IYBASE)  ; 01:5D1A - FD CB 08 C6
    ld     a, $F0                       ; 01:5D1E - 3E F0
@@ -10621,7 +10621,7 @@ objfunc_51_monitor_checkpoint:
    ld     (tmp_06), hl                 ; 01:5D3D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D40 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5D43 - 38 35
-   call   addr_05DEB                   ; 01:5D45 - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5D45 - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5D48 - 38 30
    ld     hl, g_level_has_checkpoint_mask  ; 01:5D4A - 21 11 D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5D4D - CD 02 0C
@@ -10665,7 +10665,7 @@ objfunc_52_monitor_continue:
    ld     (tmp_06), hl                 ; 01:5D8E - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D91 - CD 56 39
    jr     c, @continue_into_common_main  ; 01:5D94 - 38 0C
-   call   addr_05DEB                   ; 01:5D96 - CD EB 5D
+   call   handle_sonic_monitor_collision  ; 01:5D96 - CD EB 5D
    jr     c, @continue_into_common_main  ; 01:5D99 - 38 07
    set    3, (iy+iy_09-IYBASE)         ; 01:5D9B - FD CB 09 DE
    jp     monitor_common_destroy_after_hit  ; 01:5D9F - C3 29 5B
@@ -10708,12 +10708,12 @@ reposition_monitor_on_init:
    set    0, (ix+24)                   ; 01:5DE6 - DD CB 18 C6
    ret                                 ; 01:5DEA - C9
 
-addr_05DEB:
+handle_sonic_monitor_collision:
    ld     hl, $0804                    ; 01:5DEB - 21 04 08
    ld     (tmp_00), hl                 ; 01:5DEE - 22 0E D2
    ld     a, (sonic_flags_ix_24)       ; 01:5DF1 - 3A 14 D4
    and    $01                          ; 01:5DF4 - E6 01
-   jr     nz, addr_05E49               ; 01:5DF6 - 20 51
+   jr     nz, @explode_and_destroy_monitor  ; 01:5DF6 - 20 51
    ld     de, (sonic_x)                ; 01:5DF8 - ED 5B FE D3
    ld     c, (ix+2)                    ; 01:5DFC - DD 4E 02
    ld     b, (ix+3)                    ; 01:5DFF - DD 46 03
@@ -10721,15 +10721,15 @@ addr_05DEB:
    add    hl, bc                       ; 01:5E05 - 09
    and    a                            ; 01:5E06 - A7
    sbc    hl, de                       ; 01:5E07 - ED 52
-   jr     nc, addr_05E6D               ; 01:5E09 - 30 62
+   jr     nc, @sonic_hit_from_x_side   ; 01:5E09 - 30 62
    ld     hl, $0010                    ; 01:5E0B - 21 10 00
    add    hl, bc                       ; 01:5E0E - 09
    and    a                            ; 01:5E0F - A7
    sbc    hl, de                       ; 01:5E10 - ED 52
-   jr     c, addr_05E6D                ; 01:5E12 - 38 59
+   jr     c, @sonic_hit_from_x_side    ; 01:5E12 - 38 59
    ld     a, (sonic_flags_ix_24)       ; 01:5E14 - 3A 14 D4
    and    $04                          ; 01:5E17 - E6 04
-   jr     nz, addr_05E42               ; 01:5E19 - 20 27
+   jr     nz, @sonic_is_jumping        ; 01:5E19 - 20 27
    ld     l, (ix+5)                    ; 01:5E1B - DD 6E 05
    ld     h, (ix+6)                    ; 01:5E1E - DD 66 06
    ld     a, (sonic_size_y)            ; 01:5E21 - 3A 0A D4
@@ -10748,17 +10748,17 @@ addr_05DEB:
    scf                                 ; 01:5E40 - 37
    ret                                 ; 01:5E41 - C9
 
-addr_05E42:
+@sonic_is_jumping:
    ld     a, (sonic_vel_y_hi)          ; 01:5E42 - 3A 08 D4
    and    a                            ; 01:5E45 - A7
-   jp     m, addr_05E4E                ; 01:5E46 - FA 4E 5E
+   jp     m, @bumped_from_below        ; 01:5E46 - FA 4E 5E
 
-addr_05E49:
+@explode_and_destroy_monitor:
    call   explode_object_IX            ; 01:5E49 - CD BE 36
    and    a                            ; 01:5E4C - A7
    ret                                 ; 01:5E4D - C9
 
-addr_05E4E:
+@bumped_from_below:
    ld     (ix+10), $80                 ; 01:5E4E - DD 36 0A 80
    ld     (ix+11), $FE                 ; 01:5E52 - DD 36 0B FE
    ld     (ix+12), $FF                 ; 01:5E56 - DD 36 0C FF
@@ -10771,7 +10771,7 @@ addr_05E4E:
    scf                                 ; 01:5E6B - 37
    ret                                 ; 01:5E6C - C9
 
-addr_05E6D:
+@sonic_hit_from_x_side:
    ld     hl, (sonic_x)                ; 01:5E6D - 2A FE D3
    ld     de, $000C                    ; 01:5E70 - 11 0C 00
    add    hl, de                       ; 01:5E73 - 19
@@ -10783,10 +10783,10 @@ addr_05E6D:
    ld     bc, $FFEB                    ; 01:5E7F - 01 EB FF
    and    a                            ; 01:5E82 - A7
    sbc    hl, de                       ; 01:5E83 - ED 52
-   jr     nc, addr_05E8A               ; 01:5E85 - 30 03
+   jr     nc, @sonic_is_on_left        ; 01:5E85 - 30 03
    ld     bc, $0015                    ; 01:5E87 - 01 15 00
 
-addr_05E8A:
+@sonic_is_on_left:
    ld     l, (ix+2)                    ; 01:5E8A - DD 6E 02
    ld     h, (ix+3)                    ; 01:5E8D - DD 66 03
    add    hl, bc                       ; 01:5E90 - 09
