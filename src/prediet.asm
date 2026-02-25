@@ -145,10 +145,10 @@ g_invincibility_countdown_timer db   ; D28D
 g_sonic_jump_countdown_timer db   ; D28E
 var_D28F dw   ; D28F
 var_D291 dw   ; D291
-var_D293 dw   ; D293
-var_D295 dw   ; D295
-var_D297 db   ; D297
-var_D298 db   ; D298 (auto)
+g_new_ring_tiles_ptr dw   ; D293
+g_old_ring_tiles_ptr dw   ; D295
+g_ring_tile_index db   ; D297
+g_ring_tile_subtimer_index db   ; D298
 g_sonic_bored_anim_countup_timer dw   ; D299
 g_sonic_underwater_countup_timer dw   ; D29B
 var_D29D dw   ; D29D
@@ -4321,7 +4321,7 @@ load_and_run_level:
    ld     (rompage_1), a               ; 00:1D57 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1D5A - 32 35 D2
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D5D - FD CB 05 56
-   call   nz, addr_03879               ; 00:1D61 - C4 79 38
+   call   nz, update_ring_tiles        ; 00:1D61 - C4 79 38
    ld     hl, $0060                    ; 00:1D64 - 21 60 00
    ld     (var_D25F), hl               ; 00:1D67 - 22 5F D2
    ld     hl, $0088                    ; 00:1D6A - 21 88 00
@@ -4356,7 +4356,7 @@ load_and_run_level:
    ld     (rompage_1), a               ; 00:1DB7 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1DBA - 32 35 D2
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1DBD - FD CB 05 56
-   call   nz, addr_03879               ; 00:1DC1 - C4 79 38
+   call   nz, update_ring_tiles        ; 00:1DC1 - C4 79 38
    bit    3, (iy+iy_06_lvflag01-IYBASE)  ; 00:1DC4 - FD CB 06 5E
    call   nz, tick_game_time           ; 00:1DC8 - C4 03 3A
    ld     a, (g_global_tick_counter)   ; 00:1DCB - 3A 23 D2
@@ -4468,7 +4468,7 @@ handle_game_paused:
    ld     (rompage_1), a               ; 00:1EB3 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:1EB6 - 32 35 D2
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1EB9 - FD CB 05 56
-   call   nz, addr_03879               ; 00:1EBD - C4 79 38
+   call   nz, update_ring_tiles        ; 00:1EBD - C4 79 38
    call   addr_023C9                   ; 00:1EC0 - CD C9 23
    call   addr_0239C                   ; 00:1EC3 - CD 9C 23
    bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1EC6 - FD CB 07 5E
@@ -5195,7 +5195,7 @@ load_object_from_level_spec:
    ret                                 ; 00:239B - C9
 
 addr_0239C:
-   ld     a, (var_D297)                ; 00:239C - 3A 97 D2
+   ld     a, (g_ring_tile_index)       ; 00:239C - 3A 97 D2
    ld     e, a                         ; 00:239F - 5F
    ld     d, $00                       ; 00:23A0 - 16 00
    ld     hl, LUT_023F9                ; 00:23A2 - 21 F9 23
@@ -5207,8 +5207,8 @@ addr_0239C:
    ld     h, a                         ; 00:23AC - 67
    ld     de, $7CF0                    ; 00:23AD - 11 F0 7C
    add    hl, de                       ; 00:23B0 - 19
-   ld     (var_D293), hl               ; 00:23B1 - 22 93 D2
-   ld     hl, var_D298                 ; 00:23B4 - 21 98 D2
+   ld     (g_new_ring_tiles_ptr), hl   ; 00:23B1 - 22 93 D2
+   ld     hl, g_ring_tile_subtimer_index  ; 00:23B4 - 21 98 D2
    ld     a, (hl)                      ; 00:23B7 - 7E
    inc    a                            ; 00:23B8 - 3C
    ld     (hl), a                      ; 00:23B9 - 77
@@ -7381,9 +7381,9 @@ addr_03845:
    ld     (var_D291), hl               ; 00:3875 - 22 91 D2
    ret                                 ; 00:3878 - C9
 
-addr_03879:
-   ld     de, (var_D293)               ; 00:3879 - ED 5B 93 D2
-   ld     hl, (var_D295)               ; 00:387D - 2A 95 D2
+update_ring_tiles:
+   ld     de, (g_new_ring_tiles_ptr)   ; 00:3879 - ED 5B 93 D2
+   ld     hl, (g_old_ring_tiles_ptr)   ; 00:387D - 2A 95 D2
    and    a                            ; 00:3880 - A7
    sbc    hl, de                       ; 00:3881 - ED 52
    ret    z                            ; 00:3883 - C8
@@ -7397,7 +7397,7 @@ addr_03879:
    out    ($BF), a                     ; 00:388F - D3 BF
    ld     b, $20                       ; 00:3891 - 06 20
 
-addr_03893:
+@each_tile_row:
    ld     a, (hl)                      ; 00:3893 - 7E
    out    ($BE), a                     ; 00:3894 - D3 BE
    nop                                 ; 00:3896 - 00
@@ -7413,10 +7413,10 @@ addr_03893:
    ld     a, (hl)                      ; 00:38A2 - 7E
    out    ($BE), a                     ; 00:38A3 - D3 BE
    inc    hl                           ; 00:38A5 - 23
-   djnz   addr_03893                   ; 00:38A6 - 10 EB
+   djnz   @each_tile_row               ; 00:38A6 - 10 EB
    ei                                  ; 00:38A8 - FB
-   ld     hl, (var_D293)               ; 00:38A9 - 2A 93 D2
-   ld     (var_D295), hl               ; 00:38AC - 22 95 D2
+   ld     hl, (g_new_ring_tiles_ptr)   ; 00:38A9 - 2A 93 D2
+   ld     (g_old_ring_tiles_ptr), hl   ; 00:38AC - 22 95 D2
    ret                                 ; 00:38AF - C9
 
 addr_038B0:
