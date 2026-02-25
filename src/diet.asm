@@ -5742,7 +5742,7 @@ load_and_run_level:
    ldir                            ; 1D6D 2
    .ENDIF
    ; 1D7C -> 1D6F - SAVING: 13 bytes
-   call   addr_0239C                   ; 00:1D7C - CD 9C 23
+   call   update_ring_tile_art_timer_and_index  ; 00:1D7C - CD 9C 23
    ld     a, $01                       ; 00:1D7F - 3E 01
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -5821,9 +5821,9 @@ load_and_run_level:
    call   nz, advance_bottom_up_autoscroll_VESTIGIAL  ; 00:1E19 - C4 F2 1E
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E1C - FD CB 05 7E
    call   nz, apply_bottom_up_scroll_ratchet  ; 00:1E20 - C4 FF 1E
-   call   addr_023C9                   ; 00:1E23 - CD C9 23
+   call   update_palette_cycle         ; 00:1E23 - CD C9 23
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E26 - FD CB 05 56
-   call   nz, addr_0239C               ; 00:1E2A - C4 9C 23
+   call   nz, update_ring_tile_art_timer_and_index  ; 00:1E2A - C4 9C 23
    xor    a                            ; 00:1E2D - AF
    ld     (g_sonic_sprite_index_override), a  ; 00:1E2E - 32 02 D3
    ld     (g_frontmost_sprite_table_offs), a  ; 00:1E31 - 32 DE D2
@@ -5903,8 +5903,8 @@ handle_game_paused:
    .ENDIF
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1EB9 - FD CB 05 56
    call   nz, update_ring_tiles        ; 00:1EBD - C4 79 38
-   call   addr_023C9                   ; 00:1EC0 - CD C9 23
-   call   addr_0239C                   ; 00:1EC3 - CD 9C 23
+   call   update_palette_cycle         ; 00:1EC0 - CD C9 23
+   call   update_ring_tile_art_timer_and_index  ; 00:1EC3 - CD 9C 23
    bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1EC6 - FD CB 07 5E
    jr     nz, @loop_while_paused       ; 00:1ECA - 20 D8
    ld     a, $03                       ; 00:1ECC - 3E 03
@@ -6855,11 +6855,11 @@ load_object_from_level_spec:
    add    ix, de                       ; 00:2399 - DD 19
    ret                                 ; 00:239B - C9
 
-addr_0239C:
+update_ring_tile_art_timer_and_index:
    ld     a, (g_ring_tile_index)       ; 00:239C - 3A 97 D2
    ld     e, a                         ; 00:239F - 5F
    ld     d, $00                       ; 00:23A0 - 16 00
-   ld     hl, LUT_023F9                ; 00:23A2 - 21 F9 23
+   ld     hl, LUT_ring_tile_index_map  ; 00:23A2 - 21 F9 23
    add    hl, de                       ; 00:23A5 - 19
    ld     a, (hl)                      ; 00:23A6 - 7E
    ld     l, d                         ; 00:23A7 - 6A
@@ -6880,14 +6880,14 @@ addr_0239C:
    ld     a, (hl)                      ; 00:23C0 - 7E
    inc    a                            ; 00:23C1 - 3C
    cp     $06                          ; 00:23C2 - FE 06
-   jr     c, addr_023C7                ; 00:23C4 - 38 01
+   jr     c, @skip_wrap_tile_index     ; 00:23C4 - 38 01
    xor    a                            ; 00:23C6 - AF
 
-addr_023C7:
+@skip_wrap_tile_index:
    ld     (hl), a                      ; 00:23C7 - 77
    ret                                 ; 00:23C8 - C9
 
-addr_023C9:
+update_palette_cycle:
    .IF 0
    ld     a, (g_palette_cycle_tick_remain)  ; 00:23C9 - 3A A4 D2
    dec    a                            ; 00:23CC - 3D
@@ -6929,17 +6929,17 @@ addr_023C9:
    ld     a, l                         ; 00:23E8 - 7D
    inc    a                            ; 00:23E9 - 3C
    cp     h                            ; 00:23EA - BC
-   jr     c, addr_023EE                ; 00:23EB - 38 01
+   jr     c, @skip_wrap_cycle          ; 00:23EB - 38 01
    xor    a                            ; 00:23ED - AF
 
-addr_023EE:
+@skip_wrap_cycle:
    ld     l, a                         ; 00:23EE - 6F
    ld     (g_palette_cycle_index), hl  ; 00:23EF - 22 A6 D2
    ld     a, (g_palette_cycle_tick_period)  ; 00:23F2 - 3A A5 D2
    ld     (g_palette_cycle_tick_remain), a  ; 00:23F5 - 32 A4 D2
    ret                                 ; 00:23F8 - C9
 
-LUT_023F9:
+LUT_ring_tile_index_map:
 .db $05, $04, $03, $02, $01, $00                                                    ; 00:23F9
 
 LUT_normal_stage_start_time:
