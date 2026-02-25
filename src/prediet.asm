@@ -3093,7 +3093,7 @@ run_title_screen:
    ld     (tmp_08), a                  ; 00:12DC - 32 16 D2
    ld     a, $01                       ; 00:12DF - 3E 01
    ld     (tmp_01), a                  ; 00:12E1 - 32 0F D2
-   ld     hl, UNK_01372                ; 00:12E4 - 21 72 13
+   ld     hl, LUT_title_screen_sonic_hand_anim  ; 00:12E4 - 21 72 13
    ld     (tmp_02), hl                 ; 00:12E7 - 22 10 D2
 
 @mainloop:
@@ -3110,10 +3110,10 @@ run_title_screen:
 
 @skip_press_button_counter_wrap:
    ld     (tmp_08), a                  ; 00:1302 - 32 16 D2
-   ld     hl, LUT_01352                ; 00:1305 - 21 52 13
+   ld     hl, sprtext_show_press_button  ; 00:1305 - 21 52 13
    cp     $40                          ; 00:1308 - FE 40
    jr     c, @skip_hide_press_button_text  ; 00:130A - 38 03
-   ld     hl, LUT_01362                ; 00:130C - 21 62 13
+   ld     hl, sprtext_hide_press_button  ; 00:130C - 21 62 13
 
 @skip_hide_press_button_text:
    xor    a                            ; 00:130F - AF
@@ -3151,71 +3151,71 @@ run_title_screen:
    rst    $20                          ; 00:1350 - E7
    ret                                 ; 00:1351 - C9
 
-LUT_01352:
+sprtext_show_press_button:
 .db $09, $12, $E3, $E4, $E5, $E6, $E6, $F1, $F1, $E9, $EB, $E7, $E7, $EA, $EC, $FF  ; 00:1352
 
-LUT_01362:
+sprtext_hide_press_button:
 .db $09, $12, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $F1, $FF  ; 00:1362
 
-UNK_01372:
-.dw addr_013BD                                                                      ; 00:1372
+LUT_title_screen_sonic_hand_anim:
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:1372
 .db $08                                                                             ; 00:1374
-.dw addr_013CF                                                                      ; 00:1375
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:1375
 .db $08                                                                             ; 00:1377
-.dw addr_013BD                                                                      ; 00:1378
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:1378
 .db $08                                                                             ; 00:137A
-.dw addr_013CF                                                                      ; 00:137B
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:137B
 .db $08                                                                             ; 00:137D
-.dw addr_013BD                                                                      ; 00:137E
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:137E
 .db $08                                                                             ; 00:1380
-.dw addr_013CF                                                                      ; 00:1381
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:1381
 .db $08                                                                             ; 00:1383
-.dw addr_013BD                                                                      ; 00:1384
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:1384
 .db $08                                                                             ; 00:1386
-.dw addr_013CF                                                                      ; 00:1387
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:1387
 .db $08                                                                             ; 00:1389
-.dw addr_013BD                                                                      ; 00:138A
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:138A
 .db $08                                                                             ; 00:138C
-.dw addr_013CF                                                                      ; 00:138D
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:138D
 .db $08                                                                             ; 00:138F
-.dw addr_013BD                                                                      ; 00:1390
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:1390
 .db $08                                                                             ; 00:1392
-.dw addr_013CF                                                                      ; 00:1393
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:1393
 .db $08                                                                             ; 00:1395
-.dw addr_013BD                                                                      ; 00:1396
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:1396
 .db $08                                                                             ; 00:1398
-.dw addr_013CF                                                                      ; 00:1399
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:1399
 .db $08                                                                             ; 00:139B
-.dw addr_013BD                                                                      ; 00:139C
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:139C
 .db $08                                                                             ; 00:139E
-.dw addr_013CF                                                                      ; 00:139F
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:139F
 .db $08                                                                             ; 00:13A1
-.dw addr_013BD                                                                      ; 00:13A2
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:13A2
 .db $08                                                                             ; 00:13A4
-.dw addr_013CF                                                                      ; 00:13A5
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:13A5
 .db $08                                                                             ; 00:13A7
-.dw addr_013BD                                                                      ; 00:13A8
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:13A8
 .db $08                                                                             ; 00:13AA
-.dw addr_013CF                                                                      ; 00:13AB
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:13AB
 .db $08                                                                             ; 00:13AD
-.dw addr_013BD                                                                      ; 00:13AE
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:13AE
 .db $08                                                                             ; 00:13B0
-.dw addr_013CF                                                                      ; 00:13B1
+.dw SPRTAB_title_screen_sonic_hand_2                                                ; 00:13B1
 .db $08                                                                             ; 00:13B3
 
-addr_013B4:
-.dw addr_013BD                                                                      ; 00:13B4
+@anim_idle_loop:
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:13B4
 .db $FF                                                                             ; 00:13B6
-.dw addr_013BD                                                                      ; 00:13B7
+.dw SPRTAB_title_screen_sonic_hand_1                                                ; 00:13B7
 .db $FF                                                                             ; 00:13B9
-.dw addr_013B4                                                                      ; 00:13BA
+.dw @anim_idle_loop                                                                 ; 00:13BA
 .db $00                                                                             ; 00:13BC
 
-addr_013BD:
+SPRTAB_title_screen_sonic_hand_1:
 .db $00, $02, $04, $FF, $FF, $FF, $20, $22, $24, $FF, $FF, $FF, $40, $42, $44, $FF  ; 00:13BD
 .db $FF, $FF                                                                        ; 00:13CD
 
-addr_013CF:
+SPRTAB_title_screen_sonic_hand_2:
 .db $06, $08, $FF, $FF, $FF, $FF, $26, $28, $FF, $FF, $FF, $FF, $46, $48, $FF, $FF  ; 00:13CF
 .db $FF, $FF                                                                        ; 00:13DF
 
