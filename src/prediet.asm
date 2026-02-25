@@ -111,14 +111,14 @@ g_level_scroll_x_pix_hi db   ; D25B
 g_level_scroll_y_sub db   ; D25C
 g_level_scroll_y_pix_lo db   ; D25D
 g_level_scroll_y_pix_hi db   ; D25E
-var_D25F dw   ; D25F
-var_D261 dw   ; D261
-var_D263 dw   ; D263
-var_D265 dw   ; D265
-var_D267 dw   ; D267
-var_D269 dw   ; D269
-var_D26B dw   ; D26B
-var_D26D dw   ; D26D
+g_camera_sonic_bounds_x0 dw   ; D25F
+g_camera_sonic_bounds_x1 dw   ; D261
+g_camera_sonic_bounds_y0 dw   ; D263
+g_camera_sonic_bounds_y1 dw   ; D265
+g_camera_sonic_bounds_x0_target dw   ; D267
+g_camera_sonic_bounds_x1_target dw   ; D269
+g_camera_sonic_bounds_y0_target dw   ; D26B
+g_camera_sonic_bounds_y1_target dw   ; D26D
 g_displayed_level_scroll_x_pix_lo dw   ; D26F
 g_displayed_level_scroll_y_pix_lo dw   ; D271
 g_level_limit_x0 dw   ; D273
@@ -4323,13 +4323,13 @@ load_and_run_level:
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D5D - FD CB 05 56
    call   nz, update_ring_tiles        ; 00:1D61 - C4 79 38
    ld     hl, $0060                    ; 00:1D64 - 21 60 00
-   ld     (var_D25F), hl               ; 00:1D67 - 22 5F D2
+   ld     (g_camera_sonic_bounds_x0), hl  ; 00:1D67 - 22 5F D2
    ld     hl, $0088                    ; 00:1D6A - 21 88 00
-   ld     (var_D261), hl               ; 00:1D6D - 22 61 D2
+   ld     (g_camera_sonic_bounds_x1), hl  ; 00:1D6D - 22 61 D2
    ld     hl, $0060                    ; 00:1D70 - 21 60 00
-   ld     (var_D263), hl               ; 00:1D73 - 22 63 D2
+   ld     (g_camera_sonic_bounds_y0), hl  ; 00:1D73 - 22 63 D2
    ld     hl, $0070                    ; 00:1D76 - 21 70 00
-   ld     (var_D265), hl               ; 00:1D79 - 22 65 D2
+   ld     (g_camera_sonic_bounds_y1), hl  ; 00:1D79 - 22 65 D2
    call   update_ring_tile_art_timer_and_index  ; 00:1D7C - CD 9C 23
    ld     a, $01                       ; 00:1D7F - 3E 01
    ld     (rompage_1), a               ; 00:1D81 - 32 FE FF
@@ -5913,7 +5913,7 @@ draw_HUD_sprites:
    bit    5, (iy+iy_07_lvflag02-IYBASE)  ; 00:2E8F - FD CB 07 6E
    call   nz, draw_level_timer         ; 00:2E93 - C4 1F 2F
    ld     de, $0060                    ; 00:2E96 - 11 60 00
-   ld     hl, var_D267                 ; 00:2E99 - 21 67 D2
+   ld     hl, g_camera_sonic_bounds_x0_target  ; 00:2E99 - 21 67 D2
    ld     a, (hl)                      ; 00:2E9C - 7E
    inc    hl                           ; 00:2E9D - 23
    or     (hl)                         ; 00:2E9E - B6
@@ -5942,12 +5942,12 @@ draw_HUD_sprites:
    or     (hl)                         ; 00:2EC5 - B6
    call   z, store_DE_in_HL_minus_1    ; 00:2EC6 - CC 1A 31
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:2EC9 - FD CB 05 46
-   call   z, addr_02F66                ; 00:2ECD - CC 66 2F
+   call   z, adjust_camera_for_when_sonic_is_alive  ; 00:2ECD - CC 66 2F
    ld     hl, $0000                    ; 00:2ED0 - 21 00 00
-   ld     (var_D267), hl               ; 00:2ED3 - 22 67 D2
-   ld     (var_D269), hl               ; 00:2ED6 - 22 69 D2
-   ld     (var_D26B), hl               ; 00:2ED9 - 22 6B D2
-   ld     (var_D26D), hl               ; 00:2EDC - 22 6D D2
+   ld     (g_camera_sonic_bounds_x0_target), hl  ; 00:2ED3 - 22 67 D2
+   ld     (g_camera_sonic_bounds_x1_target), hl  ; 00:2ED6 - 22 69 D2
+   ld     (g_camera_sonic_bounds_y0_target), hl  ; 00:2ED9 - 22 6B D2
+   ld     (g_camera_sonic_bounds_y1_target), hl  ; 00:2EDC - 22 6D D2
    call   update_some_objfunc_activation_statuses  ; 00:2EDF - CD E6 31
    call   run_all_objfuncs             ; 00:2EE2 - CD 9B 32
    ret                                 ; 00:2EE5 - C9
@@ -6024,81 +6024,81 @@ draw_level_timer:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2F62 - 22 3C D2
    ret                                 ; 00:2F65 - C9
 
-addr_02F66:
+adjust_camera_for_when_sonic_is_alive:
    bit    6, (iy+iy_07_lvflag02-IYBASE)  ; 00:2F66 - FD CB 07 76
    ret    nz                           ; 00:2F6A - C0
    ld     hl, (g_level_camera_lock_towards_x)  ; 00:2F6B - 2A 7B D2
    ld     a, l                         ; 00:2F6E - 7D
    or     h                            ; 00:2F6F - B4
-   call   nz, addr_03140               ; 00:2F70 - C4 40 31
+   call   nz, move_camera_towards_locked_x  ; 00:2F70 - C4 40 31
    ld     hl, (g_level_camera_lock_towards_y)  ; 00:2F73 - 2A 7D D2
    ld     a, l                         ; 00:2F76 - 7D
    or     h                            ; 00:2F77 - B4
-   call   nz, addr_03122               ; 00:2F78 - C4 22 31
-   ld     hl, (var_D267)               ; 00:2F7B - 2A 67 D2
-   ld     de, (var_D25F)               ; 00:2F7E - ED 5B 5F D2
+   call   nz, move_camera_towards_locked_y  ; 00:2F78 - C4 22 31
+   ld     hl, (g_camera_sonic_bounds_x0_target)  ; 00:2F7B - 2A 67 D2
+   ld     de, (g_camera_sonic_bounds_x0)  ; 00:2F7E - ED 5B 5F D2
    and    a                            ; 00:2F82 - A7
    sbc    hl, de                       ; 00:2F83 - ED 52
-   call   nz, addr_0315E               ; 00:2F85 - C4 5E 31
-   ld     (var_D25F), de               ; 00:2F88 - ED 53 5F D2
-   ld     hl, (var_D269)               ; 00:2F8C - 2A 69 D2
-   ld     de, (var_D261)               ; 00:2F8F - ED 5B 61 D2
+   call   nz, inc_or_dec_DE_towards_delta_HL  ; 00:2F85 - C4 5E 31
+   ld     (g_camera_sonic_bounds_x0), de  ; 00:2F88 - ED 53 5F D2
+   ld     hl, (g_camera_sonic_bounds_x1_target)  ; 00:2F8C - 2A 69 D2
+   ld     de, (g_camera_sonic_bounds_x1)  ; 00:2F8F - ED 5B 61 D2
    and    a                            ; 00:2F93 - A7
    sbc    hl, de                       ; 00:2F94 - ED 52
-   call   nz, addr_0315E               ; 00:2F96 - C4 5E 31
-   ld     (var_D261), de               ; 00:2F99 - ED 53 61 D2
-   ld     hl, (var_D26B)               ; 00:2F9D - 2A 6B D2
-   ld     de, (var_D263)               ; 00:2FA0 - ED 5B 63 D2
+   call   nz, inc_or_dec_DE_towards_delta_HL  ; 00:2F96 - C4 5E 31
+   ld     (g_camera_sonic_bounds_x1), de  ; 00:2F99 - ED 53 61 D2
+   ld     hl, (g_camera_sonic_bounds_y0_target)  ; 00:2F9D - 2A 6B D2
+   ld     de, (g_camera_sonic_bounds_y0)  ; 00:2FA0 - ED 5B 63 D2
    and    a                            ; 00:2FA4 - A7
    sbc    hl, de                       ; 00:2FA5 - ED 52
-   call   nz, addr_0315E               ; 00:2FA7 - C4 5E 31
-   ld     (var_D263), de               ; 00:2FAA - ED 53 63 D2
-   ld     hl, (var_D26D)               ; 00:2FAE - 2A 6D D2
-   ld     de, (var_D265)               ; 00:2FB1 - ED 5B 65 D2
+   call   nz, inc_or_dec_DE_towards_delta_HL  ; 00:2FA7 - C4 5E 31
+   ld     (g_camera_sonic_bounds_y0), de  ; 00:2FAA - ED 53 63 D2
+   ld     hl, (g_camera_sonic_bounds_y1_target)  ; 00:2FAE - 2A 6D D2
+   ld     de, (g_camera_sonic_bounds_y1)  ; 00:2FB1 - ED 5B 65 D2
    and    a                            ; 00:2FB5 - A7
    sbc    hl, de                       ; 00:2FB6 - ED 52
-   call   nz, addr_0315E               ; 00:2FB8 - C4 5E 31
-   ld     (var_D265), de               ; 00:2FBB - ED 53 65 D2
-   ld     bc, (var_D25F)               ; 00:2FBF - ED 4B 5F D2
+   call   nz, inc_or_dec_DE_towards_delta_HL  ; 00:2FB8 - C4 5E 31
+   ld     (g_camera_sonic_bounds_y1), de  ; 00:2FBB - ED 53 65 D2
+   ld     bc, (g_camera_sonic_bounds_x0)  ; 00:2FBF - ED 4B 5F D2
    ld     de, (sonic_x)                ; 00:2FC3 - ED 5B FE D3
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:2FC7 - 2A 5A D2
    add    hl, bc                       ; 00:2FCA - 09
    and    a                            ; 00:2FCB - A7
    sbc    hl, de                       ; 00:2FCC - ED 52
-   jr     c, addr_02FFA                ; 00:2FCE - 38 2A
+   jr     c, @skip_x_scroll_left       ; 00:2FCE - 38 2A
    ld     a, h                         ; 00:2FD0 - 7C
    and    a                            ; 00:2FD1 - A7
-   jr     nz, addr_02FD9               ; 00:2FD2 - 20 05
+   jr     nz, @cap_x_scroll_left_speed_to_8  ; 00:2FD2 - 20 05
    ld     a, l                         ; 00:2FD4 - 7D
    cp     $09                          ; 00:2FD5 - FE 09
-   jr     c, addr_02FDC                ; 00:2FD7 - 38 03
+   jr     c, @dont_cap_x_scroll_left_speed_to_8  ; 00:2FD7 - 38 03
 
-addr_02FD9:
+@cap_x_scroll_left_speed_to_8:
    ld     hl, $0008                    ; 00:2FD9 - 21 08 00
 
-addr_02FDC:
+@dont_cap_x_scroll_left_speed_to_8:
    bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:2FDC - FD CB 05 5E
-   jr     nz, addr_03033               ; 00:2FE0 - 20 51
+   jr     nz, @continue_after_main_x_scroll  ; 00:2FE0 - 20 51
    bit    5, (iy+iy_05_lvflag00-IYBASE)  ; 00:2FE2 - FD CB 05 6E
-   jr     z, addr_02FEB                ; 00:2FE6 - 28 03
+   jr     z, @set_x_right_speed_cap_to_1_VESTIGIAL  ; 00:2FE6 - 28 03
    ld     hl, $0001                    ; 00:2FE8 - 21 01 00
 
-addr_02FEB:
+@set_x_right_speed_cap_to_1_VESTIGIAL:
    ex     de, hl                       ; 00:2FEB - EB
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:2FEC - 2A 5A D2
    and    a                            ; 00:2FEF - A7
    sbc    hl, de                       ; 00:2FF0 - ED 52
-   jr     c, addr_03033                ; 00:2FF2 - 38 3F
+   jr     c, @continue_after_main_x_scroll  ; 00:2FF2 - 38 3F
    ld     (g_level_scroll_x_pix_lo), hl  ; 00:2FF4 - 22 5A D2
-   jp     addr_03033                   ; 00:2FF7 - C3 33 30
+   jp     @continue_after_main_x_scroll  ; 00:2FF7 - C3 33 30
 
-addr_02FFA:
-   ld     bc, (var_D261)               ; 00:2FFA - ED 4B 61 D2
+@skip_x_scroll_left:
+   ld     bc, (g_camera_sonic_bounds_x1)  ; 00:2FFA - ED 4B 61 D2
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:2FFE - 2A 5A D2
    add    hl, bc                       ; 00:3001 - 09
    and    a                            ; 00:3002 - A7
    sbc    hl, de                       ; 00:3003 - ED 52
-   jr     nc, addr_03033               ; 00:3005 - 30 2C
+   jr     nc, @continue_after_main_x_scroll  ; 00:3005 - 30 2C
    ld     a, l                         ; 00:3007 - 7D
    cpl                                 ; 00:3008 - 2F
    ld     l, a                         ; 00:3009 - 6F
@@ -6108,102 +6108,102 @@ addr_02FFA:
    inc    hl                           ; 00:300D - 23
    ld     a, h                         ; 00:300E - 7C
    and    a                            ; 00:300F - A7
-   jr     nz, addr_03017               ; 00:3010 - 20 05
+   jr     nz, @cap_x_scroll_right_speed_to_8  ; 00:3010 - 20 05
    ld     a, l                         ; 00:3012 - 7D
    cp     $09                          ; 00:3013 - FE 09
-   jr     c, addr_0301A                ; 00:3015 - 38 03
+   jr     c, @dont_cap_x_scroll_right_speed_to_8  ; 00:3015 - 38 03
 
-addr_03017:
+@cap_x_scroll_right_speed_to_8:
    ld     hl, $0008                    ; 00:3017 - 21 08 00
 
-addr_0301A:
+@dont_cap_x_scroll_right_speed_to_8:
    bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:301A - FD CB 05 5E
-   jr     nz, addr_03033               ; 00:301E - 20 13
+   jr     nz, @continue_after_main_x_scroll  ; 00:301E - 20 13
    bit    5, (iy+iy_05_lvflag00-IYBASE)  ; 00:3020 - FD CB 05 6E
-   jr     z, addr_03029                ; 00:3024 - 28 03
+   jr     z, @set_x_left_speed_cap_to_1_VESTIGIAL  ; 00:3024 - 28 03
    ld     hl, $0001                    ; 00:3026 - 21 01 00
 
-addr_03029:
+@set_x_left_speed_cap_to_1_VESTIGIAL:
    ld     de, (g_level_scroll_x_pix_lo)  ; 00:3029 - ED 5B 5A D2
    add    hl, de                       ; 00:302D - 19
-   jr     c, addr_03033                ; 00:302E - 38 03
+   jr     c, @continue_after_main_x_scroll  ; 00:302E - 38 03
    ld     (g_level_scroll_x_pix_lo), hl  ; 00:3030 - 22 5A D2
 
-addr_03033:
+@continue_after_main_x_scroll:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3033 - 2A 5A D2
    ld     de, (g_level_limit_x0)       ; 00:3036 - ED 5B 73 D2
    and    a                            ; 00:303A - A7
    sbc    hl, de                       ; 00:303B - ED 52
-   jr     nc, addr_03045               ; 00:303D - 30 06
+   jr     nc, @skip_clamp_camera_to_x0  ; 00:303D - 30 06
    ld     (g_level_scroll_x_pix_lo), de  ; 00:303F - ED 53 5A D2
-   jr     addr_03055                   ; 00:3043 - 18 10
+   jr     @skip_clamp_camera_to_x1     ; 00:3043 - 18 10
 
-addr_03045:
+@skip_clamp_camera_to_x0:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:3045 - 2A 5A D2
    ld     de, (g_level_limit_x1)       ; 00:3048 - ED 5B 75 D2
    and    a                            ; 00:304C - A7
    sbc    hl, de                       ; 00:304D - ED 52
-   jr     c, addr_03055                ; 00:304F - 38 04
+   jr     c, @skip_clamp_camera_to_x1  ; 00:304F - 38 04
    ld     (g_level_scroll_x_pix_lo), de  ; 00:3051 - ED 53 5A D2
 
-addr_03055:
+@skip_clamp_camera_to_x1:
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3055 - FD CB 05 76
    call   nz, addr_03164               ; 00:3059 - C4 64 31
-   ld     bc, (var_D263)               ; 00:305C - ED 4B 63 D2
+   ld     bc, (g_camera_sonic_bounds_y0)  ; 00:305C - ED 4B 63 D2
    ld     de, (sonic_y)                ; 00:3060 - ED 5B 01 D4
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3064 - 2A 5D D2
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3067 - FD CB 05 76
-   call   nz, addr_031CF               ; 00:306B - C4 CF 31
+   call   nz, set_y0_bound_for_camera_oscillation  ; 00:306B - C4 CF 31
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:306E - FD CB 05 7E
    call   nz, addr_031D3               ; 00:3072 - C4 D3 31
    add    hl, bc                       ; 00:3075 - 09
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:3076 - FD CB 05 7E
-   call   z, addr_031DB                ; 00:307A - CC DB 31
+   call   z, set_y0_bound_for_things_other_than_up_ratchet  ; 00:307A - CC DB 31
    and    a                            ; 00:307D - A7
    sbc    hl, de                       ; 00:307E - ED 52
-   jr     c, addr_030B9                ; 00:3080 - 38 37
+   jr     c, @skip_y_scroll_up         ; 00:3080 - 38 37
    ld     c, $09                       ; 00:3082 - 0E 09
    ld     a, h                         ; 00:3084 - 7C
    and    a                            ; 00:3085 - A7
-   jr     nz, addr_03093               ; 00:3086 - 20 0B
+   jr     nz, @cap_y_scroll_up_speed   ; 00:3086 - 20 0B
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3088 - FD CB 05 76
-   call   nz, addr_0311F               ; 00:308C - C4 1F 31
+   call   nz, clamp_y_delta_to_8       ; 00:308C - C4 1F 31
    ld     a, l                         ; 00:308F - 7D
    cp     c                            ; 00:3090 - B9
-   jr     c, addr_03097                ; 00:3091 - 38 04
+   jr     c, @dont_cap_y_scroll_up_speed  ; 00:3091 - 38 04
 
-addr_03093:
+@cap_y_scroll_up_speed:
    dec    c                            ; 00:3093 - 0D
    ld     l, c                         ; 00:3094 - 69
    ld     h, $00                       ; 00:3095 - 26 00
 
-addr_03097:
+@dont_cap_y_scroll_up_speed:
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:3097 - FD CB 05 7E
-   jr     z, addr_030AA                ; 00:309B - 28 0D
+   jr     z, @dont_clamp_y_up_for_ratchet  ; 00:309B - 28 0D
    srl    h                            ; 00:309D - CB 3C
    rr     l                            ; 00:309F - CB 1D
    bit    1, (iy+iy_08_lvflag03-IYBASE)  ; 00:30A1 - FD CB 08 4E
-   jr     nz, addr_030AA               ; 00:30A5 - 20 03
+   jr     nz, @dont_clamp_y_up_for_ratchet  ; 00:30A5 - 20 03
    ld     hl, $0000                    ; 00:30A7 - 21 00 00
 
-addr_030AA:
+@dont_clamp_y_up_for_ratchet:
    ex     de, hl                       ; 00:30AA - EB
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30AB - 2A 5D D2
    and    a                            ; 00:30AE - A7
    sbc    hl, de                       ; 00:30AF - ED 52
-   jr     c, addr_030F9                ; 00:30B1 - 38 46
+   jr     c, @skip_y_scroll_down       ; 00:30B1 - 38 46
    ld     (g_level_scroll_y_pix_lo), hl  ; 00:30B3 - 22 5D D2
-   jp     addr_030F9                   ; 00:30B6 - C3 F9 30
+   jp     @skip_y_scroll_down          ; 00:30B6 - C3 F9 30
 
-addr_030B9:
-   ld     bc, (var_D265)               ; 00:30B9 - ED 4B 65 D2
+@skip_y_scroll_up:
+   ld     bc, (g_camera_sonic_bounds_y1)  ; 00:30B9 - ED 4B 65 D2
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30BD - 2A 5D D2
    add    hl, bc                       ; 00:30C0 - 09
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:30C1 - FD CB 05 7E
-   call   z, addr_031DB                ; 00:30C5 - CC DB 31
+   call   z, set_y0_bound_for_things_other_than_up_ratchet  ; 00:30C5 - CC DB 31
    and    a                            ; 00:30C8 - A7
    sbc    hl, de                       ; 00:30C9 - ED 52
-   jr     nc, addr_030F9               ; 00:30CB - 30 2C
+   jr     nc, @skip_y_scroll_down      ; 00:30CB - 30 2C
    ld     a, l                         ; 00:30CD - 7D
    cpl                                 ; 00:30CE - 2F
    ld     l, a                         ; 00:30CF - 6F
@@ -6214,43 +6214,43 @@ addr_030B9:
    ld     c, $09                       ; 00:30D4 - 0E 09
    ld     a, h                         ; 00:30D6 - 7C
    and    a                            ; 00:30D7 - A7
-   jr     nz, addr_030E5               ; 00:30D8 - 20 0B
+   jr     nz, @cap_y_scroll_down_speed  ; 00:30D8 - 20 0B
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:30DA - FD CB 05 76
-   call   nz, addr_0311F               ; 00:30DE - C4 1F 31
+   call   nz, clamp_y_delta_to_8       ; 00:30DE - C4 1F 31
    ld     a, l                         ; 00:30E1 - 7D
    cp     c                            ; 00:30E2 - B9
-   jr     c, addr_030E9                ; 00:30E3 - 38 04
+   jr     c, @dont_cap_y_scroll_down_speed  ; 00:30E3 - 38 04
 
-addr_030E5:
+@cap_y_scroll_down_speed:
    dec    c                            ; 00:30E5 - 0D
    ld     l, c                         ; 00:30E6 - 69
    ld     h, $00                       ; 00:30E7 - 26 00
 
-addr_030E9:
+@dont_cap_y_scroll_down_speed:
    bit    4, (iy+iy_05_lvflag00-IYBASE)  ; 00:30E9 - FD CB 05 66
-   jr     nz, addr_030F9               ; 00:30ED - 20 0A
+   jr     nz, @skip_y_scroll_down      ; 00:30ED - 20 0A
    ld     de, (g_level_scroll_y_pix_lo)  ; 00:30EF - ED 5B 5D D2
    add    hl, de                       ; 00:30F3 - 19
-   jr     c, addr_030F9                ; 00:30F4 - 38 03
+   jr     c, @skip_y_scroll_down       ; 00:30F4 - 38 03
    ld     (g_level_scroll_y_pix_lo), hl  ; 00:30F6 - 22 5D D2
 
-addr_030F9:
+@skip_y_scroll_down:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:30F9 - 2A 5D D2
    ld     de, (g_level_limit_y0)       ; 00:30FC - ED 5B 77 D2
    and    a                            ; 00:3100 - A7
    sbc    hl, de                       ; 00:3101 - ED 52
-   jr     nc, addr_03109               ; 00:3103 - 30 04
+   jr     nc, @skip_clamp_camera_to_y0  ; 00:3103 - 30 04
    ld     (g_level_scroll_y_pix_lo), de  ; 00:3105 - ED 53 5D D2
 
-addr_03109:
+@skip_clamp_camera_to_y0:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3109 - 2A 5D D2
    ld     de, (g_level_limit_y1)       ; 00:310C - ED 5B 79 D2
    and    a                            ; 00:3110 - A7
    sbc    hl, de                       ; 00:3111 - ED 52
-   jr     c, addr_03119                ; 00:3113 - 38 04
+   jr     c, @skip_clamp_camera_to_y1  ; 00:3113 - 38 04
    ld     (g_level_scroll_y_pix_lo), de  ; 00:3115 - ED 53 5D D2
 
-addr_03119:
+@skip_clamp_camera_to_y1:
    ret                                 ; 00:3119 - C9
 
 store_DE_in_HL_minus_1:
@@ -6260,50 +6260,50 @@ store_DE_in_HL_minus_1:
    inc    hl                           ; 00:311D - 23
    ret                                 ; 00:311E - C9
 
-addr_0311F:
+clamp_y_delta_to_8:
    ld     c, $08                       ; 00:311F - 0E 08
    ret                                 ; 00:3121 - C9
 
-addr_03122:
+move_camera_towards_locked_y:
    ld     de, (g_level_limit_y0)       ; 00:3122 - ED 5B 77 D2
    and    a                            ; 00:3126 - A7
    sbc    hl, de                       ; 00:3127 - ED 52
    ret    z                            ; 00:3129 - C8
-   jr     c, addr_03136                ; 00:312A - 38 0A
+   jr     c, @target_is_above_lock     ; 00:312A - 38 0A
    inc    de                           ; 00:312C - 13
    ld     (g_level_limit_y0), de       ; 00:312D - ED 53 77 D2
    ld     (g_level_limit_y1), de       ; 00:3131 - ED 53 79 D2
    ret                                 ; 00:3135 - C9
 
-addr_03136:
+@target_is_above_lock:
    dec    de                           ; 00:3136 - 1B
    ld     (g_level_limit_y0), de       ; 00:3137 - ED 53 77 D2
    ld     (g_level_limit_y1), de       ; 00:313B - ED 53 79 D2
    ret                                 ; 00:313F - C9
 
-addr_03140:
+move_camera_towards_locked_x:
    ld     de, (g_level_limit_x0)       ; 00:3140 - ED 5B 73 D2
    and    a                            ; 00:3144 - A7
    sbc    hl, de                       ; 00:3145 - ED 52
    ret    z                            ; 00:3147 - C8
-   jr     c, addr_03154                ; 00:3148 - 38 0A
+   jr     c, @target_is_left_of_lock   ; 00:3148 - 38 0A
    inc    de                           ; 00:314A - 13
    ld     (g_level_limit_x0), de       ; 00:314B - ED 53 73 D2
    ld     (g_level_limit_x1), de       ; 00:314F - ED 53 75 D2
    ret                                 ; 00:3153 - C9
 
-addr_03154:
+@target_is_left_of_lock:
    dec    de                           ; 00:3154 - 1B
    ld     (g_level_limit_x0), de       ; 00:3155 - ED 53 73 D2
    ld     (g_level_limit_x1), de       ; 00:3159 - ED 53 75 D2
    ret                                 ; 00:315D - C9
 
-addr_0315E:
-   jr     c, addr_03162                ; 00:315E - 38 02
+inc_or_dec_DE_towards_delta_HL:
+   jr     c, @choose_dec               ; 00:315E - 38 02
    inc    de                           ; 00:3160 - 13
    ret                                 ; 00:3161 - C9
 
-addr_03162:
+@choose_dec:
    dec    de                           ; 00:3162 - 1B
    ret                                 ; 00:3163 - C9
 
@@ -6367,7 +6367,7 @@ addr_031BE:
    ld     (var_D29F), hl               ; 00:31CB - 22 9F D2
    ret                                 ; 00:31CE - C9
 
-addr_031CF:
+set_y0_bound_for_camera_oscillation:
    ld     bc, $0020                    ; 00:31CF - 01 20 00
    ret                                 ; 00:31D2 - C9
 
@@ -6379,7 +6379,7 @@ UNUSED_031D7:
    ld     bc, $0070                    ; 00:31D7 - 01 70 00
    ret                                 ; 00:31DA - C9
 
-addr_031DB:
+set_y0_bound_for_things_other_than_up_ratchet:
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:31DB - FD CB 05 76
    ret    nz                           ; 00:31DF - C0
    ld     bc, (g_camera_y_look_up_offset_px)  ; 00:31E0 - ED 4B B7 D2
@@ -10881,9 +10881,9 @@ objfunc_07_signpost:
    add    hl, de                       ; 01:5F53 - 19
    ld     (g_level_limit_x1), hl       ; 01:5F54 - 22 75 D2
    ld     hl, $0080                    ; 01:5F57 - 21 80 00
-   ld     (var_D26B), hl               ; 01:5F5A - 22 6B D2
+   ld     (g_camera_sonic_bounds_y0_target), hl  ; 01:5F5A - 22 6B D2
    ld     hl, $0088                    ; 01:5F5D - 21 88 00
-   ld     (var_D26D), hl               ; 01:5F60 - 22 6D D2
+   ld     (g_camera_sonic_bounds_y1_target), hl  ; 01:5F60 - 22 6D D2
    ld     c, (ix+19)                   ; 01:5F63 - DD 4E 13
    ld     a, (sonic_flags_ix_24)       ; 01:5F66 - 3A 14 D4
    and    $80                          ; 01:5F69 - E6 80
@@ -11375,13 +11375,13 @@ SPRITEMAP_crabmeat_frames:
 objfunc_09_platform_swing:
    set    5, (ix+24)                   ; 01:673C - DD CB 18 EE
    ld     hl, $0020                    ; 01:6740 - 21 20 00
-   ld     (var_D267), hl               ; 01:6743 - 22 67 D2
+   ld     (g_camera_sonic_bounds_x0_target), hl  ; 01:6743 - 22 67 D2
    ld     hl, $0048                    ; 01:6746 - 21 48 00
-   ld     (var_D269), hl               ; 01:6749 - 22 69 D2
+   ld     (g_camera_sonic_bounds_x1_target), hl  ; 01:6749 - 22 69 D2
    ld     hl, $0030                    ; 01:674C - 21 30 00
-   ld     (var_D26B), hl               ; 01:674F - 22 6B D2
+   ld     (g_camera_sonic_bounds_y0_target), hl  ; 01:674F - 22 6B D2
    ld     hl, $0030                    ; 01:6752 - 21 30 00
-   ld     (var_D26D), hl               ; 01:6755 - 22 6D D2
+   ld     (g_camera_sonic_bounds_y1_target), hl  ; 01:6755 - 22 6D D2
    bit    0, (ix+24)                   ; 01:6758 - DD CB 18 46
    jr     nz, @already_initialised     ; 01:675C - 20 24
    ld     l, (ix+2)                    ; 01:675E - DD 6E 02
@@ -11949,13 +11949,13 @@ objfunc_0F_platform_horizontal:
    cp     $07                          ; 01:6D6C - FE 07
    jr     z, @level_was_JUN2_dont_break_the_camera  ; 01:6D6E - 28 18
    ld     hl, $0020                    ; 01:6D70 - 21 20 00
-   ld     (var_D267), hl               ; 01:6D73 - 22 67 D2
+   ld     (g_camera_sonic_bounds_x0_target), hl  ; 01:6D73 - 22 67 D2
    ld     hl, $0048                    ; 01:6D76 - 21 48 00
-   ld     (var_D269), hl               ; 01:6D79 - 22 69 D2
+   ld     (g_camera_sonic_bounds_x1_target), hl  ; 01:6D79 - 22 69 D2
    ld     hl, $0030                    ; 01:6D7C - 21 30 00
-   ld     (var_D26B), hl               ; 01:6D7F - 22 6B D2
+   ld     (g_camera_sonic_bounds_y0_target), hl  ; 01:6D7F - 22 6B D2
    ld     hl, $0030                    ; 01:6D82 - 21 30 00
-   ld     (var_D26D), hl               ; 01:6D85 - 22 6D D2
+   ld     (g_camera_sonic_bounds_y1_target), hl  ; 01:6D85 - 22 6D D2
 
 @level_was_JUN2_dont_break_the_camera:
    ld     (ix+13), $1A                 ; 01:6D88 - DD 36 0D 1A
@@ -13648,9 +13648,9 @@ SPRITEMAP_chopper_emerging:
 objfunc_27_platform_downwards_tall:
    set    5, (ix+24)                   ; 01:7E02 - DD CB 18 EE
    ld     hl, $0030                    ; 01:7E06 - 21 30 00
-   ld     (var_D267), hl               ; 01:7E09 - 22 67 D2
+   ld     (g_camera_sonic_bounds_x0_target), hl  ; 01:7E09 - 22 67 D2
    ld     hl, $0058                    ; 01:7E0C - 21 58 00
-   ld     (var_D269), hl               ; 01:7E0F - 22 69 D2
+   ld     (g_camera_sonic_bounds_x1_target), hl  ; 01:7E0F - 22 69 D2
    ld     (ix+13), $0C                 ; 01:7E12 - DD 36 0D 0C
    ld     (ix+14), $10                 ; 01:7E16 - DD 36 0E 10
    ld     (ix+15), SPRITEMAP_platform_downwards_tall&$FF  ; 01:7E1A - DD 36 0F 89
@@ -13705,9 +13705,9 @@ SPRITEMAP_platform_downwards_tall:
 objfunc_28_platform_downwards_wide:
    set    5, (ix+24)                   ; 01:7E9B - DD CB 18 EE
    ld     hl, $0030                    ; 01:7E9F - 21 30 00
-   ld     (var_D267), hl               ; 01:7EA2 - 22 67 D2
+   ld     (g_camera_sonic_bounds_x0_target), hl  ; 01:7EA2 - 22 67 D2
    ld     hl, $0058                    ; 01:7EA5 - 21 58 00
-   ld     (var_D269), hl               ; 01:7EA8 - 22 69 D2
+   ld     (g_camera_sonic_bounds_x1_target), hl  ; 01:7EA8 - 22 69 D2
    ld     (ix+13), $1A                 ; 01:7EAB - DD 36 0D 1A
    ld     (ix+14), $10                 ; 01:7EAF - DD 36 0E 10
    ld     (ix+15), SPRITEMAP_platform_downwards_wide&$FF  ; 01:7EB3 - DD 36 0F D9
@@ -19016,9 +19016,9 @@ objfunc_38_SKY_platform_right:
    call   check_collision_with_sonic   ; 02:B2E8 - CD 56 39
    jr     c, @skip_put_sonic_on_platform  ; 02:B2EB - 38 3C
    ld     hl, $0030                    ; 02:B2ED - 21 30 00
-   ld     (var_D26B), hl               ; 02:B2F0 - 22 6B D2
+   ld     (g_camera_sonic_bounds_y0_target), hl  ; 02:B2F0 - 22 6B D2
    ld     hl, $0030                    ; 02:B2F3 - 21 30 00
-   ld     (var_D26D), hl               ; 02:B2F6 - 22 6D D2
+   ld     (g_camera_sonic_bounds_y1_target), hl  ; 02:B2F6 - 22 6D D2
    ld     bc, $0010                    ; 02:B2F9 - 01 10 00
    ld     de, $0000                    ; 02:B2FC - 11 00 00
    call   put_sonic_y_pos_on_platform  ; 02:B2FF - CD C1 7C
@@ -19911,7 +19911,7 @@ SPRTAB_SKY3_boss_teleporting:
 objfunc_46_SKY3_vertical_zappers:
    set    5, (ix+24)                   ; 02:BB84 - DD CB 18 EE
    ld     hl, $0008                    ; 02:BB88 - 21 08 00
-   ld     (var_D26B), hl               ; 02:BB8B - 22 6B D2
+   ld     (g_camera_sonic_bounds_y0_target), hl  ; 02:BB8B - 22 6B D2
    bit    0, (ix+24)                   ; 02:BB8E - DD CB 18 46
    jr     nz, @already_initialised     ; 02:BB92 - 20 13
    ld     hl, ART_0C_EF3F              ; 02:BB94 - 21 3F EF
