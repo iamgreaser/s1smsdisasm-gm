@@ -24259,7 +24259,7 @@ snddrv_stop_music_channel_in_cmd_FF:
    ret                                 ; 03:4528 - C9
 
 CODEPTRLUT_snddrv_cmd_list:
-.dw snddrv_cmd_80, snddrv_cmd_81, snddrv_cmd_82, snddrv_cmd_83, snddrv_cmd_84, snddrv_cmd_85, snddrv_cmd_86, snddrv_cmd_87  ; 03:4529
+.dw snddrv_cmd_80, snddrv_cmd_81, snddrv_cmd_82, snddrv_cmd_83, snddrv_cmd_84, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
 .dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B, snddrv_cmd_8C, snddrv_cmd_8D  ; 03:4539
 
 addr_03_4545:
@@ -24390,12 +24390,12 @@ snddrv_cmd_84:
    inc    de                           ; 03:4629 - 13
    jp     snddrv_next_stream_cmd       ; 03:462A - C3 0D 43
 
-snddrv_cmd_85:
+snddrv_cmd_85_VESTIGIAL:
    ld     a, (de)                      ; 03:462D - 1A
    inc    de                           ; 03:462E - 13
    jp     snddrv_next_stream_cmd       ; 03:462F - C3 0D 43
 
-snddrv_cmd_86:
+snddrv_cmd_86_loop_start:
    ld     l, (ix+32)                   ; 03:4632 - DD 6E 20
    ld     h, (ix+33)                   ; 03:4635 - DD 66 21
    ld     (hl), $00                    ; 03:4638 - 36 00
@@ -24405,25 +24405,25 @@ snddrv_cmd_86:
    ld     (ix+33), h                   ; 03:4641 - DD 74 21
    jp     snddrv_next_stream_cmd       ; 03:4644 - C3 0D 43
 
-snddrv_cmd_87:
+snddrv_cmd_87_loop_end:
    ld     l, (ix+32)                   ; 03:4647 - DD 6E 20
    ld     h, (ix+33)                   ; 03:464A - DD 66 21
    ld     bc, $FFFB                    ; 03:464D - 01 FB FF
    add    hl, bc                       ; 03:4650 - 09
    ld     a, (hl)                      ; 03:4651 - 7E
    and    a                            ; 03:4652 - A7
-   jr     nz, addr_03_465D             ; 03:4653 - 20 08
+   jr     nz, @decrement_loop_counter  ; 03:4653 - 20 08
    ld     a, (de)                      ; 03:4655 - 1A
    dec    a                            ; 03:4656 - 3D
-   jr     z, addr_03_4671              ; 03:4657 - 28 18
+   jr     z, @pop_loop_info_frame      ; 03:4657 - 28 18
    ld     (hl), a                      ; 03:4659 - 77
-   jp     addr_03_4660                 ; 03:465A - C3 60 46
+   jp     @jump_to_loop_point          ; 03:465A - C3 60 46
 
-addr_03_465D:
+@decrement_loop_counter:
    dec    (hl)                         ; 03:465D - 35
-   jr     z, addr_03_4671              ; 03:465E - 28 11
+   jr     z, @pop_loop_info_frame      ; 03:465E - 28 11
 
-addr_03_4660:
+@jump_to_loop_point:
    ex     de, hl                       ; 03:4660 - EB
    inc    hl                           ; 03:4661 - 23
    ld     a, (hl)                      ; 03:4662 - 7E
@@ -24436,7 +24436,7 @@ addr_03_4660:
    ex     de, hl                       ; 03:466D - EB
    jp     snddrv_next_stream_cmd       ; 03:466E - C3 0D 43
 
-addr_03_4671:
+@pop_loop_info_frame:
    ld     (ix+32), l                   ; 03:4671 - DD 75 20
    ld     (ix+33), h                   ; 03:4674 - DD 74 21
    inc    de                           ; 03:4677 - 13
@@ -24465,10 +24465,10 @@ snddrv_cmd_8B:
    ld     a, (ix+44)                   ; 03:4696 - DD 7E 2C
    inc    a                            ; 03:4699 - 3C
    cp     $10                          ; 03:469A - FE 10
-   jr     c, addr_03_46A0              ; 03:469C - 38 02
+   jr     c, @dont_clamp               ; 03:469C - 38 02
    ld     a, $0F                       ; 03:469E - 3E 0F
 
-addr_03_46A0:
+@dont_clamp:
    ld     (ix+44), a                   ; 03:46A0 - DD 77 2C
    ld     a, (snd_flags_04)            ; 03:46A3 - 3A 04 DC
    and    $08                          ; 03:46A6 - E6 08
@@ -24481,10 +24481,10 @@ snddrv_cmd_8C:
    ld     a, (ix+44)                   ; 03:46B4 - DD 7E 2C
    dec    a                            ; 03:46B7 - 3D
    cp     $10                          ; 03:46B8 - FE 10
-   jr     c, addr_03_46BD              ; 03:46BA - 38 01
+   jr     c, @dont_clamp               ; 03:46BA - 38 01
    xor    a                            ; 03:46BC - AF
 
-addr_03_46BD:
+@dont_clamp:
    ld     (ix+44), a                   ; 03:46BD - DD 77 2C
    ld     a, (snd_flags_04)            ; 03:46C0 - 3A 04 DC
    and    $08                          ; 03:46C3 - E6 08
