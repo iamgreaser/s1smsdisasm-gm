@@ -3333,17 +3333,17 @@ run_world_map:
    cp     $12                          ; 00:0C63 - FE 12
    ret    nc                           ; 00:0C65 - D0
    cp     $09                          ; 00:0C66 - FE 09
-   jr     c, addr_00C6C                ; 00:0C68 - 38 02
+   jr     c, @select_first_map         ; 00:0C68 - 38 02
    ld     c, $02                       ; 00:0C6A - 0E 02
 
-addr_00C6C:
+@select_first_map:
    ld     a, (tmp_08)                  ; 00:0C6C - 3A 16 D2
    cp     c                            ; 00:0C6F - B9
-   jp     z, addr_00D3F                ; 00:0C70 - CA 3F 0D
+   jp     z, @map_already_loaded       ; 00:0C70 - CA 3F 0D
    ld     a, c                         ; 00:0C73 - 79
    ld     (tmp_08), a                  ; 00:0C74 - 32 16 D2
    dec    a                            ; 00:0C77 - 3D
-   jr     nz, addr_00CDC               ; 00:0C78 - 20 62
+   jr     nz, @load_second_map         ; 00:0C78 - 20 62
    ld     a, (g_saved_vdp_reg_01)      ; 00:0C7A - 3A 19 D2
    and    $BF                          ; 00:0C7D - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:0C7F - 32 19 D2
@@ -3379,11 +3379,11 @@ addr_00C6C:
    ld     a, $00                       ; 00:0CCC - 3E 00
    ld     (tmp_00), a                  ; 00:0CCE - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0CD1 - CD 01 05
-   ld     hl, LUT_00F0E                ; 00:0CD4 - 21 0E 0F
+   ld     hl, PAL3_world_map_0         ; 00:0CD4 - 21 0E 0F
    call   palette_fade_in_banks_01_02  ; 00:0CD7 - CD 50 0B
-   jr     addr_00D3C                   ; 00:0CDA - 18 60
+   jr     @play_map_jingle             ; 00:0CDA - 18 60
 
-addr_00CDC:
+@load_second_map:
    ld     a, (g_saved_vdp_reg_01)      ; 00:0CDC - 3A 19 D2
    and    $BF                          ; 00:0CDF - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:0CE1 - 32 19 D2
@@ -3419,14 +3419,14 @@ addr_00CDC:
    ld     a, $00                       ; 00:0D2E - 3E 00
    ld     (tmp_00), a                  ; 00:0D30 - 32 0E D2
    call   unpack_art_tilemap_into_vram  ; 00:0D33 - CD 01 05
-   ld     hl, LUT_00F2E                ; 00:0D36 - 21 2E 0F
+   ld     hl, PAL3_world_map_1         ; 00:0D36 - 21 2E 0F
    call   palette_fade_in_banks_01_02  ; 00:0D39 - CD 50 0B
 
-addr_00D3C:
+@play_map_jingle:
    ld     a, $07                       ; 00:0D3C - 3E 07
    rst    $18                          ; 00:0D3E - DF
 
-addr_00D3F:
+@map_already_loaded:
    call   addr_00E86                   ; 00:0D3F - CD 86 0E
    ld     a, (g_level)                 ; 00:0D42 - 3A 3E D2
    add    a, a                         ; 00:0D45 - 87
@@ -3456,7 +3456,7 @@ addr_00D3F:
    ld     (tmp_02), de                 ; 00:0D6A - ED 53 10 D2
    ld     a, (hl)                      ; 00:0D6E - 7E
    and    a                            ; 00:0D6F - A7
-   jr     z, addr_00D80                ; 00:0D70 - 28 0E
+   jr     z, @return_from_map_action   ; 00:0D70 - 28 0E
    dec    a                            ; 00:0D72 - 3D
    add    a, a                         ; 00:0D73 - 87
    ld     e, a                         ; 00:0D74 - 5F
@@ -3466,7 +3466,7 @@ addr_00D3F:
       ld a, (g_inputs_player_1)
       ld (g_saved_vdp_reg_02_UNUSED), a
    .ENDIF
-   ld     hl, LUT_01201                ; 00:0D77 - 21 01 12
+   ld     hl, CODEPTRLUT_initial_map_actions  ; 00:0D77 - 21 01 12
    add    hl, de                       ; 00:0D7A - 19
    ld     a, (hl)                      ; 00:0D7B - 7E
    inc    hl                           ; 00:0D7C - 23
@@ -3474,14 +3474,14 @@ addr_00D3F:
    ld     l, a                         ; 00:0D7E - 6F
    jp     (hl)                         ; 00:0D7F - E9
 
-addr_00D80:
+@return_from_map_action:
    ld     a, $01                       ; 00:0D80 - 3E 01
    ld     (tmp_00), a                  ; 00:0D82 - 32 0E D2
    .IF !mod_world_map_level_select
    ld     bc, $012C                    ; 00:0D85 - 01 2C 01
    .ENDIF
 
-addr_00D88:
+@loop_waiting_for_final_button_1_2_press:
    .IF !mod_world_map_level_select
    push   bc                           ; 00:0D88 - C5
    .ENDIF
@@ -3489,10 +3489,10 @@ addr_00D88:
    ld     a, (tmp_00)                  ; 00:0D8C - 3A 0E D2
    dec    a                            ; 00:0D8F - 3D
    ld     (tmp_00), a                  ; 00:0D90 - 32 0E D2
-   jr     nz, addr_00DB7               ; 00:0D93 - 20 22
+   jr     nz, @overlay_sprite_timer_not_expired_yet  ; 00:0D93 - 20 22
    ld     hl, (tmp_02)                 ; 00:0D95 - 2A 10 D2
 
-addr_00D98:
+@find_overlay_sprite_to_draw:
    ld     e, (hl)                      ; 00:0D98 - 5E
    inc    hl                           ; 00:0D99 - 23
    ld     d, (hl)                      ; 00:0D9A - 56
@@ -3505,16 +3505,16 @@ addr_00D98:
    ld     a, (hl)                      ; 00:0DA4 - 7E
    inc    hl                           ; 00:0DA5 - 23
    and    a                            ; 00:0DA6 - A7
-   jr     nz, addr_00DAD               ; 00:0DA7 - 20 04
+   jr     nz, @found_overlay_sprite    ; 00:0DA7 - 20 04
    ex     de, hl                       ; 00:0DA9 - EB
-   jp     addr_00D98                   ; 00:0DAA - C3 98 0D
+   jp     @find_overlay_sprite_to_draw  ; 00:0DAA - C3 98 0D
 
-addr_00DAD:
+@found_overlay_sprite:
    ld     (tmp_00), a                  ; 00:0DAD - 32 0E D2
    ld     (tmp_02), hl                 ; 00:0DB0 - 22 10 D2
    ld     (tmp_04), de                 ; 00:0DB3 - ED 53 12 D2
 
-addr_00DB7:
+@overlay_sprite_timer_not_expired_yet:
    ld     hl, (tmp_06)                 ; 00:0DB7 - 2A 14 D2
    push   hl                           ; 00:0DBA - E5
    ld     e, h                         ; 00:0DBB - 5C
@@ -3544,27 +3544,27 @@ addr_00DB7:
       ld a, (g_level)
       ;; Now if a bit in C is 1, handle it.
       bit 0, c
-      jp nz, level_select_up
+      jp nz, @level_select_up
       bit 1, c
-      jp nz, level_select_down
+      jp nz, @level_select_down
    .ENDIF
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:0DCF - FD CB 03 6E
-   jp     nz, addr_00D88               ; 00:0DD3 - C2 88 0D
+   jp     nz, @loop_waiting_for_final_button_1_2_press  ; 00:0DD3 - C2 88 0D
    ret    nz                           ; 00:0DD6 - C0
    scf                                 ; 00:0DD7 - 37
    ret                                 ; 00:0DD8 - C9
 
 .IF mod_world_map_level_select
-level_select_up:
+@level_select_up:
    cp $11
-   jp z, addr_00D88
+   jp z, @loop_waiting_for_final_button_1_2_press
    inc a
-   jr level_select_move
-level_select_down:
+   jr @level_select_move
+@level_select_down:
    cp $00
-   jp z, addr_00D88
+   jp z, @loop_waiting_for_final_button_1_2_press
    dec a
-level_select_move:
+@level_select_move:
    ld hl, g_level
    ld b, (hl)
    ld (hl), a
@@ -3576,85 +3576,85 @@ level_select_move:
    xor c
    bit 7, a
    jp nz, run_world_map
-   jp addr_00D3F
+   jp @map_already_loaded
 .ENDIF
 
-addr_00DD9:
+@map_action_01:
    ld     hl, $0000                    ; 00:0DD9 - 21 00 00
    ld     (tmp_00), hl                 ; 00:0DDC - 22 0E D2
    ld     hl, $00DC                    ; 00:0DDF - 21 DC 00
    ld     de, $003C                    ; 00:0DE2 - 11 3C 00
    ld     b, $00                       ; 00:0DE5 - 06 00
 
-addr_00DE7:
+@ma01_loop_1_fly_left_past_screen:
    call   addr_00E86                   ; 00:0DE7 - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0DEA - FD 7E 03
    cp     $FF                          ; 00:0DED - FE FF
-   jp     nz, addr_00D80               ; 00:0DEF - C2 80 0D
+   jp     nz, @return_from_map_action  ; 00:0DEF - C2 80 0D
    push   bc                           ; 00:0DF2 - C5
    ld     bc, LUT_00E72                ; 00:0DF3 - 01 72 0E
    call   addr_00EDD                   ; 00:0DF6 - CD DD 0E
    pop    bc                           ; 00:0DF9 - C1
    dec    hl                           ; 00:0DFA - 2B
-   djnz   addr_00DE7                   ; 00:0DFB - 10 EA
+   djnz   @ma01_loop_1_fly_left_past_screen  ; 00:0DFB - 10 EA
    ld     hl, $0000                    ; 00:0DFD - 21 00 00
    ld     (tmp_00), hl                 ; 00:0E00 - 22 0E D2
    ld     hl, $FFD8                    ; 00:0E03 - 21 D8 FF
    ld     de, $0058                    ; 00:0E06 - 11 58 00
    ld     b, $80                       ; 00:0E09 - 06 80
 
-addr_00E0B:
+@ma01_loop_2_fly_right_into_place:
    call   addr_00E86                   ; 00:0E0B - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0E0E - FD 7E 03
    cp     $FF                          ; 00:0E11 - FE FF
-   jp     nz, addr_00D80               ; 00:0E13 - C2 80 0D
+   jp     nz, @return_from_map_action  ; 00:0E13 - C2 80 0D
    push   bc                           ; 00:0E16 - C5
    ld     bc, LUT_00E7A                ; 00:0E17 - 01 7A 0E
    call   addr_00EDD                   ; 00:0E1A - CD DD 0E
    pop    bc                           ; 00:0E1D - C1
    inc    hl                           ; 00:0E1E - 23
-   djnz   addr_00E0B                   ; 00:0E1F - 10 EA
-   jp     addr_00D80                   ; 00:0E21 - C3 80 0D
+   djnz   @ma01_loop_2_fly_right_into_place  ; 00:0E1F - 10 EA
+   jp     @return_from_map_action      ; 00:0E21 - C3 80 0D
 
-addr_00E24:
+@map_action_02:
    ld     hl, $0000                    ; 00:0E24 - 21 00 00
    ld     (tmp_00), hl                 ; 00:0E27 - 22 0E D2
    ld     hl, $0080                    ; 00:0E2A - 21 80 00
    ld     de, $00C0                    ; 00:0E2D - 11 C0 00
    ld     b, $78                       ; 00:0E30 - 06 78
 
-addr_00E32:
+@ma02_loop_1_fly_up_into_place:
    call   addr_00E86                   ; 00:0E32 - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0E35 - FD 7E 03
    cp     $FF                          ; 00:0E38 - FE FF
-   jp     nz, addr_00D80               ; 00:0E3A - C2 80 0D
+   jp     nz, @return_from_map_action  ; 00:0E3A - C2 80 0D
    push   bc                           ; 00:0E3D - C5
    ld     bc, LUT_00E82                ; 00:0E3E - 01 82 0E
    call   addr_00EDD                   ; 00:0E41 - CD DD 0E
    pop    bc                           ; 00:0E44 - C1
    dec    de                           ; 00:0E45 - 1B
-   djnz   addr_00E32                   ; 00:0E46 - 10 EA
-   jp     addr_00D80                   ; 00:0E48 - C3 80 0D
+   djnz   @ma02_loop_1_fly_up_into_place  ; 00:0E46 - 10 EA
+   jp     @return_from_map_action      ; 00:0E48 - C3 80 0D
 
-addr_00E4B:
+@map_action_03:
    ld     hl, $0000                    ; 00:0E4B - 21 00 00
    ld     (tmp_00), hl                 ; 00:0E4E - 22 0E D2
    ld     hl, $0078                    ; 00:0E51 - 21 78 00
    ld     de, $0000                    ; 00:0E54 - 11 00 00
    ld     b, $30                       ; 00:0E57 - 06 30
 
-addr_00E59:
+@ma03_loop_1_fly_down_into_place:
    call   addr_00E86                   ; 00:0E59 - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0E5C - FD 7E 03
    cp     $FF                          ; 00:0E5F - FE FF
-   jp     nz, addr_00D80               ; 00:0E61 - C2 80 0D
+   jp     nz, @return_from_map_action  ; 00:0E61 - C2 80 0D
    push   bc                           ; 00:0E64 - C5
    ld     bc, LUT_00E82                ; 00:0E65 - 01 82 0E
    call   addr_00EDD                   ; 00:0E68 - CD DD 0E
    pop    bc                           ; 00:0E6B - C1
    inc    de                           ; 00:0E6C - 13
-   djnz   addr_00E59                   ; 00:0E6D - 10 EA
-   jp     addr_00D80                   ; 00:0E6F - C3 80 0D
+   djnz   @ma03_loop_1_fly_down_into_place  ; 00:0E6D - 10 EA
+   jp     @return_from_map_action      ; 00:0E6F - C3 80 0D
 
 LUT_00E72:
 .dw addr_01129                                                                      ; 00:0E72
@@ -3673,7 +3673,7 @@ LUT_00E7E:
 .db $04, $00                                                                        ; 00:0E80
 
 LUT_00E82:
-.dw addr_01183                                                                      ; 00:0E82
+.dw map_SPRTAB_robotnik                                                             ; 00:0E82
 .db $04, $00                                                                        ; 00:0E84
 .ENDIF  ; IF !mod_skip_world_map
 
@@ -3789,11 +3789,11 @@ addr_00EFD:
    pop    hl                           ; 00:0F0C - E1
    ret                                 ; 00:0F0D - C9
 
-LUT_00F0E:
+PAL3_world_map_0:
 .db $35, $01, $06, $0B, $04, $08, $0C, $3D, $1F, $39, $2A, $14, $25, $2B, $00, $3F  ; 00:0F0E
 .db $2B, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $00, $3C, $00, $3F  ; 00:0F1E
 
-LUT_00F2E:
+PAL3_world_map_1:
 .db $25, $01, $06, $0B, $04, $18, $2C, $35, $2B, $10, $2A, $14, $15, $1F, $00, $3F  ; 00:0F2E
 .db $2B, $20, $35, $1B, $16, $2A, $00, $3F, $03, $0F, $01, $15, $07, $2D, $00, $3F  ; 00:0F3E
 
@@ -3830,151 +3830,151 @@ LUT_level_map_info:
 .db $00                                                                             ; 00:0F7A
 .dw level_map_0F_chunks                                                             ; 00:0F7B
 .db $00                                                                             ; 00:0F7D
-.dw level_map_10_chunks                                                             ; 00:0F7E
+.dw level_map_10_11_chunks                                                          ; 00:0F7E
 .db $00                                                                             ; 00:0F80
-.dw level_map_10_chunks                                                             ; 00:0F81
+.dw level_map_10_11_chunks                                                          ; 00:0F81
 .db $00                                                                             ; 00:0F83
 
 level_map_00_chunks:
-.dw addr_010BD                                                                      ; 00:0F84
+.dw map_SPRTAB_GHZ1                                                                 ; 00:0F84
 .db $50, $68, $1E                                                                   ; 00:0F86
-.dw addr_010AB                                                                      ; 00:0F89
+.dw map_SPRTAB_blank                                                                ; 00:0F89
 .db $50, $68, $1E                                                                   ; 00:0F8B
 .dw level_map_00_chunks                                                             ; 00:0F8E
 .db $00, $00, $00                                                                   ; 00:0F90
 
 level_map_01_chunks:
-.dw addr_010CF                                                                      ; 00:0F93
+.dw map_SPRTAB_GHZ2                                                                 ; 00:0F93
 .db $50, $60, $1E                                                                   ; 00:0F95
-.dw addr_010AB                                                                      ; 00:0F98
+.dw map_SPRTAB_blank                                                                ; 00:0F98
 .db $50, $60, $1E                                                                   ; 00:0F9A
 .dw level_map_01_chunks                                                             ; 00:0F9D
 .db $00, $00, $00                                                                   ; 00:0F9F
 
 level_map_03_chunks:
-.dw addr_010E1                                                                      ; 00:0FA2
+.dw map_SPRTAB_BRI1                                                                 ; 00:0FA2
 .db $60, $60, $1E                                                                   ; 00:0FA4
-.dw addr_010AB                                                                      ; 00:0FA7
+.dw map_SPRTAB_blank                                                                ; 00:0FA7
 .db $60, $60, $1E                                                                   ; 00:0FA9
 .dw level_map_03_chunks                                                             ; 00:0FAC
 .db $00, $00, $00                                                                   ; 00:0FAE
 
 level_map_04_chunks:
-.dw addr_010F3                                                                      ; 00:0FB1
+.dw map_SPRTAB_BRI2                                                                 ; 00:0FB1
 .db $80, $50, $1E                                                                   ; 00:0FB3
-.dw addr_010AB                                                                      ; 00:0FB6
+.dw map_SPRTAB_blank                                                                ; 00:0FB6
 .db $80, $50, $1E                                                                   ; 00:0FB8
 .dw level_map_04_chunks                                                             ; 00:0FBB
 .db $00, $00, $00                                                                   ; 00:0FBD
 
 level_map_06_chunks:
-.dw addr_01105                                                                      ; 00:0FC0
+.dw map_SPRTAB_JUN1                                                                 ; 00:0FC0
 .db $70, $48, $1E                                                                   ; 00:0FC2
-.dw addr_010AB                                                                      ; 00:0FC5
+.dw map_SPRTAB_blank                                                                ; 00:0FC5
 .db $70, $48, $1E                                                                   ; 00:0FC7
 .dw level_map_06_chunks                                                             ; 00:0FCA
 .db $00, $00, $00                                                                   ; 00:0FCC
 
 level_map_07_chunks:
-.dw addr_01117                                                                      ; 00:0FCF
+.dw map_SPRTAB_JUN2                                                                 ; 00:0FCF
 .db $70, $38, $1E                                                                   ; 00:0FD1
-.dw addr_010AB                                                                      ; 00:0FD4
+.dw map_SPRTAB_blank                                                                ; 00:0FD4
 .db $70, $38, $1E                                                                   ; 00:0FD6
 .dw level_map_07_chunks                                                             ; 00:0FD9
 .db $00, $00, $00                                                                   ; 00:0FDB
 
 level_map_02_chunks:
-.dw addr_01183                                                                      ; 00:0FDE
+.dw map_SPRTAB_robotnik                                                             ; 00:0FDE
 .db $58, $58, $08                                                                   ; 00:0FE0
-.dw addr_01183                                                                      ; 00:0FE3
+.dw map_SPRTAB_robotnik                                                             ; 00:0FE3
 .db $58, $58, $08                                                                   ; 00:0FE5
-.dw addr_01183                                                                      ; 00:0FE8
+.dw map_SPRTAB_robotnik                                                             ; 00:0FE8
 .db $58, $56, $08                                                                   ; 00:0FEA
-.dw addr_01183                                                                      ; 00:0FED
+.dw map_SPRTAB_robotnik                                                             ; 00:0FED
 .db $58, $56, $08                                                                   ; 00:0FEF
-.dw addr_01183                                                                      ; 00:0FF2
+.dw map_SPRTAB_robotnik                                                             ; 00:0FF2
 .db $58, $55, $08                                                                   ; 00:0FF4
-.dw addr_01183                                                                      ; 00:0FF7
+.dw map_SPRTAB_robotnik                                                             ; 00:0FF7
 .db $58, $55, $08                                                                   ; 00:0FF9
-.dw addr_01183                                                                      ; 00:0FFC
+.dw map_SPRTAB_robotnik                                                             ; 00:0FFC
 .db $58, $56, $08                                                                   ; 00:0FFE
-.dw addr_01183                                                                      ; 00:1001
+.dw map_SPRTAB_robotnik                                                             ; 00:1001
 .db $58, $56, $08                                                                   ; 00:1003
 .dw level_map_02_chunks                                                             ; 00:1006
 .db $00, $00, $00                                                                   ; 00:1008
 
 level_map_09_chunks:
-.dw addr_01195                                                                      ; 00:100B
+.dw map_SPRTAB_LAB1                                                                 ; 00:100B
 .db $58, $68, $1E                                                                   ; 00:100D
-.dw addr_010AB                                                                      ; 00:1010
+.dw map_SPRTAB_blank                                                                ; 00:1010
 .db $58, $68, $1E                                                                   ; 00:1012
 .dw level_map_09_chunks                                                             ; 00:1015
 .db $00, $00, $00                                                                   ; 00:1017
 
 level_map_0A_chunks:
-.dw addr_011A7                                                                      ; 00:101A
+.dw map_SPRTAB_LAB2                                                                 ; 00:101A
 .db $68, $78, $1E                                                                   ; 00:101C
-.dw addr_010AB                                                                      ; 00:101F
+.dw map_SPRTAB_blank                                                                ; 00:101F
 .db $68, $78, $1E                                                                   ; 00:1021
 .dw level_map_0A_chunks                                                             ; 00:1024
 .db $00, $00, $00                                                                   ; 00:1026
 
 level_map_0C_chunks:
-.dw addr_011B9                                                                      ; 00:1029
+.dw map_SPRTAB_SCR1                                                                 ; 00:1029
 .db $70, $58, $1E                                                                   ; 00:102B
-.dw addr_010AB                                                                      ; 00:102E
+.dw map_SPRTAB_blank                                                                ; 00:102E
 .db $70, $58, $1E                                                                   ; 00:1030
 .dw level_map_0C_chunks                                                             ; 00:1033
 .db $00, $00, $00                                                                   ; 00:1035
 
 level_map_0D_chunks:
-.dw addr_011CB                                                                      ; 00:1038
+.dw map_SPRTAB_SCR2                                                                 ; 00:1038
 .db $78, $48, $1E                                                                   ; 00:103A
-.dw addr_010AB                                                                      ; 00:103D
+.dw map_SPRTAB_blank                                                                ; 00:103D
 .db $78, $48, $1E                                                                   ; 00:103F
 .dw level_map_0D_chunks                                                             ; 00:1042
 .db $00, $00, $00                                                                   ; 00:1044
 
 level_map_0F_chunks:
-.dw addr_011DD                                                                      ; 00:1047
+.dw map_SPRTAB_SKY1                                                                 ; 00:1047
 .db $68, $28, $1E                                                                   ; 00:1049
-.dw addr_010AB                                                                      ; 00:104C
+.dw map_SPRTAB_blank                                                                ; 00:104C
 .db $68, $28, $1E                                                                   ; 00:104E
 .dw level_map_0F_chunks                                                             ; 00:1051
 .db $00, $00, $00                                                                   ; 00:1053
 
-level_map_10_chunks:
-.dw addr_011EF                                                                      ; 00:1056
+level_map_10_11_chunks:
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:1056
 .db $80, $28, $1E                                                                   ; 00:1058
-.dw addr_011EF                                                                      ; 00:105B
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:105B
 .db $80, $26, $08                                                                   ; 00:105D
-.dw addr_011EF                                                                      ; 00:1060
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:1060
 .db $80, $26, $08                                                                   ; 00:1062
-.dw addr_011EF                                                                      ; 00:1065
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:1065
 .db $80, $25, $08                                                                   ; 00:1067
-.dw addr_011EF                                                                      ; 00:106A
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:106A
 .db $80, $25, $08                                                                   ; 00:106C
-.dw addr_011EF                                                                      ; 00:106F
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:106F
 .db $80, $26, $08                                                                   ; 00:1071
-.dw addr_011EF                                                                      ; 00:1074
+.dw map_SPRTAB_SKY2_SKY3                                                            ; 00:1074
 .db $80, $26, $08                                                                   ; 00:1076
-.dw level_map_10_chunks                                                             ; 00:1079
+.dw level_map_10_11_chunks                                                          ; 00:1079
 .db $00, $00, $00                                                                   ; 00:107B
 
 level_map_05_chunks:
-.dw addr_01183                                                                      ; 00:107E
+.dw map_SPRTAB_robotnik                                                             ; 00:107E
 .db $80, $48, $08                                                                   ; 00:1080
 .dw level_map_05_chunks                                                             ; 00:1083
 .db $00, $00, $00                                                                   ; 00:1085
 
 level_map_08_chunks:
-.dw addr_01183                                                                      ; 00:1088
+.dw map_SPRTAB_robotnik                                                             ; 00:1088
 .db $78, $30, $08                                                                   ; 00:108A
 .dw level_map_08_chunks                                                             ; 00:108D
 .db $00, $00, $00                                                                   ; 00:108F
 
 level_map_0B_chunks:
-.dw addr_01183                                                                      ; 00:1092
+.dw map_SPRTAB_robotnik                                                             ; 00:1092
 .db $70, $60, $08                                                                   ; 00:1094
 .dw level_map_0B_chunks                                                             ; 00:1097
 .db $00, $00, $00                                                                   ; 00:1099
@@ -3987,31 +3987,31 @@ level_map_0E_chunks:
 .dw level_map_0E_chunks                                                             ; 00:10A6
 .db $00, $00, $00                                                                   ; 00:10A8
 
-addr_010AB:
+map_SPRTAB_blank:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:10AB
 .db $FF, $FF                                                                        ; 00:10BB
 
-addr_010BD:
+map_SPRTAB_GHZ1:
 .db $00, $02, $FF, $FF, $FF, $FF, $FE, $22, $24, $26, $28, $FF, $FF, $FF, $FF, $FF  ; 00:10BD
 .db $FF, $FF                                                                        ; 00:10CD
 
-addr_010CF:
+map_SPRTAB_GHZ2:
 .db $04, $06, $08, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:10CF
 .db $FF, $FF                                                                        ; 00:10DF
 
-addr_010E1:
+map_SPRTAB_BRI1:
 .db $40, $42, $44, $46, $48, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:10E1
 .db $FF, $FF                                                                        ; 00:10F1
 
-addr_010F3:
+map_SPRTAB_BRI2:
 .db $4A, $4C, $FF, $FF, $FF, $FF, $6A, $6C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:10F3
 .db $FF, $FF                                                                        ; 00:1103
 
-addr_01105:
+map_SPRTAB_JUN1:
 .db $60, $62, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1105
 .db $FF, $FF                                                                        ; 00:1115
 
-addr_01117:
+map_SPRTAB_JUN2:
 .db $FE, $FE, $0E, $FF, $FF, $FF, $2A, $2C, $2E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1117
 .db $FF, $FF                                                                        ; 00:1127
 
@@ -4032,36 +4032,36 @@ addr_0115F:
 .db $FF, $FF, $50, $54, $56, $58, $FF, $FF, $70, $74, $76, $78, $FF, $FF, $FF, $FF  ; 00:116F
 .db $FF, $FF, $FF, $FF                                                              ; 00:117F
 
-addr_01183:
+map_SPRTAB_robotnik:
 .db $5A, $5C, $5E, $FF, $FF, $FF, $7A, $7C, $7E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1183
 .db $FF, $FF                                                                        ; 00:1193
 
-addr_01195:
+map_SPRTAB_LAB1:
 .db $00, $02, $FF, $FF, $FF, $FF, $20, $22, $04, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1195
 .db $FF, $FF                                                                        ; 00:11A5
 
-addr_011A7:
+map_SPRTAB_LAB2:
 .db $0A, $0C, $0E, $FF, $FF, $FF, $2A, $2C, $2E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:11A7
 .db $FF, $FF                                                                        ; 00:11B7
 
-addr_011B9:
+map_SPRTAB_SCR1:
 .db $68, $6A, $6C, $FF, $FF, $FF, $FE, $FE, $6E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:11B9
 .db $FF, $FF                                                                        ; 00:11C9
 
-addr_011CB:
+map_SPRTAB_SCR2:
 .db $06, $08, $4A, $4C, $FF, $FF, $FE, $FE, $4E, $3E, $FF, $FF, $FE, $40, $42, $44  ; 00:11CB
 .db $FF, $FF                                                                        ; 00:11DB
 
-addr_011DD:
+map_SPRTAB_SKY1:
 .db $60, $62, $64, $66, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:11DD
 .db $FF, $FF                                                                        ; 00:11ED
 
-addr_011EF:
+map_SPRTAB_SKY2_SKY3:
 .db $46, $48, $26, $28, $FF, $FF, $1A, $1C, $3A, $3C, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:11EF
 .db $FF, $FF                                                                        ; 00:11FF
 
-LUT_01201:
-.dw addr_00DD9, addr_00E24, addr_00E4B, addr_00DD9                                  ; 00:1201
+CODEPTRLUT_initial_map_actions:
+.dw run_world_map@map_action_01, run_world_map@map_action_02, run_world_map@map_action_03, run_world_map@map_action_01  ; 00:1201
 
 LUT_level_titles:
 .dw addr_0122D, addr_0122D, addr_0122D, addr_0123C, addr_0123C, addr_0123C, addr_0124B, addr_0124B  ; 00:1209
