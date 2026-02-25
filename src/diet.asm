@@ -4526,7 +4526,7 @@ handle_level_score_screen:
    call   nz, draw_repeated_16x16_tile_string  ; 00:15BC - C4 D9 16
    ld     a, (g_level)                 ; 00:15BF - 3A 3E D2
    cp     $1C                          ; 00:15C2 - FE 1C
-   jr     nc, _handle_level_score_screen_bonus  ; 00:15C4 - 30 37
+   jr     nc, @skip_drawing_act_number_art  ; 00:15C4 - 30 37
    ld     a, $15                       ; 00:15C6 - 3E 15
    ld     (g_HUD_FFstr_buf), a         ; 00:15C8 - 32 BE D2
    ld     a, $04                       ; 00:15CB - 3E 04
@@ -4534,14 +4534,14 @@ handle_level_score_screen:
    ld     a, (g_level)                 ; 00:15D0 - 3A 3E D2
    ld     e, a                         ; 00:15D3 - 5F
    ld     d, $00                       ; 00:15D4 - 16 00
-   ld     hl, LUT_01B69                ; 00:15D6 - 21 69 1B
+   ld     hl, LUT_level_tally_act_art_offset  ; 00:15D6 - 21 69 1B
    add    hl, de                       ; 00:15D9 - 19
    ld     e, (hl)                      ; 00:15DA - 5E
-   ld     hl, LUT_01B51                ; 00:15DB - 21 51 1B
+   ld     hl, LUT_level_tally_act_art_tiles  ; 00:15DB - 21 51 1B
    add    hl, de                       ; 00:15DE - 19
    ld     b, $04                       ; 00:15DF - 06 04
 
--:
+@each_act_number_art_row:
    push   bc                           ; 00:15E1 - C5
    push   hl                           ; 00:15E2 - E5
    ld     de, g_HUD_FFstr_buf_1        ; 00:15E3 - 11 BF D2
@@ -4559,9 +4559,9 @@ handle_level_score_screen:
    pop    bc                           ; 00:15F8 - C1
    inc    hl                           ; 00:15F9 - 23
    inc    hl                           ; 00:15FA - 23
-   djnz   -                            ; 00:15FB - 10 E4
+   djnz   @each_act_number_art_row     ; 00:15FB - 10 E4
 
-_handle_level_score_screen_bonus:
+@skip_drawing_act_number_art:
    xor    a                            ; 00:15FD - AF
    ld     (g_vdp_scroll_x), a          ; 00:15FE - 32 51 D2
    ld     (g_vdp_scroll_y), a          ; 00:1601 - 32 52 D2
@@ -4570,17 +4570,17 @@ _handle_level_score_screen_bonus:
    call   signal_load_palettes         ; 00:1609 - CD 33 03
    ld     a, (g_level)                 ; 00:160C - 3A 3E D2
    cp     $1C                          ; 00:160F - FE 1C
-   jr     c, +                         ; 00:1611 - 38 12
+   jr     c, @skip_incrementing_special_stage_bonuses  ; 00:1611 - 38 12
    ld     hl, var_D281                 ; 00:1613 - 21 81 D2
    inc    (hl)                         ; 00:1616 - 34
    bit    2, (iy+iy_09-IYBASE)         ; 00:1617 - FD CB 09 56
-   jr     nz, +                        ; 00:161B - 20 08
+   jr     nz, @skip_incrementing_special_stage_bonuses  ; 00:161B - 20 08
    ld     hl, var_D282                 ; 00:161D - 21 82 D2
    inc    (hl)                         ; 00:1620 - 34
    ld     hl, var_D285                 ; 00:1621 - 21 85 D2
    inc    (hl)                         ; 00:1624 - 34
 
-+:
+@skip_incrementing_special_stage_bonuses:
    bit    2, (iy+iy_09-IYBASE)         ; 00:1625 - FD CB 09 56
    call   nz, addr_01719               ; 00:1629 - C4 19 17
    bit    3, (iy+iy_09-IYBASE)         ; 00:162C - FD CB 09 5E
@@ -4589,44 +4589,44 @@ _handle_level_score_screen_bonus:
    ld     de, LUT_time_bonus_scores    ; 00:1636 - 11 4E 15
    ld     b, $08                       ; 00:1639 - 06 08
 
--:
+@each_time_bonus_candidate:
    ld     a, (g_time_mins)             ; 00:163B - 3A CE D2
    cp     (hl)                         ; 00:163E - BE
-   jr     nz, addr_0164B               ; 00:163F - 20 0A
+   jr     nz, @minutes_were_not_equal  ; 00:163F - 20 0A
    inc    hl                           ; 00:1641 - 23
    ld     a, (g_time_secs_BCD)         ; 00:1642 - 3A CF D2
    cp     (hl)                         ; 00:1645 - BE
-   jr     nc, _handle_level_score_screen_UNK_01658  ; 00:1646 - 30 10
+   jr     nc, @time_bonus_selected     ; 00:1646 - 30 10
    inc    hl                           ; 00:1648 - 23
-   jr     addr_0164F                   ; 00:1649 - 18 04
+   jr     @achieved_seconds_were_better_with_equal_minutes  ; 00:1649 - 18 04
 
-addr_0164B:
-   jr     nc, _handle_level_score_screen_UNK_01658  ; 00:164B - 30 0B
+@minutes_were_not_equal:
+   jr     nc, @time_bonus_selected     ; 00:164B - 30 0B
    inc    hl                           ; 00:164D - 23
    inc    hl                           ; 00:164E - 23
 
-addr_0164F:
+@achieved_seconds_were_better_with_equal_minutes:
    inc    de                           ; 00:164F - 13
    inc    de                           ; 00:1650 - 13
-   djnz   -                            ; 00:1651 - 10 E8
+   djnz   @each_time_bonus_candidate   ; 00:1651 - 10 E8
    ld     de, time_bonus_nothing       ; 00:1653 - 11 1E 15
-   jr     ++                           ; 00:1656 - 18 04
+   jr     @using_zero_time_bonus       ; 00:1656 - 18 04
 
-_handle_level_score_screen_UNK_01658:
+@time_bonus_selected:
    ex     de, hl                       ; 00:1658 - EB
    ld     e, (hl)                      ; 00:1659 - 5E
    inc    hl                           ; 00:165A - 23
    ld     d, (hl)                      ; 00:165B - 56
 
-++:
+@using_zero_time_bonus:
    ld     hl, tmp_04                   ; 00:165C - 21 12 D2
    ex     de, hl                       ; 00:165F - EB
    ld     a, (g_level)                 ; 00:1660 - 3A 3E D2
    cp     $1C                          ; 00:1663 - FE 1C
-   jr     c, +                         ; 00:1665 - 38 03
-   ld     hl, LUT_01A14_allzero        ; 00:1667 - 21 14 1A
+   jr     c, @skip_zero_time_bonus_due_to_special_stage  ; 00:1665 - 38 03
+   ld     hl, LUT_zero_time_bonus      ; 00:1667 - 21 14 1A
 
-+:
+@skip_zero_time_bonus_due_to_special_stage:
    ldi                                 ; 00:166A - ED A0
    ldi                                 ; 00:166C - ED A0
    ldi                                 ; 00:166E - ED A0
@@ -4645,7 +4645,7 @@ _handle_level_score_screen_UNK_01658:
    pop    bc                           ; 00:168B - C1
    djnz   @wait_before_counting        ; 00:168C - 10 EA
 
--:
+@loop_count_score_bonuses_down:
    res    0, (iy+iy_00-IYBASE)         ; 00:168E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1692 - CD 1C 03
    call   addr_01A18                   ; 00:1695 - CD 18 1A
@@ -4657,11 +4657,11 @@ _handle_level_score_screen_UNK_01658:
    inc    a                            ; 00:16A6 - 3C
    ld     (tmp_08), a                  ; 00:16A7 - 32 16 D2
    and    $03                          ; 00:16AA - E6 03
-   jr     nz, +                        ; 00:16AC - 20 03
+   jr     nz, @skip_score_count_sound  ; 00:16AC - 20 03
    ld     a, $02                       ; 00:16AE - 3E 02
    rst    $28                          ; 00:16B0 - EF
 
-+:
+@skip_score_count_sound:
    ld     hl, (tmp_04)                 ; 00:16B1 - 2A 12 D2
    ld     de, (tmp_06)                 ; 00:16B4 - ED 5B 14 D2
    ld     a, (g_rings_BCD)             ; 00:16B8 - 3A AA D2
@@ -4669,20 +4669,20 @@ _handle_level_score_screen_UNK_01658:
    or     l                            ; 00:16BC - B5
    or     d                            ; 00:16BD - B2
    or     e                            ; 00:16BE - B3
-   jp     nz, -                        ; 00:16BF - C2 8E 16
+   jp     nz, @loop_count_score_bonuses_down  ; 00:16BF - C2 8E 16
    ld     b, $B4                       ; 00:16C2 - 06 B4
 
--:
+@wait_at_end_for_180_frames_or_button_1_2:
    push   bc                           ; 00:16C4 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:16C5 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:16C9 - CD 1C 03
    call   addr_01A18                   ; 00:16CC - CD 18 1A
    pop    bc                           ; 00:16CF - C1
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:16D0 - FD CB 03 6E
-   jr     z, +                         ; 00:16D4 - 28 02
-   djnz   -                            ; 00:16D6 - 10 EC
+   jr     z, @exit_ending_wait_on_button_1_2  ; 00:16D4 - 28 02
+   djnz   @wait_at_end_for_180_frames_or_button_1_2  ; 00:16D6 - 10 EC
 
-+:
+@exit_ending_wait_on_button_1_2:
    ret                                 ; 00:16D8 - C9
 .ENDIF  ; IF !mod_skip_score_tally
 
@@ -5118,7 +5118,7 @@ addr_01A06:
 
    ret                                 ; 00:1A13 - C9
 
-LUT_01A14_allzero:
+LUT_zero_time_bonus:
 .db $00, $00, $00, $00                                                              ; 00:1A14
 
 addr_01A18:
@@ -5334,11 +5334,11 @@ addr_01B3F:
    ld     hl, g_HUD_FFstr_buf          ; 00:1B4D - 21 BE D2
    ret                                 ; 00:1B50 - C9
 
-LUT_01B51:
+LUT_level_tally_act_art_tiles:
 .db $83, $84, $93, $94, $A3, $A4, $B3, $B4, $85, $86, $95, $96, $A5, $A6, $B5, $B6  ; 00:1B51
 .db $87, $88, $97, $98, $A7, $A8, $B7, $B8                                          ; 00:1B61
 
-LUT_01B69:
+LUT_level_tally_act_art_offset:
 .db $00, $08, $10, $00, $08, $10, $00, $08, $10, $00, $08, $10, $00, $08, $10, $00  ; 00:1B69
 .db $08, $10, $00, $00, $08, $08, $08, $08, $08, $08, $08, $08, $00, $00, $00, $00  ; 00:1B79
 .db $00, $00, $00, $00                                                              ; 00:1B89
