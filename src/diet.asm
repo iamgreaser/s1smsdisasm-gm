@@ -7660,7 +7660,7 @@ LUT_object_offscreen_activation_bounds:
 .dw $0020, $0120, $0020, $00E0, $0100, $01E0, $00C0, $0180                          ; 00:2E32
 .dw $0100, $0200, $0100, $01C0, $0800, $0900, $0800, $08C0                          ; 00:2E42
 
-LUT_02E52:
+FFstr_ring:
 .db $A6, $A8, $FF                                                                   ; 00:2E52
 
 .IF 0
@@ -7759,10 +7759,10 @@ draw_HUD_sprites:
    inc    hl                           ; 00:2EB6 - 23
    ld     de, $0070                    ; 00:2EB7 - 11 70 00
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:2EBA - FD CB 05 76
-   jr     z, addr_02EC3                ; 00:2EBE - 28 03
+   jr     z, @y_camera_is_not_oscillating  ; 00:2EBE - 28 03
    ld     de, $0080                    ; 00:2EC0 - 11 80 00
 
-addr_02EC3:
+@y_camera_is_not_oscillating:
    .IF 0
    ld     a, (hl)                      ; 00:2EC3 - 7E
    inc    hl                           ; 00:2EC4 - 23
@@ -7819,7 +7819,7 @@ draw_HUD_rings:
    ; SAVING: 1 byte
    .ENDIF
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2F08 - 2A 3C D2
-   ld     de, LUT_02E52                ; 00:2F0B - 11 52 2E
+   ld     de, FFstr_ring               ; 00:2F0B - 11 52 2E
    call   draw_sprite_text             ; 00:2F0E - CD CC 35
    .IF 0
    ld     c, $28                       ; 00:2F11 - 0E 28
