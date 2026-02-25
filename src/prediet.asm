@@ -4295,7 +4295,7 @@ load_and_run_level:
    or     h                            ; 00:1D0D - B4
    jp     z, run_ending_credits        ; 00:1D0E - CA 8B 25
    add    hl, de                       ; 00:1D11 - 19
-   call   addr_020CB                   ; 00:1D12 - CD CB 20
+   call   load_and_init_level_from_header  ; 00:1D12 - CD CB 20
    set    0, (iy+iy_02-IYBASE)         ; 00:1D15 - FD CB 02 C6
    set    1, (iy+iy_02-IYBASE)         ; 00:1D19 - FD CB 02 CE
    set    1, (iy+iy_00-IYBASE)         ; 00:1D1D - FD CB 00 CE
@@ -4768,7 +4768,7 @@ fade_out_and_stop_level:
    xor    a                            ; 00:20C9 - AF
    ret                                 ; 00:20CA - C9
 
-addr_020CB:
+load_and_init_level_from_header:
    ld     a, (g_saved_vdp_reg_01)      ; 00:20CB - 3A 19 D2
    and    $BF                          ; 00:20CE - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:20D0 - 32 19 D2
@@ -4804,36 +4804,36 @@ addr_020CB:
    ld     hl, $0800                    ; 00:211E - 21 00 08
    ld     a, (g_level)                 ; 00:2121 - 3A 3E D2
    cp     $09                          ; 00:2124 - FE 09
-   jr     c, addr_0213A                ; 00:2126 - 38 12
+   jr     c, @not_water_level_index    ; 00:2126 - 38 12
    cp     $0B                          ; 00:2128 - FE 0B
-   jr     z, addr_02132                ; 00:212A - 28 06
-   jr     nc, addr_0213A               ; 00:212C - 30 0C
+   jr     z, @is_fully_underwater_level_index  ; 00:212A - 28 06
+   jr     nc, @not_water_level_index   ; 00:212C - 30 0C
    ld     a, (de)                      ; 00:212E - 1A
    and    c                            ; 00:212F - A1
-   jr     z, addr_0213A                ; 00:2130 - 28 08
+   jr     z, @not_water_level_index    ; 00:2130 - 28 08
 
-addr_02132:
+@is_fully_underwater_level_index:
    ld     a, $FF                       ; 00:2132 - 3E FF
    ld     (g_water_level_onscreen_y), a  ; 00:2134 - 32 DB D2
    ld     hl, $0020                    ; 00:2137 - 21 20 00
 
-addr_0213A:
+@not_water_level_index:
    ld     (g_water_level_y), hl        ; 00:213A - 22 DC D2
    ld     hl, $FFFE                    ; 00:213D - 21 FE FF
    ld     (var_D29F), hl               ; 00:2140 - 22 9F D2
-   ld     hl, UNK_023FF                ; 00:2143 - 21 FF 23
+   ld     hl, LUT_normal_stage_start_time  ; 00:2143 - 21 FF 23
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:2146 - FD CB 06 66
-   jr     z, addr_02155                ; 00:214A - 28 09
+   jr     z, @init_time_after_teleport  ; 00:214A - 28 09
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:214C - FD CB 05 46
-   jr     z, addr_02172                ; 00:2150 - 28 20
+   jr     z, @skip_set_init_time_after_teleport  ; 00:2150 - 28 20
    ld     hl, LUT_bonus_stage_time_limits  ; 00:2152 - 21 02 24
 
-addr_02155:
+@init_time_after_teleport:
    xor    a                            ; 00:2155 - AF
    ld     (g_rings_BCD), a             ; 00:2156 - 32 AA D2
    ld     a, (g_level)                 ; 00:2159 - 3A 3E D2
    sub    $1C                          ; 00:215C - D6 1C
-   jr     c, addr_0216A                ; 00:215E - 38 0A
+   jr     c, @set_init_time            ; 00:215E - 38 0A
    ld     c, a                         ; 00:2160 - 4F
    add    a, a                         ; 00:2161 - 87
    add    a, c                         ; 00:2162 - 81
@@ -4842,12 +4842,12 @@ addr_02155:
    ld     hl, LUT_bonus_stage_time_limits_offs_01  ; 00:2166 - 21 05 24
    add    hl, de                       ; 00:2169 - 19
 
-addr_0216A:
+@set_init_time:
    ld     de, g_time_mins              ; 00:216A - 11 CE D2
    ld     bc, $0003                    ; 00:216D - 01 03 00
    ldir                                ; 00:2170 - ED B0
 
-addr_02172:
+@skip_set_init_time_after_teleport:
    ld     hl, ART_09_B92E              ; 00:2172 - 21 2E B9
    ld     de, $3000                    ; 00:2175 - 11 00 30
    ld     a, $09                       ; 00:2178 - 3E 09
@@ -4877,7 +4877,7 @@ addr_02172:
    ex     de, hl                       ; 00:21A4 - EB
    pop    hl                           ; 00:21A5 - E1
    and    c                            ; 00:21A6 - A1
-   jr     z, addr_021C4                ; 00:21A7 - 28 1B
+   jr     z, @checkpoint_not_set       ; 00:21A7 - 28 1B
    cpl                                 ; 00:21A9 - 2F
    ld     c, a                         ; 00:21AA - 4F
    ld     a, (de)                      ; 00:21AB - 1A
@@ -4894,14 +4894,14 @@ addr_02172:
    ld     hl, g_per_level_checkpoint_positions  ; 00:21C0 - 21 2E D3
    add    hl, de                       ; 00:21C3 - 19
 
-addr_021C4:
+@checkpoint_not_set:
    ld     (tmp_08), hl                 ; 00:21C4 - 22 16 D2
    ld     a, (hl)                      ; 00:21C7 - 7E
    sub    $03                          ; 00:21C8 - D6 03
-   jr     nc, addr_021CD               ; 00:21CA - 30 01
+   jr     nc, @dont_clamp_init_x_scroll_left  ; 00:21CA - 30 01
    xor    a                            ; 00:21CC - AF
 
-addr_021CD:
+@dont_clamp_init_x_scroll_left:
    ld     (g_level_scroll_tile_x), a   ; 00:21CD - 32 57 D2
    ld     e, $00                       ; 00:21D0 - 1E 00
    rrca                                ; 00:21D2 - 0F
@@ -4917,10 +4917,10 @@ addr_021CD:
    inc    hl                           ; 00:21E6 - 23
    ld     a, (hl)                      ; 00:21E7 - 7E
    sub    $03                          ; 00:21E8 - D6 03
-   jr     nc, addr_021ED               ; 00:21EA - 30 01
+   jr     nc, @dont_clamp_init_y_scroll_up  ; 00:21EA - 30 01
    xor    a                            ; 00:21EC - AF
 
-addr_021ED:
+@dont_clamp_init_y_scroll_up:
    ld     (g_level_scroll_tile_y), a   ; 00:21ED - 32 58 D2
    ld     e, $00                       ; 00:21F0 - 1E 00
    rrca                                ; 00:21F2 - 0F
@@ -4949,7 +4949,7 @@ addr_021ED:
    ld     a, h                         ; 00:2213 - 7C
    di                                  ; 00:2214 - F3
    cp     $40                          ; 00:2215 - FE 40
-   jr     c, addr_0222E                ; 00:2217 - 38 15
+   jr     c, @layout_starts_on_bank_05  ; 00:2217 - 38 15
    sub    $40                          ; 00:2219 - D6 40
    ld     h, a                         ; 00:221B - 67
    ld     a, $06                       ; 00:221C - 3E 06
@@ -4958,9 +4958,9 @@ addr_021ED:
    ld     a, $07                       ; 00:2224 - 3E 07
    ld     (rompage_2), a               ; 00:2226 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:2229 - 32 36 D2
-   jr     addr_0223E                   ; 00:222C - 18 10
+   jr     @layout_started_on_bank_06   ; 00:222C - 18 10
 
-addr_0222E:
+@layout_starts_on_bank_05:
    ld     a, $05                       ; 00:222E - 3E 05
    ld     (rompage_1), a               ; 00:2230 - 32 FE FF
    ld     (g_committed_rompage_1), a   ; 00:2233 - 32 35 D2
@@ -4968,7 +4968,7 @@ addr_0222E:
    ld     (rompage_2), a               ; 00:2238 - 32 FF FF
    ld     (g_committed_rompage_2), a   ; 00:223B - 32 36 D2
 
-addr_0223E:
+@layout_started_on_bank_06:
    ei                                  ; 00:223E - FB
    ld     de, $4000                    ; 00:223F - 11 00 40
    add    hl, de                       ; 00:2242 - 19
@@ -5094,24 +5094,24 @@ addr_0223E:
    inc    hl                           ; 00:2305 - 23
    ld     a, (g_current_music)         ; 00:2306 - 3A D2 D2
    cp     (hl)                         ; 00:2309 - BE
-   jr     z, addr_02315                ; 00:230A - 28 09
+   jr     z, @dont_play_new_level_music  ; 00:230A - 28 09
    ld     a, (hl)                      ; 00:230C - 7E
    and    a                            ; 00:230D - A7
-   jp     m, addr_02315                ; 00:230E - FA 15 23
+   jp     m, @dont_play_new_level_music  ; 00:230E - FA 15 23
    ld     (g_level_music), a           ; 00:2311 - 32 FC D2
    rst    $18                          ; 00:2314 - DF
 
-addr_02315:
+@dont_play_new_level_music:
    ld     b, $20                       ; 00:2315 - 06 20
    ld     hl, g_object_ptrs            ; 00:2317 - 21 7C D3
    xor    a                            ; 00:231A - AF
 
-addr_0231B:
+@loop_clear_each_object_update_ptr:
    ld     (hl), a                      ; 00:231B - 77
    inc    hl                           ; 00:231C - 23
    ld     (hl), a                      ; 00:231D - 77
    inc    hl                           ; 00:231E - 23
-   djnz   addr_0231B                   ; 00:231F - 10 FA
+   djnz   @loop_clear_each_object_update_ptr  ; 00:231F - 10 FA
    bit    5, (iy+iy_0C_old_lvflag01-IYBASE)  ; 00:2321 - FD CB 0C 6E
    ret    z                            ; 00:2325 - C8
    set    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:2326 - FD CB 06 EE
@@ -5259,7 +5259,7 @@ addr_023EE:
 LUT_023F9:
 .db $05, $04, $03, $02, $01, $00                                                    ; 00:23F9
 
-UNK_023FF:
+LUT_normal_stage_start_time:
 .db $00, $00, $00                                                                   ; 00:23FF
 
 LUT_bonus_stage_time_limits:
