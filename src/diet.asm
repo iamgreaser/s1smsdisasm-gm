@@ -4448,7 +4448,7 @@ sprtext_game_over_continue_row_1:
 PAL3_game_over:
 .INCBIN "src/data/game_over.pal3"
 
-LUT_0151C:
+LUT_normal_stage_ring_bonus_2byte_BCD_big_endian:
 .db $01, $00                                                                        ; 00:151C
 
 time_bonus_nothing:
@@ -4641,18 +4641,18 @@ handle_level_score_screen:
    ld     (g_saved_vdp_reg_01), a      ; 00:167E - 32 19 D2
    res    0, (iy+iy_00-IYBASE)         ; 00:1681 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1685 - CD 1C 03
-   call   addr_01A18                   ; 00:1688 - CD 18 1A
+   call   draw_score_tally_screen      ; 00:1688 - CD 18 1A
    pop    bc                           ; 00:168B - C1
    djnz   @wait_before_counting        ; 00:168C - 10 EA
 
 @loop_count_score_bonuses_down:
    res    0, (iy+iy_00-IYBASE)         ; 00:168E - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1692 - CD 1C 03
-   call   addr_01A18                   ; 00:1695 - CD 18 1A
-   call   addr_019B4                   ; 00:1698 - CD B4 19
+   call   draw_score_tally_screen      ; 00:1695 - CD 18 1A
+   call   score_tally_count_rings_down  ; 00:1698 - CD B4 19
    ld     a, (g_level)                 ; 00:169B - 3A 3E D2
    cp     $1C                          ; 00:169E - FE 1C
-   call   c, bonus_to_score_BCD_UNCONFIRMED  ; 00:16A0 - DC DF 19
+   call   c, transfer_100_bonus_to_score  ; 00:16A0 - DC DF 19
    ld     a, (tmp_08)                  ; 00:16A3 - 3A 16 D2
    inc    a                            ; 00:16A6 - 3C
    ld     (tmp_08), a                  ; 00:16A7 - 32 16 D2
@@ -4676,7 +4676,7 @@ handle_level_score_screen:
    push   bc                           ; 00:16C4 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:16C5 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:16C9 - CD 1C 03
-   call   addr_01A18                   ; 00:16CC - CD 18 1A
+   call   draw_score_tally_screen      ; 00:16CC - CD 18 1A
    pop    bc                           ; 00:16CF - C1
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:16D0 - FD CB 03 6E
    jr     z, @exit_ending_wait_on_button_1_2  ; 00:16D4 - 28 02
@@ -4834,7 +4834,7 @@ handle_final_score_screen:
    ld     (g_chaos_emeralds_collected), a  ; 00:17CC - 32 7F D2
    ld     de, $0000                    ; 00:17CF - 11 00 00
    ld     c, $02                       ; 00:17D2 - 0E 02
-   call   addr_039D8                   ; 00:17D4 - CD D8 39
+   call   add_CHL_points_to_score_in_BCD  ; 00:17D4 - CD D8 39
    ld     a, $02                       ; 00:17D7 - 3E 02
    rst    $28                          ; 00:17D9 - EF
    jp     @each_chaos_emerald          ; 00:17DA - C3 BF 17
@@ -4859,7 +4859,7 @@ handle_final_score_screen:
    ld     (g_lives), a                 ; 00:1801 - 32 46 D2
    ld     de, $5000                    ; 00:1804 - 11 00 50
    ld     c, $00                       ; 00:1807 - 0E 00
-   call   addr_039D8                   ; 00:1809 - CD D8 39
+   call   add_CHL_points_to_score_in_BCD  ; 00:1809 - CD D8 39
    ld     a, $02                       ; 00:180C - 3E 02
    rst    $28                          ; 00:180E - EF
    jp     @each_life                   ; 00:180F - C3 F4 17
@@ -4896,7 +4896,7 @@ handle_final_score_screen:
    ld     (g_ending_special_bonus_BCD_big_endian), a  ; 00:1848 - 32 FF D2
    ld     de, $0000                    ; 00:184B - 11 00 00
    ld     c, $01                       ; 00:184E - 0E 01
-   call   addr_039D8                   ; 00:1850 - CD D8 39
+   call   add_CHL_points_to_score_in_BCD  ; 00:1850 - CD D8 39
    ld     a, $02                       ; 00:1853 - 3E 02
    rst    $28                          ; 00:1855 - EF
    jp     @each_special_bonus_10000_points  ; 00:1856 - C3 2F 18
@@ -4951,7 +4951,7 @@ draw_final_bonus_value_for_BC_frames:
 @not_field_00_chaos_emerald:
    dec    a                            ; 00:18C5 - 3D
    jr     nz, @not_field_01_sonic_left  ; 00:18C6 - 20 1E
-   call   addr_01ACA                   ; 00:18C8 - CD CA 1A
+   call   draw_tally_screen_lives      ; 00:18C8 - CD CA 1A
    ld     hl, LUT_score_BCD_3byte__5000  ; 00:18CB - 21 B1 19
    ld     de, g_HUD_FFstr_buf          ; 00:18CE - 11 BE D2
    ld     b, $03                       ; 00:18D1 - 06 03
@@ -5029,7 +5029,7 @@ LUT_score_BCD_3byte_20000:
 LUT_score_BCD_3byte__5000:
 .db $00, $50, $00                                                                   ; 00:19B1
 
-addr_019B4:
+score_tally_count_rings_down:
    ld     hl, g_rings_BCD              ; 00:19B4 - 21 AA D2
    ld     a, (hl)                      ; 00:19B7 - 7E
    and    a                            ; 00:19B8 - A7
@@ -5038,28 +5038,28 @@ addr_019B4:
    ld     c, a                         ; 00:19BB - 4F
    and    $0F                          ; 00:19BC - E6 0F
    cp     $0A                          ; 00:19BE - FE 0A
-   jr     c, addr_019C6                ; 00:19C0 - 38 04
+   jr     c, @skip_BCD_tens_jump       ; 00:19C0 - 38 04
    ld     a, c                         ; 00:19C2 - 79
    sub    $06                          ; 00:19C3 - D6 06
    ld     c, a                         ; 00:19C5 - 4F
 
-addr_019C6:
+@skip_BCD_tens_jump:
    ld     (hl), c                      ; 00:19C6 - 71
    ld     de, $0100                    ; 00:19C7 - 11 00 01
    ld     c, $00                       ; 00:19CA - 0E 00
    ld     a, (g_level)                 ; 00:19CC - 3A 3E D2
    cp     $1C                          ; 00:19CF - FE 1C
-   jr     c, addr_019DB                ; 00:19D1 - 38 08
+   jr     c, @not_special_stage        ; 00:19D1 - 38 08
    ld     a, (g_special_stage_ring_bonus_mult_big_endian_hi)  ; 00:19D3 - 3A 85 D2
    ld     d, a                         ; 00:19D6 - 57
    ld     a, (g_special_stage_ring_bonus_mult_big_endian_lo)  ; 00:19D7 - 3A 86 D2
    ld     e, a                         ; 00:19DA - 5F
 
-addr_019DB:
-   call   addr_039D8                   ; 00:19DB - CD D8 39
+@not_special_stage:
+   call   add_CHL_points_to_score_in_BCD  ; 00:19DB - CD D8 39
    ret                                 ; 00:19DE - C9
 
-bonus_to_score_BCD_UNCONFIRMED:
+transfer_100_bonus_to_score:
    ld     hl, (tmp_04)                 ; 00:19DF - 2A 12 D2
    ld     de, (tmp_06)                 ; 00:19E2 - ED 5B 14 D2
    ld     a, h                         ; 00:19E6 - 7C
@@ -5074,31 +5074,31 @@ bonus_to_score_BCD_UNCONFIRMED:
    ld     hl, tmp_06                   ; 00:19ED - 21 14 D2
    scf                                 ; 00:19F0 - 37
 
-addr_019F1:
+@each_bonus_score_byte:
    ld     a, (hl)                      ; 00:19F1 - 7E
    sbc    a, $00                       ; 00:19F2 - DE 00
    ld     c, a                         ; 00:19F4 - 4F
    and    $0F                          ; 00:19F5 - E6 0F
    cp     $0A                          ; 00:19F7 - FE 0A
-   jr     c, addr_019FF                ; 00:19F9 - 38 04
+   jr     c, @skip_BCD_tens_jump       ; 00:19F9 - 38 04
    ld     a, c                         ; 00:19FB - 79
    sub    $06                          ; 00:19FC - D6 06
    ld     c, a                         ; 00:19FE - 4F
 
-addr_019FF:
+@skip_BCD_tens_jump:
    ld     a, c                         ; 00:19FF - 79
    cp     $A0                          ; 00:1A00 - FE A0
-   jr     c, addr_01A06                ; 00:1A02 - 38 02
+   jr     c, @skip_BCD_hundreds_jump   ; 00:1A02 - 38 02
    sub    $60                          ; 00:1A04 - D6 60
 
-addr_01A06:
+@skip_BCD_hundreds_jump:
    ld     (hl), a                      ; 00:1A06 - 77
    ccf                                 ; 00:1A07 - 3F
    dec    hl                           ; 00:1A08 - 2B
-   djnz   addr_019F1                   ; 00:1A09 - 10 E6
+   djnz   @each_bonus_score_byte       ; 00:1A09 - 10 E6
    ld     de, $0100                    ; 00:1A0B - 11 00 01
    ld     c, $00                       ; 00:1A0E - 0E 00
-   call   addr_039D8                   ; 00:1A10 - CD D8 39
+   call   add_CHL_points_to_score_in_BCD  ; 00:1A10 - CD D8 39
 
    .ELSE
    ;; New code
@@ -5113,7 +5113,7 @@ addr_01A06:
       ld (hl), a
       dec hl
       djnz -
-   call addr_039D8
+   call add_CHL_points_to_score_in_BCD
    .ENDIF
 
    ret                                 ; 00:1A13 - C9
@@ -5121,7 +5121,7 @@ addr_01A06:
 LUT_zero_time_bonus:
 .db $00, $00, $00, $00                                                              ; 00:1A14
 
-addr_01A18:
+draw_score_tally_screen:
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:1A18 - FD 36 0A 00
    ld     hl, g_sprite_table           ; 00:1A1C - 21 00 D0
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A1F - 22 3C D2
@@ -5155,39 +5155,39 @@ addr_01A18:
    .ENDIF
    ld     a, (g_level)                 ; 00:1A4E - 3A 3E D2
    cp     $1C                          ; 00:1A51 - FE 1C
-   jr     c, addr_01A57                ; 00:1A53 - 38 02
+   jr     c, @skip_special_stage_ring_score_positioning  ; 00:1A53 - 38 02
    ld     b, $68                       ; 00:1A55 - 06 68
 
-addr_01A57:
+@skip_special_stage_ring_score_positioning:
    call   draw_sprite_text             ; 00:1A57 - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A5A - 22 3C D2
    ld     a, (g_level)                 ; 00:1A5D - 3A 3E D2
    cp     $1C                          ; 00:1A60 - FE 1C
-   jr     c, addr_01A73                ; 00:1A62 - 38 0F
+   jr     c, @draw_non_special_stage_ring_bonus  ; 00:1A62 - 38 0F
    ld     hl, g_special_stage_ring_bonus_mult_big_endian_hi  ; 00:1A64 - 21 85 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A67 - 11 BE D2
    ld     b, $02                       ; 00:1A6A - 06 02
    call   build_BCD_FFstr              ; 00:1A6C - CD 13 1B
    ld     b, $68                       ; 00:1A6F - 06 68
-   jr     addr_01A80                   ; 00:1A71 - 18 0D
+   jr     @did_draw_special_stage_ring_bonus  ; 00:1A71 - 18 0D
 
-addr_01A73:
-   ld     hl, LUT_0151C                ; 00:1A73 - 21 1C 15
+@draw_non_special_stage_ring_bonus:
+   ld     hl, LUT_normal_stage_ring_bonus_2byte_BCD_big_endian  ; 00:1A73 - 21 1C 15
    ld     de, g_HUD_FFstr_buf          ; 00:1A76 - 11 BE D2
    ld     b, $02                       ; 00:1A79 - 06 02
    call   build_BCD_FFstr              ; 00:1A7B - CD 13 1B
    ld     b, $80                       ; 00:1A7E - 06 80
 
-addr_01A80:
+@did_draw_special_stage_ring_bonus:
    ld     c, $C0                       ; 00:1A80 - 0E C0
    ex     de, hl                       ; 00:1A82 - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1A83 - 2A 3C D2
    call   draw_sprite_text             ; 00:1A86 - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1A89 - 22 3C D2
-   call   addr_01ACA                   ; 00:1A8C - CD CA 1A
+   call   draw_tally_screen_lives      ; 00:1A8C - CD CA 1A
    ld     a, (g_level)                 ; 00:1A8F - 3A 3E D2
    cp     $1C                          ; 00:1A92 - FE 1C
-   jr     nc, addr_01AB0               ; 00:1A94 - 30 1A
+   jr     nc, @draw_continues_instead_of_time_bonus  ; 00:1A94 - 30 1A
    ld     hl, tmp_04                   ; 00:1A96 - 21 12 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A99 - 11 BE D2
    ld     b, $04                       ; 00:1A9C - 06 04
@@ -5205,7 +5205,7 @@ addr_01A80:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1AAC - 22 3C D2
    ret                                 ; 00:1AAF - C9
 
-addr_01AB0:
+@draw_continues_instead_of_time_bonus:
    ld     hl, g_continues              ; 00:1AB0 - 21 84 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1AB3 - 11 BE D2
    ld     b, $01                       ; 00:1AB6 - 06 01
@@ -5223,7 +5223,7 @@ addr_01AB0:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1AC6 - 22 3C D2
    ret                                 ; 00:1AC9 - C9
 
-addr_01ACA:
+draw_tally_screen_lives:
    .IF 0
    ld     a, (g_lives)                 ; 00:1ACA - 3A 46 D2
    ld     l, a                         ; 00:1ACD - 6F
@@ -5260,7 +5260,7 @@ addr_01ACA:
    .ENDIF
    ld     a, (g_level)                 ; 00:1AFB - 3A 3E D2
    cp     $13                          ; 00:1AFE - FE 13
-   jr     nz, addr_01B06               ; 00:1B00 - 20 04
+   jr     nz, @position_was_not_for_final_tally  ; 00:1B00 - 20 04
    .IF 0
    ld     b, $60                       ; 00:1B02 - 06 60
    ld     c, $90                       ; 00:1B04 - 0E 90
@@ -5269,7 +5269,7 @@ addr_01ACA:
    ; SAVING: 1 byte
    .ENDIF
 
-addr_01B06:
+@position_was_not_for_final_tally:
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1B06 - 2A 3C D2
    ld     de, g_HUD_FFstr_buf          ; 00:1B09 - 11 BE D2
    call   draw_sprite_text             ; 00:1B0C - CD CC 35
@@ -9137,7 +9137,7 @@ addr_036BE:
    rst    $28                          ; 00:36EF - EF
    ld     de, $0100                    ; 00:36F0 - 11 00 01
    ld     c, $00                       ; 00:36F3 - 0E 00
-   call   addr_039D8                   ; 00:36F5 - CD D8 39
+   call   add_CHL_points_to_score_in_BCD  ; 00:36F5 - CD D8 39
    ret                                 ; 00:36F8 - C9
 
 ;; This function gets called roughly 2 times per on-screen objfunc, except a not-dead Sonic calls this 4 times.
@@ -9769,7 +9769,7 @@ add_A_rings:
    ; SAVING: 26 bytes
 .ENDIF
 
-addr_039D8:
+add_CHL_points_to_score_in_BCD:
    ld     hl, g_score_BCD_big_endian_lo  ; 00:39D8 - 21 BD D2
    ld     a, e                         ; 00:39DB - 7B
    add    a, (hl)                      ; 00:39DC - 86
