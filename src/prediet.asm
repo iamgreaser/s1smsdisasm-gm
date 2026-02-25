@@ -4293,7 +4293,7 @@ load_and_run_level:
    ld     h, (hl)                      ; 00:1D0B - 66
    ld     l, a                         ; 00:1D0C - 6F
    or     h                            ; 00:1D0D - B4
-   jp     z, run_ending_credits        ; 00:1D0E - CA 8B 25
+   jp     z, run_ending_and_credits    ; 00:1D0E - CA 8B 25
    add    hl, de                       ; 00:1D11 - 19
    call   load_and_init_level_from_header  ; 00:1D12 - CD CB 20
    set    0, (iy+iy_02-IYBASE)         ; 00:1D15 - FD CB 02 C6
@@ -5269,7 +5269,7 @@ LUT_bonus_stage_time_limits_offs_01:
 .db $01, $00, $00, $01, $00, $00, $00, $45, $00, $00, $50, $00, $00, $45, $00, $00  ; 00:2405
 .db $50, $00, $00, $50, $00, $00, $30, $00                                          ; 00:2415
 
-UNK_0241D:
+LUT_ending_chaos_emerald_spin_animation:
 .db $01, $00, $00, $01, $00, $01, $02, $00, $01, $02, $FF, $02, $03, $01, $01, $03  ; 00:241D
 .db $FE, $02, $04, $01, $01, $04, $FD, $03, $05, $02, $01, $06, $FB, $03, $06, $03  ; 00:242D
 .db $00, $07, $FA, $03, $06, $05, $FF, $08, $F9, $03, $07, $06, $FE, $09, $F7, $03  ; 00:243D
@@ -5294,7 +5294,7 @@ UNK_0241D:
 .db $3E, $E4, $37, $28, $F9, $44, $42, $EB, $33, $2E, $F2, $44, $45, $F1, $2F, $34  ; 00:256D
 .db $EA, $43, $47, $F9, $2A, $3A, $E3, $41, $49, $00, $24, $3F, $DC, $3F            ; 00:257D
 
-run_ending_credits:
+run_ending_and_credits:
    ld     a, (g_saved_vdp_reg_01)      ; 00:258B - 3A 19 D2
    and    $BF                          ; 00:258E - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:2590 - 32 19 D2
@@ -5329,27 +5329,27 @@ run_ending_credits:
    ld     (g_committed_rompage_1), a   ; 00:25E0 - 32 35 D2
    ld     a, (g_chaos_emeralds_collected)  ; 00:25E3 - 3A 7F D2
    cp     $06                          ; 00:25E6 - FE 06
-   jp     c, addr_02693                ; 00:25E8 - DA 93 26
+   jp     c, @skip_good_ending         ; 00:25E8 - DA 93 26
    ld     b, $3C                       ; 00:25EB - 06 3C
 
-addr_025ED:
+@good_ending_chaos_emeralds_together:
    push   bc                           ; 00:25ED - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:25EE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:25F2 - CD 1C 03
    ld     hl, g_sprite_table           ; 00:25F5 - 21 00 D0
    ld     c, $70                       ; 00:25F8 - 0E 70
    ld     b, $60                       ; 00:25FA - 06 60
-   ld     de, LUT_02825                ; 00:25FC - 11 25 28
+   ld     de, FFstr_chaos_emerald_or_monitor_image  ; 00:25FC - 11 25 28
    call   draw_sprite_text             ; 00:25FF - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2602 - 22 3C D2
    pop    bc                           ; 00:2605 - C1
-   djnz   addr_025ED                   ; 00:2606 - 10 E5
+   djnz   @good_ending_chaos_emeralds_together  ; 00:2606 - 10 E5
    ld     a, $13                       ; 00:2608 - 3E 13
    rst    $18                          ; 00:260A - DF
-   ld     hl, UNK_0241D                ; 00:260B - 21 1D 24
+   ld     hl, LUT_ending_chaos_emerald_spin_animation  ; 00:260B - 21 1D 24
    ld     b, $3D                       ; 00:260E - 06 3D
 
-addr_02610:
+@good_ending_chaos_emeralds_spin_animation:
    push   bc                           ; 00:2610 - C5
    ld     c, (iy+g_sprite_count-IYBASE)  ; 00:2611 - FD 4E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:2614 - FD CB 00 86
@@ -5361,7 +5361,7 @@ addr_02610:
    ld     (g_next_avail_vdp_sprite_ptr), de  ; 00:2628 - ED 53 3C D2
    ld     b, $03                       ; 00:262C - 06 03
 
-addr_0262E:
+@each_chaos_emerald_pair_spinning:
    push   bc                           ; 00:262E - C5
    push   hl                           ; 00:262F - E5
    ld     a, $70                       ; 00:2630 - 3E 70
@@ -5373,7 +5373,7 @@ addr_0262E:
    ld     b, a                         ; 00:2638 - 47
    inc    hl                           ; 00:2639 - 23
    push   bc                           ; 00:263A - C5
-   ld     de, LUT_02825                ; 00:263B - 11 25 28
+   ld     de, FFstr_chaos_emerald_or_monitor_image  ; 00:263B - 11 25 28
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:263E - 2A 3C D2
    call   draw_sprite_text             ; 00:2641 - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2644 - 22 3C D2
@@ -5390,15 +5390,15 @@ addr_0262E:
    ld     b, a                         ; 00:2655 - 47
    inc    hl                           ; 00:2656 - 23
    push   hl                           ; 00:2657 - E5
-   ld     de, LUT_02825                ; 00:2658 - 11 25 28
+   ld     de, FFstr_chaos_emerald_or_monitor_image  ; 00:2658 - 11 25 28
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:265B - 2A 3C D2
    call   draw_sprite_text             ; 00:265E - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2661 - 22 3C D2
    pop    hl                           ; 00:2664 - E1
    pop    bc                           ; 00:2665 - C1
-   djnz   addr_0262E                   ; 00:2666 - 10 C6
+   djnz   @each_chaos_emerald_pair_spinning  ; 00:2666 - 10 C6
    pop    bc                           ; 00:2668 - C1
-   djnz   addr_02610                   ; 00:2669 - 10 A5
+   djnz   @good_ending_chaos_emeralds_spin_animation  ; 00:2669 - 10 A5
    ld     hl, LUT_02047_all7F          ; 00:266B - 21 47 20
    call   palette_fade_up              ; 00:266E - CD 60 0B
    ld     (iy+g_sprite_count-IYBASE), $00  ; 00:2671 - FD 36 0A 00
@@ -5414,15 +5414,15 @@ addr_0262E:
    ld     hl, PAL3_ending_tally        ; 00:268D - 21 28 28
    call   fade_screen_down_to_palette  ; 00:2690 - CD AE 0A
 
-addr_02693:
+@skip_good_ending:
    ld     bc, $00F0                    ; 00:2693 - 01 F0 00
-   call   addr_02745                   ; 00:2696 - CD 45 27
+   call   wait_BC_frames_for_pre_credits_delay  ; 00:2696 - CD 45 27
    call   handle_level_score_screen    ; 00:2699 - CD 5E 15
    ld     bc, $00F0                    ; 00:269C - 01 F0 00
-   call   addr_02745                   ; 00:269F - CD 45 27
+   call   wait_BC_frames_for_pre_credits_delay  ; 00:269F - CD 45 27
    call   fade_screen_to_black         ; 00:26A2 - CD 40 0A
    ld     bc, $0078                    ; 00:26A5 - 01 78 00
-   call   addr_02745                   ; 00:26A8 - CD 45 27
+   call   wait_BC_frames_for_pre_credits_delay  ; 00:26A8 - CD 45 27
    ld     hl, ART_0C_1801              ; 00:26AB - 21 01 18
    ld     de, $0000                    ; 00:26AE - 11 00 00
    ld     a, $0C                       ; 00:26B1 - 3E 0C
@@ -5466,26 +5466,26 @@ addr_02693:
    inc    hl                           ; 00:26FA - 23
    ld     (hl), a                      ; 00:26FB - 77
    ld     bc, $0001                    ; 00:26FC - 01 01 00
-   call   addr_02718                   ; 00:26FF - CD 18 27
-   ld     hl, LUT_02AD6                ; 00:2702 - 21 D6 2A
+   call   wait_BC_frames_while_updating_credits_sprites  ; 00:26FF - CD 18 27
+   ld     hl, PAL3_credits             ; 00:2702 - 21 D6 2A
    call   palette_fade_in_banks_01_02  ; 00:2705 - CD 50 0B
    ld     a, $0E                       ; 00:2708 - 3E 0E
    rst    $18                          ; 00:270A - DF
    xor    a                            ; 00:270B - AF
    ld     (tmp_00), a                  ; 00:270C - 32 0E D2
-   ld     hl, UNK_2905                 ; 00:270F - 21 05 29
-   call   addr_02795                   ; 00:2712 - CD 95 27
+   ld     hl, credits_text_sequence_script_data  ; 00:270F - 21 05 29
+   call   run_credits_text_sequence    ; 00:2712 - CD 95 27
 
-end_of_credits_infloop:
-   jp     end_of_credits_infloop       ; 00:2715 - C3 15 27
+@end_of_credits_infloop:
+   jp     @end_of_credits_infloop      ; 00:2715 - C3 15 27
 
-addr_02718:
+wait_BC_frames_while_updating_credits_sprites:
    push   af                           ; 00:2718 - F5
    push   hl                           ; 00:2719 - E5
    push   de                           ; 00:271A - D5
    push   bc                           ; 00:271B - C5
 
-addr_0271C:
+@each_frame:
    push   bc                           ; 00:271C - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:271D - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:2721 - CD 1C 03
@@ -5495,23 +5495,23 @@ addr_0271C:
    ld     hl, g_credits_sprites        ; 00:272E - 21 22 D3
    ld     b, $04                       ; 00:2731 - 06 04
 
-addr_02733:
+@each_credits_sprite:
    push   bc                           ; 00:2733 - C5
-   call   addr_0275A                   ; 00:2734 - CD 5A 27
+   call   draw_credits_sprite          ; 00:2734 - CD 5A 27
    pop    bc                           ; 00:2737 - C1
-   djnz   addr_02733                   ; 00:2738 - 10 F9
+   djnz   @each_credits_sprite         ; 00:2738 - 10 F9
    pop    bc                           ; 00:273A - C1
    dec    bc                           ; 00:273B - 0B
    ld     a, b                         ; 00:273C - 78
    or     c                            ; 00:273D - B1
-   jr     nz, addr_0271C               ; 00:273E - 20 DC
+   jr     nz, @each_frame              ; 00:273E - 20 DC
    pop    bc                           ; 00:2740 - C1
    pop    de                           ; 00:2741 - D1
    pop    hl                           ; 00:2742 - E1
    pop    af                           ; 00:2743 - F1
    ret                                 ; 00:2744 - C9
 
-addr_02745:
+wait_BC_frames_for_pre_credits_delay:
    push   bc                           ; 00:2745 - C5
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:2746 - FD 7E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:2749 - FD CB 00 86
@@ -5521,10 +5521,10 @@ addr_02745:
    dec    bc                           ; 00:2754 - 0B
    ld     a, b                         ; 00:2755 - 78
    or     c                            ; 00:2756 - B1
-   jr     nz, addr_02745               ; 00:2757 - 20 EC
+   jr     nz, wait_BC_frames_for_pre_credits_delay  ; 00:2757 - 20 EC
    ret                                 ; 00:2759 - C9
 
-addr_0275A:
+draw_credits_sprite:
    ld     e, (hl)                      ; 00:275A - 5E
    inc    hl                           ; 00:275B - 23
    ld     d, (hl)                      ; 00:275C - 56
@@ -5532,7 +5532,7 @@ addr_0275A:
    inc    (hl)                         ; 00:275E - 34
    ld     a, (de)                      ; 00:275F - 1A
    cp     (hl)                         ; 00:2760 - BE
-   jr     nc, addr_0277E               ; 00:2761 - 30 1B
+   jr     nc, @found_sprite_to_draw    ; 00:2761 - 30 1B
    ld     (hl), $00                    ; 00:2763 - 36 00
    inc    de                           ; 00:2765 - 13
    inc    de                           ; 00:2766 - 13
@@ -5545,7 +5545,7 @@ addr_0275A:
    inc    hl                           ; 00:276D - 23
    ld     a, (de)                      ; 00:276E - 1A
    cp     $FF                          ; 00:276F - FE FF
-   jr     nz, addr_0277E               ; 00:2771 - 20 0B
+   jr     nz, @found_sprite_to_draw    ; 00:2771 - 20 0B
    inc    de                           ; 00:2773 - 13
    ld     a, (de)                      ; 00:2774 - 1A
    ld     b, a                         ; 00:2775 - 47
@@ -5555,9 +5555,9 @@ addr_0275A:
    ld     (hl), a                      ; 00:2779 - 77
    dec    hl                           ; 00:277A - 2B
    ld     (hl), b                      ; 00:277B - 70
-   jr     addr_0275A                   ; 00:277C - 18 DC
+   jr     draw_credits_sprite          ; 00:277C - 18 DC
 
-addr_0277E:
+@found_sprite_to_draw:
    inc    hl                           ; 00:277E - 23
    inc    de                           ; 00:277F - 13
    push   hl                           ; 00:2780 - E5
@@ -5579,7 +5579,7 @@ addr_0277E:
    pop    hl                           ; 00:2793 - E1
    ret                                 ; 00:2794 - C9
 
-addr_02795:
+run_credits_text_sequence:
    ld     de, g_HUD_FFstr_buf          ; 00:2795 - 11 BE D2
    ldi                                 ; 00:2798 - ED A0
    ldi                                 ; 00:279A - ED A0
@@ -5587,56 +5587,56 @@ addr_02795:
    ld     a, $FF                       ; 00:279D - 3E FF
    ld     (de), a                      ; 00:279F - 12
 
-addr_027A0:
+@read_next_cmd:
    ld     a, (hl)                      ; 00:27A0 - 7E
    inc    hl                           ; 00:27A1 - 23
    cp     $FF                          ; 00:27A2 - FE FF
    ret    z                            ; 00:27A4 - C8
    cp     $FE                          ; 00:27A5 - FE FE
-   jr     z, addr_02795                ; 00:27A7 - 28 EC
+   jr     z, run_credits_text_sequence  ; 00:27A7 - 28 EC
    cp     $FC                          ; 00:27A9 - FE FC
-   jr     z, addr_027D1                ; 00:27AB - 28 24
+   jr     z, @cmd_FC_scroll_up_x_times  ; 00:27AB - 28 24
    cp     $FD                          ; 00:27AD - FE FD
-   jr     nz, addr_027BA               ; 00:27AF - 20 09
+   jr     nz, @cmd_text_char_wait_8_frames  ; 00:27AF - 20 09
    ld     c, (hl)                      ; 00:27B1 - 4E
    inc    hl                           ; 00:27B2 - 23
    ld     b, (hl)                      ; 00:27B3 - 46
    inc    hl                           ; 00:27B4 - 23
-   call   addr_02718                   ; 00:27B5 - CD 18 27
-   jr     addr_027A0                   ; 00:27B8 - 18 E6
+   call   wait_BC_frames_while_updating_credits_sprites  ; 00:27B5 - CD 18 27
+   jr     @read_next_cmd               ; 00:27B8 - 18 E6
 
-addr_027BA:
+@cmd_text_char_wait_8_frames:
    push   hl                           ; 00:27BA - E5
    ld     (g_HUD_FFstr_buf_2), a       ; 00:27BB - 32 C0 D2
    ld     bc, $0008                    ; 00:27BE - 01 08 00
-   call   addr_02718                   ; 00:27C1 - CD 18 27
+   call   wait_BC_frames_while_updating_credits_sprites  ; 00:27C1 - CD 18 27
    ld     hl, g_HUD_FFstr_buf          ; 00:27C4 - 21 BE D2
    call   print_positioned_FF_string   ; 00:27C7 - CD AF 05
    ld     hl, g_HUD_FFstr_buf          ; 00:27CA - 21 BE D2
    inc    (hl)                         ; 00:27CD - 34
    pop    hl                           ; 00:27CE - E1
-   jr     addr_027A0                   ; 00:27CF - 18 CF
+   jr     @read_next_cmd               ; 00:27CF - 18 CF
 
-addr_027D1:
+@cmd_FC_scroll_up_x_times:
    ld     b, (hl)                      ; 00:27D1 - 46
    inc    hl                           ; 00:27D2 - 23
    push   hl                           ; 00:27D3 - E5
 
-addr_027D4:
+@each_scroll_step:
    push   bc                           ; 00:27D4 - C5
    ld     bc, $000C                    ; 00:27D5 - 01 0C 00
-   call   addr_02718                   ; 00:27D8 - CD 18 27
+   call   wait_BC_frames_while_updating_credits_sprites  ; 00:27D8 - CD 18 27
    ld     de, $3AA4                    ; 00:27DB - 11 A4 3A
    ld     hl, $3AE4                    ; 00:27DE - 21 E4 3A
    ld     b, $09                       ; 00:27E1 - 06 09
 
-addr_027E3:
+@each_line_to_copy:
    push   bc                           ; 00:27E3 - C5
    push   hl                           ; 00:27E4 - E5
    push   de                           ; 00:27E5 - D5
    ld     b, $14                       ; 00:27E6 - 06 14
 
-addr_027E8:
+@each_char_to_copy:
    di                                  ; 00:27E8 - F3
    ld     a, l                         ; 00:27E9 - 7D
    out    ($BF), a                     ; 00:27EA - D3 BF
@@ -5662,7 +5662,7 @@ addr_027E8:
    ei                                  ; 00:280D - FB
    inc    hl                           ; 00:280E - 23
    inc    de                           ; 00:280F - 13
-   djnz   addr_027E8                   ; 00:2810 - 10 D6
+   djnz   @each_char_to_copy           ; 00:2810 - 10 D6
    pop    de                           ; 00:2812 - D1
    pop    hl                           ; 00:2813 - E1
    ld     bc, $0040                    ; 00:2814 - 01 40 00
@@ -5671,13 +5671,13 @@ addr_027E8:
    add    hl, bc                       ; 00:2819 - 09
    ex     de, hl                       ; 00:281A - EB
    pop    bc                           ; 00:281B - C1
-   djnz   addr_027E3                   ; 00:281C - 10 C5
+   djnz   @each_line_to_copy           ; 00:281C - 10 C5
    pop    bc                           ; 00:281E - C1
-   djnz   addr_027D4                   ; 00:281F - 10 B3
+   djnz   @each_scroll_step            ; 00:281F - 10 B3
    pop    hl                           ; 00:2821 - E1
-   jp     addr_027A0                   ; 00:2822 - C3 A0 27
+   jp     @read_next_cmd               ; 00:2822 - C3 A0 27
 
-LUT_02825:
+FFstr_chaos_emerald_or_monitor_image:
 .db $5C, $5E, $FF                                                                   ; 00:2825
 
 PAL3_ending_tally:
@@ -5687,13 +5687,13 @@ credits_sprite_00:
 .db $96                                                                             ; 00:2848
 
 credits_sprite_00_ptrs:
-.dw addr_02902                                                                      ; 00:2849
+.dw cs00_blank                                                                      ; 00:2849
 .db $86                                                                             ; 00:284B
-.dw addr_0289F                                                                      ; 00:284C
+.dw cs00_visible                                                                    ; 00:284C
 .db $E9                                                                             ; 00:284E
-.dw addr_02902                                                                      ; 00:284F
+.dw cs00_blank                                                                      ; 00:284F
 .db $6F                                                                             ; 00:2851
-.dw addr_0289F                                                                      ; 00:2852
+.dw cs00_visible                                                                    ; 00:2852
 .db $FF                                                                             ; 00:2854
 .dw credits_sprite_00                                                               ; 00:2855
 
@@ -5701,15 +5701,15 @@ credits_sprite_01:
 .db $36                                                                             ; 00:2857
 
 credits_sprite_01_ptrs:
-.dw addr_028B1                                                                      ; 00:2858
+.dw cs01_00                                                                         ; 00:2858
 .db $48                                                                             ; 00:285A
-.dw addr_028BA                                                                      ; 00:285B
+.dw cs01_01                                                                         ; 00:285B
 .db $54                                                                             ; 00:285D
-.dw addr_028A8                                                                      ; 00:285E
+.dw cs01_02                                                                         ; 00:285E
 .db $1E                                                                             ; 00:2860
-.dw addr_028B1                                                                      ; 00:2861
+.dw cs01_00                                                                         ; 00:2861
 .db $44                                                                             ; 00:2863
-.dw addr_028BA                                                                      ; 00:2864
+.dw cs01_01                                                                         ; 00:2864
 .db $FF                                                                             ; 00:2866
 .dw credits_sprite_01                                                               ; 00:2867
 
@@ -5717,9 +5717,9 @@ credits_sprite_02:
 .db $23                                                                             ; 00:2869
 
 credits_sprite_02_ptrs:
-.dw addr_028C3                                                                      ; 00:286A
+.dw cs02_00                                                                         ; 00:286A
 .db $23                                                                             ; 00:286C
-.dw addr_028CC                                                                      ; 00:286D
+.dw cs02_01                                                                         ; 00:286D
 .db $FF                                                                             ; 00:286F
 .dw credits_sprite_02                                                               ; 00:2870
 
@@ -5727,67 +5727,67 @@ credits_sprite_03:
 .db $E4                                                                             ; 00:2872
 
 credits_sprite_03_ptrs:
-.dw addr_028F3                                                                      ; 00:2873
+.dw cs03_00                                                                         ; 00:2873
 .db $19                                                                             ; 00:2875
-.dw addr_028E4                                                                      ; 00:2876
+.dw cs03_01                                                                         ; 00:2876
 .db $19                                                                             ; 00:2878
-.dw addr_028D5                                                                      ; 00:2879
+.dw cs03_02                                                                         ; 00:2879
 .db $19                                                                             ; 00:287B
-.dw addr_028E4                                                                      ; 00:287C
+.dw cs03_01                                                                         ; 00:287C
 .db $19                                                                             ; 00:287E
-.dw addr_028D5                                                                      ; 00:287F
+.dw cs03_02                                                                         ; 00:287F
 .db $FA                                                                             ; 00:2881
-.dw addr_028F3                                                                      ; 00:2882
+.dw cs03_00                                                                         ; 00:2882
 .db $85                                                                             ; 00:2884
-.dw addr_028E4                                                                      ; 00:2885
+.dw cs03_01                                                                         ; 00:2885
 .db $E8                                                                             ; 00:2887
-.dw addr_028F3                                                                      ; 00:2888
+.dw cs03_00                                                                         ; 00:2888
 .db $19                                                                             ; 00:288A
-.dw addr_028E4                                                                      ; 00:288B
+.dw cs03_01                                                                         ; 00:288B
 .db $19                                                                             ; 00:288D
-.dw addr_028D5                                                                      ; 00:288E
+.dw cs03_02                                                                         ; 00:288E
 .db $19                                                                             ; 00:2890
-.dw addr_028E4                                                                      ; 00:2891
+.dw cs03_01                                                                         ; 00:2891
 .db $19                                                                             ; 00:2893
-.dw addr_028D5                                                                      ; 00:2894
+.dw cs03_02                                                                         ; 00:2894
 .db $19                                                                             ; 00:2896
-.dw addr_028E4                                                                      ; 00:2897
+.dw cs03_01                                                                         ; 00:2897
 .db $19                                                                             ; 00:2899
-.dw addr_028D5                                                                      ; 00:289A
+.dw cs03_02                                                                         ; 00:289A
 .db $FF                                                                             ; 00:289C
 .dw credits_sprite_03                                                               ; 00:289D
 
-addr_0289F:
+cs00_visible:
 .db $40, $48, $50, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:289F
 
-addr_028A8:
+cs01_02:
 .db $40, $58, $4A, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:28A8
 
-addr_028B1:
+cs01_00:
 .db $40, $58, $4C, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:28B1
 
-addr_028BA:
+cs01_01:
 .db $40, $58, $4E, $FF, $FF, $FF, $FF, $FF, $FF                                     ; 00:28BA
 
-addr_028C3:
+cs02_00:
 .db $40, $78, $6A, $6C, $6E, $FF, $FF, $FF, $FF                                     ; 00:28C3
 
-addr_028CC:
+cs02_01:
 .db $40, $78, $70, $72, $74, $FF, $FF, $FF, $FF                                     ; 00:28CC
 
-addr_028D5:
+cs03_02:
 .db $48, $50, $0A, $0C, $FF, $FF, $FF, $FF, $2A, $2C, $FF, $FF, $FF, $FF, $FF       ; 00:28D5
 
-addr_028E4:
+cs03_01:
 .db $48, $50, $0E, $10, $FF, $FF, $FF, $FF, $2E, $30, $FF, $FF, $FF, $FF, $FF       ; 00:28E4
 
-addr_028F3:
+cs03_00:
 .db $48, $60, $12, $14, $FF, $FF, $FF, $FF, $32, $34, $FF, $FF, $FF, $FF, $FF       ; 00:28F3
 
-addr_02902:
+cs00_blank:
 .db $40, $48, $FF                                                                   ; 00:2902
 
-UNK_2905:
+credits_text_sequence_script_data:
 .db $14, $03, $AE, $9E, $7F, $5E, $2E, $FE, $15, $04, $AF, $4F, $3E, $FE, $13, $05  ; 00:2905
 .db $4F, $3E, $2F, $4E, $3E, $4F, $9E, $4E, $FD, $3C, $00, $FE, $12, $0C, $7E, $1E  ; 00:2915
 .db $AE, $AF, $3E, $9F, $FE, $13, $0D, $AE, $DE, $AE, $AF, $3E, $7E, $FE, $14, $0E  ; 00:2925
@@ -5819,7 +5819,7 @@ UNK_2905:
 .db $FE, $15, $10, $AE, $3E, $4E, $1E, $FD, $B4, $00, $FE, $19, $13, $3E, $7F, $2F  ; 00:2AC5
 .db $FF                                                                             ; 00:2AD5
 
-LUT_02AD6:
+PAL3_credits:
 .db $35, $3D, $1F, $39, $06, $1B, $01, $34, $2B, $10, $03, $14, $2A, $1F, $00, $3F  ; 00:2AD6
 .db $35, $3D, $1F, $39, $06, $1B, $01, $34, $2B, $10, $03, $14, $2A, $1F, $00, $3F  ; 00:2AE6
 
