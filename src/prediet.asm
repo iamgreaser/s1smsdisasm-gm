@@ -2486,7 +2486,7 @@ run_world_map:
    rst    $18                          ; 00:0D3E - DF
 
 @map_already_loaded:
-   call   addr_00E86                   ; 00:0D3F - CD 86 0E
+   call   render_world_map_sprites     ; 00:0D3F - CD 86 0E
    ld     a, (g_level)                 ; 00:0D42 - 3A 3E D2
    add    a, a                         ; 00:0D45 - 87
    ld     c, a                         ; 00:0D46 - 4F
@@ -2535,7 +2535,7 @@ run_world_map:
 
 @loop_waiting_for_final_button_1_2_press:
    push   bc                           ; 00:0D88 - C5
-   call   addr_00E86                   ; 00:0D89 - CD 86 0E
+   call   render_world_map_sprites     ; 00:0D89 - CD 86 0E
    ld     a, (tmp_00)                  ; 00:0D8C - 3A 0E D2
    dec    a                            ; 00:0D8F - 3D
    ld     (tmp_00), a                  ; 00:0D90 - 32 0E D2
@@ -2593,13 +2593,13 @@ run_world_map:
    ld     b, $00                       ; 00:0DE5 - 06 00
 
 @ma01_loop_1_fly_left_past_screen:
-   call   addr_00E86                   ; 00:0DE7 - CD 86 0E
+   call   render_world_map_sprites     ; 00:0DE7 - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0DEA - FD 7E 03
    cp     $FF                          ; 00:0DED - FE FF
    jp     nz, @return_from_map_action  ; 00:0DEF - C2 80 0D
    push   bc                           ; 00:0DF2 - C5
-   ld     bc, LUT_00E72                ; 00:0DF3 - 01 72 0E
-   call   addr_00EDD                   ; 00:0DF6 - CD DD 0E
+   ld     bc, mapsprite_robotnik_left  ; 00:0DF3 - 01 72 0E
+   call   draw_current_world_map_sprite  ; 00:0DF6 - CD DD 0E
    pop    bc                           ; 00:0DF9 - C1
    dec    hl                           ; 00:0DFA - 2B
    djnz   @ma01_loop_1_fly_left_past_screen  ; 00:0DFB - 10 EA
@@ -2610,13 +2610,13 @@ run_world_map:
    ld     b, $80                       ; 00:0E09 - 06 80
 
 @ma01_loop_2_fly_right_into_place:
-   call   addr_00E86                   ; 00:0E0B - CD 86 0E
+   call   render_world_map_sprites     ; 00:0E0B - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0E0E - FD 7E 03
    cp     $FF                          ; 00:0E11 - FE FF
    jp     nz, @return_from_map_action  ; 00:0E13 - C2 80 0D
    push   bc                           ; 00:0E16 - C5
-   ld     bc, LUT_00E7A                ; 00:0E17 - 01 7A 0E
-   call   addr_00EDD                   ; 00:0E1A - CD DD 0E
+   ld     bc, mapsprite_robotnik_right  ; 00:0E17 - 01 7A 0E
+   call   draw_current_world_map_sprite  ; 00:0E1A - CD DD 0E
    pop    bc                           ; 00:0E1D - C1
    inc    hl                           ; 00:0E1E - 23
    djnz   @ma01_loop_2_fly_right_into_place  ; 00:0E1F - 10 EA
@@ -2630,13 +2630,13 @@ run_world_map:
    ld     b, $78                       ; 00:0E30 - 06 78
 
 @ma02_loop_1_fly_up_into_place:
-   call   addr_00E86                   ; 00:0E32 - CD 86 0E
+   call   render_world_map_sprites     ; 00:0E32 - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0E35 - FD 7E 03
    cp     $FF                          ; 00:0E38 - FE FF
    jp     nz, @return_from_map_action  ; 00:0E3A - C2 80 0D
    push   bc                           ; 00:0E3D - C5
-   ld     bc, LUT_00E82                ; 00:0E3E - 01 82 0E
-   call   addr_00EDD                   ; 00:0E41 - CD DD 0E
+   ld     bc, mapsprite_robotnik_front  ; 00:0E3E - 01 82 0E
+   call   draw_current_world_map_sprite  ; 00:0E41 - CD DD 0E
    pop    bc                           ; 00:0E44 - C1
    dec    de                           ; 00:0E45 - 1B
    djnz   @ma02_loop_1_fly_up_into_place  ; 00:0E46 - 10 EA
@@ -2650,39 +2650,35 @@ run_world_map:
    ld     b, $30                       ; 00:0E57 - 06 30
 
 @ma03_loop_1_fly_down_into_place:
-   call   addr_00E86                   ; 00:0E59 - CD 86 0E
+   call   render_world_map_sprites     ; 00:0E59 - CD 86 0E
    ld     a, (iy+g_inputs_player_1-IYBASE)  ; 00:0E5C - FD 7E 03
    cp     $FF                          ; 00:0E5F - FE FF
    jp     nz, @return_from_map_action  ; 00:0E61 - C2 80 0D
    push   bc                           ; 00:0E64 - C5
-   ld     bc, LUT_00E82                ; 00:0E65 - 01 82 0E
-   call   addr_00EDD                   ; 00:0E68 - CD DD 0E
+   ld     bc, mapsprite_robotnik_front  ; 00:0E65 - 01 82 0E
+   call   draw_current_world_map_sprite  ; 00:0E68 - CD DD 0E
    pop    bc                           ; 00:0E6B - C1
    inc    de                           ; 00:0E6C - 13
    djnz   @ma03_loop_1_fly_down_into_place  ; 00:0E6D - 10 EA
    jp     @return_from_map_action      ; 00:0E6F - C3 80 0D
 
-LUT_00E72:
-.dw addr_01129                                                                      ; 00:0E72
+mapsprite_robotnik_left:
+.dw map_SPRTAB_robotnik_left_1                                                      ; 00:0E72
 .db $04, $01                                                                        ; 00:0E74
-
-LUT_00E76:
-.dw addr_0113B                                                                      ; 00:0E76
+.dw map_SPRTAB_robotnik_left_2                                                      ; 00:0E76
 .db $04, $00                                                                        ; 00:0E78
 
-LUT_00E7A:
-.dw addr_0114D                                                                      ; 00:0E7A
+mapsprite_robotnik_right:
+.dw map_SPRTAB_robotnik_right_1                                                     ; 00:0E7A
 .db $04, $01                                                                        ; 00:0E7C
-
-LUT_00E7E:
-.dw addr_0115F                                                                      ; 00:0E7E
+.dw map_SPRTAB_robotnik_right_2                                                     ; 00:0E7E
 .db $04, $00                                                                        ; 00:0E80
 
-LUT_00E82:
-.dw map_SPRTAB_robotnik                                                             ; 00:0E82
+mapsprite_robotnik_front:
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0E82
 .db $04, $00                                                                        ; 00:0E84
 
-addr_00E86:
+render_world_map_sprites:
    push   hl                           ; 00:0E86 - E5
    push   de                           ; 00:0E87 - D5
    push   bc                           ; 00:0E88 - C5
@@ -2727,7 +2723,7 @@ addr_00E86:
    pop    hl                           ; 00:0EDB - E1
    ret                                 ; 00:0EDC - C9
 
-addr_00EDD:
+draw_current_world_map_sprite:
    push   hl                           ; 00:0EDD - E5
    push   de                           ; 00:0EDE - D5
    ld     l, c                         ; 00:0EDF - 69
@@ -2744,14 +2740,14 @@ addr_00EDD:
    inc    hl                           ; 00:0EED - 23
    ld     a, (tmp_00)                  ; 00:0EEE - 3A 0E D2
    cp     (hl)                         ; 00:0EF1 - BE
-   jr     c, addr_00EFD                ; 00:0EF2 - 38 09
+   jr     c, @anim_timer_not_expired_yet  ; 00:0EF2 - 38 09
    inc    hl                           ; 00:0EF4 - 23
    ld     a, (hl)                      ; 00:0EF5 - 7E
    ld     (tmp_01), a                  ; 00:0EF6 - 32 0F D2
    xor    a                            ; 00:0EF9 - AF
    ld     (tmp_00), a                  ; 00:0EFA - 32 0E D2
 
-addr_00EFD:
+@anim_timer_not_expired_yet:
    pop    de                           ; 00:0EFD - D1
    pop    hl                           ; 00:0EFE - E1
    push   hl                           ; 00:0EFF - E5
@@ -2859,21 +2855,21 @@ level_map_07_chunks:
 .db $00, $00, $00                                                                   ; 00:0FDB
 
 level_map_02_chunks:
-.dw map_SPRTAB_robotnik                                                             ; 00:0FDE
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FDE
 .db $58, $58, $08                                                                   ; 00:0FE0
-.dw map_SPRTAB_robotnik                                                             ; 00:0FE3
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FE3
 .db $58, $58, $08                                                                   ; 00:0FE5
-.dw map_SPRTAB_robotnik                                                             ; 00:0FE8
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FE8
 .db $58, $56, $08                                                                   ; 00:0FEA
-.dw map_SPRTAB_robotnik                                                             ; 00:0FED
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FED
 .db $58, $56, $08                                                                   ; 00:0FEF
-.dw map_SPRTAB_robotnik                                                             ; 00:0FF2
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FF2
 .db $58, $55, $08                                                                   ; 00:0FF4
-.dw map_SPRTAB_robotnik                                                             ; 00:0FF7
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FF7
 .db $58, $55, $08                                                                   ; 00:0FF9
-.dw map_SPRTAB_robotnik                                                             ; 00:0FFC
+.dw map_SPRTAB_robotnik_front                                                       ; 00:0FFC
 .db $58, $56, $08                                                                   ; 00:0FFE
-.dw map_SPRTAB_robotnik                                                             ; 00:1001
+.dw map_SPRTAB_robotnik_front                                                       ; 00:1001
 .db $58, $56, $08                                                                   ; 00:1003
 .dw level_map_02_chunks                                                             ; 00:1006
 .db $00, $00, $00                                                                   ; 00:1008
@@ -2937,27 +2933,27 @@ level_map_10_11_chunks:
 .db $00, $00, $00                                                                   ; 00:107B
 
 level_map_05_chunks:
-.dw map_SPRTAB_robotnik                                                             ; 00:107E
+.dw map_SPRTAB_robotnik_front                                                       ; 00:107E
 .db $80, $48, $08                                                                   ; 00:1080
 .dw level_map_05_chunks                                                             ; 00:1083
 .db $00, $00, $00                                                                   ; 00:1085
 
 level_map_08_chunks:
-.dw map_SPRTAB_robotnik                                                             ; 00:1088
+.dw map_SPRTAB_robotnik_front                                                       ; 00:1088
 .db $78, $30, $08                                                                   ; 00:108A
 .dw level_map_08_chunks                                                             ; 00:108D
 .db $00, $00, $00                                                                   ; 00:108F
 
 level_map_0B_chunks:
-.dw map_SPRTAB_robotnik                                                             ; 00:1092
+.dw map_SPRTAB_robotnik_front                                                       ; 00:1092
 .db $70, $60, $08                                                                   ; 00:1094
 .dw level_map_0B_chunks                                                             ; 00:1097
 .db $00, $00, $00                                                                   ; 00:1099
 
 level_map_0E_chunks:
-.dw addr_01129                                                                      ; 00:109C
+.dw map_SPRTAB_robotnik_left_1                                                      ; 00:109C
 .db $68, $40, $08                                                                   ; 00:109E
-.dw addr_0113B                                                                      ; 00:10A1
+.dw map_SPRTAB_robotnik_left_2                                                      ; 00:10A1
 .db $68, $40, $08                                                                   ; 00:10A3
 .dw level_map_0E_chunks                                                             ; 00:10A6
 .db $00, $00, $00                                                                   ; 00:10A8
@@ -2990,24 +2986,24 @@ map_SPRTAB_JUN2:
 .db $FE, $FE, $0E, $FF, $FF, $FF, $2A, $2C, $2E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1117
 .db $FF, $FF                                                                        ; 00:1127
 
-addr_01129:
+map_SPRTAB_robotnik_left_1:
 .db $10, $12, $14, $16, $FF, $FF, $30, $32, $34, $36, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1129
 .db $FF, $FF                                                                        ; 00:1139
 
-addr_0113B:
+map_SPRTAB_robotnik_left_2:
 .db $10, $12, $14, $18, $FF, $FF, $30, $32, $34, $38, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:113B
 .db $FF, $FF                                                                        ; 00:114B
 
-addr_0114D:
+map_SPRTAB_robotnik_right_1:
 .db $50, $54, $56, $58, $FF, $FF, $70, $74, $76, $78, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:114D
 .db $FF, $FF                                                                        ; 00:115D
 
-addr_0115F:
+map_SPRTAB_robotnik_right_2:
 .db $52, $54, $56, $58, $FF, $FF, $72, $74, $76, $78, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:115F
 .db $FF, $FF, $50, $54, $56, $58, $FF, $FF, $70, $74, $76, $78, $FF, $FF, $FF, $FF  ; 00:116F
 .db $FF, $FF, $FF, $FF                                                              ; 00:117F
 
-map_SPRTAB_robotnik:
+map_SPRTAB_robotnik_front:
 .db $5A, $5C, $5E, $FF, $FF, $FF, $7A, $7C, $7E, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1183
 .db $FF, $FF                                                                        ; 00:1193
 
@@ -3039,26 +3035,26 @@ CODEPTRLUT_initial_map_actions:
 .dw run_world_map@map_action_01, run_world_map@map_action_02, run_world_map@map_action_03, run_world_map@map_action_01  ; 00:1201
 
 LUT_level_titles:
-.dw addr_0122D, addr_0122D, addr_0122D, addr_0123C, addr_0123C, addr_0123C, addr_0124B, addr_0124B  ; 00:1209
-.dw addr_0124B, addr_0125A, addr_0125A, addr_0125A, addr_01269, addr_01269, addr_01269, addr_01278  ; 00:1219
-.dw addr_01278, addr_01278                                                          ; 00:1229
+.dw level_title_font0_GHZ, level_title_font0_GHZ, level_title_font0_GHZ, level_title_font0_BRI, level_title_font0_BRI, level_title_font0_BRI, level_title_font0_JUN, level_title_font0_JUN  ; 00:1209
+.dw level_title_font0_JUN, level_title_font1_LAB, level_title_font1_LAB, level_title_font1_LAB, level_title_font1_SCR, level_title_font1_SCR, level_title_font1_SCR, level_title_font1_SKY  ; 00:1219
+.dw level_title_font1_SKY, level_title_font1_SKY                                    ; 00:1229
 
-addr_0122D:
+level_title_font0_GHZ:
 .db $10, $13, $46, $62, $44, $44, $51, $EB, $47, $40, $43, $43, $EB, $EB, $FF       ; 00:122D
 
-addr_0123C:
+level_title_font0_BRI:
 .db $10, $13, $35, $62, $40, $37, $46, $44, $EB, $EB, $EB, $EB, $EB, $EB, $FF       ; 00:123C
 
-addr_0124B:
+level_title_font0_JUN:
 .db $10, $13, $41, $81, $51, $46, $43, $44, $EB, $EB, $EB, $EB, $EB, $EB, $FF       ; 00:124B
 
-addr_0125A:
+level_title_font1_LAB:
 .db $10, $13, $6F, $1E, $1F, $DE, $9F, $5E, $7F, $AF, $4F, $EB, $EB, $EB, $FF       ; 00:125A
 
-addr_01269:
+level_title_font1_SCR:
 .db $10, $13, $AE, $2E, $9F, $1E, $8F, $EB, $1F, $9F, $1E, $5E, $7F, $EB, $FF       ; 00:1269
 
-addr_01278:
+level_title_font1_SKY:
 .db $10, $13, $AE, $6E, $DE, $EB, $1F, $1E, $AE, $3E, $EB, $EB, $EB, $EB, $FF       ; 00:1278
 
 run_title_screen:
