@@ -4582,9 +4582,9 @@ handle_level_score_screen:
 
 @skip_incrementing_special_stage_bonuses:
    bit    2, (iy+iy_09-IYBASE)         ; 00:1625 - FD CB 09 56
-   call   nz, addr_01719               ; 00:1629 - C4 19 17
+   call   nz, cancel_bonuses_for_score_tally  ; 00:1629 - C4 19 17
    bit    3, (iy+iy_09-IYBASE)         ; 00:162C - FD CB 09 5E
-   call   nz, addr_01726               ; 00:1630 - C4 26 17
+   call   nz, special_stage_continue_was_collected_by_end  ; 00:1630 - C4 26 17
    ld     hl, LUT_time_bonus_upper_bounds  ; 00:1633 - 21 3E 15
    ld     de, LUT_time_bonus_scores    ; 00:1636 - 11 4E 15
    ld     b, $08                       ; 00:1639 - 06 08
@@ -4706,7 +4706,7 @@ draw_repeated_16x16_tile_string:
    xor    a                            ; 00:16F2 - AF
    ld     (tmp_00), a                  ; 00:16F3 - 32 0E D2
 
-addr_016F6:
+@each_FFstring_row:
    push   bc                           ; 00:16F6 - C5
    ld     hl, g_HUD_FFstr_buf          ; 00:16F7 - 21 BE D2
    call   print_positioned_FF_string   ; 00:16FA - CD AF 05
@@ -4719,21 +4719,21 @@ addr_016F6:
    inc    (hl)                         ; 00:170B - 34
    inc    (hl)                         ; 00:170C - 34
    pop    bc                           ; 00:170D - C1
-   djnz   addr_016F6                   ; 00:170E - 10 E6
+   djnz   @each_FFstring_row           ; 00:170E - 10 E6
    ret                                 ; 00:1710 - C9
 
 .IF !mod_skip_score_tally
 LUT_chaos_emerald_icon_16x16text:
 .db $14, $AD, $AE, $FF, $15, $BD, $BE, $FF                                          ; 00:1711
 
-addr_01719:
+cancel_bonuses_for_score_tally:
    xor    a                            ; 00:1719 - AF
    ld     (g_rings_BCD), a             ; 00:171A - 32 AA D2
    res    3, (iy+iy_09-IYBASE)         ; 00:171D - FD CB 09 9E
    res    2, (iy+iy_09-IYBASE)         ; 00:1721 - FD CB 09 96
    ret                                 ; 00:1725 - C9
 
-addr_01726:
+special_stage_continue_was_collected_by_end:
    ld     hl, g_continues              ; 00:1726 - 21 84 D2
    inc    (hl)                         ; 00:1729 - 34
    res    3, (iy+iy_09-IYBASE)         ; 00:172A - FD CB 09 9E
