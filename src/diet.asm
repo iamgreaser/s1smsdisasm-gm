@@ -6094,7 +6094,7 @@ update_signpost_timer:
    jr     nz, addr_02020               ; 00:1FD6 - 20 48
    rst    $20                          ; 00:1FD8 - E7
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:1FD9 - FD CB 06 7E
-   call   nz, addr_020A4               ; 00:1FDD - C4 A4 20
+   call   nz, disable_waterline_for_level_end_or_restart  ; 00:1FDD - C4 A4 20
    call   clear_sprite_table           ; 00:1FE0 - CD E2 05
    .IF !mod_skip_score_tally
    call   handle_level_score_screen    ; 00:1FE3 - CD 5E 15
@@ -6181,12 +6181,12 @@ handle_level_restart_countdown_timer:
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:206E - FD CB 05 4E
    jr     nz, fade_out_and_stop_level  ; 00:2072 - 20 44
    bit    4, (iy+iy_0C_old_lvflag01-IYBASE)  ; 00:2074 - FD CB 0C 66
-   jr     z, addr_0207E                ; 00:2078 - 28 04
+   jr     z, @level_not_entered_through_teleport  ; 00:2078 - 28 04
    set    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:207A - FD CB 06 E6
 
-addr_0207E:
+@level_not_entered_through_teleport:
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:207E - FD CB 06 7E
-   call   nz, addr_020A4               ; 00:2082 - C4 A4 20
+   call   nz, disable_waterline_for_level_end_or_restart  ; 00:2082 - C4 A4 20
    ld     a, (g_lives)                 ; 00:2085 - 3A 46 D2
    and    a                            ; 00:2088 - A7
    ld     a, $02                       ; 00:2089 - 3E 02
@@ -6202,10 +6202,10 @@ addr_0207E:
    ld     a, $01                       ; 00:20A1 - 3E 01
    ret                                 ; 00:20A3 - C9
 
-addr_020A4:
+disable_waterline_for_level_end_or_restart:
    ld     a, (g_water_irq_line_state)  ; 00:20A4 - 3A 47 D2
    and    a                            ; 00:20A7 - A7
-   jr     nz, addr_020A4               ; 00:20A8 - 20 FA
+   jr     nz, disable_waterline_for_level_end_or_restart  ; 00:20A8 - 20 FA
    di                                  ; 00:20AA - F3
    res    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:20AB - FD CB 06 BE
    xor    a                            ; 00:20AF - AF
