@@ -3348,35 +3348,35 @@ PAL3_game_over:
 LUT_0151C:
 .db $01, $00                                                                        ; 00:151C
 
-addr_0151E:
+time_bonus_nothing:
 .db $00, $00, $00, $00                                                              ; 00:151E
 
-addr_01522:
+time_bonus___100:
 .db $00, $00, $01, $00                                                              ; 00:1522
 
-addr_01526:
+time_bonus___500:
 .db $00, $00, $05, $00                                                              ; 00:1526
 
-addr_0152A:
+time_bonus__1000:
 .db $00, $00, $10, $00                                                              ; 00:152A
 
-addr_0152E:
+time_bonus__3000:
 .db $00, $00, $30, $00                                                              ; 00:152E
 
-addr_01532:
+time_bonus__5000:
 .db $00, $00, $50, $00                                                              ; 00:1532
 
-addr_01536:
+time_bonus_10000:
 .db $00, $01, $00, $00                                                              ; 00:1536
 
-addr_0153A:
+time_bonus_30000:
 .db $00, $03, $00, $00                                                              ; 00:153A
 
 LUT_time_bonus_upper_bounds:
 .db $05, $00, $03, $00, $02, $30, $02, $00, $01, $30, $01, $00, $00, $30, $00, $00  ; 00:153E
 
 LUT_time_bonus_scores:
-.dw addr_0151E, addr_01522, addr_01526, addr_0152A, addr_0152E, addr_01532, addr_01536, addr_0153A  ; 00:154E
+.dw time_bonus_nothing, time_bonus___100, time_bonus___500, time_bonus__1000, time_bonus__3000, time_bonus__5000, time_bonus_10000, time_bonus_30000  ; 00:154E
 
 handle_level_score_screen:
    ld     a, (g_level)                 ; 00:155E - 3A 3E D2
@@ -3502,7 +3502,7 @@ addr_0164F:
    inc    de                           ; 00:164F - 13
    inc    de                           ; 00:1650 - 13
    djnz   -                            ; 00:1651 - 10 E8
-   ld     de, addr_0151E               ; 00:1653 - 11 1E 15
+   ld     de, time_bonus_nothing       ; 00:1653 - 11 1E 15
    jr     ++                           ; 00:1656 - 18 04
 
 _handle_level_score_screen_UNK_01658:
