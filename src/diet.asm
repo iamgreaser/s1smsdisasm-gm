@@ -5642,7 +5642,7 @@ main:
    rst    $20                          ; 00:1CDA - E7
 
 @skip_level_start_delay:
-   call   load_level_header_UNCONFIRMED  ; 00:1CDB - CD ED 1C
+   call   load_and_run_level           ; 00:1CDB - CD ED 1C
    and    a                            ; 00:1CDE - A7
 .IF 0
    jp     z, @reset_game_state         ; 00:1CDF - CA 4E 1C
@@ -5666,7 +5666,7 @@ fill_ram_at_hl_for_b_bytes_with_a:
 load_level_header_LUT_01: .dw $0060, $0088, $0060, $0070
 .ENDIF
 
-load_level_header_UNCONFIRMED:
+load_and_run_level:
    ld     a, $05                       ; 00:1CED - 3E 05
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -5677,10 +5677,10 @@ load_level_header_UNCONFIRMED:
    .ENDIF
    ld     a, (g_level)                 ; 00:1CF5 - 3A 3E D2
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1CF8 - FD CB 06 66
-   jr     z, +                         ; 00:1CFC - 28 03
+   jr     z, @level_load_was_not_teleport  ; 00:1CFC - 28 03
    ld     a, (g_next_level_override_target)  ; 00:1CFE - 3A D3 D2
 
-+:
+@level_load_was_not_teleport:
    add    a, a                         ; 00:1D01 - 87
    ld     l, a                         ; 00:1D02 - 6F
    ld     h, $00                       ; 00:1D03 - 26 00
@@ -5691,7 +5691,7 @@ load_level_header_UNCONFIRMED:
    ld     h, (hl)                      ; 00:1D0B - 66
    ld     l, a                         ; 00:1D0C - 6F
    or     h                            ; 00:1D0D - B4
-   jp     z, addr_0258B                ; 00:1D0E - CA 8B 25
+   jp     z, run_ending_credits        ; 00:1D0E - CA 8B 25
    add    hl, de                       ; 00:1D11 - 19
    call   addr_020CB                   ; 00:1D12 - CD CB 20
    set    0, (iy+iy_02-IYBASE)         ; 00:1D15 - FD CB 02 C6
@@ -5707,7 +5707,7 @@ load_level_header_UNCONFIRMED:
    call   nz, addr_01ED8               ; 00:1D3D - C4 D8 1E
    ld     b, $10                       ; 00:1D40 - 06 10
 
-addr_01D42:
+@TODO_1D42:
    push   bc                           ; 00:1D42 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:1D43 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1D47 - CD 1C 03
@@ -5755,19 +5755,19 @@ addr_01D42:
    .ELSE
    call set_slot_1_2
    .ENDIF
-   call   addr_02E5A                   ; 00:1D8F - CD 5A 2E
+   call   draw_HUD_sprites             ; 00:1E60 - CD 5A 2E
    call   update_active_scroll_pos_and_ptrs  ; 00:1D92 - CD 3E 06
    call   load_scroll_tile_list_buffers  ; 00:1D95 - CD BD 06
    set    5, (iy+iy_00-IYBASE)         ; 00:1D98 - FD CB 00 EE
    pop    bc                           ; 00:1D9C - C1
-   djnz   addr_01D42                   ; 00:1D9D - 10 A3
+   djnz   @TODO_1D42                   ; 00:1D9D - 10 A3
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D9F - FD CB 05 4E
-   jr     z, addr_01DAE                ; 00:1DA3 - 28 09
+   jr     z, @main_level_loop          ; 00:1DA3 - 28 09
    ld     hl, $0000                    ; 00:1DA5 - 21 00 00
    ld     (g_demo_next_input_relptr), hl  ; 00:1DA8 - 22 B5 D2
    ld     (iy+g_sprite_count-IYBASE), h  ; 00:1DAB - FD 74 0A
 
-addr_01DAE:
+@main_level_loop:
    res    0, (iy+iy_00-IYBASE)         ; 00:1DAE - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1DB2 - CD 1C 03
    ld     a, $0B                       ; 00:1DB5 - 3E 0B
@@ -5784,34 +5784,34 @@ addr_01DAE:
    call   nz, tick_game_time           ; 00:1DC8 - C4 03 3A
    ld     a, (g_global_tick_counter)   ; 00:1DCB - 3A 23 D2
    and    $01                          ; 00:1DCE - E6 01
-   jr     nz, addr_01DDB               ; 00:1DD0 - 20 09
+   jr     nz, @skip_signpost_timer_update  ; 00:1DD0 - 20 09
    ld     a, (g_signpost_tickdown_counter)  ; 00:1DD2 - 3A 89 D2
    and    a                            ; 00:1DD5 - A7
    call   nz, update_signpost_timer    ; 00:1DD6 - C4 A9 1F
-   jr     addr_01DF0                   ; 00:1DD9 - 18 15
+   jr     @continue_from_level_ending_timers  ; 00:1DD9 - 18 15
 
-addr_01DDB:
+@skip_signpost_timer_update:
    ld     a, (g_level_restart_countdown_timer)  ; 00:1DDB - 3A 87 D2
    and    a                            ; 00:1DDE - A7
-   jp     nz, addr_02067               ; 00:1DDF - C2 67 20
+   jp     nz, handle_level_restart_countdown_timer  ; 00:1DDF - C2 67 20
 
-addr_01DE2:
+@return_from_restart_timer_nonexpiry:
    ld     a, (g_pal_flash_countdown_timer)  ; 00:1DE2 - 3A B1 D2
    and    a                            ; 00:1DE5 - A7
    call   nz, addr_01F06               ; 00:1DE6 - C4 06 1F
    bit    1, (iy+iy_07_lvflag02-IYBASE)  ; 00:1DE9 - FD CB 07 4E
    call   nz, addr_01F49               ; 00:1DED - C4 49 1F
 
-addr_01DF0:
+@continue_from_level_ending_timers:
    bit    1, (iy+iy_06_lvflag01-IYBASE)  ; 00:1DF0 - FD CB 06 4E
    call   nz, addr_01E78               ; 00:1DF4 - C4 78 1E
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1DF7 - FD CB 05 4E
-   jr     z, addr_01E07                ; 00:1DFB - 28 0A
+   jr     z, @skip_demo_playback       ; 00:1DFB - 28 0A
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:1DFD - FD CB 03 6E
-   jp     z, addr_020B8                ; 00:1E01 - CA B8 20
+   jp     z, fade_out_and_stop_level   ; 00:1E01 - CA B8 20
    call   update_demo_inputs           ; 00:1E04 - CD AD 1B
 
-addr_01E07:
+@skip_demo_playback:
    ld     hl, (g_global_tick_counter)  ; 00:1E07 - 2A 23 D2
    inc    hl                           ; 00:1E0A - 23
    ld     (g_global_tick_counter), hl  ; 00:1E0B - 22 23 D2
@@ -5835,14 +5835,14 @@ addr_01E07:
    ld     de, $0003                    ; 00:1E43 - 11 03 00
    ld     a, $E0                       ; 00:1E46 - 3E E0
 
-addr_01E48:
+@loop_clear_some_sprite_table_entries:
    ld     (hl), a                      ; 00:1E48 - 77
    add    hl, de                       ; 00:1E49 - 19
    ld     (hl), a                      ; 00:1E4A - 77
    add    hl, de                       ; 00:1E4B - 19
    ld     (hl), a                      ; 00:1E4C - 77
    add    hl, de                       ; 00:1E4D - 19
-   djnz   addr_01E48                   ; 00:1E4E - 10 F8
+   djnz   @loop_clear_some_sprite_table_entries  ; 00:1E4E - 10 F8
    ld     a, $01                       ; 00:1E50 - 3E 01
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -5855,14 +5855,14 @@ addr_01E48:
    .ELSE
    call set_slot_1_2
    .ENDIF
-   call   addr_02E5A                   ; 00:1E60 - CD 5A 2E
+   call   draw_HUD_sprites             ; 00:1D8F - CD 5A 2E
    call   update_active_scroll_pos_and_ptrs  ; 00:1E63 - CD 3E 06
    call   load_scroll_tile_list_buffers  ; 00:1E66 - CD BD 06
    ld     hl, g_saved_vdp_reg_01       ; 00:1E69 - 21 19 D2
    set    6, (hl)                      ; 00:1E6C - CB F6
    bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1E6E - FD CB 07 5E
    call   nz, addr_01E9E               ; 00:1E72 - C4 9E 1E
-   jp     addr_01DAE                   ; 00:1E75 - C3 AE 1D
+   jp     @main_level_loop             ; 00:1E75 - C3 AE 1D
 
 addr_01E78:
    ld     (iy+g_inputs_player_1-IYBASE), $F7  ; 00:1E78 - FD 36 03 F7
@@ -6119,7 +6119,7 @@ update_signpost_timer:
    ld     (g_level), a                 ; 00:2000 - 32 3E D2
    inc    a                            ; 00:2003 - 3C
    ld     (g_next_bonus_level), a      ; 00:2004 - 32 3F D2
-   call   load_level_header_UNCONFIRMED  ; 00:2007 - CD ED 1C
+   call   load_and_run_level           ; 00:2007 - CD ED 1C
    pop    af                           ; 00:200A - F1
    ld     (g_level), a                 ; 00:200B - 32 3E D2
 
@@ -6178,12 +6178,12 @@ LUT_02047_all7F:
 .db $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F  ; 00:2047
 .db $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F, $7F  ; 00:2057
 
-addr_02067:
+handle_level_restart_countdown_timer:
    dec    a                            ; 00:2067 - 3D
    ld     (g_level_restart_countdown_timer), a  ; 00:2068 - 32 87 D2
-   jp     nz, addr_01DE2               ; 00:206B - C2 E2 1D
+   jp     nz, load_and_run_level@return_from_restart_timer_nonexpiry  ; 00:206B - C2 E2 1D
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:206E - FD CB 05 4E
-   jr     nz, addr_020B8               ; 00:2072 - 20 44
+   jr     nz, fade_out_and_stop_level  ; 00:2072 - 20 44
    bit    4, (iy+iy_0C_old_lvflag01-IYBASE)  ; 00:2074 - FD CB 0C 66
    jr     z, addr_0207E                ; 00:2078 - 28 04
    set    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:207A - FD CB 06 E6
@@ -6218,7 +6218,7 @@ addr_020A4:
    ei                                  ; 00:20B6 - FB
    ret                                 ; 00:20B7 - C9
 
-addr_020B8:
+fade_out_and_stop_level:
    ld     a, $03                       ; 00:20B8 - 3E 03
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -6981,7 +6981,7 @@ UNK_0241D:
 .db $3E, $E4, $37, $28, $F9, $44, $42, $EB, $33, $2E, $F2, $44, $45, $F1, $2F, $34  ; 00:256D
 .db $EA, $43, $47, $F9, $2A, $3A, $E3, $41, $49, $00, $24, $3F, $DC, $3F            ; 00:257D
 
-addr_0258B:
+run_ending_credits:
    ld     a, (g_saved_vdp_reg_01)      ; 00:258B - 3A 19 D2
    and    $BF                          ; 00:258E - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:2590 - 32 19 D2
@@ -7674,7 +7674,7 @@ CONST_sonic_lives_FFstr_template:
 ; Removed - SAVING: 5 bytes
 .ENDIF
 
-addr_02E5A:
+draw_HUD_sprites:
    res    7, (iy+iy_07_lvflag02-IYBASE)  ; 00:2E5A - FD CB 07 BE
    .IF 0
    ;; Original code
@@ -7684,10 +7684,10 @@ addr_02E5A:
    ldir                                ; 00:2E67 - ED B0
    ld     a, (g_lives)                 ; 00:2E69 - 3A 46 D2
    cp     $09                          ; 00:2E6C - FE 09
-   jr     c, addr_02E72                ; 00:2E6E - 38 02
+   jr     c, @dont_clamp_lives_display_to_9  ; 00:2E6E - 38 02
    ld     a, $09                       ; 00:2E70 - 3E 09
 
-addr_02E72:
+@dont_clamp_lives_display_to_9:
    add    a, a                         ; 00:2E72 - 87
    add    a, $80                       ; 00:2E73 - C6 80
    ld     (g_HUD_FFstr_buf_3), a       ; 00:2E75 - 32 C1 D2
@@ -7724,7 +7724,7 @@ addr_02E72:
    call   draw_sprite_text             ; 00:2E82 - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:2E85 - 22 3C D2
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:2E88 - FD CB 05 56
-   call   nz, addr_02EE6               ; 00:2E8C - C4 E6 2E
+   call   nz, draw_HUD_rings           ; 00:2E8C - C4 E6 2E
    bit    5, (iy+iy_07_lvflag02-IYBASE)  ; 00:2E8F - FD CB 07 6E
    call   nz, draw_level_timer         ; 00:2E93 - C4 1F 2F
    ld     de, $0060                    ; 00:2E96 - 11 60 00
@@ -7733,10 +7733,10 @@ addr_02E72:
    ld     a, (hl)                      ; 00:2E9C - 7E
    inc    hl                           ; 00:2E9D - 23
    or     (hl)                         ; 00:2E9E - B6
-   call   z, addr_0311A                ; 00:2E9F - CC 1A 31
+   call   z, store_DE_in_HL_minus_1    ; 00:2E9F - CC 1A 31
    .ELSE
    ;; Hoisted into the call.
-   call addr_0311A
+   call store_DE_in_HL_minus_1
    .ENDIF
    inc    hl                           ; 00:2EA2 - 23
    ld     de, $0088                    ; 00:2EA3 - 11 88 00
@@ -7744,10 +7744,10 @@ addr_02E72:
    ld     a, (hl)                      ; 00:2EA6 - 7E
    inc    hl                           ; 00:2EA7 - 23
    or     (hl)                         ; 00:2EA8 - B6
-   call   z, addr_0311A                ; 00:2EA9 - CC 1A 31
+   call   z, store_DE_in_HL_minus_1    ; 00:2EA9 - CC 1A 31
    .ELSE
    ;; Hoisted into the call.
-   call addr_0311A
+   call store_DE_in_HL_minus_1
    .ENDIF
    inc    hl                           ; 00:2EAC - 23
    ld     de, $0060                    ; 00:2EAD - 11 60 00
@@ -7755,10 +7755,10 @@ addr_02E72:
    ld     a, (hl)                      ; 00:2EB0 - 7E
    inc    hl                           ; 00:2EB1 - 23
    or     (hl)                         ; 00:2EB2 - B6
-   call   z, addr_0311A                ; 00:2EB3 - CC 1A 31
+   call   z, store_DE_in_HL_minus_1    ; 00:2EB3 - CC 1A 31
    .ELSE
    ;; Hoisted into the call.
-   call addr_0311A
+   call store_DE_in_HL_minus_1
    .ENDIF
    inc    hl                           ; 00:2EB6 - 23
    ld     de, $0070                    ; 00:2EB7 - 11 70 00
@@ -7771,10 +7771,10 @@ addr_02EC3:
    ld     a, (hl)                      ; 00:2EC3 - 7E
    inc    hl                           ; 00:2EC4 - 23
    or     (hl)                         ; 00:2EC5 - B6
-   call   z, addr_0311A                ; 00:2EC6 - CC 1A 31
+   call   z, store_DE_in_HL_minus_1    ; 00:2EC6 - CC 1A 31
    .ELSE
    ;; Hoisted into the call.
-   call addr_0311A
+   call store_DE_in_HL_minus_1
    .ENDIF
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:2EC9 - FD CB 05 46
    call   z, addr_02F66                ; 00:2ECD - CC 66 2F
@@ -7797,7 +7797,7 @@ addr_02EC3:
    call   run_all_objfuncs             ; 00:2EE2 - CD 9B 32
    ret                                 ; 00:2EE5 - C9
 
-addr_02EE6:
+draw_HUD_rings:
    ld     a, (g_rings_BCD)             ; 00:2EE6 - 3A AA D2
    ld     c, a                         ; 00:2EE9 - 4F
    rrca                                ; 00:2EEA - 0F
@@ -7882,7 +7882,7 @@ draw_level_timer:
    .ENDIF
    ld     a, (g_level)                 ; 00:2F4E - 3A 3E D2
    cp     $1C                          ; 00:2F51 - FE 1C
-   jr     c, addr_02F59                ; 00:2F53 - 38 04
+   jr     c, @use_normal_stage_positioning  ; 00:2F53 - 38 04
    .IF 0
    ld     c, $70                       ; 00:2F55 - 0E 70
    ld     b, $38                       ; 00:2F57 - 06 38
@@ -7891,7 +7891,7 @@ draw_level_timer:
    ; SAVING: 1 byte
    .ENDIF
 
-addr_02F59:
+@use_normal_stage_positioning:
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:2F59 - 2A 3C D2
    ld     de, g_HUD_FFstr_buf          ; 00:2F5C - 11 BE D2
    call   draw_sprite_text             ; 00:2F5F - CD CC 35
@@ -8127,7 +8127,7 @@ addr_03109:
 addr_03119:
    ret                                 ; 00:3119 - C9
 
-addr_0311A:
+store_DE_in_HL_minus_1:
    .IF 0
    .ELSE
    ;; Hoisted in from 4 different call sites.
