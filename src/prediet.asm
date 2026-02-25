@@ -6672,7 +6672,7 @@ return_from_objfunc:
    ld     a, (tmp_06)                  ; 00:33C7 - 3A 14 D2
    ld     e, a                         ; 00:33CA - 5F
    ld     d, $00                       ; 00:33CB - 16 00
-   ld     hl, LUT_3FBF                 ; 00:33CD - 21 BF 3F
+   ld     hl, LUT_horizontal_vslide_factors_VESTIGIAL  ; 00:33CD - 21 BF 3F
    add    hl, de                       ; 00:33D0 - 19
    ld     c, (hl)                      ; 00:33D1 - 4E
    ld     (ix+7), d                    ; 00:33D2 - DD 72 07
@@ -6774,7 +6774,7 @@ return_from_objfunc:
    exx                                 ; 00:347D - D9
    ld     hl, (tmp_06)                 ; 00:347E - 2A 14 D2
    ld     h, $00                       ; 00:3481 - 26 00
-   ld     de, LUT_3FF0                 ; 00:3483 - 11 F0 3F
+   ld     de, LUT_y_magnet_factors     ; 00:3483 - 11 F0 3F
    add    hl, de                       ; 00:3486 - 19
    add    a, (hl)                      ; 00:3487 - 86
    exx                                 ; 00:3488 - D9
@@ -6791,7 +6791,7 @@ return_from_objfunc:
    exx                                 ; 00:349A - D9
    ld     hl, (tmp_06)                 ; 00:349B - 2A 14 D2
    ld     h, $00                       ; 00:349E - 26 00
-   ld     de, LUT_3FF0                 ; 00:34A0 - 11 F0 3F
+   ld     de, LUT_y_magnet_factors     ; 00:34A0 - 11 F0 3F
    add    hl, de                       ; 00:34A3 - 19
    add    a, (hl)                      ; 00:34A4 - 86
    exx                                 ; 00:34A5 - D9
@@ -6810,7 +6810,7 @@ return_from_objfunc:
    ld     a, (tmp_06)                  ; 00:34B7 - 3A 14 D2
    ld     e, a                         ; 00:34BA - 5F
    ld     d, $00                       ; 00:34BB - 16 00
-   ld     hl, LUT_3F90                 ; 00:34BD - 21 90 3F
+   ld     hl, LUT_vertical_hslide_factors  ; 00:34BD - 21 90 3F
    add    hl, de                       ; 00:34C0 - 19
    ld     c, (hl)                      ; 00:34C1 - 4E
    ld     (ix+10), d                   ; 00:34C2 - DD 72 0A
@@ -7752,18 +7752,18 @@ LVTILEFLAGS_special:
 LVTILEFLAGS_SKY_3:
 .INCBIN "src/data/lv_sky_3.tileflags"
 
-LUT_3F90:
+LUT_vertical_hslide_factors:
 .db $00, $1C, $1C, $E4, $E4, $12, $12, $12, $EE, $EE, $EE, $00, $00, $00, $00, $00  ; 00:3F90
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 00:3FA0
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $12, $EE, $00, $00, $00, $00       ; 00:3FB0
 
-LUT_3FBF:
+LUT_horizontal_vslide_factors_VESTIGIAL:
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 00:3FBF
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 00:3FCF
 .db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00  ; 00:3FDF
 .db $00                                                                             ; 00:3FEF
 
-LUT_3FF0:
+LUT_y_magnet_factors:
 .db $00, $08, $08, $08, $08, $06, $06, $06, $06, $06, $06, $03, $03, $03, $03, $03  ; 00:3FF0
 .ENDS
 
@@ -7772,265 +7772,265 @@ LUT_3FF0:
 .db $00, $00, $00, $00, $00, $00, $00, $03, $03, $04, $04, $03, $03, $03, $03, $00  ; 01:4010
 
 LUT_phys_tileflags_push_right:
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4020
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4030
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0409E, addr_0407E  ; 01:4040
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_040BE, addr_0407E  ; 01:4050
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_040DE  ; 01:4060
-.dw addr_040FE, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:4070
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:4020
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:4030
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_right_all, PHY_empty  ; 01:4040
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_right_upper, PHY_empty  ; 01:4050
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_right_lower  ; 01:4060
+.dw PHY_push_right_middle, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:4070
 
-addr_0407E:
+PHY_empty:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:407E
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:408E
 
-addr_0409E:
+PHY_push_right_all:
 .db $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C  ; 01:409E
 .db $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C  ; 01:40AE
 
-addr_040BE:
+PHY_push_right_upper:
 .db $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C  ; 01:40BE
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:40CE
 
-addr_040DE:
+PHY_push_right_lower:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:40DE
 .db $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C  ; 01:40EE
 
-addr_040FE:
+PHY_push_right_middle:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C  ; 01:40FE
 .db $1C, $1C, $1C, $1C, $1C, $1C, $1C, $1C, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:410E
 
 LUT_phys_tileflags_push_left:
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:411E
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:412E
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0417C, addr_0407E  ; 01:413E
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0418C, addr_0407E  ; 01:414E
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_041AC  ; 01:415E
-.dw addr_041CC, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:416E
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:411E
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:412E
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_left_all, PHY_empty  ; 01:413E
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_left_upper, PHY_empty  ; 01:414E
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_left_lower  ; 01:415E
+.dw PHY_push_left_middle, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:416E
 
-addr_0417C:
+PHY_push_left_all:
 .db $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04  ; 01:417C
 
-addr_0418C:
+PHY_push_left_upper:
 .db $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04  ; 01:418C
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:419C
 
-addr_041AC:
+PHY_push_left_lower:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:41AC
 .db $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04, $04  ; 01:41BC
 
-addr_041CC:
+PHY_push_left_middle:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $04, $04, $04, $04, $04, $04, $04, $04  ; 01:41CC
 .db $04, $04, $04, $04, $04, $04, $04, $04, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:41DC
 
 LUT_phys_tileflags_push_down:
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:41EC
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:41FC
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0424A, addr_0407E  ; 01:420C
-.dw addr_0426A, addr_0428A, addr_042AA, addr_042CA, addr_042EA, addr_0430A, addr_0432A, addr_0434A  ; 01:421C
-.dw addr_0436A, addr_0438A, addr_043AA, addr_043CA, addr_043EA, addr_0440A, addr_0442A, addr_0444A  ; 01:422C
-.dw addr_0446A, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:423C
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:41EC
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:41FC
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_down_all, PHY_empty  ; 01:420C
+.dw PHY_push_down_slope_18_10_flat, PHY_push_down_slope_flat_10_18, PHY_push_down_slope_0F_00_none, PHY_push_down_slope_2F_10, PHY_push_down_slope_10_2F, PHY_push_down_slope_none_00_0F, PHY_push_down_half_way, PHY_push_down_slope_none_00_07  ; 01:421C
+.dw PHY_push_down_slope_08_17, PHY_push_down_slope_18_27, PHY_push_down_slope_27_18, PHY_push_down_slope_17_08, PHY_push_down_slope_07_00_none, PHY_push_down_slope_08_10_flat, PHY_push_down_slope_flat_10_08, PHY_push_down_all_REDUNDANT2  ; 01:422C
+.dw PHY_push_down_17_flat, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:423C
 
-addr_0424A:
+PHY_push_down_all:
 .db $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F  ; 01:424A
 .db $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F  ; 01:425A
 
-addr_0426A:
+PHY_push_down_slope_18_10_flat:
 .db $18, $18, $17, $17, $16, $16, $15, $15, $14, $14, $13, $13, $12, $12, $11, $11  ; 01:426A
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:427A
 
-addr_0428A:
+PHY_push_down_slope_flat_10_18:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:428A
 .db $11, $11, $12, $12, $13, $13, $14, $14, $15, $15, $16, $16, $17, $17, $18, $18  ; 01:429A
 
-addr_042AA:
+PHY_push_down_slope_0F_00_none:
 .db $0F, $0E, $0D, $0C, $0B, $0A, $09, $08, $07, $06, $05, $04, $03, $02, $01, $00  ; 01:42AA
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:42BA
 
-addr_042CA:
+PHY_push_down_slope_2F_10:
 .db $2F, $2E, $2D, $2C, $2B, $2A, $29, $28, $27, $26, $25, $24, $23, $22, $21, $20  ; 01:42CA
 .db $1F, $1E, $1D, $1C, $1B, $1A, $19, $18, $17, $16, $15, $14, $13, $12, $11, $10  ; 01:42DA
 
-addr_042EA:
+PHY_push_down_slope_10_2F:
 .db $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1A, $1B, $1C, $1D, $1E, $1F  ; 01:42EA
 .db $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $2A, $2B, $2C, $2D, $2E, $2F  ; 01:42FA
 
-addr_0430A:
+PHY_push_down_slope_none_00_0F:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:430A
 .db $00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F  ; 01:431A
 
-addr_0432A:
+PHY_push_down_half_way:
 .db $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F  ; 01:432A
 .db $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F  ; 01:433A
 
-addr_0434A:
+PHY_push_down_slope_none_00_07:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:434A
 .db $00, $00, $01, $01, $02, $02, $03, $03, $04, $04, $05, $05, $06, $06, $07, $07  ; 01:435A
 
-addr_0436A:
+PHY_push_down_slope_08_17:
 .db $08, $08, $09, $09, $0A, $0A, $0B, $0B, $0C, $0C, $0D, $0D, $0E, $0E, $0F, $0F  ; 01:436A
 .db $10, $10, $11, $11, $12, $12, $13, $13, $14, $14, $15, $15, $16, $16, $17, $17  ; 01:437A
 
-addr_0438A:
+PHY_push_down_slope_18_27:
 .db $18, $18, $19, $19, $1A, $1A, $1B, $1B, $1C, $1C, $1D, $1D, $1E, $1E, $1F, $1F  ; 01:438A
 .db $20, $20, $21, $21, $22, $22, $23, $23, $24, $24, $25, $25, $26, $26, $27, $27  ; 01:439A
 
-addr_043AA:
+PHY_push_down_slope_27_18:
 .db $27, $27, $26, $26, $25, $25, $24, $24, $23, $23, $22, $22, $21, $21, $20, $20  ; 01:43AA
 .db $1F, $1F, $1E, $1E, $1D, $1D, $1C, $1C, $1B, $1B, $1A, $1A, $19, $19, $18, $18  ; 01:43BA
 
-addr_043CA:
+PHY_push_down_slope_17_08:
 .db $17, $17, $16, $16, $15, $15, $14, $14, $13, $13, $12, $12, $11, $11, $10, $10  ; 01:43CA
 .db $0F, $0F, $0E, $0E, $0D, $0D, $0C, $0C, $0B, $0B, $0A, $0A, $09, $09, $08, $08  ; 01:43DA
 
-addr_043EA:
+PHY_push_down_slope_07_00_none:
 .db $07, $07, $06, $06, $05, $05, $04, $04, $03, $03, $02, $02, $01, $01, $00, $00  ; 01:43EA
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:43FA
 
-addr_0440A:
+PHY_push_down_slope_08_10_flat:
 .db $08, $08, $09, $09, $0A, $0A, $0B, $0B, $0C, $0C, $0D, $0D, $0E, $0E, $0F, $0F  ; 01:440A
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:441A
 
-addr_0442A:
+PHY_push_down_slope_flat_10_08:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:442A
 .db $0F, $0F, $0E, $0E, $0D, $0D, $0C, $0C, $0B, $0B, $0A, $0A, $09, $09, $08, $08  ; 01:443A
 
-addr_0444A:
+PHY_push_down_all_REDUNDANT2:
 .db $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F  ; 01:444A
 .db $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F  ; 01:445A
 
-addr_0446A:
+PHY_push_down_17_flat:
 .db $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17  ; 01:446A
 .db $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17, $17  ; 01:447A
 
 LUT_phys_tileflags_push_up:
-.dw addr_0407E, addr_044E8, addr_04508, addr_04528, addr_04548, addr_04568, addr_04588, addr_045A8  ; 01:448A
-.dw addr_045C8, addr_045E8, addr_04608, addr_04628, addr_04648, addr_04668, addr_04688, addr_046A8  ; 01:449A
-.dw addr_046C8, addr_046E8, addr_04708, addr_04728, addr_04748, addr_04768, addr_04788, addr_047A8  ; 01:44AA
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E  ; 01:44BA
-.dw addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_0407E, addr_047C8  ; 01:44CA
-.dw addr_047E8, addr_04808, addr_04828, addr_04848, addr_04868, addr_04888, addr_048A8  ; 01:44DA
+.dw PHY_empty, PHY_push_up_slope_10_2F, PHY_push_up_slope_F0_0F, PHY_push_up_slope_0F_F0, PHY_push_up_slope_2F_10, PHY_push_up_slope_F8_07, PHY_push_up_slope_08_17, PHY_push_up_slope_18_27  ; 01:448A
+.dw PHY_push_up_slope_27_18, PHY_push_up_slope_17_08, PHY_push_up_slope_07_F8, PHY_push_up_curve_10_12_10, PHY_push_up_curve_10_12_13_17, PHY_push_up_curve_17_13_12_10, PHY_push_up_curve_08_0A_0B_0F, PHY_push_up_curve_0F_0B_0A_08  ; 01:449A
+.dw PHY_push_up_10_flat, PHY_push_up_curve_10_1B_10, PHY_push_up_slope_flat_10_18, PHY_push_up_slope_18_10_flat, PHY_push_up_slope_08_10_flat, PHY_push_up_slope_flat_10_08, PHY_push_up_FF_flat, PHY_push_up_curve_08_0B_08  ; 01:44AA
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty  ; 01:44BA
+.dw PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_empty, PHY_push_up_10_flat_REDUNDANT2  ; 01:44CA
+.dw PHY_push_up_08_flat, PHY_push_up_slope_08_0F, PHY_push_up_slope_0F_08, PHY_push_up_curve_07_00_07, PHY_push_up_curve_08_0C_08, PHY_push_up_right, PHY_push_up_left  ; 01:44DA
 
-addr_044E8:
+PHY_push_up_slope_10_2F:
 .db $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1A, $1B, $1C, $1D, $1E, $1F  ; 01:44E8
 .db $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $2A, $2B, $2C, $2D, $2E, $2F  ; 01:44F8
 
-addr_04508:
+PHY_push_up_slope_F0_0F:
 .db $F0, $F1, $F2, $F3, $F4, $F5, $F6, $F7, $F8, $F9, $FA, $FB, $FC, $FD, $FE, $FF  ; 01:4508
 .db $00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F  ; 01:4518
 
-addr_04528:
+PHY_push_up_slope_0F_F0:
 .db $0F, $0E, $0D, $0C, $0B, $0A, $09, $08, $07, $06, $05, $04, $03, $02, $01, $00  ; 01:4528
 .db $FF, $FE, $FD, $FC, $FB, $FA, $F9, $F8, $F7, $F6, $F5, $F4, $F3, $F2, $F1, $F0  ; 01:4538
 
-addr_04548:
+PHY_push_up_slope_2F_10:
 .db $2F, $2E, $2D, $2C, $2B, $2A, $29, $28, $27, $26, $25, $24, $23, $22, $21, $20  ; 01:4548
 .db $1F, $1E, $1D, $1C, $1B, $1A, $19, $18, $17, $16, $15, $14, $13, $12, $11, $10  ; 01:4558
 
-addr_04568:
+PHY_push_up_slope_F8_07:
 .db $F8, $F8, $F9, $F9, $FA, $FA, $FB, $FB, $FC, $FC, $FD, $FD, $FE, $FE, $FF, $FF  ; 01:4568
 .db $00, $00, $01, $01, $02, $02, $03, $03, $04, $04, $05, $05, $06, $06, $07, $07  ; 01:4578
 
-addr_04588:
+PHY_push_up_slope_08_17:
 .db $08, $08, $09, $09, $0A, $0A, $0B, $0B, $0C, $0C, $0D, $0D, $0E, $0E, $0F, $0F  ; 01:4588
 .db $10, $10, $11, $11, $12, $12, $13, $13, $14, $14, $15, $15, $16, $16, $17, $17  ; 01:4598
 
-addr_045A8:
+PHY_push_up_slope_18_27:
 .db $18, $18, $19, $19, $1A, $1A, $1B, $1B, $1C, $1C, $1D, $1D, $1E, $1E, $1F, $1F  ; 01:45A8
 .db $20, $20, $21, $21, $22, $22, $23, $23, $24, $24, $25, $25, $26, $26, $27, $27  ; 01:45B8
 
-addr_045C8:
+PHY_push_up_slope_27_18:
 .db $27, $27, $26, $26, $25, $25, $24, $24, $23, $23, $22, $22, $21, $21, $20, $20  ; 01:45C8
 .db $1F, $1F, $1E, $1E, $1D, $1D, $1C, $1C, $1B, $1B, $1A, $1A, $19, $19, $18, $18  ; 01:45D8
 
-addr_045E8:
+PHY_push_up_slope_17_08:
 .db $17, $17, $16, $16, $15, $15, $14, $14, $13, $13, $12, $12, $11, $11, $10, $10  ; 01:45E8
 .db $0F, $0F, $0E, $0E, $0D, $0D, $0C, $0C, $0B, $0B, $0A, $0A, $09, $09, $08, $08  ; 01:45F8
 
-addr_04608:
+PHY_push_up_slope_07_F8:
 .db $07, $07, $06, $06, $05, $05, $04, $04, $03, $03, $02, $02, $01, $01, $00, $00  ; 01:4608
 .db $FF, $FF, $FE, $FE, $FD, $FD, $FC, $FC, $FB, $FB, $FA, $FA, $F9, $F9, $F8, $F8  ; 01:4618
 
-addr_04628:
+PHY_push_up_curve_10_12_10:
 .db $10, $10, $10, $10, $10, $10, $10, $11, $11, $11, $11, $11, $12, $12, $12, $12  ; 01:4628
 .db $12, $12, $12, $12, $12, $11, $11, $11, $11, $11, $10, $10, $10, $10, $10, $10  ; 01:4638
 
-addr_04648:
+PHY_push_up_curve_10_12_13_17:
 .db $10, $10, $10, $10, $10, $10, $10, $11, $11, $11, $11, $11, $12, $12, $12, $12  ; 01:4648
 .db $13, $13, $13, $14, $14, $15, $15, $15, $16, $16, $16, $17, $17, $17, $17, $17  ; 01:4658
 
-addr_04668:
+PHY_push_up_curve_17_13_12_10:
 .db $17, $17, $17, $17, $17, $16, $16, $16, $15, $15, $15, $14, $14, $13, $13, $13  ; 01:4668
 .db $12, $12, $12, $12, $11, $11, $11, $11, $11, $10, $10, $10, $10, $10, $10, $10  ; 01:4678
 
-addr_04688:
+PHY_push_up_curve_08_0A_0B_0F:
 .db $08, $08, $08, $08, $08, $08, $08, $09, $09, $09, $09, $09, $0A, $0A, $0A, $0A  ; 01:4688
 .db $0B, $0B, $0B, $0C, $0C, $0D, $0D, $0D, $0E, $0E, $0E, $0F, $0F, $0F, $0F, $0F  ; 01:4698
 
-addr_046A8:
+PHY_push_up_curve_0F_0B_0A_08:
 .db $0F, $0F, $0F, $0F, $0F, $0E, $0E, $0E, $0D, $0D, $0D, $0C, $0C, $0B, $0B, $0B  ; 01:46A8
 .db $0A, $0A, $0A, $0A, $09, $09, $09, $09, $09, $08, $08, $08, $08, $08, $08, $08  ; 01:46B8
 
-addr_046C8:
+PHY_push_up_10_flat:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:46C8
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:46D8
 
-addr_046E8:
+PHY_push_up_curve_10_1B_10:
 .db $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $19, $1A, $1A, $1A, $1B, $1B  ; 01:46E8
 .db $1B, $1B, $1B, $1A, $1A, $1A, $19, $19, $18, $17, $16, $14, $11, $10, $10, $10  ; 01:46F8
 
-addr_04708:
+PHY_push_up_slope_flat_10_18:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:4708
 .db $11, $11, $12, $12, $13, $13, $14, $14, $15, $15, $16, $16, $17, $17, $18, $18  ; 01:4718
 
-addr_04728:
+PHY_push_up_slope_18_10_flat:
 .db $18, $18, $17, $17, $16, $16, $15, $15, $14, $14, $13, $13, $12, $12, $11, $11  ; 01:4728
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:4738
 
-addr_04748:
+PHY_push_up_slope_08_10_flat:
 .db $08, $08, $09, $09, $0A, $0A, $0B, $0B, $0C, $0C, $0D, $0D, $0E, $0E, $0F, $0F  ; 01:4748
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:4758
 
-addr_04768:
+PHY_push_up_slope_flat_10_08:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:4768
 .db $0F, $0F, $0E, $0E, $0D, $0D, $0C, $0C, $0B, $0B, $0A, $0A, $09, $09, $08, $08  ; 01:4778
 
-addr_04788:
+PHY_push_up_FF_flat:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:4788
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 01:4798
 
-addr_047A8:
+PHY_push_up_curve_08_0B_08:
 .db $08, $08, $08, $08, $09, $09, $09, $09, $0A, $0A, $0A, $0A, $0B, $0B, $0B, $0B  ; 01:47A8
 .db $0B, $0B, $0B, $0B, $0A, $0A, $0A, $0A, $09, $09, $09, $09, $08, $08, $08, $08  ; 01:47B8
 
-addr_047C8:
+PHY_push_up_10_flat_REDUNDANT2:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:47C8
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:47D8
 
-addr_047E8:
+PHY_push_up_08_flat:
 .db $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08  ; 01:47E8
 .db $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08  ; 01:47F8
 
-addr_04808:
+PHY_push_up_slope_08_0F:
 .db $08, $08, $08, $08, $09, $09, $09, $09, $0A, $0A, $0A, $0A, $0B, $0B, $0B, $0B  ; 01:4808
 .db $0C, $0C, $0C, $0C, $0D, $0D, $0D, $0D, $0E, $0E, $0E, $0E, $0F, $0F, $0F, $0F  ; 01:4818
 
-addr_04828:
+PHY_push_up_slope_0F_08:
 .db $0F, $0F, $0F, $0F, $0E, $0E, $0E, $0E, $0D, $0D, $0D, $0D, $0C, $0C, $0C, $0C  ; 01:4828
 .db $0B, $0B, $0B, $0B, $0A, $0A, $0A, $0A, $09, $09, $09, $09, $08, $08, $08, $08  ; 01:4838
 
-addr_04848:
+PHY_push_up_curve_07_00_07:
 .db $07, $07, $06, $06, $05, $05, $04, $04, $03, $03, $02, $02, $01, $01, $00, $00  ; 01:4848
 .db $00, $00, $01, $01, $02, $02, $03, $03, $04, $04, $05, $05, $06, $06, $07, $07  ; 01:4858
 
-addr_04868:
+PHY_push_up_curve_08_0C_08:
 .db $08, $08, $08, $08, $09, $09, $09, $09, $0A, $0A, $0A, $0A, $0B, $0B, $0C, $0C  ; 01:4868
 .db $0C, $0C, $0B, $0B, $0A, $0A, $0A, $0A, $09, $09, $09, $09, $08, $08, $08, $08  ; 01:4878
 
-addr_04888:
+PHY_push_up_right:
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:4888
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:4898
 
-addr_048A8:
+PHY_push_up_left:
 .db $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10, $10  ; 01:48A8
 .db $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80  ; 01:48B8
 
