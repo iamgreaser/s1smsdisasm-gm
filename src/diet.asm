@@ -228,8 +228,8 @@ g_chaos_emerald_music_countdown_timer db   ; D28B
 g_directional_input_suppression_timer db   ; D28C
 g_invincibility_countdown_timer db   ; D28D
 g_sonic_jump_countdown_timer db   ; D28E
-var_D28F dw   ; D28F
-var_D291 dw   ; D291
+g_new_sonic_sprite_ptr dw   ; D28F
+g_old_sonic_sprite_ptr dw   ; D291
 g_new_ring_tiles_ptr dw   ; D293
 g_old_ring_tiles_ptr dw   ; D295
 g_ring_tile_index db   ; D297
@@ -684,7 +684,7 @@ irq_start:
    call set_slot_1_2
    .ENDIF
    bit    7, (iy+iy_07_lvflag02-IYBASE)  ; 00:013D - FD CB 07 7E
-   call   nz, addr_037E0               ; 00:0141 - C4 E0 37
+   call   nz, update_sonic_3bpp_sprite  ; 00:0141 - C4 E0 37
    ld     a, $01                       ; 00:0144 - 3E 01
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -703,7 +703,7 @@ irq_start:
    call   z, @fn_update_palette        ; 00:015F - CC 74 01
    ld     a, (g_screen_tile_replace_x_hi)  ; 00:0162 - 3A AC D2
    and    $80                          ; 00:0165 - E6 80
-   call   z, addr_038B0                ; 00:0167 - CC B0 38
+   call   z, apply_screen_tilemap_patch  ; 00:0167 - CC B0 38
    ld     a, $FF                       ; 00:016A - 3E FF
    ld     (g_screen_tile_replace_x_hi), a  ; 00:016C - 32 AC D2
    set    0, (iy+iy_00-IYBASE)         ; 00:016F - FD CB 00 C6
@@ -9343,16 +9343,16 @@ get_obj_level_tile_ptr_in_ram:
 ; SAVING: 175 bytes
 .ENDIF
 
-addr_037E0:
-   ld     de, (var_D28F)               ; 00:37E0 - ED 5B 8F D2
-   ld     hl, (var_D291)               ; 00:37E4 - 2A 91 D2
+update_sonic_3bpp_sprite:
+   ld     de, (g_new_sonic_sprite_ptr)  ; 00:37E0 - ED 5B 8F D2
+   ld     hl, (g_old_sonic_sprite_ptr)  ; 00:37E4 - 2A 91 D2
    and    a                            ; 00:37E7 - A7
    sbc    hl, de                       ; 00:37E8 - ED 52
    ret    z                            ; 00:37EA - C8
    ld     hl, $3680                    ; 00:37EB - 21 80 36
    ex     de, hl                       ; 00:37EE - EB
    bit    0, (iy+iy_06_lvflag01-IYBASE)  ; 00:37EF - FD CB 06 46
-   jp     nz, addr_0382E               ; 00:37F3 - C2 2E 38
+   jp     nz, @upside_down_sprites_VESTIGIAL  ; 00:37F3 - C2 2E 38
    ld     a, e                         ; 00:37F6 - 7B
    out    ($BF), a                     ; 00:37F7 - D3 BF
    ld     a, d                         ; 00:37F9 - 7A
@@ -9363,7 +9363,7 @@ addr_037E0:
    ld     c, $BE                       ; 00:37FF - 0E BE
    ld     e, $18                       ; 00:3801 - 1E 18
 
-addr_03803:
+@each_4_rows:
    outi                                ; 00:3803 - ED A3
    outi                                ; 00:3805 - ED A3
    outi                                ; 00:3807 - ED A3
@@ -9381,7 +9381,7 @@ addr_03803:
    outi                                ; 00:381F - ED A3
    out    ($BE), a                     ; 00:3821 - D3 BE
    dec    e                            ; 00:3823 - 1D
-   jp     nz, addr_03803               ; 00:3824 - C2 03 38
+   jp     nz, @each_4_rows             ; 00:3824 - C2 03 38
 
    .ELSE
    ;;
@@ -9439,11 +9439,11 @@ addr_03803:
 
    .ENDIF
 
-   ld     hl, (var_D28F)               ; 00:3827 - 2A 8F D2
-   ld     (var_D291), hl               ; 00:382A - 22 91 D2
+   ld     hl, (g_new_sonic_sprite_ptr)  ; 00:3827 - 2A 8F D2
+   ld     (g_old_sonic_sprite_ptr), hl  ; 00:382A - 22 91 D2
    ret                                 ; 00:382D - C9
 
-addr_0382E:
+@upside_down_sprites_VESTIGIAL:
    ld     bc, $011D                    ; 00:382E - 01 1D 01
    add    hl, bc                       ; 00:3831 - 09
    ld     a, e                         ; 00:3832 - 7B
@@ -9459,7 +9459,7 @@ addr_0382E:
    ld     c, $BE                       ; 00:3842 - 0E BE
    xor    a                            ; 00:3844 - AF
 
-addr_03845:
+@each_4_upside_down_rows:
    outi                                ; 00:3845 - ED A3
    outi                                ; 00:3847 - ED A3
    outi                                ; 00:3849 - ED A3
@@ -9483,12 +9483,12 @@ addr_03845:
    exx                                 ; 00:3869 - D9
    dec    b                            ; 00:386A - 05
    exx                                 ; 00:386B - D9
-   jp     nz, addr_03845               ; 00:386C - C2 45 38
+   jp     nz, @each_4_upside_down_rows  ; 00:386C - C2 45 38
    exx                                 ; 00:386F - D9
    pop    bc                           ; 00:3870 - C1
    exx                                 ; 00:3871 - D9
-   ld     hl, (var_D28F)               ; 00:3872 - 2A 8F D2
-   ld     (var_D291), hl               ; 00:3875 - 22 91 D2
+   ld     hl, (g_new_sonic_sprite_ptr)  ; 00:3872 - 2A 8F D2
+   ld     (g_old_sonic_sprite_ptr), hl  ; 00:3875 - 22 91 D2
    ret                                 ; 00:3878 - C9
 
 update_ring_tiles:
@@ -9529,7 +9529,7 @@ update_ring_tiles:
    ld     (g_old_ring_tiles_ptr), hl   ; 00:38AC - 22 95 D2
    ret                                 ; 00:38AF - C9
 
-addr_038B0:
+apply_screen_tilemap_patch:
    ld     hl, (g_screen_tile_replace_x)  ; 00:38B0 - 2A AB D2
    ld     a, l                         ; 00:38B3 - 7D
    and    $F8                          ; 00:38B4 - E6 F8
@@ -9613,10 +9613,10 @@ addr_038B0:
    ; SAVING: 3 bytes
    .ENDIF
    cp     $1C                          ; 00:3911 - FE 1C
-   jr     c, addr_03917                ; 00:3913 - 38 02
+   jr     c, @skip_avoid_y_wrap_discontinuity  ; 00:3913 - 38 02
    sub    $1C                          ; 00:3915 - D6 1C
 
-addr_03917:
+@skip_avoid_y_wrap_discontinuity:
    ld     l, a                         ; 00:3917 - 6F
    ld     h, $00                       ; 00:3918 - 26 00
    ld     b, h                         ; 00:391A - 44
@@ -9641,7 +9641,7 @@ addr_03917:
    ld     de, (g_screen_tile_replace_data_ptr)  ; 00:3929 - ED 5B AF D2
    ld     b, $02                       ; 00:392D - 06 02
 
-addr_0392F:
+@each_tile_pair:
    ld     a, l                         ; 00:392F - 7D
    out    ($BF), a                     ; 00:3930 - D3 BF
    ld     a, h                         ; 00:3932 - 7C
@@ -9669,7 +9669,7 @@ addr_0392F:
    ld     bc, $0040                    ; 00:394E - 01 40 00
    add    hl, bc                       ; 00:3951 - 09
    ld     b, a                         ; 00:3952 - 47
-   djnz   addr_0392F                   ; 00:3953 - 10 DA
+   djnz   @each_tile_pair              ; 00:3953 - 10 DA
    ret                                 ; 00:3955 - C9
 
 check_collision_with_sonic:
@@ -10930,7 +10930,7 @@ objfunc_00_sonic:
    add    a, d                         ; 01:4CA9 - 82
    ld     h, a                         ; 01:4CAA - 67
    add    hl, bc                       ; 01:4CAB - 09
-   ld     (var_D28F), hl               ; 01:4CAC - 22 8F D2
+   ld     (g_new_sonic_sprite_ptr), hl  ; 01:4CAC - 22 8F D2
    ld     hl, SPRITEMAP_sonic_normal   ; 01:4CAF - 21 1D 59
    .IF shrink_sonicuncart_interleave
    bit 0, c
