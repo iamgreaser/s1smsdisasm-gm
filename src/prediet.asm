@@ -738,7 +738,7 @@ reset_init:
    call   fill_vram_at_hl_for_bc_bytes_with_a  ; 00:02CA - CD 95 05
    call   di_call_s1_b03_4006_DI       ; 00:02CD - CD ED 02
    ld     iy, iy_00                    ; 00:02D0 - FD 21 00 D2
-   jp     _reset_01C49                 ; 00:02D4 - C3 49 1C
+   jp     main                         ; 00:02D4 - C3 49 1C
 
 di_call_s1_b03_4012_a_DI:
    di                                  ; 00:02D7 - F3
@@ -4195,11 +4195,11 @@ ARRAY_demo_inputs:
 .db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF  ; 00:1C36
 .db $FF, $FF, $00                                                                   ; 00:1C46
 
-_reset_01C49:
+main:
    set    0, (iy+iy_00-IYBASE)         ; 00:1C49 - FD CB 00 C6
    ei                                  ; 00:1C4D - FB
 
-addr_01C4E:
+@reset_game_state:
    ld     a, $03                       ; 00:1C4E - 3E 03
    ld     (g_lives), a                 ; 00:1C50 - 32 46 D2
    ld     a, $05                       ; 00:1C53 - 3E 05
@@ -4227,45 +4227,45 @@ addr_01C4E:
    call   clear_sprite_table           ; 00:1C8F - CD E2 05
    call   run_title_screen             ; 00:1C92 - CD 87 12
    res    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1C95 - FD CB 05 8E
-   jr     c, addr_01C9F                ; 00:1C99 - 38 04
+   jr     c, @main_loop                ; 00:1C99 - 38 04
    set    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1C9B - FD CB 05 CE
 
-addr_01C9F:
+@main_loop:
    ld     a, (g_level)                 ; 00:1C9F - 3A 3E D2
    cp     $13                          ; 00:1CA2 - FE 13
-   jr     nc, addr_01C4E               ; 00:1CA4 - 30 A8
+   jr     nc, @reset_game_state        ; 00:1CA4 - 30 A8
    res    0, (iy+iy_02-IYBASE)         ; 00:1CA6 - FD CB 02 86
    res    1, (iy+iy_02-IYBASE)         ; 00:1CAA - FD CB 02 8E
    call   clear_sprite_table           ; 00:1CAE - CD E2 05
    call   run_world_map                ; 00:1CB1 - CD 52 0C
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CB4 - FD CB 05 4E
-   jr     z, addr_01CBD                ; 00:1CB8 - 28 03
-   jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
+   jr     z, @run_this_level           ; 00:1CB8 - 28 03
+   jp     c, @reset_game_state         ; 00:1CBA - DA 4E 1C
 
-addr_01CBD:
+@run_this_level:
    call   fade_screen_to_black         ; 00:1CBD - CD 40 0A
    call   clear_sprite_table           ; 00:1CC0 - CD E2 05
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CC3 - FD CB 05 46
-   jr     nz, addr_01CCF               ; 00:1CC7 - 20 06
+   jr     nz, @force_level_start_delay  ; 00:1CC7 - 20 06
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1CC9 - FD CB 06 66
-   jr     nz, addr_01CDB               ; 00:1CCD - 20 0C
+   jr     nz, @skip_level_start_delay  ; 00:1CCD - 20 0C
 
-addr_01CCF:
+@force_level_start_delay:
    ld     b, $3C                       ; 00:1CCF - 06 3C
 
-addr_01CD1:
+@wait_60_frames_before_entering_gameplay:
    res    0, (iy+iy_00-IYBASE)         ; 00:1CD1 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1CD5 - CD 1C 03
-   djnz   addr_01CD1                   ; 00:1CD8 - 10 F7
+   djnz   @wait_60_frames_before_entering_gameplay  ; 00:1CD8 - 10 F7
    rst    $20                          ; 00:1CDA - E7
 
-addr_01CDB:
+@skip_level_start_delay:
    call   load_level_header_UNCONFIRMED  ; 00:1CDB - CD ED 1C
    and    a                            ; 00:1CDE - A7
-   jp     z, addr_01C4E                ; 00:1CDF - CA 4E 1C
+   jp     z, @reset_game_state         ; 00:1CDF - CA 4E 1C
    dec    a                            ; 00:1CE2 - 3D
-   jr     z, addr_01C9F                ; 00:1CE3 - 28 BA
-   jp     addr_01CBD                   ; 00:1CE5 - C3 BD 1C
+   jr     z, @main_loop                ; 00:1CE3 - 28 BA
+   jp     @run_this_level              ; 00:1CE5 - C3 BD 1C
 
 fill_ram_at_hl_for_b_bytes_with_a:
    ld     (hl), a                      ; 00:1CE8 - 77

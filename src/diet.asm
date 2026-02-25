@@ -933,7 +933,7 @@ reset_init:
 .ENDIF
    ;; Set IY to $D200 and *NEVER EVER CHANGE IT*
    ld     iy, IYBASE                   ; 00:02D0 - FD 21 00 D2
-   jp     _reset_01C49                 ; 00:02D4 - C3 49 1C
+   jp     main                         ; 00:02D4 - C3 49 1C
 
 ;; Up-front cost of 19 bytes
 ;; 11 bytes saved when both slots need setting
@@ -5529,11 +5529,11 @@ ARRAY_demo_inputs:
 
 .ENDIF
 
-_reset_01C49:
+main:
    set    0, (iy+iy_00-IYBASE)         ; 00:1C49 - FD CB 00 C6
    ei                                  ; 00:1C4D - FB
 
-;addr_01C4E:
+@reset_game_state:
    ld     a, $03                       ; 00:1C4E - 3E 03
    ld     (g_lives), a                 ; 00:1C50 - 32 46 D2
    ld     a, $05                       ; 00:1C53 - 3E 05
@@ -5577,20 +5577,20 @@ _reset_01C49:
    res    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1C95 - FD CB 05 8E
    ;; If the carry flag is clear, we want to show the demo.
    ;; If it is set, then we want to actually play the game.
-   jr     c, addr_01C9F                ; 00:1C99 - 38 04
+   jr     c, @main_loop                ; 00:1C99 - 38 04
    set    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1C9B - FD CB 05 CE
    ;; HACK: Force GHZ1 if it's the demo (just in case we have a level select cheat/hack enabled)
    ld a, $00
    ld (g_level), a
 
-addr_01C9F:
+@main_loop:
    ld     a, (g_level)                 ; 00:1C9F - 3A 3E D2
    ;; HACK: Allow starting on really high level numbers.
    ;; Also, SAVING: 4 bytes
    .IF 0
    cp     $13                          ; 00:1CA2 - FE 13
    .IF 0
-   jr     nc, addr_01C4E               ; 00:1CA4 - 30 A8
+   jr     nc, @reset_game_state        ; 00:1CA4 - 30 A8
    .ELSE
    jr nc, reset_trampoline_after_title
    .ENDIF
@@ -5609,45 +5609,48 @@ addr_01C9F:
    call   run_world_map                ; 00:1CB1 - CD 52 0C
 .ENDIF
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CB4 - FD CB 05 4E
-   jr     z, addr_01CBD                ; 00:1CB8 - 28 03
+   jr     z, @run_this_level           ; 00:1CB8 - 28 03
    .IF 0
-   jp     c, addr_01C4E                ; 00:1CBA - DA 4E 1C
+   jp     c, @reset_game_state         ; 00:1CBA - DA 4E 1C
    .ELIF 0
    ; This literally cannot work - it seems that BIT clears the carry flag.
+   ; UPDATE: ^ This might not be true. --GM
    jr c, reset_trampoline_after_title
    .ELSE
    ; SAVING: 3 bytes
    .ENDIF
 
-addr_01CBD:
+@run_this_level:
    call   fade_screen_to_black         ; 00:1CBD - CD 40 0A
    call   clear_sprite_table           ; 00:1CC0 - CD E2 05
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:1CC3 - FD CB 05 46
-   jr     nz, addr_01CCF               ; 00:1CC7 - 20 06
+   jr     nz, @force_level_start_delay  ; 00:1CC7 - 20 06
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1CC9 - FD CB 06 66
-   jr     nz, addr_01CDB               ; 00:1CCD - 20 0C
+   jr     nz, @skip_level_start_delay  ; 00:1CCD - 20 0C
 
-addr_01CCF:
+@force_level_start_delay:
    .IF !mod_skip_delays
    ld     b, $3C                       ; 00:1CCF - 06 3C
 
-addr_01CD1:
+@wait_60_frames_before_entering_gameplay:
    .ENDIF
    res    0, (iy+iy_00-IYBASE)         ; 00:1CD1 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1CD5 - CD 1C 03
    .IF !mod_skip_delays
-   djnz   addr_01CD1                   ; 00:1CD8 - 10 F7
+   djnz   @wait_60_frames_before_entering_gameplay  ; 00:1CD8 - 10 F7
    .ENDIF
    rst    $20                          ; 00:1CDA - E7
 
-addr_01CDB:
+@skip_level_start_delay:
    call   load_level_header_UNCONFIRMED  ; 00:1CDB - CD ED 1C
    and    a                            ; 00:1CDE - A7
-   ;jp     z, addr_01C4E                ; 00:1CDF - CA 4E 1C
+.IF 0
+   jp     z, @reset_game_state         ; 00:1CDF - CA 4E 1C
+.ENDIF
    jr z, reset_trampoline_after_title
    dec    a                            ; 00:1CE2 - 3D
-   jr     z, addr_01C9F                ; 00:1CE3 - 28 BA
-   jp     addr_01CBD                   ; 00:1CE5 - C3 BD 1C
+   jr     z, @main_loop                ; 00:1CE3 - 28 BA
+   jp     @run_this_level              ; 00:1CE5 - C3 BD 1C
 
 reset_trampoline_after_title:
    rst $00
