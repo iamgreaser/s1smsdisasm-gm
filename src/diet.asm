@@ -74,7 +74,7 @@
 ;; FIXME: This does a fade-to-black followed by another fade (either fade-to-black or fade-to-white depending on if it's a special stage).
 ;; Commenting out the call to 00:0A40 at 00:1FC4 results in at least one of those fades having a borked palette.
 ;; I need to find a solution for the double-fade. --GM
-.DEF mod_skip_score_tally 1
+.DEF mod_skip_score_tally 0
 
 ;; Reduce most delays to no more than 1 frame.
 ;; CURRENT SAVING: 25 bytes in bank $00
