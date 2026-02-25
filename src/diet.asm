@@ -6089,9 +6089,9 @@ update_signpost_timer:
    pop    hl                           ; 00:1FC7 - E1
    res    5, (iy+iy_00-IYBASE)         ; 00:1FC8 - FD CB 00 AE
    bit    2, (iy+iy_0D-IYBASE)         ; 00:1FCC - FD CB 0D 56
-   jr     nz, addr_0201C               ; 00:1FD0 - 20 4A
+   jr     nz, @teleport_to_next        ; 00:1FD0 - 20 4A
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:1FD2 - FD CB 06 66
-   jr     nz, addr_02020               ; 00:1FD6 - 20 48
+   jr     nz, @teleport_to_given       ; 00:1FD6 - 20 48
    rst    $20                          ; 00:1FD8 - E7
    bit    7, (iy+iy_06_lvflag01-IYBASE)  ; 00:1FD9 - FD CB 06 7E
    call   nz, disable_waterline_for_level_end_or_restart  ; 00:1FDD - C4 A4 20
@@ -6136,11 +6136,11 @@ update_signpost_timer:
    ld     a, $FF                       ; 00:2019 - 3E FF
    ret                                 ; 00:201B - C9
 
-addr_0201C:
+@teleport_to_next:
    ld     hl, g_level                  ; 00:201C - 21 3E D2
    inc    (hl)                         ; 00:201F - 34
 
-addr_02020:
+@teleport_to_given:
    ld     a, $FF                       ; 00:2020 - 3E FF
    ret                                 ; 00:2022 - C9
 
