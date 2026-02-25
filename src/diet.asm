@@ -5704,7 +5704,7 @@ load_and_run_level:
    res    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:1D31 - FD CB 08 86
    res    6, (iy+iy_00-IYBASE)         ; 00:1D35 - FD CB 00 B6
    bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D39 - FD CB 05 5E
-   call   nz, addr_01ED8               ; 00:1D3D - C4 D8 1E
+   call   nz, set_right_autoscroll_start_pos  ; 00:1D3D - C4 D8 1E
    ld     b, $10                       ; 00:1D40 - 06 10
 
 @TODO_1D42:
@@ -5798,13 +5798,13 @@ load_and_run_level:
 @return_from_restart_timer_nonexpiry:
    ld     a, (g_pal_flash_countdown_timer)  ; 00:1DE2 - 3A B1 D2
    and    a                            ; 00:1DE5 - A7
-   call   nz, addr_01F06               ; 00:1DE6 - C4 06 1F
+   call   nz, handle_palette_flashing  ; 00:1DE6 - C4 06 1F
    bit    1, (iy+iy_07_lvflag02-IYBASE)  ; 00:1DE9 - FD CB 07 4E
-   call   nz, addr_01F49               ; 00:1DED - C4 49 1F
+   call   nz, handle_SKY1_lightning_timer  ; 00:1DED - C4 49 1F
 
 @continue_from_level_ending_timers:
    bit    1, (iy+iy_06_lvflag01-IYBASE)  ; 00:1DF0 - FD CB 06 4E
-   call   nz, addr_01E78               ; 00:1DF4 - C4 78 1E
+   call   nz, handle_level_finishing   ; 00:1DF4 - C4 78 1E
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1DF7 - FD CB 05 4E
    jr     z, @skip_demo_playback       ; 00:1DFB - 28 0A
    bit    5, (iy+g_inputs_player_1-IYBASE)  ; 00:1DFD - FD CB 03 6E
@@ -5816,11 +5816,11 @@ load_and_run_level:
    inc    hl                           ; 00:1E0A - 23
    ld     (g_global_tick_counter), hl  ; 00:1E0B - 22 23 D2
    bit    3, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E0E - FD CB 05 5E
-   call   nz, addr_01EE2               ; 00:1E12 - C4 E2 1E
+   call   nz, advance_right_autoscroll  ; 00:1E12 - C4 E2 1E
    bit    4, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E15 - FD CB 05 66
-   call   nz, addr_01EF2               ; 00:1E19 - C4 F2 1E
+   call   nz, advance_bottom_up_autoscroll_VESTIGIAL  ; 00:1E19 - C4 F2 1E
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E1C - FD CB 05 7E
-   call   nz, addr_01EFF               ; 00:1E20 - C4 FF 1E
+   call   nz, apply_bottom_up_scroll_ratchet  ; 00:1E20 - C4 FF 1E
    call   addr_023C9                   ; 00:1E23 - CD C9 23
    bit    2, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E26 - FD CB 05 56
    call   nz, addr_0239C               ; 00:1E2A - C4 9C 23
@@ -5861,10 +5861,10 @@ load_and_run_level:
    ld     hl, g_saved_vdp_reg_01       ; 00:1E69 - 21 19 D2
    set    6, (hl)                      ; 00:1E6C - CB F6
    bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1E6E - FD CB 07 5E
-   call   nz, addr_01E9E               ; 00:1E72 - C4 9E 1E
+   call   nz, handle_game_paused       ; 00:1E72 - C4 9E 1E
    jp     @main_level_loop             ; 00:1E75 - C3 AE 1D
 
-addr_01E78:
+handle_level_finishing:
    ld     (iy+g_inputs_player_1-IYBASE), $F7  ; 00:1E78 - FD 36 03 F7
    ld     hl, (g_level_limit_x0)       ; 00:1E7C - 2A 73 D2
    ld     de, $0112                    ; 00:1E7F - 11 12 01
@@ -5883,12 +5883,12 @@ addr_01E78:
    ld     (sonic_vel_y_hi), a          ; 00:1E9A - 32 08 D4
    ret                                 ; 00:1E9D - C9
 
-addr_01E9E:
+handle_game_paused:
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1E9E - FD CB 05 4E
    ret    nz                           ; 00:1EA2 - C0
    rst    $20                          ; 00:1EA3 - E7
 
-addr_01EA4:
+@loop_while_paused:
    ld     a, (iy+g_sprite_count-IYBASE)  ; 00:1EA4 - FD 7E 0A
    res    0, (iy+iy_00-IYBASE)         ; 00:1EA7 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1EAB - CD 1C 03
@@ -5906,7 +5906,7 @@ addr_01EA4:
    call   addr_023C9                   ; 00:1EC0 - CD C9 23
    call   addr_0239C                   ; 00:1EC3 - CD 9C 23
    bit    3, (iy+iy_07_lvflag02-IYBASE)  ; 00:1EC6 - FD CB 07 5E
-   jr     nz, addr_01EA4               ; 00:1ECA - 20 D8
+   jr     nz, @loop_while_paused       ; 00:1ECA - 20 D8
    ld     a, $03                       ; 00:1ECC - 3E 03
    .IF 0
    ;; BUGFIX: PAGERACE: Race condition, defeatable with a well-timed interrupt. Swapped ops around to fix.
@@ -5915,16 +5915,16 @@ addr_01EA4:
    .ELSE
    call set_slot_1
    .ENDIF
-   call   snddrv_UNK_4009              ; 00:1ED4 - CD 09 40
+   call   snddrv_resume_music          ; 00:1ED4 - CD 09 40
    ret                                 ; 00:1ED7 - C9
 
-addr_01ED8:
+set_right_autoscroll_start_pos:
    ld     hl, (g_level_scroll_x_pix_lo)  ; 00:1ED8 - 2A 5A D2
    ld     (g_level_limit_x0), hl       ; 00:1EDB - 22 73 D2
    ld     (g_level_limit_x1), hl       ; 00:1EDE - 22 75 D2
    ret                                 ; 00:1EE1 - C9
 
-addr_01EE2:
+advance_right_autoscroll:
    ld     a, (g_global_tick_counter)   ; 00:1EE2 - 3A 23 D2
    rrca                                ; 00:1EE5 - 0F
    ret    nc                           ; 00:1EE6 - D0
@@ -5934,7 +5934,7 @@ addr_01EE2:
    ld     (g_level_limit_x1), hl       ; 00:1EEE - 22 75 D2
    ret                                 ; 00:1EF1 - C9
 
-addr_01EF2:
+advance_bottom_up_autoscroll_VESTIGIAL:
    ld     a, (g_global_tick_counter)   ; 00:1EF2 - 3A 23 D2
    rrca                                ; 00:1EF5 - 0F
    ret    nc                           ; 00:1EF6 - D0
@@ -5943,12 +5943,12 @@ addr_01EF2:
    ld     (g_level_limit_y1), hl       ; 00:1EFB - 22 79 D2
    ret                                 ; 00:1EFE - C9
 
-addr_01EFF:
+apply_bottom_up_scroll_ratchet:
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:1EFF - 2A 5D D2
    ld     (g_level_limit_y1), hl       ; 00:1F02 - 22 79 D2
    ret                                 ; 00:1F05 - C9
 
-addr_01F06:
+handle_palette_flashing:
    dec    a                            ; 00:1F06 - 3D
    ld     (g_pal_flash_countdown_timer), a  ; 00:1F07 - 32 B1 D2
    ld     e, a                         ; 00:1F0A - 5F
@@ -5969,12 +5969,12 @@ addr_01F06:
    ld     a, (g_pal_flash_idx)         ; 00:1F1E - 3A B2 D2
    ld     hl, (g_current_displayed_palette_0)  ; 00:1F21 - 2A 30 D2
    and    a                            ; 00:1F24 - A7
-   jp     p, addr_01F2F                ; 00:1F25 - F2 2F 1F
+   jp     p, @flash_was_in_first_palette  ; 00:1F25 - F2 2F 1F
    and    $7F                          ; 00:1F28 - E6 7F
    ld     hl, (g_current_displayed_palette_1)  ; 00:1F2A - 2A 32 D2
    ld     e, $10                       ; 00:1F2D - 1E 10
 
-addr_01F2F:
+@flash_was_in_first_palette:
    ld     c, a                         ; 00:1F2F - 4F
    ld     b, $00                       ; 00:1F30 - 06 00
    add    hl, bc                       ; 00:1F32 - 09
@@ -5985,47 +5985,47 @@ addr_01F2F:
    ld     a, (g_pal_flash_countdown_timer)  ; 00:1F3A - 3A B1 D2
    and    $01                          ; 00:1F3D - E6 01
    ld     a, (hl)                      ; 00:1F3F - 7E
-   jr     z, addr_01F45                ; 00:1F40 - 28 03
+   jr     z, @use_flash_colour_instead_of_black_this_cycle  ; 00:1F40 - 28 03
    ld     a, (g_pal_flash_color_value)  ; 00:1F42 - 3A B3 D2
 
-addr_01F45:
+@use_flash_colour_instead_of_black_this_cycle:
    out    ($BE), a                     ; 00:1F45 - D3 BE
    ei                                  ; 00:1F47 - FB
    ret                                 ; 00:1F48 - C9
 
-addr_01F49:
+handle_SKY1_lightning_timer:
    ld     de, (g_lightning_timer)      ; 00:1F49 - ED 5B E9 D2
    ld     hl, $00AA                    ; 00:1F4D - 21 AA 00
    xor    a                            ; 00:1F50 - AF
    sbc    hl, de                       ; 00:1F51 - ED 52
-   jr     nc, addr_01F5D               ; 00:1F53 - 30 08
-   ld     bc, LUT_01F9D                ; 00:1F55 - 01 9D 1F
+   jr     nc, @do_lightning            ; 00:1F53 - 30 08
+   ld     bc, LUT_SKY1_lightning_1A    ; 00:1F55 - 01 9D 1F
    ld     e, a                         ; 00:1F58 - 5F
    ld     d, a                         ; 00:1F59 - 57
-   jp     addr_01F80                   ; 00:1F5A - C3 80 1F
+   jp     @palette_selected            ; 00:1F5A - C3 80 1F
 
-addr_01F5D:
-   ld     bc, LUT_01FA5                ; 00:1F5D - 01 A5 1F
+@do_lightning:
+   ld     bc, LUT_SKY1_lightning_1C    ; 00:1F5D - 01 A5 1F
    ld     hl, $0082                    ; 00:1F60 - 21 82 00
    sbc    hl, de                       ; 00:1F63 - ED 52
-   jr     z, addr_01F7B                ; 00:1F65 - 28 14
-   ld     bc, LUT_01FA1                ; 00:1F67 - 01 A1 1F
+   jr     z, @play_lightning_sound     ; 00:1F65 - 28 14
+   ld     bc, LUT_SKY1_lightning_1B    ; 00:1F67 - 01 A1 1F
    ld     hl, $0064                    ; 00:1F6A - 21 64 00
    sbc    hl, de                       ; 00:1F6D - ED 52
-   jr     z, addr_01F80                ; 00:1F6F - 28 0F
-   ld     bc, LUT_01F9D                ; 00:1F71 - 01 9D 1F
+   jr     z, @palette_selected         ; 00:1F6F - 28 0F
+   ld     bc, LUT_SKY1_lightning_1A    ; 00:1F71 - 01 9D 1F
    ld     a, e                         ; 00:1F74 - 7B
    or     d                            ; 00:1F75 - B2
-   jr     z, addr_01F80                ; 00:1F76 - 28 08
-   jp     addr_01F97                   ; 00:1F78 - C3 97 1F
+   jr     z, @palette_selected         ; 00:1F76 - 28 08
+   jp     @skip_palette_change         ; 00:1F78 - C3 97 1F
 
-addr_01F7B:
+@play_lightning_sound:
    push   bc                           ; 00:1F7B - C5
    ld     a, $13                       ; 00:1F7C - 3E 13
    rst    $28                          ; 00:1F7E - EF
    pop    bc                           ; 00:1F7F - C1
 
-addr_01F80:
+@palette_selected:
    ld     hl, g_palette_cycle_tick_remain  ; 00:1F80 - 21 A4 D2
    ld     a, (bc)                      ; 00:1F83 - 0A
    ld     (hl), a                      ; 00:1F84 - 77
@@ -6045,27 +6045,23 @@ addr_01F80:
    ld     h, a                         ; 00:1F93 - 67
    ld     (g_palette_cycle_baseptr), hl  ; 00:1F94 - 22 A8 D2
 
-addr_01F97:
+@skip_palette_change:
    inc    de                           ; 00:1F97 - 13
    ld     (g_lightning_timer), de      ; 00:1F98 - ED 53 E9 D2
    ret                                 ; 00:1F9C - C9
 
-LUT_01F9D:
+LUT_SKY1_lightning_1A:
 .db $02, $04                                                                        ; 00:1F9D
 
-LUT_01F9D_elem_1F9F:
+LUT_SKY1_lightning_elem_stride:
 .dw LVCYCPAL1_SKY_1A                                                                ; 00:1F9F
 
-LUT_01FA1:
+LUT_SKY1_lightning_1B:
 .db $02, $04                                                                        ; 00:1FA1
-
-LUT_01FA1_elem_1FA3:
 .dw LVCYCPAL1_SKY_1B                                                                ; 00:1FA3
 
-LUT_01FA5:
+LUT_SKY1_lightning_1C:
 .db $02, $04                                                                        ; 00:1FA5
-
-LUT_01FA5_elem_1FA7:
 .dw LVCYCPAL1_SKY_1C                                                                ; 00:1FA7
 
 update_signpost_timer:
@@ -23555,8 +23551,8 @@ snddrv_play_music_from_ptr_UNUSED_VECTOR:
 snddrv_stop:
    jp     snddrv_stop_unvectored       ; 03:4006 - C3 2D 41
 
-snddrv_UNK_4009:
-   jp     addr_03_41E5                 ; 03:4009 - C3 E5 41
+snddrv_resume_music:
+   jp     snddrv_resume_music_unvectored  ; 03:4009 - C3 E5 41
 
 snddrv_UNK_400C:
    jp     addr_03_4224                 ; 03:400C - C3 24 42
@@ -23850,7 +23846,7 @@ snddrv_play_sound_from_ptr_unvectored:
 LUT_snddrv_per_channel_psgmasks:
 .db $80, $90, $A0, $B0, $C0, $D0, $E0, $F0                                          ; 03:41DD
 
-addr_03_41E5:
+snddrv_resume_music_unvectored:
    push   af                           ; 03:41E5 - F5
    ld     a, (snd_s00_ix40_flags)      ; 03:41E6 - 3A 4E DC
    or     $02                          ; 03:41E9 - F6 02
