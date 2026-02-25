@@ -12808,7 +12808,7 @@ objfunc_01_monitor_rings:
    ld     (ix+13), $14                 ; 01:5B09 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5B0D - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5B11 - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5B11 - CD A8 5D
    ld     hl, $0003                    ; 01:5B14 - 21 03 00
    ld     (tmp_06), hl                 ; 01:5B17 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5B1A - CD 56 39
@@ -12897,7 +12897,7 @@ objfunc_02_monitor_speed_shoes:
    ld     (ix+13), $14                 ; 01:5BD9 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5BDD - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5BE1 - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5BE1 - CD A8 5D
    ld     hl, $0003                    ; 01:5BE4 - 21 03 00
    ld     (tmp_06), hl                 ; 01:5BE7 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5BEA - CD 56 39
@@ -12919,7 +12919,7 @@ objfunc_03_monitor_life:
    ld     (ix+13), $14                 ; 01:5C05 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5C09 - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5C0D - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5C0D - CD A8 5D
    ld     hl, g_level_lives_collected_mask  ; 01:5C10 - 21 05 D3
    call   calc_level_offset_HL_and_mask_C  ; 01:5C13 - CD 02 0C
    ld     a, (hl)                      ; 01:5C16 - 7E
@@ -13030,7 +13030,7 @@ objfunc_04_monitor_shield:
    ld     (ix+13), $14                 ; 01:5CD7 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5CDB - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5CDF - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5CDF - CD A8 5D
    ld     hl, $0003                    ; 01:5CE2 - 21 03 00
    ld     (tmp_06), hl                 ; 01:5CE5 - 22 14 D2
    call   check_collision_with_sonic   ; 01:5CE8 - CD 56 39
@@ -13049,7 +13049,7 @@ objfunc_05_monitor_invincibility:
    ld     (ix+13), $14                 ; 01:5CFF - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D03 - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5D07 - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5D07 - CD A8 5D
    ld     hl, $0003                    ; 01:5D0A - 21 03 00
    ld     (tmp_06), hl                 ; 01:5D0D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D10 - CD 56 39
@@ -13072,7 +13072,7 @@ objfunc_51_monitor_checkpoint:
    ld     (ix+13), $14                 ; 01:5D2F - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D33 - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5D37 - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5D37 - CD A8 5D
    ld     hl, $0003                    ; 01:5D3A - 21 03 00
    ld     (tmp_06), hl                 ; 01:5D3D - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D40 - CD 56 39
@@ -13118,7 +13118,7 @@ objfunc_52_monitor_continue:
    ld     (ix+13), $14                 ; 01:5D80 - DD 36 0D 14
    ld     (ix+14), $18                 ; 01:5D84 - DD 36 0E 18
    .ENDIF
-   call   addr_05DA8                   ; 01:5D88 - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5D88 - CD A8 5D
    ld     hl, $0003                    ; 01:5D8B - 21 03 00
    ld     (tmp_06), hl                 ; 01:5D8E - 22 14 D2
    call   check_collision_with_sonic   ; 01:5D91 - CD 56 39
@@ -13132,12 +13132,12 @@ objfunc_52_monitor_continue:
    ld     hl, $5500                    ; 01:5DA2 - 21 00 55
    jp     monitor_common_main          ; 01:5DA5 - C3 34 5B
 
-addr_05DA8:
+reposition_monitor_on_init:
    bit    0, (ix+24)                   ; 01:5DA8 - DD CB 18 46
    ret    nz                           ; 01:5DAC - C0
    ld     a, (g_tile_flags_index)      ; 01:5DAD - 3A D4 D2
    and    a                            ; 01:5DB0 - A7
-   jr     nz, addr_05DC6               ; 01:5DB1 - 20 13
+   jr     nz, @skip_GHZ_tile_position_kludges  ; 01:5DB1 - 20 13
    ld     bc, $0000                    ; 01:5DB3 - 01 00 00
    ld     e, c                         ; 01:5DB6 - 59
    ld     d, b                         ; 01:5DB7 - 50
@@ -13146,13 +13146,13 @@ addr_05DA8:
    ld     bc, $0012                    ; 01:5DBE - 01 12 00
    ld     a, (hl)                      ; 01:5DC1 - 7E
    cp     $AB                          ; 01:5DC2 - FE AB
-   jr     z, addr_05DCC                ; 01:5DC4 - 28 06
+   jr     z, @continue_while_applying_GHZ_tile_AB_kludge  ; 01:5DC4 - 28 06
 
-addr_05DC6:
+@skip_GHZ_tile_position_kludges:
    ld     de, $0004                    ; 01:5DC6 - 11 04 00
    ld     bc, $0000                    ; 01:5DC9 - 01 00 00
 
-addr_05DCC:
+@continue_while_applying_GHZ_tile_AB_kludge:
    ld     l, (ix+2)                    ; 01:5DCC - DD 6E 02
    ld     h, (ix+3)                    ; 01:5DCF - DD 66 03
    add    hl, de                       ; 01:5DD2 - 19
@@ -13266,7 +13266,7 @@ objfunc_06_chaos_emerald:
    jr     nz, @destroy_already_collected  ; 01:5EAA - 20 32
    ld     (ix+13), $0C                 ; 01:5EAC - DD 36 0D 0C
    ld     (ix+14), $11                 ; 01:5EB0 - DD 36 0E 11
-   call   addr_05DA8                   ; 01:5EB4 - CD A8 5D
+   call   reposition_monitor_on_init   ; 01:5EB4 - CD A8 5D
    xor    a                            ; 01:5EB7 - AF
    ld     (ix+15), a                   ; 01:5EB8 - DD 77 0F
    ld     (ix+16), a                   ; 01:5EBB - DD 77 10
