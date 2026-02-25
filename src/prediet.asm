@@ -151,8 +151,8 @@ g_ring_tile_index db   ; D297
 g_ring_tile_subtimer_index db   ; D298
 g_sonic_bored_anim_countup_timer dw   ; D299
 g_sonic_underwater_countup_timer dw   ; D29B
-var_D29D dw   ; D29D
-var_D29F dw   ; D29F
+g_y_oscillate_baseline_current dw   ; D29D
+g_y_oscillate_baseline_target dw   ; D29F
 g_y_oscillate_sub db   ; D2A1
 g_y_oscillate_pix db   ; D2A2
 g_y_oscillate_pix_hi db   ; D2A3
@@ -4820,7 +4820,7 @@ load_and_init_level_from_header:
 @not_water_level_index:
    ld     (g_water_level_y), hl        ; 00:213A - 22 DC D2
    ld     hl, $FFFE                    ; 00:213D - 21 FE FF
-   ld     (var_D29F), hl               ; 00:2140 - 22 9F D2
+   ld     (g_y_oscillate_baseline_target), hl  ; 00:2140 - 22 9F D2
    ld     hl, LUT_normal_stage_start_time  ; 00:2143 - 21 FF 23
    bit    4, (iy+iy_06_lvflag01-IYBASE)  ; 00:2146 - FD CB 06 66
    jr     z, @init_time_after_teleport  ; 00:214A - 28 09
@@ -6148,14 +6148,14 @@ adjust_camera_for_when_sonic_is_alive:
 
 @skip_clamp_camera_to_x1:
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3055 - FD CB 05 76
-   call   nz, addr_03164               ; 00:3059 - C4 64 31
+   call   nz, smoothly_adjust_y_oscillation_offset  ; 00:3059 - C4 64 31
    ld     bc, (g_camera_sonic_bounds_y0)  ; 00:305C - ED 4B 63 D2
    ld     de, (sonic_y)                ; 00:3060 - ED 5B 01 D4
    ld     hl, (g_level_scroll_y_pix_lo)  ; 00:3064 - 2A 5D D2
    bit    6, (iy+iy_05_lvflag00-IYBASE)  ; 00:3067 - FD CB 05 76
    call   nz, set_y0_bound_for_camera_oscillation  ; 00:306B - C4 CF 31
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:306E - FD CB 05 7E
-   call   nz, addr_031D3               ; 00:3072 - C4 D3 31
+   call   nz, set_y0_bound_for_up_ratchet  ; 00:3072 - C4 D3 31
    add    hl, bc                       ; 00:3075 - 09
    bit    7, (iy+iy_05_lvflag00-IYBASE)  ; 00:3076 - FD CB 05 7E
    call   z, set_y0_bound_for_things_other_than_up_ratchet  ; 00:307A - CC DB 31
@@ -6307,25 +6307,25 @@ inc_or_dec_DE_towards_delta_HL:
    dec    de                           ; 00:3162 - 1B
    ret                                 ; 00:3163 - C9
 
-addr_03164:
-   ld     hl, (var_D29D)               ; 00:3164 - 2A 9D D2
-   ld     de, (var_D29F)               ; 00:3167 - ED 5B 9F D2
+smoothly_adjust_y_oscillation_offset:
+   ld     hl, (g_y_oscillate_baseline_current)  ; 00:3164 - 2A 9D D2
+   ld     de, (g_y_oscillate_baseline_target)  ; 00:3167 - ED 5B 9F D2
    add    hl, de                       ; 00:316B - 19
    ld     bc, $0200                    ; 00:316C - 01 00 02
    ld     a, h                         ; 00:316F - 7C
    and    a                            ; 00:3170 - A7
-   jp     p, addr_03179                ; 00:3171 - F2 79 31
+   jp     p, @y_delta_was_positive     ; 00:3171 - F2 79 31
    neg                                 ; 00:3174 - ED 44
    ld     bc, $FE00                    ; 00:3176 - 01 00 FE
 
-addr_03179:
+@y_delta_was_positive:
    cp     $02                          ; 00:3179 - FE 02
-   jr     c, addr_0317F                ; 00:317B - 38 02
+   jr     c, @abs_y_delta_was_not_less_than_0200  ; 00:317B - 38 02
    ld     l, c                         ; 00:317D - 69
    ld     h, b                         ; 00:317E - 60
 
-addr_0317F:
-   ld     (var_D29D), hl               ; 00:317F - 22 9D D2
+@abs_y_delta_was_not_less_than_0200:
+   ld     (g_y_oscillate_baseline_current), hl  ; 00:317F - 22 9D D2
    ld     c, l                         ; 00:3182 - 4D
    ld     b, h                         ; 00:3183 - 44
    ld     hl, (g_level_scroll_y_sub)   ; 00:3184 - 2A 5C D2
@@ -6333,10 +6333,10 @@ addr_0317F:
    add    hl, bc                       ; 00:318A - 09
    ld     e, $00                       ; 00:318B - 1E 00
    bit    7, b                         ; 00:318D - CB 78
-   jr     z, addr_03193                ; 00:318F - 28 02
+   jr     z, @y_delta_high_byte_was_positive  ; 00:318F - 28 02
    ld     e, $FF                       ; 00:3191 - 1E FF
 
-addr_03193:
+@y_delta_high_byte_was_positive:
    adc    a, e                         ; 00:3193 - 8B
    ld     (g_level_scroll_y_sub), hl   ; 00:3194 - 22 5C D2
    ld     (g_level_scroll_y_pix_hi), a  ; 00:3197 - 32 5E D2
@@ -6348,30 +6348,30 @@ addr_03193:
    ld     (g_y_oscillate_pix_hi), a    ; 00:31A5 - 32 A3 D2
    ld     hl, (g_y_oscillate_pix)      ; 00:31A8 - 2A A2 D2
    bit    7, h                         ; 00:31AB - CB 7C
-   jr     z, addr_031BE                ; 00:31AD - 28 0F
+   jr     z, @abs_y_delta_was_not_less_than_0020  ; 00:31AD - 28 0F
    ld     bc, $FFE0                    ; 00:31AF - 01 E0 FF
    and    a                            ; 00:31B2 - A7
    sbc    hl, bc                       ; 00:31B3 - ED 42
-   jr     nc, addr_031BE               ; 00:31B5 - 30 07
+   jr     nc, @abs_y_delta_was_not_less_than_0020  ; 00:31B5 - 30 07
    ld     hl, $0002                    ; 00:31B7 - 21 02 00
-   ld     (var_D29F), hl               ; 00:31BA - 22 9F D2
+   ld     (g_y_oscillate_baseline_target), hl  ; 00:31BA - 22 9F D2
    ret                                 ; 00:31BD - C9
 
-addr_031BE:
+@abs_y_delta_was_not_less_than_0020:
    ld     hl, (g_y_oscillate_pix)      ; 00:31BE - 2A A2 D2
    ld     bc, $0020                    ; 00:31C1 - 01 20 00
    and    a                            ; 00:31C4 - A7
    sbc    hl, bc                       ; 00:31C5 - ED 42
    ret    c                            ; 00:31C7 - D8
    ld     hl, $FFFE                    ; 00:31C8 - 21 FE FF
-   ld     (var_D29F), hl               ; 00:31CB - 22 9F D2
+   ld     (g_y_oscillate_baseline_target), hl  ; 00:31CB - 22 9F D2
    ret                                 ; 00:31CE - C9
 
 set_y0_bound_for_camera_oscillation:
    ld     bc, $0020                    ; 00:31CF - 01 20 00
    ret                                 ; 00:31D2 - C9
 
-addr_031D3:
+set_y0_bound_for_up_ratchet:
    ld     bc, $0070                    ; 00:31D3 - 01 70 00
    ret                                 ; 00:31D6 - C9
 
