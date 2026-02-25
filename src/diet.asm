@@ -8993,7 +8993,7 @@ draw_sprite_text:
    cp     $FF                          ; 00:35CD - FE FF
    ret    z                            ; 00:35CF - C8
    cp     $FE                          ; 00:35D0 - FE FE
-   jr     z, addr_035DD                ; 00:35D2 - 28 09
+   jr     z, @skip_sprite_for_this_position  ; 00:35D2 - 28 09
    ld     (hl), c                      ; 00:35D4 - 71
    inc    l                            ; 00:35D5 - 2C
    ld     (hl), b                      ; 00:35D6 - 70
@@ -9002,7 +9002,7 @@ draw_sprite_text:
    inc    l                            ; 00:35D9 - 2C
    inc    (iy+g_sprite_count-IYBASE)   ; 00:35DA - FD 34 0A
 
-addr_035DD:
+@skip_sprite_for_this_position:
    inc    de                           ; 00:35DD - 13
    ld     a, c                         ; 00:35DE - 79
    add    a, $08                       ; 00:35DF - C6 08
@@ -9013,12 +9013,12 @@ enemy_touched_sonic:
    bit    0, (iy+iy_05_lvflag00-IYBASE)  ; 00:35E5 - FD CB 05 46
    ret    nz                           ; 00:35E9 - C0
    bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:35EA - FD CB 08 46
-   jp     nz, addr_036BE               ; 00:35EE - C2 BE 36
+   jp     nz, explode_object_IX        ; 00:35EE - C2 BE 36
    ld     a, (sonic_flags_ix_24)       ; 00:35F1 - 3A 14 D4
    rrca                                ; 00:35F4 - 0F
-   jp     c, addr_036BE                ; 00:35F5 - DA BE 36
+   jp     c, explode_object_IX         ; 00:35F5 - DA BE 36
    and    $02                          ; 00:35F8 - E6 02
-   jp     nz, addr_036BE               ; 00:35FA - C2 BE 36
+   jp     nz, explode_object_IX        ; 00:35FA - C2 BE 36
 
 damage_sonic:
    bit    0, (iy+iy_09-IYBASE)         ; 00:35FD - FD CB 09 46
@@ -9028,13 +9028,13 @@ damage_sonic:
    bit    0, (iy+iy_08_lvflag03-IYBASE)  ; 00:3607 - FD CB 08 46
    ret    nz                           ; 00:360B - C0
    bit    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:360C - FD CB 06 6E
-   jr     nz, addr_0367E               ; 00:3610 - 20 6C
+   jr     nz, make_sonic_stunned_after_hit  ; 00:3610 - 20 6C
    ld     a, (g_rings_BCD)             ; 00:3612 - 3A AA D2
    and    a                            ; 00:3615 - A7
    .IF cht_no_death_on_hit
-   jr addr_03644
+   jr make_sonic_throw_his_rings
    .ELSE
-   jr     nz, addr_03644               ; 00:3616 - 20 2C
+   jr     nz, make_sonic_throw_his_rings  ; 00:3616 - 20 2C
    .ENDIF
 
 kill_sonic:
@@ -9055,11 +9055,11 @@ kill_sonic:
    rst    $18                          ; 00:3642 - DF
    ret                                 ; 00:3643 - C9
 
-addr_03644:
+make_sonic_throw_his_rings:
    xor    a                            ; 00:3644 - AF
    ld     (g_rings_BCD), a             ; 00:3645 - 32 AA D2
    call   spawn_object                 ; 00:3648 - CD 7B 7C
-   jr     c, addr_0367E                ; 00:364B - 38 31
+   jr     c, make_sonic_stunned_after_hit  ; 00:364B - 38 31
    push   ix                           ; 00:364D - DD E5
    push   hl                           ; 00:364F - E5
    pop    ix                           ; 00:3650 - DD E1
@@ -9077,32 +9077,32 @@ addr_03644:
    ld     (ix+12), $FF                 ; 00:3678 - DD 36 0C FF
    pop    ix                           ; 00:367C - DD E1
 
-addr_0367E:
+make_sonic_stunned_after_hit:
    ld     hl, sonic_flags_ix_24        ; 00:367E - 21 14 D4
    ld     de, $FFFC                    ; 00:3681 - 11 FC FF
    xor    a                            ; 00:3684 - AF
    bit    4, (hl)                      ; 00:3685 - CB 66
-   jr     z, addr_0368C                ; 00:3687 - 28 03
+   jr     z, @sonic_was_not_underwater  ; 00:3687 - 28 03
    ld     de, $FFFE                    ; 00:3689 - 11 FE FF
 
-addr_0368C:
+@sonic_was_not_underwater:
    ld     (sonic_vel_y_sub), a         ; 00:368C - 32 06 D4
    ld     (sonic_vel_y), de            ; 00:368F - ED 53 07 D4
    bit    1, (hl)                      ; 00:3693 - CB 4E
-   jr     z, addr_036A1                ; 00:3695 - 28 0A
+   jr     z, @sonic_is_facing_right    ; 00:3695 - 28 0A
    ld     a, (hl)                      ; 00:3697 - 7E
    or     $12                          ; 00:3698 - F6 12
    ld     (hl), a                      ; 00:369A - 77
    xor    a                            ; 00:369B - AF
    ld     de, $0002                    ; 00:369C - 11 02 00
-   jr     addr_036A7                   ; 00:369F - 18 06
+   jr     @sonic_was_facing_left       ; 00:369F - 18 06
 
-addr_036A1:
+@sonic_is_facing_right:
    res    1, (hl)                      ; 00:36A1 - CB 8E
    xor    a                            ; 00:36A3 - AF
    ld     de, $FFFE                    ; 00:36A4 - 11 FE FF
 
-addr_036A7:
+@sonic_was_facing_left:
    ld     (sonic_vel_x_sub), a         ; 00:36A7 - 32 03 D4
    ld     (sonic_vel_x), de            ; 00:36AA - ED 53 04 D4
    res    5, (iy+iy_06_lvflag01-IYBASE)  ; 00:36AE - FD CB 06 AE
@@ -9112,7 +9112,7 @@ addr_036A7:
    rst    $28                          ; 00:36BC - EF
    ret                                 ; 00:36BD - C9
 
-addr_036BE:
+explode_object_IX:
    ld     (ix+0), $0A                  ; 00:36BE - DD 36 00 0A
    ld     a, (tmp_00)                  ; 00:36C2 - 3A 0E D2
    ld     e, a                         ; 00:36C5 - 5F
@@ -13212,7 +13212,7 @@ addr_05E42:
    jp     m, addr_05E4E                ; 01:5E46 - FA 4E 5E
 
 addr_05E49:
-   call   addr_036BE                   ; 01:5E49 - CD BE 36
+   call   explode_object_IX            ; 01:5E49 - CD BE 36
    and    a                            ; 01:5E4C - A7
    ret                                 ; 01:5E4D - C9
 
