@@ -2237,10 +2237,10 @@ dispatch_scrolling_tile_updates_IRQ:
    ld     c, a                         ; 00:07F6 - 4F
    ld     a, (g_vdp_scroll_x)          ; 00:07F7 - 3A 51 D2
    bit    6, (iy+iy_00-IYBASE)         ; 00:07FA - FD CB 00 76
-   jr     z, @TODO_0802                ; 00:07FE - 28 02
+   jr     z, @skip_adjust_x_tile_index  ; 00:07FE - 28 02
    add    a, $08                       ; 00:0800 - C6 08
 
-@TODO_0802:
+@skip_adjust_x_tile_index:
    and    $F8                          ; 00:0802 - E6 F8
    srl    a                            ; 00:0804 - CB 3F
    srl    a                            ; 00:0806 - CB 3F
@@ -2355,10 +2355,10 @@ dispatch_scrolling_tile_updates_IRQ:
    ; SAVING: 1 byte
    .ENDIF
    bit    7, (iy+iy_00-IYBASE)         ; 00:085B - FD CB 00 7E
-   jr     nz, @TODO_0863               ; 00:085F - 20 02
+   jr     nz, @skip_adjust_y_tile_index  ; 00:085F - 20 02
    add    a, $18                       ; 00:0861 - C6 18
 
-@TODO_0863:
+@skip_adjust_y_tile_index:
    cp     $1C                          ; 00:0863 - FE 1C
    jr     c, @adjust_y_to_handle_28_discontinuity  ; 00:0865 - 38 02
    sub    $1C                          ; 00:0867 - D6 1C
@@ -5707,7 +5707,7 @@ load_and_run_level:
    call   nz, set_right_autoscroll_start_pos  ; 00:1D3D - C4 D8 1E
    ld     b, $10                       ; 00:1D40 - 06 10
 
-@TODO_1D42:
+@each_level_warmup_frame:
    push   bc                           ; 00:1D42 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:1D43 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1D47 - CD 1C 03
@@ -5760,7 +5760,7 @@ load_and_run_level:
    call   load_scroll_tile_list_buffers  ; 00:1D95 - CD BD 06
    set    5, (iy+iy_00-IYBASE)         ; 00:1D98 - FD CB 00 EE
    pop    bc                           ; 00:1D9C - C1
-   djnz   @TODO_1D42                   ; 00:1D9D - 10 A3
+   djnz   @each_level_warmup_frame     ; 00:1D9D - 10 A3
    bit    1, (iy+iy_05_lvflag00-IYBASE)  ; 00:1D9F - FD CB 05 4E
    jr     z, @main_level_loop          ; 00:1DA3 - 28 09
    ld     hl, $0000                    ; 00:1DA5 - 21 00 00
@@ -15688,11 +15688,11 @@ boss_generic_update_8hp:
    ld     de, SPRTAB_boss_generic_fly_out  ; 01:7824 - 11 22 79
    add    hl, de                       ; 01:7827 - 19
    bit    1, (ix+24)                   ; 01:7828 - DD CB 18 4E
-   jr     z, @TODO_7832                ; 01:782C - 28 04
+   jr     z, @moving_left_sprite_1     ; 01:782C - 28 04
    ld     de, $0012                    ; 01:782E - 11 12 00
    add    hl, de                       ; 01:7831 - 19
 
-@TODO_7832:
+@moving_left_sprite_1:
    ld     (ix+15), l                   ; 01:7832 - DD 75 0F
    ld     (ix+16), h                   ; 01:7835 - DD 74 10
    ld     hl, g_boss_death_next_explosion_countdown_timer  ; 01:7838 - 21 ED D2
@@ -15712,10 +15712,10 @@ boss_generic_update_8hp:
    ld     de, $0024                    ; 01:7854 - 11 24 00
    ld     hl, (tmp_08)                 ; 01:7857 - 2A 16 D2
    bit    1, (ix+24)                   ; 01:785A - DD CB 18 4E
-   jr     z, @TODO_7863                ; 01:785E - 28 03
+   jr     z, @moving_left_sprite_2     ; 01:785E - 28 03
    ld     de, $0036                    ; 01:7860 - 11 36 00
 
-@TODO_7863:
+@moving_left_sprite_2:
    add    hl, de                       ; 01:7863 - 19
    ld     de, SPRTAB_boss_generic_fly_out  ; 01:7864 - 11 22 79
    add    hl, de                       ; 01:7867 - 19
