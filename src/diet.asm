@@ -214,12 +214,12 @@ g_level_camera_lock_towards_x dw   ; D27B
 g_level_camera_lock_towards_y dw   ; D27D
 g_chaos_emeralds_collected db   ; D27F
 g_level_lives_collected db   ; D280
-var_D281 db   ; D281
-var_D282 db   ; D282
-var_D283 db   ; D283
+g_special_stages_attempted db   ; D281
+g_special_stages_completed db   ; D282
+g_sonic_died_at_least_once db   ; D283
 g_continues db   ; D284
-var_D285 db   ; D285
-var_D286 db   ; D286
+g_special_stage_ring_bonus_mult_big_endian_hi db   ; D285
+g_special_stage_ring_bonus_mult_big_endian_lo db   ; D286
 g_level_restart_countdown_timer db   ; D287
 g_current_signpost db   ; D288
 g_signpost_tickdown_counter db   ; D289
@@ -303,7 +303,7 @@ g_sonic_consume_air_bubble_countdown_timer db   ; D2FB
 g_level_music db   ; D2FC
 g_next_life_bonus_10000s_BCD db   ; D2FD
 g_good_ending_emerald_anim_countdown_timer db   ; D2FE
-var_D2FF db   ; D2FF
+g_ending_special_bonus_BCD_big_endian db   ; D2FF
 .  dsb 2
 g_sonic_sprite_index_override db   ; D302
 .  dsb 2
@@ -4402,7 +4402,7 @@ run_game_over_screen:
    ld     hl, tmp_08                   ; 00:149E - 21 16 D2
    ld     de, g_HUD_FFstr_buf          ; 00:14A1 - 11 BE D2
    ld     b, $01                       ; 00:14A4 - 06 01
-   call   addr_01B13                   ; 00:14A6 - CD 13 1B
+   call   build_BCD_FFstr              ; 00:14A6 - CD 13 1B
    ex     de, hl                       ; 00:14A9 - EB
    ld     hl, g_sprite_table           ; 00:14AA - 21 00 D0
    ld     c, $8C                       ; 00:14AD - 0E 8C
@@ -4485,7 +4485,7 @@ handle_level_score_screen:
 .IF !mod_skip_score_tally
    ld     a, (g_level)                 ; 00:155E - 3A 3E D2
    cp     $13                          ; 00:1561 - FE 13
-   jp     z, _handle_level_score_screen_13  ; 00:1563 - CA 2F 17
+   jp     z, handle_final_score_screen  ; 00:1563 - CA 2F 17
    ld     a, (g_saved_vdp_reg_01)      ; 00:1566 - 3A 19 D2
    and    $BF                          ; 00:1569 - E6 BF
    ld     (g_saved_vdp_reg_01), a      ; 00:156B - 32 19 D2
@@ -4571,13 +4571,13 @@ handle_level_score_screen:
    ld     a, (g_level)                 ; 00:160C - 3A 3E D2
    cp     $1C                          ; 00:160F - FE 1C
    jr     c, @skip_incrementing_special_stage_bonuses  ; 00:1611 - 38 12
-   ld     hl, var_D281                 ; 00:1613 - 21 81 D2
+   ld     hl, g_special_stages_attempted  ; 00:1613 - 21 81 D2
    inc    (hl)                         ; 00:1616 - 34
    bit    2, (iy+iy_09-IYBASE)         ; 00:1617 - FD CB 09 56
    jr     nz, @skip_incrementing_special_stage_bonuses  ; 00:161B - 20 08
-   ld     hl, var_D282                 ; 00:161D - 21 82 D2
+   ld     hl, g_special_stages_completed  ; 00:161D - 21 82 D2
    inc    (hl)                         ; 00:1620 - 34
-   ld     hl, var_D285                 ; 00:1621 - 21 85 D2
+   ld     hl, g_special_stage_ring_bonus_mult_big_endian_hi  ; 00:1621 - 21 85 D2
    inc    (hl)                         ; 00:1624 - 34
 
 @skip_incrementing_special_stage_bonuses:
@@ -4739,56 +4739,56 @@ special_stage_continue_was_collected_by_end:
    res    3, (iy+iy_09-IYBASE)         ; 00:172A - FD CB 09 9E
    ret                                 ; 00:172E - C9
 
-_handle_level_score_screen_13:
+handle_final_score_screen:
 .ENDIF  ; IF !mod_skip_score_tally
    ld     a, $FF                       ; 00:172F - 3E FF
    ld     (g_next_life_bonus_10000s_BCD), a  ; 00:1731 - 32 FD D2
    ld     c, $00                       ; 00:1734 - 0E 00
    ld     a, (g_chaos_emeralds_collected)  ; 00:1736 - 3A 7F D2
    cp     $06                          ; 00:1739 - FE 06
-   jr     c, addr_0173F                ; 00:173B - 38 02
+   jr     c, @failed_all_chaos_emeralds_bonus  ; 00:173B - 38 02
    ld     c, $05                       ; 00:173D - 0E 05
 
-addr_0173F:
+@failed_all_chaos_emeralds_bonus:
    ld     a, (g_level_lives_collected)  ; 00:173F - 3A 80 D2
    cp     $12                          ; 00:1742 - FE 12
-   jr     c, addr_0174B                ; 00:1744 - 38 05
+   jr     c, @failed_all_lives_bonus   ; 00:1744 - 38 05
    ld     a, c                         ; 00:1746 - 79
    add    a, $05                       ; 00:1747 - C6 05
    daa                                 ; 00:1749 - 27
    ld     c, a                         ; 00:174A - 4F
 
-addr_0174B:
-   ld     a, (var_D281)                ; 00:174B - 3A 81 D2
+@failed_all_lives_bonus:
+   ld     a, (g_special_stages_attempted)  ; 00:174B - 3A 81 D2
    cp     $08                          ; 00:174E - FE 08
-   jr     c, addr_01757                ; 00:1750 - 38 05
+   jr     c, @failed_all_special_stages_attempted_bonus  ; 00:1750 - 38 05
    ld     a, c                         ; 00:1752 - 79
    add    a, $05                       ; 00:1753 - C6 05
    daa                                 ; 00:1755 - 27
    ld     c, a                         ; 00:1756 - 4F
 
-addr_01757:
-   ld     a, (var_D282)                ; 00:1757 - 3A 82 D2
+@failed_all_special_stages_attempted_bonus:
+   ld     a, (g_special_stages_completed)  ; 00:1757 - 3A 82 D2
    cp     $08                          ; 00:175A - FE 08
-   jr     c, addr_01763                ; 00:175C - 38 05
+   jr     c, @failed_all_special_stages_completed_bonus  ; 00:175C - 38 05
    ld     a, c                         ; 00:175E - 79
    add    a, $05                       ; 00:175F - C6 05
    daa                                 ; 00:1761 - 27
    ld     c, a                         ; 00:1762 - 4F
 
-addr_01763:
-   ld     a, (var_D283)                ; 00:1763 - 3A 83 D2
+@failed_all_special_stages_completed_bonus:
+   ld     a, (g_sonic_died_at_least_once)  ; 00:1763 - 3A 83 D2
    and    a                            ; 00:1766 - A7
-   jr     nz, addr_0176E               ; 00:1767 - 20 05
+   jr     nz, @failed_no_death_bonus   ; 00:1767 - 20 05
    ld     a, c                         ; 00:1769 - 79
    add    a, $0A                       ; 00:176A - C6 0A
    daa                                 ; 00:176C - 27
    ld     c, a                         ; 00:176D - 4F
 
-addr_0176E:
+@failed_no_death_bonus:
    ld     a, c                         ; 00:176E - 79
    cp     $30                          ; 00:176F - FE 30
-   jr     nz, addr_0177B               ; 00:1771 - 20 08
+   jr     nz, @failed_all_bonuses_bonus  ; 00:1771 - 20 08
    ld     a, c                         ; 00:1773 - 79
    add    a, $0A                       ; 00:1774 - C6 0A
    daa                                 ; 00:1776 - 27
@@ -4796,40 +4796,40 @@ addr_0176E:
    daa                                 ; 00:1779 - 27
    ld     c, a                         ; 00:177A - 4F
 
-addr_0177B:
-   ld     hl, var_D2FF                 ; 00:177B - 21 FF D2
+@failed_all_bonuses_bonus:
+   ld     hl, g_ending_special_bonus_BCD_big_endian  ; 00:177B - 21 FF D2
    ld     (hl), c                      ; 00:177E - 71
    inc    hl                           ; 00:177F - 23
    ld     (hl), $00                    ; 00:1780 - 36 00
    inc    hl                           ; 00:1782 - 23
    ld     (hl), $00                    ; 00:1783 - 36 00
-   ld     hl, LUT_01907                ; 00:1785 - 21 07 19
+   ld     hl, LUT_final_FFstr_header_row0  ; 00:1785 - 21 07 19
    call   print_positioned_FF_string   ; 00:1788 - CD AF 05
-   ld     hl, LUT_0191C                ; 00:178B - 21 1C 19
+   ld     hl, LUT_final_FFstr_header_row1  ; 00:178B - 21 1C 19
    call   print_positioned_FF_string   ; 00:178E - CD AF 05
-   ld     hl, LUT_01931                ; 00:1791 - 21 31 19
+   ld     hl, LUT_final_FFstr_header_row2  ; 00:1791 - 21 31 19
    call   print_positioned_FF_string   ; 00:1794 - CD AF 05
-   ld     hl, LUT_01946                ; 00:1797 - 21 46 19
+   ld     hl, LUT_final_FFstr_scorebox_row2  ; 00:1797 - 21 46 19
    call   print_positioned_FF_string   ; 00:179A - CD AF 05
-   ld     hl, LUT_01953                ; 00:179D - 21 53 19
+   ld     hl, LUT_final_FFstr_scorebox_row3  ; 00:179D - 21 53 19
    call   print_positioned_FF_string   ; 00:17A0 - CD AF 05
-   ld     hl, LUT_01960                ; 00:17A3 - 21 60 19
+   ld     hl, LUT_final_FFstr_scorebox_row4  ; 00:17A3 - 21 60 19
    call   print_positioned_FF_string   ; 00:17A6 - CD AF 05
-   ld     hl, LUT_0196D                ; 00:17A9 - 21 6D 19
+   ld     hl, LUT_final_FFstr_scorebox_row5  ; 00:17A9 - 21 6D 19
    call   print_positioned_FF_string   ; 00:17AC - CD AF 05
-   ld     hl, LUT_0197E                ; 00:17AF - 21 7E 19
+   ld     hl, LUT_final_FFstr_header_str_00_chaos_emerald  ; 00:17AF - 21 7E 19
    call   print_positioned_FF_string   ; 00:17B2 - CD AF 05
    xor    a                            ; 00:17B5 - AF
    ld     (tmp_08), a                  ; 00:17B6 - 32 16 D2
    ld     bc, $00B4                    ; 00:17B9 - 01 B4 00
-   call   addr_01860                   ; 00:17BC - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:17BC - CD 60 18
 
-addr_017BF:
+@each_chaos_emerald:
    ld     bc, $003C                    ; 00:17BF - 01 3C 00
-   call   addr_01860                   ; 00:17C2 - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:17C2 - CD 60 18
    ld     a, (g_chaos_emeralds_collected)  ; 00:17C5 - 3A 7F D2
    and    a                            ; 00:17C8 - A7
-   jr     z, addr_017DD                ; 00:17C9 - 28 12
+   jr     z, @no_more_chaos_emeralds   ; 00:17C9 - 28 12
    dec    a                            ; 00:17CB - 3D
    ld     (g_chaos_emeralds_collected), a  ; 00:17CC - 32 7F D2
    ld     de, $0000                    ; 00:17CF - 11 00 00
@@ -4837,24 +4837,24 @@ addr_017BF:
    call   addr_039D8                   ; 00:17D4 - CD D8 39
    ld     a, $02                       ; 00:17D7 - 3E 02
    rst    $28                          ; 00:17D9 - EF
-   jp     addr_017BF                   ; 00:17DA - C3 BF 17
+   jp     @each_chaos_emerald          ; 00:17DA - C3 BF 17
 
-addr_017DD:
+@no_more_chaos_emeralds:
    ld     bc, $00B4                    ; 00:17DD - 01 B4 00
-   call   addr_01860                   ; 00:17E0 - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:17E0 - CD 60 18
    ld     a, $01                       ; 00:17E3 - 3E 01
    ld     (tmp_08), a                  ; 00:17E5 - 32 16 D2
-   ld     hl, LUT_0198E                ; 00:17E8 - 21 8E 19
+   ld     hl, LUT_final_FFstr_header_str_01_sonic_left  ; 00:17E8 - 21 8E 19
    call   print_positioned_FF_string   ; 00:17EB - CD AF 05
    ld     bc, $00B4                    ; 00:17EE - 01 B4 00
-   call   addr_01860                   ; 00:17F1 - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:17F1 - CD 60 18
 
-addr_017F4:
+@each_life:
    ld     bc, $001E                    ; 00:17F4 - 01 1E 00
-   call   addr_01860                   ; 00:17F7 - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:17F7 - CD 60 18
    ld     a, (g_lives)                 ; 00:17FA - 3A 46 D2
    and    a                            ; 00:17FD - A7
-   jr     z, addr_01812                ; 00:17FE - 28 12
+   jr     z, @no_more_lives            ; 00:17FE - 28 12
    dec    a                            ; 00:1800 - 3D
    ld     (g_lives), a                 ; 00:1801 - 32 46 D2
    ld     de, $5000                    ; 00:1804 - 11 00 50
@@ -4862,51 +4862,51 @@ addr_017F4:
    call   addr_039D8                   ; 00:1809 - CD D8 39
    ld     a, $02                       ; 00:180C - 3E 02
    rst    $28                          ; 00:180E - EF
-   jp     addr_017F4                   ; 00:180F - C3 F4 17
+   jp     @each_life                   ; 00:180F - C3 F4 17
 
-addr_01812:
+@no_more_lives:
    ld     bc, $00B4                    ; 00:1812 - 01 B4 00
-   call   addr_01860                   ; 00:1815 - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:1815 - CD 60 18
    ld     a, $02                       ; 00:1818 - 3E 02
    ld     (tmp_08), a                  ; 00:181A - 32 16 D2
-   ld     hl, LUT_0199E                ; 00:181D - 21 9E 19
+   ld     hl, LUT_final_FFstr_header_str_02_special_bonus  ; 00:181D - 21 9E 19
    call   print_positioned_FF_string   ; 00:1820 - CD AF 05
-   ld     hl, LUT_0197A                ; 00:1823 - 21 7A 19
+   ld     hl, LUT_final_FFstr_scorebox_row4_remove_x  ; 00:1823 - 21 7A 19
    call   print_positioned_FF_string   ; 00:1826 - CD AF 05
    ld     bc, $00B4                    ; 00:1829 - 01 B4 00
-   call   addr_01860                   ; 00:182C - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:182C - CD 60 18
 
-addr_0182F:
+@each_special_bonus_10000_points:
    ld     bc, $001E                    ; 00:182F - 01 1E 00
-   call   addr_01860                   ; 00:1832 - CD 60 18
-   ld     a, (var_D2FF)                ; 00:1835 - 3A FF D2
+   call   draw_final_bonus_value_for_BC_frames  ; 00:1832 - CD 60 18
+   ld     a, (g_ending_special_bonus_BCD_big_endian)  ; 00:1835 - 3A FF D2
    and    a                            ; 00:1838 - A7
-   jr     z, addr_01859                ; 00:1839 - 28 1E
+   jr     z, @no_more_special_bonus_points  ; 00:1839 - 28 1E
    dec    a                            ; 00:183B - 3D
    ld     c, a                         ; 00:183C - 4F
    and    $0F                          ; 00:183D - E6 0F
    cp     $0A                          ; 00:183F - FE 0A
-   jr     c, addr_01847                ; 00:1841 - 38 04
+   jr     c, @skip_BCD_tens_jump       ; 00:1841 - 38 04
    ld     a, c                         ; 00:1843 - 79
    sub    $06                          ; 00:1844 - D6 06
    ld     c, a                         ; 00:1846 - 4F
 
-addr_01847:
+@skip_BCD_tens_jump:
    ld     a, c                         ; 00:1847 - 79
-   ld     (var_D2FF), a                ; 00:1848 - 32 FF D2
+   ld     (g_ending_special_bonus_BCD_big_endian), a  ; 00:1848 - 32 FF D2
    ld     de, $0000                    ; 00:184B - 11 00 00
    ld     c, $01                       ; 00:184E - 0E 01
    call   addr_039D8                   ; 00:1850 - CD D8 39
    ld     a, $02                       ; 00:1853 - 3E 02
    rst    $28                          ; 00:1855 - EF
-   jp     addr_0182F                   ; 00:1856 - C3 2F 18
+   jp     @each_special_bonus_10000_points  ; 00:1856 - C3 2F 18
 
-addr_01859:
+@no_more_special_bonus_points:
    ld     bc, $01E0                    ; 00:1859 - 01 E0 01
-   call   addr_01860                   ; 00:185C - CD 60 18
+   call   draw_final_bonus_value_for_BC_frames  ; 00:185C - CD 60 18
    ret                                 ; 00:185F - C9
 
-addr_01860:
+draw_final_bonus_value_for_BC_frames:
    push   bc                           ; 00:1860 - C5
    res    0, (iy+iy_00-IYBASE)         ; 00:1861 - FD CB 00 86
    call   wait_until_irq_ticked        ; 00:1865 - CD 1C 03
@@ -4916,7 +4916,7 @@ addr_01860:
    ld     hl, g_score_BCD_big_endian_hi  ; 00:1872 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1875 - 11 BE D2
    ld     b, $04                       ; 00:1878 - 06 04
-   call   addr_01B13                   ; 00:187A - CD 13 1B
+   call   build_BCD_FFstr              ; 00:187A - CD 13 1B
    ex     de, hl                       ; 00:187D - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:187E - 2A 3C D2
    ld     c, $90                       ; 00:1881 - 0E 90
@@ -4925,50 +4925,50 @@ addr_01860:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1888 - 22 3C D2
    ld     a, (tmp_08)                  ; 00:188B - 3A 16 D2
    and    a                            ; 00:188E - A7
-   jr     nz, addr_018C5               ; 00:188F - 20 34
+   jr     nz, @not_field_00_chaos_emerald  ; 00:188F - 20 34
    ld     hl, g_chaos_emeralds_collected  ; 00:1891 - 21 7F D2
    ld     de, g_HUD_FFstr_buf          ; 00:1894 - 11 BE D2
    ld     b, $01                       ; 00:1897 - 06 01
-   call   addr_01B13                   ; 00:1899 - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1899 - CD 13 1B
    ex     de, hl                       ; 00:189C - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:189D - 2A 3C D2
    ld     c, $90                       ; 00:18A0 - 0E 90
    ld     b, $60                       ; 00:18A2 - 06 60
    call   draw_sprite_text             ; 00:18A4 - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18A7 - 22 3C D2
-   ld     hl, LUT_019AE                ; 00:18AA - 21 AE 19
+   ld     hl, LUT_score_BCD_3byte_20000  ; 00:18AA - 21 AE 19
    ld     de, g_HUD_FFstr_buf          ; 00:18AD - 11 BE D2
    ld     b, $03                       ; 00:18B0 - 06 03
-   call   addr_01B13                   ; 00:18B2 - CD 13 1B
+   call   build_BCD_FFstr              ; 00:18B2 - CD 13 1B
    ex     de, hl                       ; 00:18B5 - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:18B6 - 2A 3C D2
    ld     c, $A0                       ; 00:18B9 - 0E A0
    ld     b, $60                       ; 00:18BB - 06 60
    call   draw_sprite_text             ; 00:18BD - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18C0 - 22 3C D2
-   jr     addr_018FF                   ; 00:18C3 - 18 3A
+   jr     @continue_to_next_frame      ; 00:18C3 - 18 3A
 
-addr_018C5:
+@not_field_00_chaos_emerald:
    dec    a                            ; 00:18C5 - 3D
-   jr     nz, addr_018E6               ; 00:18C6 - 20 1E
+   jr     nz, @not_field_01_sonic_left  ; 00:18C6 - 20 1E
    call   addr_01ACA                   ; 00:18C8 - CD CA 1A
-   ld     hl, LUT_019B1                ; 00:18CB - 21 B1 19
+   ld     hl, LUT_score_BCD_3byte__5000  ; 00:18CB - 21 B1 19
    ld     de, g_HUD_FFstr_buf          ; 00:18CE - 11 BE D2
    ld     b, $03                       ; 00:18D1 - 06 03
-   call   addr_01B13                   ; 00:18D3 - CD 13 1B
+   call   build_BCD_FFstr              ; 00:18D3 - CD 13 1B
    ex     de, hl                       ; 00:18D6 - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:18D7 - 2A 3C D2
    ld     c, $A0                       ; 00:18DA - 0E A0
    ld     b, $60                       ; 00:18DC - 06 60
    call   draw_sprite_text             ; 00:18DE - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18E1 - 22 3C D2
-   jr     addr_018FF                   ; 00:18E4 - 18 19
+   jr     @continue_to_next_frame      ; 00:18E4 - 18 19
 
-addr_018E6:
-   ld     hl, var_D2FF                 ; 00:18E6 - 21 FF D2
+@not_field_01_sonic_left:
+   ld     hl, g_ending_special_bonus_BCD_big_endian  ; 00:18E6 - 21 FF D2
    ld     de, g_HUD_FFstr_buf          ; 00:18E9 - 11 BE D2
    ld     b, $03                       ; 00:18EC - 06 03
-   call   addr_01B13                   ; 00:18EE - CD 13 1B
+   call   build_BCD_FFstr              ; 00:18EE - CD 13 1B
    ex     de, hl                       ; 00:18F1 - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:18F2 - 2A 3C D2
    ld     c, $A0                       ; 00:18F5 - 0E A0
@@ -4976,57 +4976,57 @@ addr_018E6:
    call   draw_sprite_text             ; 00:18F9 - CD CC 35
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:18FC - 22 3C D2
 
-addr_018FF:
+@continue_to_next_frame:
    pop    bc                           ; 00:18FF - C1
    dec    bc                           ; 00:1900 - 0B
    ld     a, b                         ; 00:1901 - 78
    or     c                            ; 00:1902 - B1
-   jp     nz, addr_01860               ; 00:1903 - C2 60 18
+   jp     nz, draw_final_bonus_value_for_BC_frames  ; 00:1903 - C2 60 18
    ret                                 ; 00:1906 - C9
 
-LUT_01907:
+LUT_final_FFstr_header_row0:
 .db $07, $09, $DA, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB  ; 00:1907
 .db $DB, $DB, $DB, $DC, $FF                                                         ; 00:1917
 
-LUT_0191C:
+LUT_final_FFstr_header_row1:
 .db $07, $0A, $EA, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB  ; 00:191C
 .db $EB, $EB, $EB, $EC, $FF                                                         ; 00:192C
 
-LUT_01931:
+LUT_final_FFstr_header_row2:
 .db $07, $0B, $FB, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC  ; 00:1931
 .db $FC, $FC, $FC, $FD, $FF                                                         ; 00:1941
 
-LUT_01946:
+LUT_final_FFstr_scorebox_row2:
 .db $11, $0B, $DA, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DB, $DC, $FF                 ; 00:1946
 
-LUT_01953:
+LUT_final_FFstr_scorebox_row3:
 .db $11, $0C, $EA, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EB, $EC, $FF                 ; 00:1953
 
-LUT_01960:
+LUT_final_FFstr_scorebox_row4:
 .db $11, $0D, $EA, $EB, $EB, $FA, $EB, $EB, $EB, $EB, $EB, $EC, $FF                 ; 00:1960
 
-LUT_0196D:
+LUT_final_FFstr_scorebox_row5:
 .db $11, $0E, $FB, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FC, $FD, $FF                 ; 00:196D
 
-LUT_0197A:
+LUT_final_FFstr_scorebox_row4_remove_x:
 .db $14, $0D, $EB, $FF                                                              ; 00:197A
 
-LUT_0197E:
+LUT_final_FFstr_header_str_00_chaos_emerald:
 ;; CHAQS EMERALD <-- And this is why you use ASCII, not your own EBCDIC-alike.
 .db $08, $0A, $36, $47, $34, $61, $70, $EB, $44, $50, $44, $62, $34, $43, $37, $FF  ; 00:197E
 
-LUT_0198E:
+LUT_final_FFstr_header_str_01_sonic_left:
 ;; SONIC LEFT
 .db $08, $0A, $70, $52, $51, $40, $36, $EB, $43, $44, $45, $80, $EB, $EB, $EB, $FF  ; 00:198E
 
 ;; SPECIAL BONUS
-LUT_0199E:
+LUT_final_FFstr_header_str_02_special_bonus:
 .db $08, $0A, $70, $60, $44, $36, $40, $34, $43, $EB, $35, $52, $51, $81, $70, $FF  ; 00:199E
 
-LUT_019AE:
+LUT_score_BCD_3byte_20000:
 .db $02, $00, $00                                                                   ; 00:19AE
 
-LUT_019B1:
+LUT_score_BCD_3byte__5000:
 .db $00, $50, $00                                                                   ; 00:19B1
 
 addr_019B4:
@@ -5050,9 +5050,9 @@ addr_019C6:
    ld     a, (g_level)                 ; 00:19CC - 3A 3E D2
    cp     $1C                          ; 00:19CF - FE 1C
    jr     c, addr_019DB                ; 00:19D1 - 38 08
-   ld     a, (var_D285)                ; 00:19D3 - 3A 85 D2
+   ld     a, (g_special_stage_ring_bonus_mult_big_endian_hi)  ; 00:19D3 - 3A 85 D2
    ld     d, a                         ; 00:19D6 - 57
-   ld     a, (var_D286)                ; 00:19D7 - 3A 86 D2
+   ld     a, (g_special_stage_ring_bonus_mult_big_endian_lo)  ; 00:19D7 - 3A 86 D2
    ld     e, a                         ; 00:19DA - 5F
 
 addr_019DB:
@@ -5128,7 +5128,7 @@ addr_01A18:
    ld     hl, g_score_BCD_big_endian_hi  ; 00:1A22 - 21 BA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A25 - 11 BE D2
    ld     b, $04                       ; 00:1A28 - 06 04
-   call   addr_01B13                   ; 00:1A2A - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1A2A - CD 13 1B
    ex     de, hl                       ; 00:1A2D - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1A2E - 2A 3C D2
    .IF 0
@@ -5143,7 +5143,7 @@ addr_01A18:
    ld     hl, g_rings_BCD              ; 00:1A3B - 21 AA D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A3E - 11 BE D2
    ld     b, $01                       ; 00:1A41 - 06 01
-   call   addr_01B13                   ; 00:1A43 - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1A43 - CD 13 1B
    ex     de, hl                       ; 00:1A46 - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1A47 - 2A 3C D2
    .IF 0
@@ -5164,10 +5164,10 @@ addr_01A57:
    ld     a, (g_level)                 ; 00:1A5D - 3A 3E D2
    cp     $1C                          ; 00:1A60 - FE 1C
    jr     c, addr_01A73                ; 00:1A62 - 38 0F
-   ld     hl, var_D285                 ; 00:1A64 - 21 85 D2
+   ld     hl, g_special_stage_ring_bonus_mult_big_endian_hi  ; 00:1A64 - 21 85 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A67 - 11 BE D2
    ld     b, $02                       ; 00:1A6A - 06 02
-   call   addr_01B13                   ; 00:1A6C - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1A6C - CD 13 1B
    ld     b, $68                       ; 00:1A6F - 06 68
    jr     addr_01A80                   ; 00:1A71 - 18 0D
 
@@ -5175,7 +5175,7 @@ addr_01A73:
    ld     hl, LUT_0151C                ; 00:1A73 - 21 1C 15
    ld     de, g_HUD_FFstr_buf          ; 00:1A76 - 11 BE D2
    ld     b, $02                       ; 00:1A79 - 06 02
-   call   addr_01B13                   ; 00:1A7B - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1A7B - CD 13 1B
    ld     b, $80                       ; 00:1A7E - 06 80
 
 addr_01A80:
@@ -5191,7 +5191,7 @@ addr_01A80:
    ld     hl, tmp_04                   ; 00:1A96 - 21 12 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1A99 - 11 BE D2
    ld     b, $04                       ; 00:1A9C - 06 04
-   call   addr_01B13                   ; 00:1A9E - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1A9E - CD 13 1B
    ex     de, hl                       ; 00:1AA1 - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1AA2 - 2A 3C D2
    .IF 0
@@ -5209,7 +5209,7 @@ addr_01AB0:
    ld     hl, g_continues              ; 00:1AB0 - 21 84 D2
    ld     de, g_HUD_FFstr_buf          ; 00:1AB3 - 11 BE D2
    ld     b, $01                       ; 00:1AB6 - 06 01
-   call   addr_01B13                   ; 00:1AB8 - CD 13 1B
+   call   build_BCD_FFstr              ; 00:1AB8 - CD 13 1B
    ex     de, hl                       ; 00:1ABB - EB
    ld     hl, (g_next_avail_vdp_sprite_ptr)  ; 00:1ABC - 2A 3C D2
    .IF 0
@@ -5276,21 +5276,21 @@ addr_01B06:
    ld     (g_next_avail_vdp_sprite_ptr), hl  ; 00:1B0F - 22 3C D2
    ret                                 ; 00:1B12 - C9
 
-addr_01B13:
+build_BCD_FFstr:
    ld     a, (hl)                      ; 00:1B13 - 7E
    and    $F0                          ; 00:1B14 - E6 F0
-   jr     nz, addr_01B33               ; 00:1B16 - 20 1B
+   jr     nz, @build_tens_in_byte      ; 00:1B16 - 20 1B
    ld     a, $FE                       ; 00:1B18 - 3E FE
    ld     (de), a                      ; 00:1B1A - 12
    inc    de                           ; 00:1B1B - 13
    ld     a, (hl)                      ; 00:1B1C - 7E
    and    $0F                          ; 00:1B1D - E6 0F
-   jr     nz, addr_01B3F               ; 00:1B1F - 20 1E
+   jr     nz, @build_ones_in_byte      ; 00:1B1F - 20 1E
    ld     a, $FE                       ; 00:1B21 - 3E FE
    ld     (de), a                      ; 00:1B23 - 12
    inc    hl                           ; 00:1B24 - 23
    inc    de                           ; 00:1B25 - 13
-   djnz   addr_01B13                   ; 00:1B26 - 10 EB
+   djnz   build_BCD_FFstr              ; 00:1B26 - 10 EB
    ld     a, $FF                       ; 00:1B28 - 3E FF
    ld     (de), a                      ; 00:1B2A - 12
    dec    de                           ; 00:1B2B - 1B
@@ -5299,7 +5299,7 @@ addr_01B13:
    ld     hl, g_HUD_FFstr_buf          ; 00:1B2F - 21 BE D2
    ret                                 ; 00:1B32 - C9
 
-addr_01B33:
+@build_tens_in_byte:
    ld     a, (hl)                      ; 00:1B33 - 7E
    .IF 0
    rrca                                ; 00:1B34 - 0F
@@ -5320,7 +5320,7 @@ addr_01B33:
    ld     (de), a                      ; 00:1B3D - 12
    inc    de                           ; 00:1B3E - 13
 
-addr_01B3F:
+@build_ones_in_byte:
    ld     a, (hl)                      ; 00:1B3F - 7E
    and    $0F                          ; 00:1B40 - E6 0F
    add    a, a                         ; 00:1B42 - 87
@@ -5328,7 +5328,7 @@ addr_01B3F:
    ld     (de), a                      ; 00:1B45 - 12
    inc    hl                           ; 00:1B46 - 23
    inc    de                           ; 00:1B47 - 13
-   djnz   addr_01B33                   ; 00:1B48 - 10 E9
+   djnz   @build_tens_in_byte          ; 00:1B48 - 10 E9
    ld     a, $FF                       ; 00:1B4A - 3E FF
    ld     (de), a                      ; 00:1B4C - 12
    ld     hl, g_HUD_FFstr_buf          ; 00:1B4D - 21 BE D2
@@ -12018,7 +12018,7 @@ objfunc_00_sonic:
    bit    2, (iy+iy_06_lvflag01-IYBASE)  ; 01:5456 - FD CB 06 56
    jr     nz, @dont_deduct_lives       ; 01:545A - 20 10
    ld     a, $01                       ; 01:545C - 3E 01
-   ld     (var_D283), a                ; 01:545E - 32 83 D2
+   ld     (g_sonic_died_at_least_once), a  ; 01:545E - 32 83 D2
    ld     hl, g_lives                  ; 01:5461 - 21 46 D2
    dec    (hl)                         ; 01:5464 - 35
    set    2, (iy+iy_06_lvflag01-IYBASE)  ; 01:5465 - FD CB 06 D6
