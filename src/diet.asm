@@ -393,8 +393,7 @@ snd_s00_ix23_vibrato_pitch_delta_setting dw   ; DC3D
 .  dsb 3
 snd_s00_ix28_current_vibrato_pitch_delta dw   ; DC42
 .  dsb 2
-var_DC46 db   ; DC46 (auto)
-.  dsb 1
+snd_s00_ix32_loop_counter_stack_pointer dw   ; DC46
 snd_s00_ix34_program_restart_point_on_stream_end dw   ; DC48
 .  dsb 4
 snd_s00_ix40_flags db   ; DC4E
@@ -416,8 +415,7 @@ snd_s01_ix23_vibrato_pitch_delta_setting dw   ; DC6A
 .  dsb 3
 snd_s01_ix28_current_vibrato_pitch_delta dw   ; DC6F
 .  dsb 2
-var_DC73 db   ; DC73 (auto)
-.  dsb 1
+snd_s01_ix32_loop_counter_stack_pointer dw   ; DC73
 snd_s01_ix34_program_restart_point_on_stream_end dw   ; DC75
 .  dsb 4
 snd_s01_ix40_flags db   ; DC7B
@@ -439,8 +437,7 @@ snd_s02_ix23_vibrato_pitch_delta_setting dw   ; DC97
 .  dsb 3
 snd_s02_ix28_current_vibrato_pitch_delta dw   ; DC9C
 .  dsb 2
-var_DCA0 db   ; DCA0 (auto)
-.  dsb 1
+snd_s02_ix32_loop_counter_stack_pointer dw   ; DCA0
 snd_s02_ix34_program_restart_point_on_stream_end dw   ; DCA2
 .  dsb 4
 snd_s02_ix40_flags db   ; DCA8
@@ -462,8 +459,7 @@ snd_s03_ix23_vibrato_pitch_delta_setting dw   ; DCC4
 .  dsb 3
 snd_s03_ix28_current_vibrato_pitch_delta dw   ; DCC9
 .  dsb 2
-var_DCCD db   ; DCCD (auto)
-.  dsb 1
+snd_s03_ix32_loop_counter_stack_pointer dw   ; DCCD
 snd_s03_ix34_program_restart_point_on_stream_end dw   ; DCCF
 .  dsb 4
 snd_s03_ix40_flags db   ; DCD5
@@ -480,7 +476,7 @@ snd_s04_ix23_vibrato_pitch_delta_setting dw   ; DCF1
 .  dsb 3
 snd_s04_ix28_current_vibrato_pitch_delta dw   ; DCF6
 .  dsb 2
-var_DCFA dw   ; DCFA
+snd_s04_ix32_loop_counter_stack_pointer dw   ; DCFA
 snd_s04_ix34_program_restart_point_on_stream_end dw   ; DCFC
 .  dsb 2
 var_DD00 dw   ; DD00
@@ -488,11 +484,11 @@ snd_s04_ix40_flags db   ; DD02
 var_DD03 dw   ; DD03
 var_DD05 db   ; DD05
 .  dsb 1
-var_DD07 db   ; DD07 (auto)
-var_DD08 db   ; DD08 (auto)
-var_DD09 db   ; DD09 (auto)
-var_DD0A db   ; DD0A (auto)
-var_DD0B db   ; DD0B (auto)
+snd_loop_counter_stack_s00_0 db   ; DD07
+snd_loop_counter_stack_s01_0 db   ; DD08
+snd_loop_counter_stack_s02_0 db   ; DD09
+snd_loop_counter_stack_s03_0 db   ; DD0A
+snd_loop_counter_stack_s04_0 db   ; DD0B
 .ENDS
 
 .IF opt_object_freelist
@@ -23642,10 +23638,10 @@ LUT_snddrv_init_words_values:
 .dw $0000                                                                           ; 03:407A
 .dw snd_s03_ix34_program_restart_point_on_stream_end                                ; 03:407C
 .dw $0000                                                                           ; 03:407E
-.dw var_DC46                                                                        ; 03:4080
+.dw snd_s00_ix32_loop_counter_stack_pointer                                         ; 03:4080
 
 LUT_snddrv_init_words_values_4:
-.dw var_DD07, var_DC73, var_DD08, var_DCA0, var_DD09, var_DCCD, var_DD0A, snd_s00_ix02_tempo_subticks_remaining  ; 03:4082
+.dw snd_loop_counter_stack_s00_0, snd_s01_ix32_loop_counter_stack_pointer, snd_loop_counter_stack_s01_0, snd_s02_ix32_loop_counter_stack_pointer, snd_loop_counter_stack_s02_0, snd_s03_ix32_loop_counter_stack_pointer, snd_loop_counter_stack_s03_0, snd_s00_ix02_tempo_subticks_remaining  ; 03:4082
 
 LUT_snddrv_init_words_values_8:
 .dw $0001                                                                           ; 03:4092
@@ -23832,8 +23828,8 @@ snddrv_play_sound_from_ptr_unvectored:
    ld     (var_DD05), a                ; 03:41C7 - 32 05 DD
    inc    hl                           ; 03:41CA - 23
    ld     (snd_s04_ix02_tempo_subticks_remaining), hl  ; 03:41CB - 22 DC DC
-   ld     hl, var_DD0B                 ; 03:41CE - 21 0B DD
-   ld     (var_DCFA), hl               ; 03:41D1 - 22 FA DC
+   ld     hl, snd_loop_counter_stack_s04_0  ; 03:41CE - 21 0B DD
+   ld     (snd_s04_ix32_loop_counter_stack_pointer), hl  ; 03:41D1 - 22 FA DC
    ld     a, $02                       ; 03:41D4 - 3E 02
    ld     (snd_s04_ix40_flags), a      ; 03:41D6 - 32 02 DD
 
