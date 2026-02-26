@@ -20850,7 +20850,7 @@ snddrv_next_stream_cmd:
    cp     $7F                          ; 03:4316 - FE 7F
    jr     nz, snddrv_stream_skip_mute_cmd_7F  ; 03:4318 - 20 07
    ld     (ix+30), $00                 ; 03:431A - DD 36 1E 00
-   jp     addr_03_439F                 ; 03:431E - C3 9F 43
+   jp     snddrv_dont_retrigger_vibrato  ; 03:431E - C3 9F 43
 
 snddrv_stream_skip_mute_cmd_7F:
    push   de                           ; 03:4321 - D5
@@ -20877,7 +20877,7 @@ snddrv_stream_skip_mute_cmd_7F:
    ldi                                 ; 03:4343 - ED A0
    ldi                                 ; 03:4345 - ED A0
    pop    de                           ; 03:4347 - D1
-   jp     addr_03_436E                 ; 03:4348 - C3 6E 43
+   jp     snddrv_retrigger_vibrato     ; 03:4348 - C3 6E 43
 
 snddrv_stream_play_note:
    and    $0F                          ; 03:434B - E6 0F
@@ -20899,9 +20899,9 @@ snddrv_stream_play_note:
    and    $0F                          ; 03:4363 - E6 0F
    ld     (ix+31), a                   ; 03:4365 - DD 77 1F
    bit    0, (ix+40)                   ; 03:4368 - DD CB 28 46
-   jr     nz, addr_03_439F             ; 03:436C - 20 31
+   jr     nz, snddrv_dont_retrigger_vibrato  ; 03:436C - 20 31
 
-addr_03_436E:
+snddrv_retrigger_vibrato:
    ld     a, (ix+20)                   ; 03:436E - DD 7E 14
    ld     (ix+25), a                   ; 03:4371 - DD 77 19
    ld     a, (ix+21)                   ; 03:4374 - DD 7E 15
@@ -20920,7 +20920,7 @@ addr_03_436E:
    ld     (ix+12), a                   ; 03:4398 - DD 77 0C
    ld     (ix+30), $0F                 ; 03:439B - DD 36 1E 0F
 
-addr_03_439F:
+snddrv_dont_retrigger_vibrato:
    inc    de                           ; 03:439F - 13
    ld     a, (de)                      ; 03:43A0 - 1A
    inc    de                           ; 03:43A1 - 13
@@ -20987,11 +20987,11 @@ snddrv_handle_non_noise_pitch:
    ld     d, (ix+11)                   ; 03:4415 - DD 56 0B
    ld     a, (ix+25)                   ; 03:4418 - DD 7E 19
    and    a                            ; 03:441B - A7
-   jr     z, snddrv_apply_secondary_pitch_bend  ; 03:441C - 28 06
+   jr     z, snddrv_apply_vibrato      ; 03:441C - 28 06
    dec    (ix+25)                      ; 03:441E - DD 35 19
    jp     snddrv_continue_to_note_bend  ; 03:4421 - C3 5A 44
 
-snddrv_apply_secondary_pitch_bend:
+snddrv_apply_vibrato:
    dec    (ix+26)                      ; 03:4424 - DD 35 1A
    jp     nz, snddrv_continue_to_note_bend  ; 03:4427 - C2 5A 44
    ld     a, (ix+21)                   ; 03:442A - DD 7E 15
@@ -21137,7 +21137,7 @@ snddrv_stop_music_channel_in_cmd_FF:
    ret                                 ; 03:4528 - C9
 
 CODEPTRLUT_snddrv_cmd_list:
-.dw snddrv_cmd_80, snddrv_cmd_81, snddrv_cmd_82, snddrv_cmd_83, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
+.dw snddrv_cmd_80, snddrv_cmd_81_set_ADSR_curve, snddrv_cmd_82, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
 .dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B, snddrv_cmd_8C, snddrv_cmd_8D  ; 03:4539
 
 snddrv_ADSR_00_attack:
@@ -21213,7 +21213,7 @@ snddrv_cmd_80:
    inc    de                           ; 03:45CD - 13
    jp     snddrv_next_stream_cmd       ; 03:45CE - C3 0D 43
 
-snddrv_cmd_81:
+snddrv_cmd_81_set_ADSR_curve:
    ld     a, (de)                      ; 03:45D1 - 1A
    ld     (ix+44), a                   ; 03:45D2 - DD 77 2C
    inc    de                           ; 03:45D5 - 13
@@ -21245,7 +21245,7 @@ snddrv_cmd_82:
    ex     de, hl                       ; 03:4606 - EB
    jp     snddrv_next_stream_cmd       ; 03:4607 - C3 0D 43
 
-snddrv_cmd_83:
+snddrv_cmd_83_set_vibrato:
    push   ix                           ; 03:460A - DD E5
    pop    hl                           ; 03:460C - E1
    ld     bc, $0014                    ; 03:460D - 01 14 00
