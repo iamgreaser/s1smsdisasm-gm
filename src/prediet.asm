@@ -310,8 +310,8 @@ snd_s00_ix28_current_vibrato_pitch_delta dw   ; DC42
 .  dsb 2
 var_DC46 db   ; DC46 (auto)
 .  dsb 1
-var_DC48 db   ; DC48 (auto)
-.  dsb 5
+snd_s00_ix34_program_restart_point_on_stream_end dw   ; DC48
+.  dsb 4
 snd_s00_ix40_flags db   ; DC4E
 var_DC4F dw   ; DC4F
 var_DC51 db   ; DC51 (auto)
@@ -333,8 +333,8 @@ snd_s01_ix28_current_vibrato_pitch_delta dw   ; DC6F
 .  dsb 2
 var_DC73 db   ; DC73 (auto)
 .  dsb 1
-var_DC75 db   ; DC75 (auto)
-.  dsb 5
+snd_s01_ix34_program_restart_point_on_stream_end dw   ; DC75
+.  dsb 4
 snd_s01_ix40_flags db   ; DC7B
 var_DC7C dw   ; DC7C
 var_DC7E db   ; DC7E (auto)
@@ -356,8 +356,8 @@ snd_s02_ix28_current_vibrato_pitch_delta dw   ; DC9C
 .  dsb 2
 var_DCA0 db   ; DCA0 (auto)
 .  dsb 1
-var_DCA2 db   ; DCA2 (auto)
-.  dsb 5
+snd_s02_ix34_program_restart_point_on_stream_end dw   ; DCA2
+.  dsb 4
 snd_s02_ix40_flags db   ; DCA8
 var_DCA9 dw   ; DCA9
 var_DCAB db   ; DCAB (auto)
@@ -379,8 +379,8 @@ snd_s03_ix28_current_vibrato_pitch_delta dw   ; DCC9
 .  dsb 2
 var_DCCD db   ; DCCD (auto)
 .  dsb 1
-var_DCCF db   ; DCCF (auto)
-.  dsb 5
+snd_s03_ix34_program_restart_point_on_stream_end dw   ; DCCF
+.  dsb 4
 snd_s03_ix40_flags db   ; DCD5
 var_DCD6 dw   ; DCD6
 var_DCD8 db   ; DCD8 (auto)
@@ -396,7 +396,7 @@ snd_s04_ix23_vibrato_pitch_delta_setting dw   ; DCF1
 snd_s04_ix28_current_vibrato_pitch_delta dw   ; DCF6
 .  dsb 2
 var_DCFA dw   ; DCFA
-var_DCFC dw   ; DCFC
+snd_s04_ix34_program_restart_point_on_stream_end dw   ; DCFC
 .  dsb 2
 var_DD00 dw   ; DD00
 snd_s04_ix40_flags db   ; DD02
@@ -20510,15 +20510,15 @@ snddrv_play_music_from_ptr_unvectored:
    ret                                 ; 03:406F - C9
 
 LUT_snddrv_init_words:
-.dw var_DC48                                                                        ; 03:4070
+.dw snd_s00_ix34_program_restart_point_on_stream_end                                ; 03:4070
 
 LUT_snddrv_init_words_values:
 .dw $0000                                                                           ; 03:4072
-.dw var_DC75                                                                        ; 03:4074
+.dw snd_s01_ix34_program_restart_point_on_stream_end                                ; 03:4074
 .dw $0000                                                                           ; 03:4076
-.dw var_DCA2                                                                        ; 03:4078
+.dw snd_s02_ix34_program_restart_point_on_stream_end                                ; 03:4078
 .dw $0000                                                                           ; 03:407A
-.dw var_DCCF                                                                        ; 03:407C
+.dw snd_s03_ix34_program_restart_point_on_stream_end                                ; 03:407C
 .dw $0000                                                                           ; 03:407E
 .dw var_DC46                                                                        ; 03:4080
 
@@ -20702,7 +20702,7 @@ snddrv_play_sound_from_ptr_unvectored:
    ld     a, (hl)                      ; 03:41B2 - 7E
    ld     (snd_s04_ix01_psgmask_vol), a  ; 03:41B3 - 32 DB DC
    ld     hl, $0000                    ; 03:41B6 - 21 00 00
-   ld     (var_DCFC), hl               ; 03:41B9 - 22 FC DC
+   ld     (snd_s04_ix34_program_restart_point_on_stream_end), hl  ; 03:41B9 - 22 FC DC
    ld     (snd_s04_ix23_vibrato_pitch_delta_setting), hl  ; 03:41BC - 22 F1 DC
    ld     (snd_s04_ix28_current_vibrato_pitch_delta), hl  ; 03:41BF - 22 F6 DC
    ld     (snd_s04_ix08_pitch_bend_delta), hl  ; 03:41C2 - 22 E2 DC
@@ -21138,7 +21138,7 @@ snddrv_stop_music_channel_in_cmd_FF:
 
 CODEPTRLUT_snddrv_cmd_list:
 .dw snddrv_cmd_80, snddrv_cmd_81_set_direct_vol, snddrv_cmd_82_set_ADSR_curve, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
-.dw snddrv_cmd_88, snddrv_cmd_89_set_noise_period_type_byte, snddrv_cmd_8A, snddrv_cmd_8B_inc_direct_vol, snddrv_cmd_8C_dec_direct_vol, snddrv_cmd_8D  ; 03:4539
+.dw snddrv_cmd_88_set_restart_point, snddrv_cmd_89_set_noise_period_type_byte, snddrv_cmd_8A, snddrv_cmd_8B_inc_direct_vol, snddrv_cmd_8C_dec_direct_vol, snddrv_cmd_8D  ; 03:4539
 
 snddrv_ADSR_00_attack:
    ld     a, (ix+14)                   ; 03:4545 - DD 7E 0E
@@ -21322,7 +21322,7 @@ snddrv_cmd_87_loop_end:
    inc    de                           ; 03:4679 - 13
    jp     snddrv_next_stream_cmd       ; 03:467A - C3 0D 43
 
-snddrv_cmd_88:
+snddrv_cmd_88_set_restart_point:
    ld     (ix+34), e                   ; 03:467D - DD 73 22
    ld     (ix+35), d                   ; 03:4680 - DD 72 23
    jp     snddrv_next_stream_cmd       ; 03:4683 - C3 0D 43
