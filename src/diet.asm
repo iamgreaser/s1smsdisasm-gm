@@ -397,9 +397,9 @@ snd_s00_ix32_loop_counter_stack_pointer dw   ; DC46
 snd_s00_ix34_program_restart_point_on_stream_end dw   ; DC48
 .  dsb 4
 snd_s00_ix40_flags db   ; DC4E
-var_DC4F dw   ; DC4F
-var_DC51 db   ; DC51 (auto)
-var_DC52 db   ; DC52
+snd_s00_ix41_stream_base_read_ptr dw   ; DC4F
+snd_s00_ix43_channel_idx db   ; DC51
+snd_s00_ix44_direct_volume db   ; DC52
 snd_s01_ix00_psgmask_period db   ; DC53
 snd_s01_ix01_psgmask_vol db   ; DC54
 snd_s01_ix02_tempo_subticks_remaining dw   ; DC55
@@ -419,9 +419,9 @@ snd_s01_ix32_loop_counter_stack_pointer dw   ; DC73
 snd_s01_ix34_program_restart_point_on_stream_end dw   ; DC75
 .  dsb 4
 snd_s01_ix40_flags db   ; DC7B
-var_DC7C dw   ; DC7C
-var_DC7E db   ; DC7E (auto)
-var_DC7F db   ; DC7F
+snd_s01_ix41_stream_base_read_ptr dw   ; DC7C
+snd_s01_ix43_channel_idx db   ; DC7E
+snd_s01_ix44_direct_volume db   ; DC7F
 snd_s02_ix00_psgmask_period db   ; DC80
 snd_s02_ix01_psgmask_vol db   ; DC81
 snd_s02_ix02_tempo_subticks_remaining dw   ; DC82
@@ -441,9 +441,9 @@ snd_s02_ix32_loop_counter_stack_pointer dw   ; DCA0
 snd_s02_ix34_program_restart_point_on_stream_end dw   ; DCA2
 .  dsb 4
 snd_s02_ix40_flags db   ; DCA8
-var_DCA9 dw   ; DCA9
-var_DCAB db   ; DCAB (auto)
-var_DCAC db   ; DCAC
+snd_s02_ix41_stream_base_read_ptr dw   ; DCA9
+snd_s02_ix43_channel_idx db   ; DCAB
+snd_s02_ix44_direct_volume db   ; DCAC
 snd_s03_ix00_psgmask_period db   ; DCAD
 snd_s03_ix01_psgmask_vol db   ; DCAE
 snd_s03_ix02_tempo_subticks_remaining dw   ; DCAF
@@ -463,9 +463,9 @@ snd_s03_ix32_loop_counter_stack_pointer dw   ; DCCD
 snd_s03_ix34_program_restart_point_on_stream_end dw   ; DCCF
 .  dsb 4
 snd_s03_ix40_flags db   ; DCD5
-var_DCD6 dw   ; DCD6
-var_DCD8 db   ; DCD8 (auto)
-var_DCD9 db   ; DCD9
+snd_s03_ix41_stream_base_read_ptr dw   ; DCD6
+snd_s03_ix43_channel_idx db   ; DCD8
+snd_s03_ix44_direct_volume db   ; DCD9
 snd_s04_ix00_psgmask_period db   ; DCDA
 snd_s04_ix01_psgmask_vol db   ; DCDB
 snd_s04_ix02_tempo_subticks_remaining dw   ; DCDC
@@ -481,8 +481,8 @@ snd_s04_ix34_program_restart_point_on_stream_end dw   ; DCFC
 .  dsb 2
 snd_s04_ix38_note_tick_period_mul dw   ; DD00
 snd_s04_ix40_flags db   ; DD02
-var_DD03 dw   ; DD03
-var_DD05 db   ; DD05
+snd_s04_ix41_stream_base_read_ptr dw   ; DD03
+snd_s04_ix43_channel_idx db   ; DD05
 .  dsb 1
 snd_loop_counter_stack_s00_0 db   ; DD07
 snd_loop_counter_stack_s01_0 db   ; DD08
@@ -23621,10 +23621,10 @@ snddrv_play_music_from_ptr_unvectored:
    pop    de                           ; 03:4060 - D1
    pop    bc                           ; 03:4061 - C1
    pop    af                           ; 03:4062 - F1
-   ld     (var_DC4F), hl               ; 03:4063 - 22 4F DC
-   ld     (var_DC7C), hl               ; 03:4066 - 22 7C DC
-   ld     (var_DCA9), hl               ; 03:4069 - 22 A9 DC
-   ld     (var_DCD6), hl               ; 03:406C - 22 D6 DC
+   ld     (snd_s00_ix41_stream_base_read_ptr), hl  ; 03:4063 - 22 4F DC
+   ld     (snd_s01_ix41_stream_base_read_ptr), hl  ; 03:4066 - 22 7C DC
+   ld     (snd_s02_ix41_stream_base_read_ptr), hl  ; 03:4069 - 22 A9 DC
+   ld     (snd_s03_ix41_stream_base_read_ptr), hl  ; 03:406C - 22 D6 DC
    ret                                 ; 03:406F - C9
 
 LUT_snddrv_init_words:
@@ -23724,13 +23724,13 @@ LUT_snddrv_init_bytes:
 .db $00                                                                             ; 03:4111
 .dw snd_s03_ix21_vibrato_update_period                                              ; 03:4112
 .db $00                                                                             ; 03:4114
-.dw var_DC51                                                                        ; 03:4115
+.dw snd_s00_ix43_channel_idx                                                        ; 03:4115
 .db $00                                                                             ; 03:4117
-.dw var_DC7E                                                                        ; 03:4118
+.dw snd_s01_ix43_channel_idx                                                        ; 03:4118
 .db $01                                                                             ; 03:411A
-.dw var_DCAB                                                                        ; 03:411B
+.dw snd_s02_ix43_channel_idx                                                        ; 03:411B
 .db $02                                                                             ; 03:411D
-.dw var_DCD8                                                                        ; 03:411E
+.dw snd_s03_ix43_channel_idx                                                        ; 03:411E
 .db $03                                                                             ; 03:4120
 .dw snd_sfx_current_priority                                                        ; 03:4121
 .db $00                                                                             ; 03:4123
@@ -23790,7 +23790,7 @@ snddrv_play_sound_from_ptr_unvectored:
 @priority_ok:
    ld     a, e                         ; 03:417E - 7B
    ld     (snd_sfx_current_priority), a  ; 03:417F - 32 06 DC
-   ld     (var_DD03), hl               ; 03:4182 - 22 03 DD
+   ld     (snd_s04_ix41_stream_base_read_ptr), hl  ; 03:4182 - 22 03 DD
    ld     a, (snd_s04_ix01_psgmask_vol)  ; 03:4185 - 3A DB DC
    or     $0F                          ; 03:4188 - F6 0F
    out    ($7F), a                     ; 03:418A - D3 7F
@@ -23825,7 +23825,7 @@ snddrv_play_sound_from_ptr_unvectored:
    ld     (snd_s04_ix28_current_vibrato_pitch_delta), hl  ; 03:41BF - 22 F6 DC
    ld     (snd_s04_ix08_pitch_bend_delta), hl  ; 03:41C2 - 22 E2 DC
    ld     a, $04                       ; 03:41C5 - 3E 04
-   ld     (var_DD05), a                ; 03:41C7 - 32 05 DD
+   ld     (snd_s04_ix43_channel_idx), a  ; 03:41C7 - 32 05 DD
    inc    hl                           ; 03:41CA - 23
    ld     (snd_s04_ix02_tempo_subticks_remaining), hl  ; 03:41CB - 22 DC DC
    ld     hl, snd_loop_counter_stack_s04_0  ; 03:41CE - 21 0B DD
@@ -23856,13 +23856,13 @@ snddrv_resume_music_unvectored:
    ld     a, (snd_s03_ix40_flags)      ; 03:41FE - 3A D5 DC
    or     $02                          ; 03:4201 - F6 02
    ld     (snd_s03_ix40_flags), a      ; 03:4203 - 32 D5 DC
-   ld     a, (var_DC52)                ; 03:4206 - 3A 52 DC
+   ld     a, (snd_s00_ix44_direct_volume)  ; 03:4206 - 3A 52 DC
    ld     (snd_s00_ix05_fadeout_vol_hi), a  ; 03:4209 - 32 2B DC
-   ld     a, (var_DC7F)                ; 03:420C - 3A 7F DC
+   ld     a, (snd_s01_ix44_direct_volume)  ; 03:420C - 3A 7F DC
    ld     (snd_s01_ix05_fadeout_vol_hi), a  ; 03:420F - 32 58 DC
-   ld     a, (var_DCAC)                ; 03:4212 - 3A AC DC
+   ld     a, (snd_s02_ix44_direct_volume)  ; 03:4212 - 3A AC DC
    ld     (snd_s02_ix05_fadeout_vol_hi), a  ; 03:4215 - 32 85 DC
-   ld     a, (var_DCD9)                ; 03:4218 - 3A D9 DC
+   ld     a, (snd_s03_ix44_direct_volume)  ; 03:4218 - 3A D9 DC
    ld     (snd_s03_ix05_fadeout_vol_hi), a  ; 03:421B - 32 B2 DC
    xor    a                            ; 03:421E - AF
    ld     (snd_flags_04), a            ; 03:421F - 32 04 DC
