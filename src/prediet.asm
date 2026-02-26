@@ -274,13 +274,13 @@ object_list_past_sonic db   ; D416
 snd_flags_04 db   ; DC04
 snd_sfx_channel_idx db   ; DC05
 snd_sfx_current_priority db   ; DC06
-var_DC07 db   ; DC07
+snd_current_playing_noise_period_type db   ; DC07
 snd_music_note_tick_period_mul db   ; DC08
-var_DC09 db   ; DC09
+snd_music_note_tick_period_mul_hi db   ; DC09
 snd_music_tick_tempo db   ; DC0A
-var_DC0B db   ; DC0B
+snd_music_tick_tempo_hi db   ; DC0B
 snd_music_saved_tick_tempo db   ; DC0C
-var_DC0D db   ; DC0D
+snd_music_saved_tick_tempo_hi db   ; DC0D
 snd_sfx_tick_period dw   ; DC0E
 snd_fade_out_remainder dw   ; DC10
 snd_fade_out_delta dw   ; DC12
@@ -297,17 +297,17 @@ snd_s00_ix00_psgmask_period db   ; DC26
 snd_s00_ix01_psgmask_vol db   ; DC27
 snd_s00_ix02_tempo_subticks_remaining dw   ; DC28
 .  dsb 1
-var_DC2B db   ; DC2B
+snd_s00_ix05_fadeout_vol_hi db   ; DC2B
 .  dsb 2
-var_DC2E db   ; DC2E (auto)
-.  dsb 11
-var_DC3A db   ; DC3A (auto)
-var_DC3B db   ; DC3B (auto)
+snd_s00_ix08_pitch_bend_delta dw   ; DC2E
+.  dsb 10
+snd_s00_ix20_vibrato_start_delay db   ; DC3A
+snd_s00_ix21_vibrato_update_period db   ; DC3B
 .  dsb 1
-var_DC3D db   ; DC3D (auto)
-.  dsb 4
-var_DC42 db   ; DC42 (auto)
+snd_s00_ix23_vibrato_pitch_delta_setting dw   ; DC3D
 .  dsb 3
+snd_s00_ix28_current_vibrato_pitch_delta dw   ; DC42
+.  dsb 2
 var_DC46 db   ; DC46 (auto)
 .  dsb 1
 var_DC48 db   ; DC48 (auto)
@@ -320,17 +320,17 @@ snd_s01_ix00_psgmask_period db   ; DC53
 snd_s01_ix01_psgmask_vol db   ; DC54
 snd_s01_ix02_tempo_subticks_remaining dw   ; DC55
 .  dsb 1
-var_DC58 db   ; DC58
+snd_s01_ix05_fadeout_vol_hi db   ; DC58
 .  dsb 2
-var_DC5B db   ; DC5B (auto)
-.  dsb 11
-var_DC67 db   ; DC67 (auto)
-var_DC68 db   ; DC68 (auto)
+snd_s01_ix08_pitch_bend_delta dw   ; DC5B
+.  dsb 10
+snd_s01_ix20_vibrato_start_delay db   ; DC67
+snd_s01_ix21_vibrato_update_period db   ; DC68
 .  dsb 1
-var_DC6A db   ; DC6A (auto)
-.  dsb 4
-var_DC6F db   ; DC6F (auto)
+snd_s01_ix23_vibrato_pitch_delta_setting dw   ; DC6A
 .  dsb 3
+snd_s01_ix28_current_vibrato_pitch_delta dw   ; DC6F
+.  dsb 2
 var_DC73 db   ; DC73 (auto)
 .  dsb 1
 var_DC75 db   ; DC75 (auto)
@@ -343,17 +343,17 @@ snd_s02_ix00_psgmask_period db   ; DC80
 snd_s02_ix01_psgmask_vol db   ; DC81
 snd_s02_ix02_tempo_subticks_remaining dw   ; DC82
 .  dsb 1
-var_DC85 db   ; DC85
+snd_s02_ix05_fadeout_vol_hi db   ; DC85
 .  dsb 2
-var_DC88 db   ; DC88 (auto)
-.  dsb 11
-var_DC94 db   ; DC94 (auto)
-var_DC95 db   ; DC95 (auto)
+snd_s02_ix08_pitch_bend_delta dw   ; DC88
+.  dsb 10
+snd_s02_ix20_vibrato_start_delay db   ; DC94
+snd_s02_ix21_vibrato_update_period db   ; DC95
 .  dsb 1
-var_DC97 db   ; DC97 (auto)
-.  dsb 4
-var_DC9C db   ; DC9C (auto)
+snd_s02_ix23_vibrato_pitch_delta_setting dw   ; DC97
 .  dsb 3
+snd_s02_ix28_current_vibrato_pitch_delta dw   ; DC9C
+.  dsb 2
 var_DCA0 db   ; DCA0 (auto)
 .  dsb 1
 var_DCA2 db   ; DCA2 (auto)
@@ -366,17 +366,17 @@ snd_s03_ix00_psgmask_period db   ; DCAD
 snd_s03_ix01_psgmask_vol db   ; DCAE
 snd_s03_ix02_tempo_subticks_remaining dw   ; DCAF
 .  dsb 1
-var_DCB2 db   ; DCB2
+snd_s03_ix05_fadeout_vol_hi db   ; DCB2
 .  dsb 2
-var_DCB5 db   ; DCB5 (auto)
-.  dsb 11
-var_DCC1 db   ; DCC1 (auto)
-var_DCC2 db   ; DCC2 (auto)
+snd_s03_ix08_pitch_bend_delta dw   ; DCB5
+.  dsb 10
+snd_s03_ix20_vibrato_start_delay db   ; DCC1
+snd_s03_ix21_vibrato_update_period db   ; DCC2
 .  dsb 1
-var_DCC4 db   ; DCC4 (auto)
-.  dsb 4
-var_DCC9 db   ; DCC9 (auto)
+snd_s03_ix23_vibrato_pitch_delta_setting dw   ; DCC4
 .  dsb 3
+snd_s03_ix28_current_vibrato_pitch_delta dw   ; DCC9
+.  dsb 2
 var_DCCD db   ; DCCD (auto)
 .  dsb 1
 var_DCCF db   ; DCCF (auto)
@@ -389,11 +389,11 @@ snd_s04_ix00_psgmask_period db   ; DCDA
 snd_s04_ix01_psgmask_vol db   ; DCDB
 snd_s04_ix02_tempo_subticks_remaining dw   ; DCDC
 .  dsb 4
-var_DCE2 dw   ; DCE2
+snd_s04_ix08_pitch_bend_delta dw   ; DCE2
 .  dsb 13
-var_DCF1 dw   ; DCF1
+snd_s04_ix23_vibrato_pitch_delta_setting dw   ; DCF1
 .  dsb 3
-var_DCF6 dw   ; DCF6
+snd_s04_ix28_current_vibrato_pitch_delta dw   ; DCF6
 .  dsb 2
 var_DCFA dw   ; DCFA
 var_DCFC dw   ; DCFC
@@ -20533,29 +20533,29 @@ LUT_snddrv_init_words_values_8:
 .dw $0001                                                                           ; 03:409A
 .dw snd_s03_ix02_tempo_subticks_remaining                                           ; 03:409C
 .dw $0001                                                                           ; 03:409E
-.dw var_DC3D                                                                        ; 03:40A0
+.dw snd_s00_ix23_vibrato_pitch_delta_setting                                        ; 03:40A0
 .dw $0000                                                                           ; 03:40A2
-.dw var_DC42                                                                        ; 03:40A4
+.dw snd_s00_ix28_current_vibrato_pitch_delta                                        ; 03:40A4
 .dw $0000                                                                           ; 03:40A6
-.dw var_DC6A                                                                        ; 03:40A8
+.dw snd_s01_ix23_vibrato_pitch_delta_setting                                        ; 03:40A8
 .dw $0000                                                                           ; 03:40AA
-.dw var_DC6F                                                                        ; 03:40AC
+.dw snd_s01_ix28_current_vibrato_pitch_delta                                        ; 03:40AC
 .dw $0000                                                                           ; 03:40AE
-.dw var_DC97                                                                        ; 03:40B0
+.dw snd_s02_ix23_vibrato_pitch_delta_setting                                        ; 03:40B0
 .dw $0000                                                                           ; 03:40B2
-.dw var_DC9C                                                                        ; 03:40B4
+.dw snd_s02_ix28_current_vibrato_pitch_delta                                        ; 03:40B4
 .dw $0000                                                                           ; 03:40B6
-.dw var_DCC4                                                                        ; 03:40B8
+.dw snd_s03_ix23_vibrato_pitch_delta_setting                                        ; 03:40B8
 .dw $0000                                                                           ; 03:40BA
-.dw var_DCC9                                                                        ; 03:40BC
+.dw snd_s03_ix28_current_vibrato_pitch_delta                                        ; 03:40BC
 .dw $0000                                                                           ; 03:40BE
-.dw var_DC2E                                                                        ; 03:40C0
+.dw snd_s00_ix08_pitch_bend_delta                                                   ; 03:40C0
 .dw $0000                                                                           ; 03:40C2
-.dw var_DC5B                                                                        ; 03:40C4
+.dw snd_s01_ix08_pitch_bend_delta                                                   ; 03:40C4
 .dw $0000                                                                           ; 03:40C6
-.dw var_DC88                                                                        ; 03:40C8
+.dw snd_s02_ix08_pitch_bend_delta                                                   ; 03:40C8
 .dw $0000                                                                           ; 03:40CA
-.dw var_DCB5                                                                        ; 03:40CC
+.dw snd_s03_ix08_pitch_bend_delta                                                   ; 03:40CC
 .dw $0000                                                                           ; 03:40CE
 .dw snd_music_tick_tempo                                                            ; 03:40D0
 .dw $0001                                                                           ; 03:40D2
@@ -20590,21 +20590,21 @@ LUT_snddrv_init_bytes:
 .db $02                                                                             ; 03:40F9
 .dw snd_s04_ix40_flags                                                              ; 03:40FA
 .db $00                                                                             ; 03:40FC
-.dw var_DC3A                                                                        ; 03:40FD
+.dw snd_s00_ix20_vibrato_start_delay                                                ; 03:40FD
 .db $00                                                                             ; 03:40FF
-.dw var_DC67                                                                        ; 03:4100
+.dw snd_s01_ix20_vibrato_start_delay                                                ; 03:4100
 .db $00                                                                             ; 03:4102
-.dw var_DC94                                                                        ; 03:4103
+.dw snd_s02_ix20_vibrato_start_delay                                                ; 03:4103
 .db $00                                                                             ; 03:4105
-.dw var_DCC1                                                                        ; 03:4106
+.dw snd_s03_ix20_vibrato_start_delay                                                ; 03:4106
 .db $00                                                                             ; 03:4108
-.dw var_DC3B                                                                        ; 03:4109
+.dw snd_s00_ix21_vibrato_update_period                                              ; 03:4109
 .db $00                                                                             ; 03:410B
-.dw var_DC68                                                                        ; 03:410C
+.dw snd_s01_ix21_vibrato_update_period                                              ; 03:410C
 .db $00                                                                             ; 03:410E
-.dw var_DC95                                                                        ; 03:410F
+.dw snd_s02_ix21_vibrato_update_period                                              ; 03:410F
 .db $00                                                                             ; 03:4111
-.dw var_DCC2                                                                        ; 03:4112
+.dw snd_s03_ix21_vibrato_update_period                                              ; 03:4112
 .db $00                                                                             ; 03:4114
 .dw var_DC51                                                                        ; 03:4115
 .db $00                                                                             ; 03:4117
@@ -20703,9 +20703,9 @@ snddrv_play_sound_from_ptr_unvectored:
    ld     (snd_s04_ix01_psgmask_vol), a  ; 03:41B3 - 32 DB DC
    ld     hl, $0000                    ; 03:41B6 - 21 00 00
    ld     (var_DCFC), hl               ; 03:41B9 - 22 FC DC
-   ld     (var_DCF1), hl               ; 03:41BC - 22 F1 DC
-   ld     (var_DCF6), hl               ; 03:41BF - 22 F6 DC
-   ld     (var_DCE2), hl               ; 03:41C2 - 22 E2 DC
+   ld     (snd_s04_ix23_vibrato_pitch_delta_setting), hl  ; 03:41BC - 22 F1 DC
+   ld     (snd_s04_ix28_current_vibrato_pitch_delta), hl  ; 03:41BF - 22 F6 DC
+   ld     (snd_s04_ix08_pitch_bend_delta), hl  ; 03:41C2 - 22 E2 DC
    ld     a, $04                       ; 03:41C5 - 3E 04
    ld     (var_DD05), a                ; 03:41C7 - 32 05 DD
    inc    hl                           ; 03:41CA - 23
@@ -20739,13 +20739,13 @@ snddrv_resume_music_unvectored:
    or     $02                          ; 03:4201 - F6 02
    ld     (snd_s03_ix40_flags), a      ; 03:4203 - 32 D5 DC
    ld     a, (var_DC52)                ; 03:4206 - 3A 52 DC
-   ld     (var_DC2B), a                ; 03:4209 - 32 2B DC
+   ld     (snd_s00_ix05_fadeout_vol_hi), a  ; 03:4209 - 32 2B DC
    ld     a, (var_DC7F)                ; 03:420C - 3A 7F DC
-   ld     (var_DC58), a                ; 03:420F - 32 58 DC
+   ld     (snd_s01_ix05_fadeout_vol_hi), a  ; 03:420F - 32 58 DC
    ld     a, (var_DCAC)                ; 03:4212 - 3A AC DC
-   ld     (var_DC85), a                ; 03:4215 - 32 85 DC
+   ld     (snd_s02_ix05_fadeout_vol_hi), a  ; 03:4215 - 32 85 DC
    ld     a, (var_DCD9)                ; 03:4218 - 3A D9 DC
-   ld     (var_DCB2), a                ; 03:421B - 32 B2 DC
+   ld     (snd_s03_ix05_fadeout_vol_hi), a  ; 03:421B - 32 B2 DC
    xor    a                            ; 03:421E - AF
    ld     (snd_flags_04), a            ; 03:421F - 32 04 DC
    pop    af                           ; 03:4222 - F1
@@ -20973,11 +20973,11 @@ snddrv_return_from_ADSR_curve:
    cp     $E0                          ; 03:43F9 - FE E0
    jr     nz, snddrv_handle_non_noise_pitch  ; 03:43FB - 20 15
    ld     c, (ix+37)                   ; 03:43FD - DD 4E 25
-   ld     a, (var_DC07)                ; 03:4400 - 3A 07 DC
+   ld     a, (snd_current_playing_noise_period_type)  ; 03:4400 - 3A 07 DC
    cp     c                            ; 03:4403 - B9
    jp     z, snddrv_continue_from_noise_pitch  ; 03:4404 - CA 8F 44
    ld     a, c                         ; 03:4407 - 79
-   ld     (var_DC07), a                ; 03:4408 - 32 07 DC
+   ld     (snd_current_playing_noise_period_type), a  ; 03:4408 - 32 07 DC
    or     $E0                          ; 03:440B - F6 E0
    out    ($7F), a                     ; 03:440D - D3 7F
    jp     snddrv_continue_from_noise_pitch  ; 03:440F - C3 8F 44
@@ -21138,7 +21138,7 @@ snddrv_stop_music_channel_in_cmd_FF:
 
 CODEPTRLUT_snddrv_cmd_list:
 .dw snddrv_cmd_80, snddrv_cmd_81_set_direct_vol, snddrv_cmd_82_set_ADSR_curve, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
-.dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B_inc_direct_vol, snddrv_cmd_8C_dec_direct_vol, snddrv_cmd_8D  ; 03:4539
+.dw snddrv_cmd_88, snddrv_cmd_89_set_noise_period_type_byte, snddrv_cmd_8A, snddrv_cmd_8B_inc_direct_vol, snddrv_cmd_8C_dec_direct_vol, snddrv_cmd_8D  ; 03:4539
 
 snddrv_ADSR_00_attack:
    ld     a, (ix+14)                   ; 03:4545 - DD 7E 0E
@@ -21201,15 +21201,15 @@ snddrv_cmd_80:
    inc    de                           ; 03:45B5 - 13
    ld     a, (de)                      ; 03:45B6 - 1A
    ld     (ix+39), a                   ; 03:45B7 - DD 77 27
-   ld     (var_DC09), a                ; 03:45BA - 32 09 DC
+   ld     (snd_music_note_tick_period_mul_hi), a  ; 03:45BA - 32 09 DC
    inc    de                           ; 03:45BD - 13
    ld     a, (de)                      ; 03:45BE - 1A
    ld     (snd_music_tick_tempo), a    ; 03:45BF - 32 0A DC
    ld     (snd_music_saved_tick_tempo), a  ; 03:45C2 - 32 0C DC
    inc    de                           ; 03:45C5 - 13
    ld     a, (de)                      ; 03:45C6 - 1A
-   ld     (var_DC0B), a                ; 03:45C7 - 32 0B DC
-   ld     (var_DC0D), a                ; 03:45CA - 32 0D DC
+   ld     (snd_music_tick_tempo_hi), a  ; 03:45C7 - 32 0B DC
+   ld     (snd_music_saved_tick_tempo_hi), a  ; 03:45CA - 32 0D DC
    inc    de                           ; 03:45CD - 13
    jp     snddrv_next_stream_cmd       ; 03:45CE - C3 0D 43
 
@@ -21327,7 +21327,7 @@ snddrv_cmd_88:
    ld     (ix+35), d                   ; 03:4680 - DD 72 23
    jp     snddrv_next_stream_cmd       ; 03:4683 - C3 0D 43
 
-snddrv_cmd_89:
+snddrv_cmd_89_set_noise_period_type_byte:
    ld     a, (de)                      ; 03:4686 - 1A
    ld     (ix+37), a                   ; 03:4687 - DD 77 25
    inc    de                           ; 03:468A - 13
