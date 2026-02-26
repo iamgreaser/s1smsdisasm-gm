@@ -20999,7 +20999,7 @@ snddrv_apply_vibrato:
    ld     l, (ix+28)                   ; 03:4430 - DD 6E 1C
    ld     h, (ix+29)                   ; 03:4433 - DD 66 1D
    dec    (ix+27)                      ; 03:4436 - DD 35 1B
-   jp     nz, addr_03_4452             ; 03:4439 - C2 52 44
+   jp     nz, snddrv_skip_vibrato_dir_reversal  ; 03:4439 - C2 52 44
    ld     a, (ix+22)                   ; 03:443C - DD 7E 16
    ld     (ix+27), a                   ; 03:443F - DD 77 1B
    ld     a, l                         ; 03:4442 - 7D
@@ -21013,7 +21013,7 @@ snddrv_apply_vibrato:
    ld     (ix+29), h                   ; 03:444C - DD 74 1D
    jp     snddrv_continue_to_note_bend  ; 03:444F - C3 5A 44
 
-addr_03_4452:
+snddrv_skip_vibrato_dir_reversal:
    add    hl, de                       ; 03:4452 - 19
    ld     (ix+10), l                   ; 03:4453 - DD 75 0A
    ld     (ix+11), h                   ; 03:4456 - DD 74 0B
@@ -21087,10 +21087,10 @@ snddrv_skip_vol_calc_because_it_is_silent:
    ld     h, (ix+5)                    ; 03:44C0 - DD 66 05
    ld     bc, (snd_fade_out_delta)     ; 03:44C3 - ED 4B 12 DC
    sbc    hl, bc                       ; 03:44C7 - ED 42
-   jr     nc, addr_03_44CE             ; 03:44C9 - 30 03
+   jr     nc, @skip_clamp_fade_out     ; 03:44C9 - 30 03
    ld     hl, $0000                    ; 03:44CB - 21 00 00
 
-addr_03_44CE:
+@skip_clamp_fade_out:
    ld     (ix+4), l                    ; 03:44CE - DD 75 04
    ld     (ix+5), h                    ; 03:44D1 - DD 74 05
    ret                                 ; 03:44D4 - C9
@@ -21137,8 +21137,8 @@ snddrv_stop_music_channel_in_cmd_FF:
    ret                                 ; 03:4528 - C9
 
 CODEPTRLUT_snddrv_cmd_list:
-.dw snddrv_cmd_80, snddrv_cmd_81_set_ADSR_curve, snddrv_cmd_82, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
-.dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B, snddrv_cmd_8C, snddrv_cmd_8D  ; 03:4539
+.dw snddrv_cmd_80, snddrv_cmd_81_set_direct_vol, snddrv_cmd_82_set_ADSR_curve, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
+.dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B_inc_direct_vol, snddrv_cmd_8C_dec_direct_vol, snddrv_cmd_8D  ; 03:4539
 
 snddrv_ADSR_00_attack:
    ld     a, (ix+14)                   ; 03:4545 - DD 7E 0E
@@ -21213,24 +21213,24 @@ snddrv_cmd_80:
    inc    de                           ; 03:45CD - 13
    jp     snddrv_next_stream_cmd       ; 03:45CE - C3 0D 43
 
-snddrv_cmd_81_set_ADSR_curve:
+snddrv_cmd_81_set_direct_vol:
    ld     a, (de)                      ; 03:45D1 - 1A
    ld     (ix+44), a                   ; 03:45D2 - DD 77 2C
    inc    de                           ; 03:45D5 - 13
    ld     a, (ix+43)                   ; 03:45D6 - DD 7E 2B
    cp     $04                          ; 03:45D9 - FE 04
-   jr     z, addr_03_45E5              ; 03:45DB - 28 08
+   jr     z, @apply_direct_fadeout_volume  ; 03:45DB - 28 08
    ld     a, (snd_flags_04)            ; 03:45DD - 3A 04 DC
    and    $08                          ; 03:45E0 - E6 08
    jp     nz, snddrv_next_stream_cmd   ; 03:45E2 - C2 0D 43
 
-addr_03_45E5:
+@apply_direct_fadeout_volume:
    ld     a, (ix+44)                   ; 03:45E5 - DD 7E 2C
    ld     (ix+5), a                    ; 03:45E8 - DD 77 05
    ld     (ix+4), $00                  ; 03:45EB - DD 36 04 00
    jp     snddrv_next_stream_cmd       ; 03:45EF - C3 0D 43
 
-snddrv_cmd_82:
+snddrv_cmd_82_set_ADSR_curve:
    push   ix                           ; 03:45F2 - DD E5
    pop    hl                           ; 03:45F4 - E1
    ld     bc, $000E                    ; 03:45F5 - 01 0E 00
@@ -21339,7 +21339,7 @@ snddrv_cmd_8A:
    inc    de                           ; 03:4692 - 13
    jp     snddrv_next_stream_cmd       ; 03:4693 - C3 0D 43
 
-snddrv_cmd_8B:
+snddrv_cmd_8B_inc_direct_vol:
    ld     a, (ix+44)                   ; 03:4696 - DD 7E 2C
    inc    a                            ; 03:4699 - 3C
    cp     $10                          ; 03:469A - FE 10
@@ -21355,7 +21355,7 @@ snddrv_cmd_8B:
    ld     (ix+5), a                    ; 03:46AE - DD 77 05
    jp     snddrv_next_stream_cmd       ; 03:46B1 - C3 0D 43
 
-snddrv_cmd_8C:
+snddrv_cmd_8C_dec_direct_vol:
    ld     a, (ix+44)                   ; 03:46B4 - DD 7E 2C
    dec    a                            ; 03:46B7 - 3D
    cp     $10                          ; 03:46B8 - FE 10
