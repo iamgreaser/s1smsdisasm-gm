@@ -362,9 +362,9 @@ snd_sfx_current_priority db   ; DC06
 var_DC07 db   ; DC07
 snd_music_note_tick_period_mul db   ; DC08
 var_DC09 db   ; DC09
-snd_music_tick_period db   ; DC0A
+snd_music_tick_tempo db   ; DC0A
 var_DC0B db   ; DC0B
-snd_music_saved_tick_period db   ; DC0C
+snd_music_saved_tick_tempo db   ; DC0C
 var_DC0D db   ; DC0D
 snd_sfx_tick_period dw   ; DC0E
 snd_fade_out_remainder dw   ; DC10
@@ -380,8 +380,8 @@ snd_stream_03_read_ptr dw   ; DC22
 snd_stream_04_read_ptr dw   ; DC24
 snd_s00_ix00_psgmask_period db   ; DC26
 snd_s00_ix01_psgmask_vol db   ; DC27
-var_DC28 db   ; DC28 (auto)
-.  dsb 2
+snd_s00_ix02_tempo_subticks_remaining dw   ; DC28
+.  dsb 1
 var_DC2B db   ; DC2B
 .  dsb 2
 var_DC2E db   ; DC2E (auto)
@@ -403,8 +403,8 @@ var_DC51 db   ; DC51 (auto)
 var_DC52 db   ; DC52
 snd_s01_ix00_psgmask_period db   ; DC53
 snd_s01_ix01_psgmask_vol db   ; DC54
-var_DC55 db   ; DC55 (auto)
-.  dsb 2
+snd_s01_ix02_tempo_subticks_remaining dw   ; DC55
+.  dsb 1
 var_DC58 db   ; DC58
 .  dsb 2
 var_DC5B db   ; DC5B (auto)
@@ -426,8 +426,8 @@ var_DC7E db   ; DC7E (auto)
 var_DC7F db   ; DC7F
 snd_s02_ix00_psgmask_period db   ; DC80
 snd_s02_ix01_psgmask_vol db   ; DC81
-var_DC82 db   ; DC82 (auto)
-.  dsb 2
+snd_s02_ix02_tempo_subticks_remaining dw   ; DC82
+.  dsb 1
 var_DC85 db   ; DC85
 .  dsb 2
 var_DC88 db   ; DC88 (auto)
@@ -449,8 +449,8 @@ var_DCAB db   ; DCAB (auto)
 var_DCAC db   ; DCAC
 snd_s03_ix00_psgmask_period db   ; DCAD
 snd_s03_ix01_psgmask_vol db   ; DCAE
-var_DCAF db   ; DCAF (auto)
-.  dsb 2
+snd_s03_ix02_tempo_subticks_remaining dw   ; DCAF
+.  dsb 1
 var_DCB2 db   ; DCB2
 .  dsb 2
 var_DCB5 db   ; DCB5 (auto)
@@ -472,7 +472,7 @@ var_DCD8 db   ; DCD8 (auto)
 var_DCD9 db   ; DCD9
 snd_s04_ix00_psgmask_period db   ; DCDA
 snd_s04_ix01_psgmask_vol db   ; DCDB
-var_DCDC dw   ; DCDC
+snd_s04_ix02_tempo_subticks_remaining dw   ; DCDC
 .  dsb 4
 var_DCE2 dw   ; DCE2
 .  dsb 13
@@ -10468,8 +10468,8 @@ objfunc_00_sonic:
    ld     (g_sonic_y_jump_velocity), hl  ; 01:496F - 22 42 D2
    ld     hl, $0038                    ; 01:4972 - 21 38 00
    ld     (g_sonic_y_gravity_acceleration), hl  ; 01:4975 - 22 44 D2
-   ld     hl, (snd_music_saved_tick_period)  ; 01:4978 - 2A 0C DC
-   ld     (snd_music_tick_period), hl  ; 01:497B - 22 0A DC
+   ld     hl, (snd_music_saved_tick_tempo)  ; 01:4978 - 2A 0C DC
+   ld     (snd_music_tick_tempo), hl   ; 01:497B - 22 0A DC
    jp     @physics_selected            ; 01:497E - C3 D9 49
 
 @is_special_stage_air_physics:
@@ -10485,8 +10485,8 @@ objfunc_00_sonic:
    ld     (g_sonic_y_jump_velocity), hl  ; 01:499B - 22 42 D2
    ld     hl, $0038                    ; 01:499E - 21 38 00
    ld     (g_sonic_y_gravity_acceleration), hl  ; 01:49A1 - 22 44 D2
-   ld     hl, (snd_music_saved_tick_period)  ; 01:49A4 - 2A 0C DC
-   ld     (snd_music_tick_period), hl  ; 01:49A7 - 22 0A DC
+   ld     hl, (snd_music_saved_tick_tempo)  ; 01:49A4 - 2A 0C DC
+   ld     (snd_music_tick_tempo), hl   ; 01:49A7 - 22 0A DC
    jp     @physics_selected            ; 01:49AA - C3 D9 49
 
 @is_speed_shoes_physics:
@@ -10500,9 +10500,9 @@ objfunc_00_sonic:
    ld     (g_sonic_y_jump_velocity), hl  ; 01:49C1 - 22 42 D2
    ld     hl, $0038                    ; 01:49C4 - 21 38 00
    ld     (g_sonic_y_gravity_acceleration), hl  ; 01:49C7 - 22 44 D2
-   ld     hl, (snd_music_saved_tick_period)  ; 01:49CA - 2A 0C DC
+   ld     hl, (snd_music_saved_tick_tempo)  ; 01:49CA - 2A 0C DC
    inc    hl                           ; 01:49CD - 23
-   ld     (snd_music_tick_period), hl  ; 01:49CE - 22 0A DC
+   ld     (snd_music_tick_tempo), hl   ; 01:49CE - 22 0A DC
    ld     a, (g_global_tick_counter)   ; 01:49D1 - 3A 23 D2
    and    $03                          ; 01:49D4 - E6 03
    call   z, @fn_handle_speed_shoes_timer  ; 01:49D6 - CC EC 4F
@@ -23645,15 +23645,15 @@ LUT_snddrv_init_words_values:
 .dw var_DC46                                                                        ; 03:4080
 
 LUT_snddrv_init_words_values_4:
-.dw var_DD07, var_DC73, var_DD08, var_DCA0, var_DD09, var_DCCD, var_DD0A, var_DC28  ; 03:4082
+.dw var_DD07, var_DC73, var_DD08, var_DCA0, var_DD09, var_DCCD, var_DD0A, snd_s00_ix02_tempo_subticks_remaining  ; 03:4082
 
 LUT_snddrv_init_words_values_8:
 .dw $0001                                                                           ; 03:4092
-.dw var_DC55                                                                        ; 03:4094
+.dw snd_s01_ix02_tempo_subticks_remaining                                           ; 03:4094
 .dw $0001                                                                           ; 03:4096
-.dw var_DC82                                                                        ; 03:4098
+.dw snd_s02_ix02_tempo_subticks_remaining                                           ; 03:4098
 .dw $0001                                                                           ; 03:409A
-.dw var_DCAF                                                                        ; 03:409C
+.dw snd_s03_ix02_tempo_subticks_remaining                                           ; 03:409C
 .dw $0001                                                                           ; 03:409E
 .dw var_DC3D                                                                        ; 03:40A0
 .dw $0000                                                                           ; 03:40A2
@@ -23679,7 +23679,7 @@ LUT_snddrv_init_words_values_8:
 .dw $0000                                                                           ; 03:40CA
 .dw var_DCB5                                                                        ; 03:40CC
 .dw $0000                                                                           ; 03:40CE
-.dw snd_music_tick_period                                                           ; 03:40D0
+.dw snd_music_tick_tempo                                                            ; 03:40D0
 .dw $0001                                                                           ; 03:40D2
 
 LUT_snddrv_init_words_terminator:
@@ -23831,7 +23831,7 @@ snddrv_play_sound_from_ptr_unvectored:
    ld     a, $04                       ; 03:41C5 - 3E 04
    ld     (var_DD05), a                ; 03:41C7 - 32 05 DD
    inc    hl                           ; 03:41CA - 23
-   ld     (var_DCDC), hl               ; 03:41CB - 22 DC DC
+   ld     (snd_s04_ix02_tempo_subticks_remaining), hl  ; 03:41CB - 22 DC DC
    ld     hl, var_DD0B                 ; 03:41CE - 21 0B DD
    ld     (var_DCFA), hl               ; 03:41D1 - 22 FA DC
    ld     a, $02                       ; 03:41D4 - 3E 02
@@ -23889,25 +23889,25 @@ snddrv_fade_out_unvectored:
 snddrv_update_unvectored:
    ld     ix, snd_s00_ix00_psgmask_period  ; 03:423A - DD 21 26 DC
    ld     de, (snd_stream_00_read_ptr)  ; 03:423E - ED 5B 1C DC
-   ld     bc, (snd_music_tick_period)  ; 03:4242 - ED 4B 0A DC
+   ld     bc, (snd_music_tick_tempo)   ; 03:4242 - ED 4B 0A DC
    call   snddrv_fn_update_stream      ; 03:4246 - CD F4 42
    ld     (snd_achn_00_ptr), ix        ; 03:4249 - DD 22 14 DC
    ld     (snd_stream_00_read_ptr), de  ; 03:424D - ED 53 1C DC
    ld     ix, snd_s01_ix00_psgmask_period  ; 03:4251 - DD 21 53 DC
    ld     de, (snd_stream_01_read_ptr)  ; 03:4255 - ED 5B 1E DC
-   ld     bc, (snd_music_tick_period)  ; 03:4259 - ED 4B 0A DC
+   ld     bc, (snd_music_tick_tempo)   ; 03:4259 - ED 4B 0A DC
    call   snddrv_fn_update_stream      ; 03:425D - CD F4 42
    ld     (snd_achn_01_ptr), ix        ; 03:4260 - DD 22 16 DC
    ld     (snd_stream_01_read_ptr), de  ; 03:4264 - ED 53 1E DC
    ld     ix, snd_s02_ix00_psgmask_period  ; 03:4268 - DD 21 80 DC
    ld     de, (snd_stream_02_read_ptr)  ; 03:426C - ED 5B 20 DC
-   ld     bc, (snd_music_tick_period)  ; 03:4270 - ED 4B 0A DC
+   ld     bc, (snd_music_tick_tempo)   ; 03:4270 - ED 4B 0A DC
    call   snddrv_fn_update_stream      ; 03:4274 - CD F4 42
    ld     (snd_achn_02_ptr), ix        ; 03:4277 - DD 22 18 DC
    ld     (snd_stream_02_read_ptr), de  ; 03:427B - ED 53 20 DC
    ld     ix, snd_s03_ix00_psgmask_period  ; 03:427F - DD 21 AD DC
    ld     de, (snd_stream_03_read_ptr)  ; 03:4283 - ED 5B 22 DC
-   ld     bc, (snd_music_tick_period)  ; 03:4287 - ED 4B 0A DC
+   ld     bc, (snd_music_tick_tempo)   ; 03:4287 - ED 4B 0A DC
    call   snddrv_fn_update_stream      ; 03:428B - CD F4 42
    ld     (snd_achn_03_ptr), ix        ; 03:428E - DD 22 1A DC
    ld     (snd_stream_03_read_ptr), de  ; 03:4292 - ED 53 22 DC
@@ -24082,40 +24082,40 @@ snddrv_fn_update_audio_channel:
    ret    z                            ; 03:43E2 - C8
    ld     a, (ix+13)                   ; 03:43E3 - DD 7E 0D
    and    a                            ; 03:43E6 - A7
-   jp     z, addr_03_4545              ; 03:43E7 - CA 45 45
+   jp     z, snddrv_ADSR_00_attack     ; 03:43E7 - CA 45 45
    dec    a                            ; 03:43EA - 3D
-   jp     z, addr_03_455C              ; 03:43EB - CA 5C 45
+   jp     z, snddrv_ADSR_01_decay_1    ; 03:43EB - CA 5C 45
    dec    a                            ; 03:43EE - 3D
-   jp     z, addr_03_4579              ; 03:43EF - CA 79 45
+   jp     z, snddrv_ADSR_02_decay_2    ; 03:43EF - CA 79 45
    dec    a                            ; 03:43F2 - 3D
-   jp     z, addr_03_4597              ; 03:43F3 - CA 97 45
+   jp     z, snddrv_ADSR_03_release    ; 03:43F3 - CA 97 45
 
-addr_03_43F6:
+snddrv_return_from_ADSR_curve:
    ld     a, (ix+0)                    ; 03:43F6 - DD 7E 00
    cp     $E0                          ; 03:43F9 - FE E0
-   jr     nz, addr_03_4412             ; 03:43FB - 20 15
+   jr     nz, snddrv_handle_non_noise_pitch  ; 03:43FB - 20 15
    ld     c, (ix+37)                   ; 03:43FD - DD 4E 25
    ld     a, (var_DC07)                ; 03:4400 - 3A 07 DC
    cp     c                            ; 03:4403 - B9
-   jp     z, addr_03_448F              ; 03:4404 - CA 8F 44
+   jp     z, snddrv_continue_from_noise_pitch  ; 03:4404 - CA 8F 44
    ld     a, c                         ; 03:4407 - 79
    ld     (var_DC07), a                ; 03:4408 - 32 07 DC
    or     $E0                          ; 03:440B - F6 E0
    out    ($7F), a                     ; 03:440D - D3 7F
-   jp     addr_03_448F                 ; 03:440F - C3 8F 44
+   jp     snddrv_continue_from_noise_pitch  ; 03:440F - C3 8F 44
 
-addr_03_4412:
+snddrv_handle_non_noise_pitch:
    ld     e, (ix+10)                   ; 03:4412 - DD 5E 0A
    ld     d, (ix+11)                   ; 03:4415 - DD 56 0B
    ld     a, (ix+25)                   ; 03:4418 - DD 7E 19
    and    a                            ; 03:441B - A7
-   jr     z, addr_03_4424              ; 03:441C - 28 06
+   jr     z, snddrv_apply_secondary_pitch_bend  ; 03:441C - 28 06
    dec    (ix+25)                      ; 03:441E - DD 35 19
-   jp     addr_03_445A                 ; 03:4421 - C3 5A 44
+   jp     snddrv_continue_to_note_bend  ; 03:4421 - C3 5A 44
 
-addr_03_4424:
+snddrv_apply_secondary_pitch_bend:
    dec    (ix+26)                      ; 03:4424 - DD 35 1A
-   jp     nz, addr_03_445A             ; 03:4427 - C2 5A 44
+   jp     nz, snddrv_continue_to_note_bend  ; 03:4427 - C2 5A 44
    ld     a, (ix+21)                   ; 03:442A - DD 7E 15
    ld     (ix+26), a                   ; 03:442D - DD 77 1A
    ld     l, (ix+28)                   ; 03:4430 - DD 6E 1C
@@ -24133,7 +24133,7 @@ addr_03_4424:
    inc    hl                           ; 03:4448 - 23
    ld     (ix+28), l                   ; 03:4449 - DD 75 1C
    ld     (ix+29), h                   ; 03:444C - DD 74 1D
-   jp     addr_03_445A                 ; 03:444F - C3 5A 44
+   jp     snddrv_continue_to_note_bend  ; 03:444F - C3 5A 44
 
 addr_03_4452:
    add    hl, de                       ; 03:4452 - 19
@@ -24141,7 +24141,7 @@ addr_03_4452:
    ld     (ix+11), h                   ; 03:4456 - DD 74 0B
    ex     de, hl                       ; 03:4459 - EB
 
-addr_03_445A:
+snddrv_continue_to_note_bend:
    ld     l, (ix+6)                    ; 03:445A - DD 6E 06
    ld     h, (ix+7)                    ; 03:445D - DD 66 07
    ld     c, (ix+8)                    ; 03:4460 - DD 4E 08
@@ -24179,7 +24179,7 @@ snddrv_skip_adjust_for_octave_loop:
    or     c                            ; 03:448C - B1
    out    ($7F), a                     ; 03:448D - D3 7F
 
-addr_03_448F:
+snddrv_continue_from_noise_pitch:
    ld     a, (ix+5)                    ; 03:448F - DD 7E 05
    and    a                            ; 03:4492 - A7
    jr     z, snddrv_skip_vol_calc_because_it_is_silent  ; 03:4493 - 28 12
@@ -24259,62 +24259,62 @@ snddrv_stop_music_channel_in_cmd_FF:
    ret                                 ; 03:4528 - C9
 
 CODEPTRLUT_snddrv_cmd_list:
-.dw snddrv_cmd_80, snddrv_cmd_81, snddrv_cmd_82, snddrv_cmd_83, snddrv_cmd_84, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
+.dw snddrv_cmd_80, snddrv_cmd_81, snddrv_cmd_82, snddrv_cmd_83, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
 .dw snddrv_cmd_88, snddrv_cmd_89, snddrv_cmd_8A, snddrv_cmd_8B, snddrv_cmd_8C, snddrv_cmd_8D  ; 03:4539
 
-addr_03_4545:
+snddrv_ADSR_00_attack:
    ld     a, (ix+14)                   ; 03:4545 - DD 7E 0E
    add    a, (ix+12)                   ; 03:4548 - DD 86 0C
-   jp     nc, addr_03_4550             ; 03:454B - D2 50 45
+   jp     nc, @skip_max_vol_clamp      ; 03:454B - D2 50 45
    ld     a, $FF                       ; 03:454E - 3E FF
 
-addr_03_4550:
+@skip_max_vol_clamp:
    ld     (ix+12), a                   ; 03:4550 - DD 77 0C
-   jp     nc, addr_03_43F6             ; 03:4553 - D2 F6 43
+   jp     nc, snddrv_return_from_ADSR_curve  ; 03:4553 - D2 F6 43
    inc    (ix+13)                      ; 03:4556 - DD 34 0D
-   jp     addr_03_43F6                 ; 03:4559 - C3 F6 43
+   jp     snddrv_return_from_ADSR_curve  ; 03:4559 - C3 F6 43
 
-addr_03_455C:
+snddrv_ADSR_01_decay_1:
    ld     c, (ix+16)                   ; 03:455C - DD 4E 10
    ld     a, (ix+12)                   ; 03:455F - DD 7E 0C
    sub    (ix+15)                      ; 03:4562 - DD 96 0F
-   jr     c, addr_03_456D              ; 03:4565 - 38 06
+   jr     c, @skip_decay_1_lower_vol_clamp  ; 03:4565 - 38 06
    cp     (ix+16)                      ; 03:4567 - DD BE 10
-   jr     c, addr_03_456D              ; 03:456A - 38 01
+   jr     c, @skip_decay_1_lower_vol_clamp  ; 03:456A - 38 01
    ld     c, a                         ; 03:456C - 4F
 
-addr_03_456D:
+@skip_decay_1_lower_vol_clamp:
    ld     (ix+12), c                   ; 03:456D - DD 71 0C
-   jp     nc, addr_03_43F6             ; 03:4570 - D2 F6 43
+   jp     nc, snddrv_return_from_ADSR_curve  ; 03:4570 - D2 F6 43
    inc    (ix+13)                      ; 03:4573 - DD 34 0D
-   jp     addr_03_43F6                 ; 03:4576 - C3 F6 43
+   jp     snddrv_return_from_ADSR_curve  ; 03:4576 - C3 F6 43
 
-addr_03_4579:
+snddrv_ADSR_02_decay_2:
    ld     c, (ix+18)                   ; 03:4579 - DD 4E 12
    ld     a, (ix+12)                   ; 03:457C - DD 7E 0C
    sub    (ix+17)                      ; 03:457F - DD 96 11
-   jr     c, addr_03_458B              ; 03:4582 - 38 07
+   jr     c, @skip_decay_2_lower_vol_clamp  ; 03:4582 - 38 07
    cp     (ix+18)                      ; 03:4584 - DD BE 12
-   jp     c, addr_03_458B              ; 03:4587 - DA 8B 45
+   jp     c, @skip_decay_2_lower_vol_clamp  ; 03:4587 - DA 8B 45
    ld     c, a                         ; 03:458A - 4F
 
-addr_03_458B:
+@skip_decay_2_lower_vol_clamp:
    ld     (ix+12), c                   ; 03:458B - DD 71 0C
-   jp     nc, addr_03_43F6             ; 03:458E - D2 F6 43
+   jp     nc, snddrv_return_from_ADSR_curve  ; 03:458E - D2 F6 43
    inc    (ix+13)                      ; 03:4591 - DD 34 0D
-   jp     addr_03_43F6                 ; 03:4594 - C3 F6 43
+   jp     snddrv_return_from_ADSR_curve  ; 03:4594 - C3 F6 43
 
-addr_03_4597:
+snddrv_ADSR_03_release:
    ld     a, (ix+12)                   ; 03:4597 - DD 7E 0C
    sub    (ix+19)                      ; 03:459A - DD 96 13
-   jp     nc, addr_03_45A2             ; 03:459D - D2 A2 45
+   jp     nc, @skip_min_vol_clamp      ; 03:459D - D2 A2 45
    ld     a, $00                       ; 03:45A0 - 3E 00
 
-addr_03_45A2:
+@skip_min_vol_clamp:
    ld     (ix+12), a                   ; 03:45A2 - DD 77 0C
-   jp     nc, addr_03_43F6             ; 03:45A5 - D2 F6 43
+   jp     nc, snddrv_return_from_ADSR_curve  ; 03:45A5 - D2 F6 43
    inc    (ix+13)                      ; 03:45A8 - DD 34 0D
-   jp     addr_03_43F6                 ; 03:45AB - C3 F6 43
+   jp     snddrv_return_from_ADSR_curve  ; 03:45AB - C3 F6 43
 
 snddrv_cmd_80:
    ld     a, (de)                      ; 03:45AE - 1A
@@ -24326,8 +24326,8 @@ snddrv_cmd_80:
    ld     (var_DC09), a                ; 03:45BA - 32 09 DC
    inc    de                           ; 03:45BD - 13
    ld     a, (de)                      ; 03:45BE - 1A
-   ld     (snd_music_tick_period), a   ; 03:45BF - 32 0A DC
-   ld     (snd_music_saved_tick_period), a  ; 03:45C2 - 32 0C DC
+   ld     (snd_music_tick_tempo), a    ; 03:45BF - 32 0A DC
+   ld     (snd_music_saved_tick_tempo), a  ; 03:45C2 - 32 0C DC
    inc    de                           ; 03:45C5 - 13
    ld     a, (de)                      ; 03:45C6 - 1A
    ld     (var_DC0B), a                ; 03:45C7 - 32 0B DC
@@ -24381,7 +24381,7 @@ snddrv_cmd_83:
    ex     de, hl                       ; 03:461C - EB
    jp     snddrv_next_stream_cmd       ; 03:461D - C3 0D 43
 
-snddrv_cmd_84:
+snddrv_cmd_84_set_note_bend:
    ld     a, (de)                      ; 03:4620 - 1A
    ld     (ix+8), a                    ; 03:4621 - DD 77 08
    inc    de                           ; 03:4624 - 13
