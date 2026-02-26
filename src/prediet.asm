@@ -394,7 +394,7 @@ snd_s04_ix28_current_vibrato_pitch_delta dw   ; DCF6
 snd_s04_ix32_loop_counter_stack_pointer dw   ; DCFA
 snd_s04_ix34_program_restart_point_on_stream_end dw   ; DCFC
 .  dsb 2
-var_DD00 dw   ; DD00
+snd_s04_ix38_note_tick_period_mul dw   ; DD00
 snd_s04_ix40_flags db   ; DD02
 var_DD03 dw   ; DD03
 var_DD05 db   ; DD05
@@ -20679,7 +20679,7 @@ snddrv_play_sound_from_ptr_unvectored:
    inc    hl                           ; 03:4192 - 23
    ld     d, (hl)                      ; 03:4193 - 56
    inc    hl                           ; 03:4194 - 23
-   ld     (var_DD00), de               ; 03:4195 - ED 53 00 DD
+   ld     (snd_s04_ix38_note_tick_period_mul), de  ; 03:4195 - ED 53 00 DD
    ld     e, (hl)                      ; 03:4199 - 5E
    inc    hl                           ; 03:419A - 23
    ld     d, (hl)                      ; 03:419B - 56
@@ -21133,7 +21133,7 @@ snddrv_stop_music_channel_in_cmd_FF:
    ret                                 ; 03:4528 - C9
 
 CODEPTRLUT_snddrv_cmd_list:
-.dw snddrv_cmd_80, snddrv_cmd_81_set_direct_vol, snddrv_cmd_82_set_ADSR_curve, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
+.dw snddrv_cmd_80_set_speeds, snddrv_cmd_81_set_direct_vol, snddrv_cmd_82_set_ADSR_curve, snddrv_cmd_83_set_vibrato, snddrv_cmd_84_set_note_bend, snddrv_cmd_85_VESTIGIAL, snddrv_cmd_86_loop_start, snddrv_cmd_87_loop_end  ; 03:4529
 .dw snddrv_cmd_88_set_restart_point, snddrv_cmd_89_set_noise_period_type_byte, snddrv_cmd_8A, snddrv_cmd_8B_inc_direct_vol, snddrv_cmd_8C_dec_direct_vol, snddrv_cmd_8D  ; 03:4539
 
 snddrv_ADSR_00_attack:
@@ -21190,7 +21190,7 @@ snddrv_ADSR_03_release:
    inc    (ix+13)                      ; 03:45A8 - DD 34 0D
    jp     snddrv_return_from_ADSR_curve  ; 03:45AB - C3 F6 43
 
-snddrv_cmd_80:
+snddrv_cmd_80_set_speeds:
    ld     a, (de)                      ; 03:45AE - 1A
    ld     (ix+38), a                   ; 03:45AF - DD 77 26
    ld     (snd_music_note_tick_period_mul), a  ; 03:45B2 - 32 08 DC
